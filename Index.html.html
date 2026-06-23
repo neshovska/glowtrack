@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GlowTrack">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="icon" id="favicon-link" type="image/png" href="">
+<link rel="apple-touch-icon" id="apple-icon-link" href="">
+<script>
+(function(){
+  var S=180,R=38,cx=90;
+  var c=document.createElement('canvas');c.width=S;c.height=S;
+  var ctx=c.getContext('2d');
+
+  // Background
+  ctx.beginPath();
+  ctx.moveTo(R,0);ctx.lineTo(S-R,0);ctx.quadraticCurveTo(S,0,S,R);
+  ctx.lineTo(S,S-R);ctx.quadraticCurveTo(S,S,S-R,S);
+  ctx.lineTo(R,S);ctx.quadraticCurveTo(0,S,0,S-R);
+  ctx.lineTo(0,R);ctx.quadraticCurveTo(0,0,R,0);ctx.closePath();
+  var bg=ctx.createLinearGradient(0,0,S,S);
+  bg.addColorStop(0,'#161616');bg.addColorStop(1,'#0c0c0c');
+  ctx.fillStyle=bg;ctx.fill();
+  ctx.strokeStyle='rgba(184,150,106,0.2)';ctx.lineWidth=1;ctx.stroke();
+
+  var baseY=86;
+
+  // Glow
+  var glow=ctx.createRadialGradient(cx,baseY,0,cx,baseY,50);
+  glow.addColorStop(0,'rgba(184,150,106,0.18)');glow.addColorStop(1,'transparent');
+  ctx.fillStyle=glow;ctx.fillRect(0,0,S,S);
+
+  // Rays
+  [-65,-45,-28,-10,0,10,28,45,65].forEach(function(deg,i){
+    var rad=deg*Math.PI/180;
+    var len=32+(i===4?12:i===3||i===5?8:0);
+    var x2=cx+Math.sin(rad)*len, y2=baseY-Math.cos(rad)*len;
+    ctx.beginPath();ctx.moveTo(cx,baseY);ctx.lineTo(x2,y2);
+    var rg=ctx.createLinearGradient(cx,baseY,x2,y2);
+    var a=i===4?0.7:i===3||i===5?0.55:0.35;
+    rg.addColorStop(0,'rgba(184,150,106,'+a+')');rg.addColorStop(1,'transparent');
+    ctx.strokeStyle=rg;ctx.lineWidth=i===4?1.8:1.2;ctx.stroke();
+  });
+
+  // Horizon
+  ctx.beginPath();ctx.moveTo(cx-44,baseY);ctx.lineTo(cx+44,baseY);
+  var hg=ctx.createLinearGradient(cx-44,baseY,cx+44,baseY);
+  hg.addColorStop(0,'transparent');hg.addColorStop(0.5,'rgba(184,150,106,0.45)');hg.addColorStop(1,'transparent');
+  ctx.strokeStyle=hg;ctx.lineWidth=1;ctx.stroke();
+
+  // Arc
+  ctx.beginPath();ctx.arc(cx,baseY,20,Math.PI,0,false);
+  var ag=ctx.createLinearGradient(cx-20,baseY,cx+20,baseY);
+  ag.addColorStop(0,'rgba(184,150,106,0.5)');
+  ag.addColorStop(0.5,'rgba(232,213,176,1)');
+  ag.addColorStop(1,'rgba(184,150,106,0.5)');
+  ctx.strokeStyle=ag;ctx.lineWidth=2;ctx.stroke();
+
+  // Sun dot
+  var dg=ctx.createRadialGradient(cx,baseY,0,cx,baseY,5);
+  dg.addColorStop(0,'rgba(255,245,225,1)');dg.addColorStop(0.5,'rgba(232,213,176,0.8)');dg.addColorStop(1,'transparent');
+  ctx.beginPath();ctx.arc(cx,baseY,4,0,Math.PI*2);
+  ctx.fillStyle=dg;ctx.fill();
+
+  // GLOWTRACK text
+  ctx.font='300 11.5px "DM Sans",Arial,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.letterSpacing='0.22em';
+  var tg=ctx.createLinearGradient(30,118,150,118);
+  tg.addColorStop(0,'rgba(184,150,106,0.5)');
+  tg.addColorStop(0.5,'rgba(232,213,176,0.95)');
+  tg.addColorStop(1,'rgba(184,150,106,0.5)');
+  ctx.fillStyle=tg;
+  ctx.fillText('GLOWTRACK',90,120);
+
+  // thin line under text
+  ctx.beginPath();ctx.moveTo(54,128);ctx.lineTo(126,128);
+  ctx.strokeStyle='rgba(184,150,106,0.25)';ctx.lineWidth=0.7;ctx.stroke();
+
+  var url=c.toDataURL('image/png');
+  document.getElementById('favicon-link').href=url;
+  document.getElementById('apple-icon-link').href=url;
+})();
+</script>
+<title>GlowTrack</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --ink:#1a1a2e;--ink2:#5a5870;--mist:#f7f5f2;
+  --gold:#b8966a;--goldlt:#f5efe6;--roselt:#ede4da;
+  --sage:#8fa89a;--lilac:#9b8ec4;--lilaclt:#f0edf9;
+  --card:#fff;--blur:blur(20px);--r:14px;--rs:10px;--red:#d95f5f;
+  --shadow:0 2px 12px rgba(26,26,46,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-height:100vh;color:var(--ink);overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 15% 8%,rgba(155,142,196,.1),transparent 55%),radial-gradient(ellipse 50% 60% at 88% 92%,rgba(184,150,106,.08),transparent 50%),#f7f5f2}
+/* AUTH */
+.auth-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:linear-gradient(150deg,#12122a 0%,#1e1e38 50%,#2a1e32 100%);overflow-y:auto}
+.auth-screen.hidden{display:none}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:#fff;letter-spacing:.1em;margin-bottom:4px}
+.auth-logo span{color:var(--gold)}
+.ai-overlay{position:fixed;inset:0;z-index:300;display:none;align-items:flex-end}
+.ai-overlay.open{display:flex}
+.ai-overlay.open .ai-panel{transform:translateY(0)}
+.ai-panel{width:100%;max-height:85vh;background:#fff;border-radius:24px 24px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.15,1);box-shadow:0 -8px 40px rgba(26,26,46,.18)}
+.ai-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;border-bottom:1px solid var(--goldlt)}
+.ai-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:45vh}
+.ai-msg{max-width:85%;padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.55}
+.ai-msg.user{align-self:flex-end;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border-bottom-right-radius:4px}
+.ai-msg.bot{align-self:flex-start;background:#f5f3f0;color:var(--ink1);border-bottom-left-radius:4px}
+.ai-msg.loading{align-self:flex-start;background:#f5f3f0;padding:12px 16px}
+.ai-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 2px;animation:aidot 1.2s ease-in-out infinite}
+.ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes aidot{0%,80%,100%{transform:scale(0.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.ai-suggestions{display:flex;gap:6px;padding:0 14px 8px;flex-wrap:wrap}
+.ai-sug-btn{font-size:11px;padding:5px 10px;border-radius:20px;border:1px solid var(--goldlt);background:#faf8f5;color:var(--gold);cursor:pointer;white-space:nowrap}
+.ai-input-row{display:flex;gap:8px;padding:10px 14px 20px;border-top:1px solid var(--goldlt)}
+.ai-input{flex:1;border:1px solid var(--goldlt);border-radius:22px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;background:#faf8f5}
+.ai-input:focus{border-color:var(--gold)}
+.ai-send-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ai-chat-section{padding:0 18px 4px}
+.ai-chat-btn{width:100%;display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;border:1px solid var(--goldlt);background:linear-gradient(135deg,#faf8f5,#f5efe6);cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink1);font-weight:500;box-shadow:0 2px 8px rgba(184,150,106,.1)}
+.ai-chat-btn span:nth-child(2){flex:1;text-align:left}
+.feedback-section{margin:16px 18px 0;background:#faf8f5;border-radius:16px;padding:16px;border:1px solid var(--goldlt)}
+.feedback-title{font-size:14px;font-weight:700;color:var(--ink1);margin-bottom:2px}
+.feedback-sub{font-size:11px;color:var(--ink2);margin-bottom:12px}
+.fb-type-btn{font-size:11px;padding:5px 11px;border-radius:20px;border:1px solid var(--goldlt);background:#fff;color:var(--ink2);cursor:pointer;font-family:inherit}
+.fb-type-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.inbox-badge{background:#e85d5d;color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:2px 7px}
+.admin-inbox-item{padding:10px 12px;border-radius:10px;background:#fff;border:1px solid var(--goldlt);margin-bottom:7px}
+.admin-inbox-type{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.admin-inbox-text{font-size:12.5px;color:var(--ink1);line-height:1.5}
+.admin-inbox-meta{font-size:10px;color:var(--ink2);margin-top:4px}
+.auth-tagline{font-size:13px;color:rgba(255,255,255,.5);letter-spacing:.12em;margin-bottom:36px;font-style:italic}
+.auth-card{width:100%;max-width:360px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px 22px}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:#fff;margin-bottom:18px;font-weight:400}
+.auth-error{background:rgba(217,95,95,.15);border:1px solid rgba(217,95,95,.3);border-radius:8px;padding:9px 12px;font-size:12px;color:#ffaaaa;margin-bottom:12px;display:none}
+.auth-error.show{display:block}
+.auth-field{margin-bottom:12px}
+.auth-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;display:block}
+.auth-input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;outline:none;transition:border-color .2s}
+.auth-input:focus{border-color:var(--gold)}
+.auth-input::placeholder{color:rgba(255,255,255,.2)}
+.auth-btn{width:100%;padding:13px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;transition:opacity .15s}
+.auth-btn:active{opacity:.85}
+.auth-btn:disabled{opacity:.5}
+.auth-switch{text-align:center;margin-top:14px;font-size:12.5px;color:rgba(255,255,255,.3)}
+.auth-switch a{color:var(--gold);cursor:pointer}
+/* APP */
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 80px;display:none}
+.app.show{display:block}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(247,245,242,.9);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
+.logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
+.logo span{color:var(--gold)}
+.page{display:none;animation:fadeIn .18s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.page-hdr{padding:20px 18px 14px}
+.page-hdr-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--ink)}
+.page-hdr-title em{font-style:italic;color:var(--gold)}
+.page-hdr-sub{font-size:12px;color:var(--ink2);margin-top:3px}
+/* SEARCH + CATS */
+.search-wrap{padding:0 18px 10px}
+.search-box{position:relative}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;color:var(--ink2)}
+.search-input{width:100%;padding:10px 12px 10px 34px;background:var(--card);border:1.5px solid var(--roselt);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;box-shadow:var(--shadow)}
+.search-input:focus{border-color:var(--gold)}
+.search-input::placeholder{color:#bbb4a8}
+.cats{padding:0 18px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s}
+.cat-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+/* PROC LIST */
+.proc-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
+.subcat-group{display:flex;flex-direction:column;gap:6px}
+.subcat-header{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);padding:10px 4px 4px;border-bottom:1px solid var(--goldlt);margin-bottom:2px}
+.proc-row-subcat{font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500}
+.proc-row{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s}
+.proc-row:active{transform:scale(.98)}
+.proc-row-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.proc-row-info{flex:1;min-width:0}
+.proc-row-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3}
+.proc-row-sub{font-size:11px;color:var(--ink2);margin-top:1px}
+.proc-row-arrow{font-size:14px;color:#c5bdb4;flex-shrink:0}
+/* SHEET */
+.overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(18,18,42,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.overlay.open{display:block}
+.sheet{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);max-height:94vh;background:var(--mist);border-radius:22px 22px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(26,26,46,.12);margin:10px auto 0}
+.sheet-hdr{padding:14px 18px 10px;display:flex;align-items:flex-start;gap:11px}
+.sheet-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sheet-tw{flex:1}
+.sheet-cat{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.sheet-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);line-height:1.2}
+.close-btn{width:28px;height:28px;border-radius:50%;background:rgba(26,26,46,.07);border:none;cursor:pointer;font-size:13px;color:var(--ink2);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.sheet-body{padding:0 18px 36px}
+/* INFO */
+.info-section{margin-bottom:16px}
+.info-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.info-title::before{content:'';display:block;width:3px;height:13px;border-radius:2px;background:var(--gold)}
+.info-card{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.12);padding:12px 13px;box-shadow:var(--shadow)}
+.info-text{font-size:12.5px;color:var(--ink);line-height:1.7}
+.device-tags{display:flex;flex-wrap:wrap;gap:5px}
+.device-tag{font-size:10.5px;font-weight:500;padding:3px 9px;border-radius:8px;background:var(--lilaclt);color:var(--lilac);border:1px solid rgba(155,142,196,.2)}
+.result-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}
+.result-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+.result-txt{font-size:12px;color:var(--ink);line-height:1.6}
+.contra-item{display:flex;gap:7px;align-items:flex-start;margin-bottom:5px;font-size:12px;color:var(--ink2)}
+.contra-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:6px}
+.care-list{display:flex;flex-direction:column;gap:6px}
+.care-item{background:var(--card);border-radius:var(--rs);padding:8px 11px;display:flex;gap:8px;align-items:flex-start;border:1px solid rgba(184,150,106,.1)}
+.care-item.do{border-left:3px solid var(--sage)}
+.care-item.dont{border-left:3px solid var(--red)}
+.care-item.warn{border-left:3px solid var(--gold)}
+.care-em{font-size:14px;flex-shrink:0;margin-top:1px}
+.care-txt{font-size:12px;color:var(--ink);line-height:1.6}
+.care-txt strong{font-weight:600}
+/* ADS */
+.clinic-ad-card{background:linear-gradient(135deg,var(--card),var(--goldlt));border:1.5px solid rgba(184,150,106,.25);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;display:flex;gap:11px;align-items:center}
+.clinic-ad-logo{width:38px;height:38px;border-radius:9px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.clinic-ad-info{flex:1;min-width:0}
+.clinic-ad-name{font-size:12.5px;font-weight:700;color:var(--ink)}
+.clinic-ad-sub{font-size:11px;color:var(--ink2);margin-top:1px;line-height:1.4}
+.clinic-ad-badge{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:var(--goldlt);border-radius:5px;padding:2px 6px;align-self:flex-start;flex-shrink:0}
+.product-ad-row{background:var(--card);border-radius:var(--rs);border:1px solid rgba(184,150,106,.12);padding:8px 10px;display:flex;gap:9px;align-items:center;margin-bottom:6px}
+.product-ad-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.product-ad-info{flex:1;min-width:0}
+.product-ad-brand{font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gold)}
+.product-ad-name{font-size:12px;font-weight:600;color:var(--ink)}
+.product-ad-desc{font-size:10.5px;color:var(--ink2);line-height:1.4;margin-top:1px}
+.ad-label{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);background:var(--roselt);border-radius:5px;padding:2px 6px;align-self:flex-start;flex-shrink:0}
+/* DIARY */
+.diary-section{margin-top:18px;padding-top:16px;border-top:1px solid rgba(184,150,106,.15)}
+.diary-section-title{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--ink);margin-bottom:12px}
+.diary-section-title em{font-style:italic;color:var(--gold)}
+.diary-form{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.diary-date-lbl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.form-row{margin-bottom:10px}
+.form-lbl{font-size:10.5px;font-weight:600;color:var(--ink2);margin-bottom:4px;display:block}
+.form-input{width:100%;padding:9px 11px;border:1.5px solid var(--roselt);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:#fafafa;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--gold);background:#fff}
+.form-input::placeholder{color:#bbb4a8}
+textarea.form-input{resize:none}
+.photo-previews{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.photo-preview-wrap{position:relative}
+.photo-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--roselt)}
+.photo-remove{position:absolute;top:-4px;right:-4px;width:15px;height:15px;border-radius:50%;background:var(--red);color:#fff;font-size:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.diary-actions{display:flex;gap:7px;margin-top:10px}
+.photo-btn{display:flex;align-items:center;gap:5px;padding:8px 12px;background:var(--goldlt);border:1px solid var(--roselt);border-radius:8px;font-size:12px;font-weight:500;color:var(--ink2);cursor:pointer;flex-shrink:0}
+.photo-input{display:none}
+.save-btn{flex:1;padding:8px;background:linear-gradient(135deg,var(--gold),#d4a96a);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.save-btn:active{opacity:.85}
+.save-btn:disabled{opacity:.5}
+.diary-entries{display:flex;flex-direction:column;gap:9px}
+.entry-card{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.12);padding:12px 13px;box-shadow:var(--shadow)}
+.entry-date{font-size:9.5px;font-weight:700;color:var(--gold);letter-spacing:.05em;margin-bottom:6px}
+.entry-field{font-size:12px;color:var(--ink);line-height:1.6;margin-bottom:4px}
+.entry-field .lbl{font-weight:700;color:var(--ink2);font-size:10px;letter-spacing:.04em;display:block;margin-bottom:1px}
+.entry-photos{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.entry-photo{width:65px;height:65px;border-radius:9px;object-fit:cover;cursor:pointer;border:1px solid var(--roselt)}
+.product-chip{display:inline-flex;align-items:center;background:var(--goldlt);color:var(--gold);border-radius:12px;padding:3px 9px;font-size:10.5px;font-weight:500;margin:2px;border:1px solid rgba(184,150,106,.2)}
+.entry-actions{display:flex;gap:6px;margin-top:8px}
+.mini-btn{padding:5px 10px;border-radius:7px;border:1px solid var(--roselt);background:#fff;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);cursor:pointer}
+.mini-btn.danger{color:var(--red);border-color:rgba(217,95,95,.25)}
+/* DIARY TAB */
+.diary-tab-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
+.diary-group{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);overflow:hidden;box-shadow:var(--shadow)}
+.diary-group-hdr{padding:11px 14px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.diary-group-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.diary-group-info{flex:1;min-width:0}
+.diary-group-name{font-size:12.5px;font-weight:600;color:var(--ink)}
+.diary-group-meta{font-size:10.5px;color:var(--ink2);margin-top:1px}
+.diary-group-count{font-size:10px;font-weight:700;color:var(--gold);background:var(--goldlt);border-radius:10px;padding:2px 8px;flex-shrink:0}
+.diary-group-entries{border-top:1px solid var(--goldlt);padding:10px 13px;display:none}
+.diary-group-entries.open{display:block}
+/* CLINICS & PRODUCTS */
+.clinics-list{padding:0 18px;display:flex;flex-direction:column;gap:10px}
+.clinic-card{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:14px;box-shadow:var(--shadow)}
+.clinic-card-hdr{display:flex;gap:12px;align-items:flex-start;margin-bottom:8px}
+.clinic-logo{width:44px;height:44px;border-radius:11px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid rgba(184,150,106,.2)}
+.clinic-name{font-size:14px;font-weight:700;color:var(--ink)}
+.clinic-address{font-size:11.5px;color:var(--ink2);margin-top:1px}
+.clinic-phone{font-size:12px;color:var(--gold);margin-top:2px;font-weight:500}
+.clinic-procs{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.clinic-proc-tag{font-size:10px;padding:2px 8px;border-radius:7px;background:var(--mist);color:var(--ink2);border:1px solid var(--roselt)}
+.sponsored-pill{font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);background:var(--goldlt);border-radius:5px;padding:2px 7px;flex-shrink:0}
+.products-tab-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
+.product-tab-card{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 13px;display:flex;gap:11px;align-items:flex-start;box-shadow:var(--shadow)}
+.product-tab-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.product-tab-info{flex:1;min-width:0}
+.product-tab-brand{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.product-tab-name{font-size:13px;font-weight:600;color:var(--ink)}
+.product-tab-desc{font-size:11.5px;color:var(--ink2);line-height:1.5;margin-top:2px}
+.product-tab-procs{font-size:10px;color:var(--sage);margin-top:4px}
+/* PROFILE */
+.profile-card{margin:0 18px 12px;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:18px;text-align:center;box-shadow:var(--shadow)}
+.profile-av{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d4a96a);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px}
+.profile-name{font-size:16px;font-weight:700;color:var(--ink)}
+.profile-email{font-size:12px;color:var(--ink2);margin-top:2px}
+.profile-btns{padding:0 18px;display:flex;flex-direction:column;gap:7px}
+.profile-btn{width:100%;padding:11px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink2);cursor:pointer}
+.profile-btn.danger{color:var(--red);border-color:rgba(217,95,95,.2)}
+/* ADMIN */
+.admin-section{margin:0 18px 14px;background:var(--card);border-radius:var(--r);border:2px solid var(--lilaclt);padding:14px;box-shadow:var(--shadow)}
+.admin-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lilac);margin-bottom:12px}
+.admin-form{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.admin-input{padding:8px 11px;border:1.5px solid var(--roselt);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--ink);background:#fafafa;outline:none;width:100%}
+.admin-input:focus{border-color:var(--lilac)}
+.admin-btn{padding:8px 14px;border-radius:9px;border:none;background:var(--lilac);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+.admin-btn.sm{padding:6px 12px;font-size:11px}
+.admin-btn.red{background:var(--red)}
+.admin-list-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--goldlt);font-size:12px}
+.admin-list-item:last-child{border-bottom:none}
+/* PICKER */
+.proc-picker{position:relative}
+.proc-picker-results{display:none;position:absolute;top:calc(100% + 3px);left:0;right:0;max-height:210px;overflow-y:auto;background:var(--card);border:1.5px solid var(--roselt);border-radius:10px;box-shadow:0 8px 24px rgba(26,26,46,.1);z-index:60}
+.proc-picker-results.open{display:block}
+.proc-picker-item{padding:8px 12px;font-size:12px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--goldlt)}
+.proc-picker-item:last-child{border-bottom:none}
+.proc-picker-item:active{background:var(--goldlt)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--goldlt);color:var(--gold);border-radius:12px;padding:3px 9px;font-size:10.5px;font-weight:500;border:1px solid rgba(184,150,106,.2)}
+.chip button{background:none;border:none;color:var(--gold);font-size:11px;cursor:pointer;padding:0}
+/* NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);background:rgba(247,245,242,.94);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid rgba(184,150,106,.18);padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 7px);display:flex;justify-content:space-around;z-index:50}
+.nb{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:10px;border:none;background:none;min-width:50px}
+.nb.active .ni{color:var(--gold)}
+.nb.active .nl{color:var(--gold);font-weight:600}
+.ni{font-size:18px;color:#c5bdb4;transition:color .15s}
+.nl{font-size:8px;font-weight:500;color:#c5bdb4;letter-spacing:.03em;white-space:nowrap}
+/* LANG TOGGLE */
+.lang-btn{background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.lang-btn:hover{background:rgba(184,150,106,.12)}
+.auth-lang{position:absolute;top:18px;right:18px}
+/* UTILS */
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 18px;border-radius:20px;font-size:12.5px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.lightbox{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain}
+.lb-close{position:absolute;top:14px;right:14px;font-size:20px;color:#fff;cursor:pointer;background:rgba(0,0,0,.4);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{text-align:center;padding:40px;color:var(--ink2);font-size:13px}
+.empty-state{text-align:center;padding:36px 20px;color:var(--ink2)}
+.empty-ic{font-size:38px;margin-bottom:10px}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--ink);margin-bottom:5px}
+.empty-sub{font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="auth-screen" id="auth-screen">
+  <button class="lang-btn auth-lang" id="auth-lang-btn" onclick="toggleLang()">EN</button>
+  <div class="auth-logo">Glow<span>Track</span></div>
+  <div class="auth-tagline">Know your glow.</div>
+  <div class="auth-card">
+    <div class="auth-error" id="auth-error"></div>
+    <div id="login-form">
+      <div class="auth-title">Добре дошъл</div>
+      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="login-email" placeholder="example@mail.com" autocomplete="email"></div>
+      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Влез</button>
+      <div class="auth-switch">Нямаш акаунт? <a onclick="showReg()">Регистрирай се</a></div>
+    </div>
+    <div id="reg-form" style="display:none">
+      <div class="auth-title">Регистрация</div>
+      <div class="auth-field"><label class="auth-label">Ime</label><input class="auth-input" type="text" id="reg-name" placeholder="Твоето ime" autocomplete="name"></div>
+      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="reg-email" placeholder="example@mail.com" autocomplete="email"></div>
+      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="reg-pass" placeholder="Минимум 6 символа" autocomplete="new-password"></div>
+      <button class="auth-btn" id="reg-btn" onclick="doRegister()">Създай акаунт</button>
+      <div class="auth-switch">Вече имаш акаунт? <a onclick="showLogin()">Влез</a></div>
+    </div>
+  </div>
+</div>
+<div class="app" id="app">
+  <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><button class="lang-btn" id="app-lang-btn" style="position:absolute;right:14px;top:50%;transform:translateY(-50%)" onclick="toggleLang()">EN</button></div><div id="topbar-right" style="display:none"></div></div>
+  <div class="page active" id="page-procs">
+    <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub">Пълна енциклопедия — намери, научи, проследи</div></div>
+    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" placeholder="Търси процедура..." oninput="filterProcs()"></div></div>
+    <div class="cats" id="cats-bar"></div>
+    <div class="proc-list" id="proc-list"></div>
+    <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
+  </div>
+  <div class="page" id="page-diary">
+    <div class="page-hdr"><div class="page-hdr-title">Моят <em>дневник</em></div><div class="page-hdr-sub">Лична история на процедурите ти</div></div>
+    <div id="diary-tab-content"></div>
+  </div>
+  <div class="page" id="page-clinics">
+    <div class="page-hdr"><div class="page-hdr-title"><em>Клиники</em></div><div class="page-hdr-sub">Партньорски клиники</div></div>
+    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="clinic-search" placeholder="Търси клиника или процедура..." oninput="filterClinics()"></div></div>
+    <div class="clinics-list" id="clinics-list"></div>
+  </div>
+  <div class="page" id="page-products">
+    <div class="page-hdr"><div class="page-hdr-title">Козметика & <em>грижа</em></div><div class="page-hdr-sub">Препоръчани продукти за след процедура</div></div>
+    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="prod-search" placeholder="Търси продукт или процедура..." oninput="filterProducts()"></div></div>
+    <div class="products-tab-list" id="products-tab-list"></div>
+  </div>
+  <div class="page" id="page-profile">
+    <div class="page-hdr"><div class="page-hdr-title">Моят <em>профил</em></div></div>
+    <div class="profile-card"><div class="profile-av" id="profile-av-wrap"><svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pavg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b8966a"/><stop offset="100%" stop-color="#d4a96a"/></linearGradient></defs><circle cx="31" cy="25" r="12.5" fill="none" stroke="url(#pavg)" stroke-width="2"/><path d="M18.5 19 C18.5 10.5 24 7 31 7 C38 7 43.5 10.5 43.5 19" stroke="url(#pavg)" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M41 10.5 C44.5 7.5 50.5 8.5 51.5 12 C52.5 15.5 49.5 18 47 17" stroke="url(#pavg)" stroke-width="1.8" stroke-linecap="round" fill="none"/><circle cx="42.5" cy="10.5" r="2.8" fill="url(#pavg)" opacity=".5"/><path d="M8 58 C8 47.5 18.5 41.5 31 41.5 C43.5 41.5 54 47.5 54 58" stroke="url(#pavg)" stroke-width="2" stroke-linecap="round" fill="none"/><text x="31" y="27" text-anchor="middle" dominant-baseline="middle" font-size="11" font-family="DM Sans,sans-serif" font-weight="700" fill="url(#pavg)" id="profile-initials-svg">?</text></svg></div><div class="profile-name" id="prof-name">—</div><div class="profile-email" id="prof-email">—</div></div>
+    <div class="profile-btns">
+      <button class="profile-btn danger" onclick="doLogout()">Изход</button>
+      <button class="profile-btn danger" onclick="confirmDeleteAccount()">🗑️ Изтрий профила</button>
+    </div>
+    <div id="admin-panel" style="display:none;margin-top:20px">
+      <div style="padding:0 18px 10px"><div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lilac)">⚙️ Admin панел</div></div>
+      <div class="admin-section">
+        <div class="admin-title">🏥 Клиники (партньори)</div>
+        <div id="admin-clinics-list"></div>
+        <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
+        <div id="admin-clinic-form" style="display:none" class="admin-form">
+          <input class="admin-input" type="text" id="ac-icon" placeholder="🏥 Икона">
+          <input class="admin-input" type="text" id="ac-name" placeholder="Ime на клиниката *">
+          <input class="admin-input" type="text" id="ac-address" placeholder="Адрес">
+          <input class="admin-input" type="text" id="ac-phone" placeholder="Телефон">
+          <input class="admin-input" type="text" id="ac-url" placeholder="Уебсайт">
+          <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
+          <div class="proc-picker" id="admin-clinic-picker">
+            <input class="admin-input" type="text" id="ac-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('clinic')">
+            <div class="proc-picker-results" id="ac-proc-results"></div>
+          </div>
+          <div class="chips" id="ac-chips"></div>
+          <input type="hidden" id="ac-edit-id">
+          <button class="admin-btn" onclick="saveClinicAd()">💾 Запази</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-title">🧴 Продукти (реклами)</div>
+        <div id="admin-products-list"></div>
+        <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
+        <div id="admin-product-form" style="display:none" class="admin-form">
+          <input class="admin-input" type="text" id="ap-icon" placeholder="🧴 Икона">
+          <input class="admin-input" type="text" id="ap-brand" placeholder="Марка">
+          <input class="admin-input" type="text" id="ap-name" placeholder="Ime на продукта *">
+          <textarea class="admin-input" id="ap-desc" placeholder="Описание..." style="resize:none;min-height:55px"></textarea>
+          <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
+          <div class="proc-picker" id="admin-product-picker">
+            <input class="admin-input" type="text" id="ap-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('product')">
+            <div class="proc-picker-results" id="ap-proc-results"></div>
+          </div>
+          <div class="chips" id="ap-chips"></div>
+          <input type="hidden" id="ap-edit-id">
+          <button class="admin-btn" onclick="saveProductAd()">💾 Запази</button>
+        </div>
+      </div>
+    </div>
+    <div class="feedback-section">
+      <div class="feedback-title">💬 Изпрати предложение</div>
+      <div class="feedback-sub">Идея, корекция или нова функция — споделяй!</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <button class="fb-type-btn active" data-type="idea" onclick="setFbType(this,'idea')">💡 Идея</button>
+        <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
+        <button class="fb-type-btn" data-type="content" onclick="setFbType(this,'content')">📝 Съдържание</button>
+      </div>
+      <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." rows="3" style="font-size:13px"></textarea>
+      <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()">Изпрати ✦</button>
+    </div>
+      <div class="admin-section" id="admin-inbox-section" style="margin-top:4px">
+        <div class="admin-title" style="display:flex;align-items:center;justify-content:space-between">
+          📬 Предложения от потребители
+          <span class="inbox-badge" id="inbox-badge" style="display:none"></span>
+        </div>
+        <div id="admin-inbox-list"><div style="font-size:12px;color:var(--ink2);padding:6px 0">Зарежда...</div></div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:16px 18px 0;font-size:10px;color:#cbbfae">GlowTrack · build v7.5</div>
+  </div>
+  <nav class="bnav">
+    <button class="nb active" onclick="goPage('procs',this)"><span class="ni">✦</span><span class="nl">Процедури</span></button>
+    <button class="nb" onclick="goPage('diary',this)"><span class="ni">📖</span><span class="nl">Дневник</span></button>
+    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showToast('🔒 Очаквайте скоро')"><span class="ni">🔒</span><span class="nl">Очаквайте</span></button>
+    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showToast('🔒 Очаквайте скоро')"><span class="ni">🔒</span><span class="nl">Очаквайте</span></button>
+    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><span id="nav-avatar" style="width:26px;height:26px;display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12.5" cy="10" r="4.8" fill="none" stroke="#c5bdb4" stroke-width="1.4"/><path d="M8 7.5 C8 4.2 10 2.8 12.5 2.8 C15 2.8 17 4.2 17 7.5" stroke="#c5bdb4" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M16 4.2 C17.5 2.8 20 3.2 20.5 4.8 C21 6.2 19.5 7.2 18 6.8" stroke="#c5bdb4" stroke-width="1.3" stroke-linecap="round" fill="none"/><circle cx="17" cy="4.5" r="1.2" fill="#c5bdb4" opacity=".55"/><path d="M3.5 24 C3.5 19.5 7.5 17 12.5 17 C17.5 17 21.5 19.5 21.5 24" stroke="#c5bdb4" stroke-width="1.4" stroke-linecap="round" fill="none"/><text x="12.5" y="11" text-anchor="middle" dominant-baseline="middle" font-size="4.8" font-family="DM Sans,sans-serif" font-weight="700" fill="#c5bdb4" id="nav-initials-svg"></text></svg></span></span><span class="nl">Профил</span></button>
+  </nav>
+</div>
+<div class="overlay" id="overlay" onclick="closeSheet(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <div class="sheet-icon" id="sh-icon"></div>
+      <div class="sheet-tw"><div class="sheet-cat" id="sh-cat"></div><div class="sheet-title" id="sh-title"></div></div>
+      <button class="close-btn" onclick="closeSheet()">✕</button>
+    </div>
+    <div class="sheet-body" id="sh-body"></div>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><button class="lb-close" onclick="closeLightbox()">✕</button><img id="lb-img" src=""></div>
+
+<!-- AI CHAT OVERLAY -->
+<div class="ai-overlay" id="ai-overlay">
+  <div class="ai-panel" id="ai-panel">
+    <div class="ai-header">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:13px;font-weight:700;color:var(--ink1)" id="ai-proc-title">AI Асистент</div>
+        <div style="font-size:10px;color:var(--ink2)">✦ Powered by GlowTrack AI</div>
+      </div>
+      <button class="close-btn" onclick="closeAiChat()">✕</button>
+    </div>
+    <div class="ai-messages" id="ai-messages"></div>
+    <div class="ai-suggestions" id="ai-suggestions"></div>
+    <div class="ai-input-row">
+      <input class="ai-input" id="ai-input" type="text" placeholder="Задай въпрос..." onkeydown="if(event.key==='Enter')sendAiMsg()">
+      <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMsg()">›</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,deleteUser}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
+const auth=getAuth(fb);const db=getFirestore(fb);
+window._auth=auth;window._db=db;
+window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    window._user=user;
+    window._isAdmin=(user.email==='gabriela.neshovska@gmail.com'||user.email.includes('satorilaser'));
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('show');
+    document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
+    document.getElementById('prof-email').textContent=user.email;
+    document.getElementById('topbar-right').textContent='';
+    const _name=user.displayName||user.email.split('@')[0]||'';
+    const _parts=_name.trim().split(/\s+/);
+    const _ini=(_parts[0]?_parts[0][0]:'')+((_parts.length>1&&_parts[_parts.length-1])?_parts[_parts.length-1][0]:'');
+    const _iniUp=_ini.toUpperCase();
+    const _navSvg=document.getElementById('nav-initials-svg');
+    const _profSvg=document.getElementById('profile-initials-svg');
+    if(_navSvg)_navSvg.textContent=_iniUp;
+    if(_profSvg)_profSvg.textContent=_iniUp;
+    const _navBtn=document.getElementById('nav-profile-btn');
+    if(_navBtn){const svgEls=_navBtn.querySelectorAll('circle,path,text');svgEls.forEach(el=>{if(el.tagName!=='text'){el.setAttribute('stroke','#b8966a');el.setAttribute('fill',el.getAttribute('fill')?'rgba(184,150,106,.25)':'none');}else{el.setAttribute('fill','#b8966a');}});}
+    if(window._isAdmin){
+      document.getElementById('admin-panel').style.display='block';
+      loadAdminLists();
+      loadAdminInbox();
+      // Admin sees clinics & products tabs unlocked
+      document.querySelectorAll('.nb-soon').forEach(btn=>{
+        btn.style.opacity='1';
+        btn.style.cursor='pointer';
+      });
+      const nbtns=document.querySelectorAll('.nb-soon');
+      if(nbtns[0]){nbtns[0].onclick=function(){goPage('clinics',this);};nbtns[0].querySelector('.ni').textContent='🏥';nbtns[0].querySelector('.nl').textContent='Клиники';}
+      if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};nbtns[1].querySelector('.ni').textContent='🧴';nbtns[1].querySelector('.nl').textContent='Продукти';}
+    }
+    loadClinicsTab();loadProductsTab();
+    // Load user lang preference
+    F().getDoc(F().doc(DB(),'users',window._user.uid)).then(d=>{
+      if(d.exists()&&d.data().lang){window._lang=d.data().lang;localStorage.setItem('gt_lang',window._lang);}
+      if(typeof applyLang==='function')applyLang();else window._pendingLang=true;
+    }).catch(()=>{if(typeof applyLang==='function')applyLang();else window._pendingLang=true;});
+  }else{
+    window._user=null;window._isAdmin=false;
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('app').classList.remove('show');
+  }
+});
+</script>
+<script>
+
+const CATS_LIST=[
+  {id:'all',label:'Всички',icon:'✦'},
+  {id:'laser',label:'Лазерна епилация',icon:'⚡'},
+  {id:'cosm',label:'Козметични',icon:'🌸'},
+  {id:'inject',label:'Инжекционни',icon:'💉'},
+  {id:'fotona',label:'FOTONA',icon:'🌟'},
+  {id:'co2',label:'CO2 / Morpheus8',icon:'🔬'},
+  {id:'rf',label:'RF / HIFU',icon:'📡'},
+  {id:'body',label:'Тяло',icon:'🌊'},
+  {id:'derm',label:'Дерматология',icon:'🩺'},
+];
+
+window.PROCS=window.PROCS||[];const PROCS=[
+{id:'le-alex-face',cat:'laser',subcat:"Александритен лазер",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Александритен лазер — Лице",sub:"755nm · Светла кожа, тъмен косъм",what:"Александритеният лазер (755nm) е най-ефективен за светла до средно тъмна кожа с тъмен косъм. Прецизно таргетира меланина в фоликула. Бърз и ефективен при по-малки зони.",devices:['Candela GentleLase Pro','Syneron-Candela Alexandrite 755nm','Cynosure Elite+'],zones:'Горна устна, брадичка, скули, бакенбарди, ареоли, оформяне на вежди/линия на косата',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['🪒',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['☀️',"Без слънце и солариум <strong>2–4 седмици</strong>"],['🧴',"Без автобронзанти 2 седмици"],['💊',"Уведоми специалиста за всички медикаменти"]],after:[['🧴',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['🧴',"<strong>SPF 50+</strong> — задължително при излагане"],['🚿',"<strong>Хладки</strong> душове 24–48ч"],['🚫',"НЕ сауна, джакузи, басейн 24–48ч"],['🏋️',"НЕ интензивен спорт в деня"],['✂️',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'6–10 сесии'},
+{id:'le-alex-body',cat:'laser',subcat:"Александритен лазер",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Александритен лазер — Тяло",sub:"755nm · Подмишници, ръце, крака, интимна зона",what:"Александритеният лазер работи отлично на по-светли типове кожа. Особено ефективен при фини до средни косъмчета. По-бърз при покриване на по-обширни зони.",devices:['Candela GentleLase Pro','Cynosure Elite+','Syneron Alexandrite'],zones:'Подмишници, ръце (1/2 или цели), крака (1/2 или цели), интимна зона, корем, гръб, гърди, седалище, рамене',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['🪒',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['☀️',"Без слънце и солариум <strong>2–4 седмици</strong>"],['🧴',"Без автобронзанти 2 седмици"],['💊',"Уведоми специалиста за всички медикаменти"]],after:[['🧴',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['🧴',"<strong>SPF 50+</strong> — задължително при излагане"],['🚿',"<strong>Хладки</strong> душове 24–48ч"],['🚫',"НЕ сауна, джакузи, басейн 24–48ч"],['🏋️',"НЕ интензивен спорт в деня"],['✂️',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'6–10 сесии — интервалът се разширява с напредването по препоръка на терапевт'},
+{id:'le-diode-face',cat:'laser',subcat:"Диоден лазер",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Диоден лазер — Лице",sub:"810nm · Универсален, всички типове кожа",what:"Диодният лазер (810nm) е универсалният стандарт — ефективен при широк диапазон от кожни типове. Soprano ICE с охлаждане прави процедурата практически безболезнена.",devices:['Alma Soprano ICE / ICE Platinum','Lumenis LightSheer','InMode Diolaze'],zones:'Горна устна, брадичка, скули, бакенбарди, ареоли, шия, оформяне на линия на косата',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['🪒',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['☀️',"Без слънце и солариум <strong>около 5 дни</strong>"],['🧴',"Без автобронзанти 2 седмици"],['💊',"Уведоми специалиста за всички медикаменти"]],after:[['🧴',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['🧴',"<strong>SPF 50+</strong> — задължително при излагане"],['🚿',"<strong>Хладки</strong> душове 24–48ч"],['🚫',"НЕ сауна, джакузи, басейн 24–48ч"],['🏋️',"НЕ интензивен спорт в деня"],['✂️',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'6–10 сесии'},
+{id:'le-diode-body',cat:'laser',subcat:"Диоден лазер",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Диоден лазер — Тяло",sub:"810nm · Универсален, всички типове кожа",what:"Диодният лазер 810nm е изборът за повечето клиники. Soprano ICE Platinum може да третира дори по-тъмна кожа и лек тен. Охлаждащата технология минимализира дискомфорта.",devices:['Alma Soprano ICE Platinum','Lumenis LightSheer Duet','InMode Diolaze XL'],zones:'Подмишници, ръце, крака, интимна зона, гърди, корем, гръб, седалище, рамене, кръст',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['🪒',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['☀️',"Без слънце и солариум <strong>около 5 дни</strong>"],['🧴',"Без автобронзанти 2 седмици"],['💊',"Уведоми специалиста за всички медикаменти"]],after:[['🧴',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['🧴',"<strong>SPF 50+</strong> — задължително при излагане"],['🚿',"<strong>Хладки</strong> душове 24–48ч"],['🚫',"НЕ сауна, джакузи, басейн 24–48ч"],['🏋️',"НЕ интензивен спорт в деня"],['✂️',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'6–10 сесии — интервалът се разширява с напредването по препоръка на терапевт'},
+{id:'le-ndyag-face',cat:'laser',subcat:"Nd:YAG лазер",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Nd:YAG лазер — Лице",sub:"1064nm · По-тъмна кожа, загоряла кожа",what:"Nd:YAG (1064nm) е единственият безопасен избор за по-тъмни типове кожа (IV–VI) и загоряла кожа. По-дълбоко прониква и е ефективен при по-груби косъмчета.",devices:['Candela GentleMax Pro','Cynosure Elite+ (Nd:YAG режим)','Fotona Nd:YAG 1064nm'],zones:'Горна устна, брадичка, скули, бакенбарди — при по-тъмни типове кожа',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['🪒',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['☀️',"Без слънце и солариум <strong>2–4 седмици</strong>"],['🧴',"Без автобронзанти 2 седмици"],['💊',"Уведоми специалиста за всички медикаменти"]],after:[['🧴',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['🧴',"<strong>SPF 50+</strong> — задължително при излагане"],['🚿',"<strong>Хладки</strong> душове 24–48ч"],['🚫',"НЕ сауна, джакузи, басейн 24–48ч"],['🏋️',"НЕ интензивен спорт в деня"],['✂️',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'8–12 сесии'},
+{id:'le-ndyag-body',cat:'laser',subcat:"Nd:YAG лазер",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Nd:YAG лазер — Тяло",sub:"1064nm · По-тъмна кожа, загоряла кожа",what:"Nd:YAG е задължителен избор при по-тъмна кожа (III–VI по Fitzpatrick) или след слънцегарене. Ефективен при груби косъмчета по тялото.",devices:['Candela GentleMax Pro','Cynosure Elite+ Nd:YAG','Alma Harmony XL Pro Nd:YAG'],zones:'Подмишници, ръце, крака, интимна зона, гръб — при по-тъмни типове кожа',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['🪒',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['☀️',"Без слънце и солариум <strong>2–4 седмици</strong>"],['🧴',"Без автобронзанти 2 седмици"],['💊',"Уведоми специалиста за всички медикаменти"]],after:[['🧴',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['🧴',"<strong>SPF 50+</strong> — задължително при излагане"],['🚿',"<strong>Хладки</strong> душове 24–48ч"],['🚫',"НЕ сауна, джакузи, басейн 24–48ч"],['🏋️',"НЕ интензивен спорт в деня"],['✂️',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'8–12 сесии'},
+{id:'le-electro',cat:'laser',subcat:"Електролиза",icon:'⚡',bg:'#eeeaf8',fg:'#9b8ec4',name:"Електролиза — Перманентно премахване",sub:"Единственият метод с 100% перманентен ефект",what:"Електролизата е единственият метод, признат от FDA за 100% перманентен. Тънка игла се въвежда в отделен фоликул и го унищожава. Идеална за светли, сиви и единични косъмчета.",devices:['Blend метод (галваничен + термален)','Thermolysis (RF/диатермия)','Galvanic електролиза'],zones:'Лице (единични косъмчета), вежди, горна устна — светли и сиви косъмчета навсякъде',results:['100% перманентно унищожаване на третирания фоликул','Единственият избор за светли, сиви и червени косъмчета','Идеална за зони с малко косъмчета'],contra:['Пейсмейкър (при галваничен метод)','Активни кожни инфекции'],before:[['🚫',"НЕ скубай, НЕ восък <strong>2 седмици</strong>"],['🪒',"Остави косъмчетата <strong>2–3мм</strong> дължина"]],after:[['🧴',"Нанасяй успокояващ крем (Алое, Bepanthen)"],['🚫',"НЕ дращи"],['☀️',"НЕ слънце без SPF <strong>48ч</strong>"]],interval:'По преценка (зависи от зоната)',sessions:'Множество сесии — месеци до години'},
+{id:'clean-classic',cat:'cosm',subcat:"Почистване на лице",icon:'🌿',bg:'#e4f0f7',fg:'#6fa8c8',name:"Класическо ръчно почистване",sub:"Ексфолиация, екстракции, маска",what:"Традиционното ръчно почистване включва пара, нежна ексфолиация, ръчни екстракции на комедони и маска.",devices:['Ръчна техника','Пара','Криошпатула (при нужда)'],zones:'Лице, шия, деколте, гръб',results:['Дълбоко почистени пори','Намаляване на черни точки','Свежа, изравнена кожа'],contra:['Активно акне (пустули)','Розацея в остра фаза','Купероза в тежка степен'],before:[['💧',"Дойди с чисто лице, без грим"],['☀️',"Без интензивно слънце предния ден"]],after:[['💧',"Хидратирай с нежни продукти"],['💄',"НЕ грим <strong>12–24ч</strong>"],['☀️',"НЕ слънце без SPF"],['♨️',"НЕ сауна <strong>24ч</strong>"]],interval:'3–4 седмици',sessions:'По преценка'},
+{id:'clean-medical',cat:'cosm',subcat:"Почистване на лице",icon:'🔬',bg:'#e4f0f7',fg:'#6fa8c8',name:"Медицинско почистване на лице",sub:"Задълбочено с ултразвук, галваника, криотерапия, LED",what:"По-интензивен протокол включващ ензимна ексфолиация, ултразвук, галваничен ток, криотерапия и/или LED. Провежда се от козметик или лекар козметолог.",devices:['Ултразвукова шпатула','Галваничен ток','Криошпатула','LED фототерапия'],zones:'Лице, шия, деколте',results:['По-дълбоко почистване','Свиване на пори при курс','Подходящо при акне и мазна кожа'],contra:['Активен херпес','Силно раздразнена кожа'],before:[['🧴',"Без активни <strong>2–3 дни</strong>"],['💄',"Дойди без грим"]],after:[['💧',"Хидратирай интензивно"],['💄',"НЕ грим <strong>24ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"],['🧴',"SPF 50+"]],interval:'3–4 седмици',sessions:'По преценка или курс'},
+{id:'clean-hydra',cat:'cosm',subcat:"Апаратно почистване",icon:'💧',bg:'#e4f0f7',fg:'#6fa8c8',name:"Хидродермабразио — HydraFacial / DermaClear",sub:"Апаратно почистване с едновременна инфузия на серуми",what:"Комбинира механична ексфолиация, засмукване на замърсявания и инфузия на активни серуми едновременно.",devices:['DermaClear (Alma)','HydraFacial (Edge Systems)','AquaPure'],zones:'Лице, шия, деколте, гръб',results:['Незабавно почистване, хидратация и блясък','Свиване на порите при курс','Намаляване на черни точки'],contra:['Активно акне (пустули)','Розацея в остра фаза','Открити рани'],before:[['🚫',"Без ексфолиация <strong>3–5 дни</strong>"],['☀️',"Без интензивно слънце"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['🚫',"НЕ ретинол, AHA/BHA <strong>7 дни</strong>"],['💄',"НЕ грим <strong>12–24ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'3–4 седмици',sessions:'Единична или курс 4–6'},
+{id:'clean-ultrasound',cat:'cosm',subcat:"Апаратно почистване",icon:'✨',bg:'#e4f0f7',fg:'#6fa8c8',name:"Ултразвукова шпатула",sub:"Кавитация — почистване и въвеждане на активни серуми",what:"Ултразвукови вибрации за дълбоко почистване на порите и едновременно въвеждане (фонофореза) на активни серуми.",devices:['Ултразвукова шпатула Pro'],zones:'Лице, шия, деколте',results:['Деликатно почистване','Подобрено проникване на серуми','Подходяща за чувствителна кожа'],contra:['Активни инфекции','Пейсмейкър'],before:[['💧',"Чиста, леко влажна кожа"]],after:[['💧',"Хидратирай"],['💄',"НЕ грим <strong>6–12ч</strong>"]],interval:'2–3 седмици',sessions:'По желание'},
+{id:'m8-crystal',cat:'cosm',subcat:"Medik8",icon:'🌟',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Crystal Retinal Age-Defying Facial",sub:"Подмладяване с Crystal Retinal маска — ретиналдехид",what:"Революционна процедура с Crystal Retinal маска — ретиналдехид е по-ефективен от ретинол. Персонализирана доза за видим лифтинг, намаляване на бръчки и сияние.",devices:['Crystal Retinal Concentrate','Age-Defying Activating Mask'],zones:'Лице, шия, деколте',results:['Видимо намаляване на бръчки след <strong>1 процедура</strong>','Сияние и изравнен тон','Оптимален резултат при курс'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'4–6 седмици',sessions:'Единична или курс 4–6'},
+{id:'m8-platinum',cat:'cosm',subcat:"Medik8",icon:'🥇',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Platinum Facial",sub:"Подписово подмладяване — платина и харитаки суперплод",what:"Подписовата Medik8 процедура с платинен прах и харитаки суперплод. Visibly plumps, firms и lifting.",devices:['Age-Defying Platinum Mask','Haritaki Superfruit Extract'],zones:'Лице',results:['Незабавно стягане и лифт','Видимо намаляване на бръчки','Сияние и яркост'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'3–4 седмици',sessions:'Единична или курс'},
+{id:'m8-hydration',cat:'cosm',subcat:"Medik8",icon:'💧',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Deep Hydration Facial",sub:"Интензивна хидратация — суха, дехидратирана кожа",what:"Многостепенна хидратираща процедура, наводняваща кожата с влага. Запълва линии от дехидратация.",devices:['Deep Hydration Mask','Hyaluronic Acid Intense'],zones:'Лице, шия',results:['Незабавна дълбока хидратация','Запълване на линии от дехидратация','Мека, плътна кожа'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'3–4 седмици',sessions:'Единична или курс 4–6'},
+{id:'m8-clarity-facial',cat:'cosm',subcat:"Medik8",icon:'🍃',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Clarity Facial",sub:"Акне, мазна, проблемна кожа",what:"Изчистваща процедура с пасифлора и червена боровинка. Успокоява и балансира мазнотата.",devices:['Clarity Clarifying Mask','Passion Flower & Cranberry Extract'],zones:'Лице',results:['Намаляване на несъвършенства','Балансиране на мазнотата','Изчистена кожа'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'3–4 седмици',sessions:'Курс 4–6'},
+{id:'m8-pore',cat:'cosm',subcat:"Medik8",icon:'🔍',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Pore Refining Facial",sub:"Разширени пори, неравна текстура",what:"360-градусов подход с активен въглен и моринга. Деликатно разрушава запушванията, свива порите.",devices:['Pore Refining Mask','Activated Charcoal','Moringa Extract'],zones:'Лице (Т-зона)',results:['Видимо свиване на порите','По-гладка текстура','Намаляване на черни точки'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'3–4 седмици',sessions:'Курс 4–6'},
+{id:'m8-calming',cat:'cosm',subcat:"Medik8",icon:'🌸',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Calming Facial",sub:"Чувствителна, раздразнена, червена кожа",what:"Биоцелулозна маска с цинк и хиалуронова киселина. Облекчава напрежението и зачервяването.",devices:['Calming Biocellulose Mask','Zinc Complex'],zones:'Лице',results:['Незабавно успокояване','Намаляване на зачервяване','Комфортна, изравнена кожа'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'3–4 седмици',sessions:'По желание'},
+{id:'m8-expert',cat:'cosm',subcat:"Medik8",icon:'⚗️',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Expert Facial (Bespoke)",sub:"Индивидуализирана процедура по кожен анализ",what:"Специалистът анализира кожата и конфигурира процедурата спрямо конкретните нужди.",devices:['CSA Philosophy продукти','Custom Active Serums'],zones:'Лице, шия, деколте',results:['Таргетирани резултати по индивидуална нужда','Видима промяна веднага след'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['💧',"Хидратирай с нежен серум"],['🧴',"<strong>SPF 50+</strong> всяко сутрин"],['💄',"НЕ грим <strong>12–24ч</strong>"]],interval:'3–4 седмици',sessions:'Единична или курс'},
+{id:'m8-reset-peel',cat:'cosm',subcat:"Medik8 — Пилинги",icon:'✨',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Total Skin Reset Peel",sub:"3-в-1 ексфолиация — яркост, текстура, minimal downtime",what:"Мулти-акшъне пилинг комбиниращ три вида ексфолиация. По-ярка и изгладена кожа за 45 минути.",devices:['Total Skin Reset Peel (3-в-1)'],zones:'Лице, шия, деколте',results:['Видимо по-ярка кожа веднага','Изгладена текстура','Минимален downtime'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['🧴',"<strong>SPF 50+</strong> — стриктно, всеки ден"],['💧',"Нежна хидратация"],['🚫',"НЕ дращи при лющене"],['🧪',"НЕ ретинол, AHA/BHA <strong>2 седмици</strong>"],['💄',"НЕ грим <strong>24–48ч</strong>"]],interval:'4 седмици',sessions:'Курс 6'},
+{id:'m8-clarity-peel',cat:'cosm',subcat:"Medik8 — Пилинги",icon:'🍃',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Clarity Peel",sub:"Акне, несъвършенства, задръстена кожа",what:"Очистващ пилинг с салицилова киселина. Овладява несъвършенствата и намалява риска от бъдещи обриви.",devices:['Salicylic Acid Peel','Time-Release Technology'],zones:'Лице, гръб',results:['Бързо намаляване на несъвършенства','Намаляване на бъдещи обриви при курс'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['🧴',"<strong>SPF 50+</strong> — стриктно, всеки ден"],['💧',"Нежна хидратация"],['🚫',"НЕ дращи при лющене"],['🧪',"НЕ ретинол, AHA/BHA <strong>2 седмици</strong>"],['💄',"НЕ грим <strong>24–48ч</strong>"]],interval:'4 седмици',sessions:'Курс 6'},
+{id:'m8-even-peel',cat:'cosm',subcat:"Medik8 — Пилинги",icon:'☀️',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Even Peel",sub:"Пигментация, слънчеви петна, неравен тон",what:"Избелващ пилинг с Alpha Arbutin и Kojic Acid. Таргетира хиперпигментацията и слънчевото увреждане.",devices:['Alpha Arbutin Peel','Kojic Acid'],zones:'Лице, ръце',results:['Намаляване на пигментни петна','По-равномерен тон','Сияние'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['🧴',"<strong>SPF 50+</strong> — стриктно, всеки ден"],['💧',"Нежна хидратация"],['🚫',"НЕ дращи при лющене"],['🧪',"НЕ ретинол, AHA/BHA <strong>2 седмици</strong>"],['💄',"НЕ грим <strong>24–48ч</strong>"]],interval:'4 седмици',sessions:'Курс 6'},
+{id:'m8-age-peel',cat:'cosm',subcat:"Medik8 — Пилинги",icon:'🥇',bg:'#fdf0f5',fg:'#d4849a',name:"Medik8 Age-Defying Peel",sub:"Бръчки, загуба на еластичност, фотостареене",what:"Анти-ейджинг пилинг стимулиращ колагена. Изглажда и подмладява с видим резултат след курс.",devices:['Retinol Peel Actives','Collagen-Stimulating Ingredients'],zones:'Лице, шия, деколте',results:['Намаляване на бръчки','Подобрена еластичност','По-млада кожа'],contra:['Активно акне в тежка форма','Розацея в остра фаза','Бременност (при пилинги)','Roaccutane (6+ мес.)'],before:[['🧴',"Без ретинол, AHA/BHA <strong>5–7 дни</strong>"],['🚫',"Без слънцегарене предишната седмица"],['💄',"Без грим и автобронзанти в деня"]],after:[['🧴',"<strong>SPF 50+</strong> — стриктно, всеки ден"],['💧',"Нежна хидратация"],['🚫',"НЕ дращи при лющене"],['🧪',"НЕ ретинол, AHA/BHA <strong>2 седмици</strong>"],['💄',"НЕ грим <strong>24–48ч</strong>"]],interval:'4 седмици',sessions:'Курс 6'},
+{id:'es-hyaluronic',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'💦',bg:'#e4f0f7',fg:'#6fa8c8',name:"Esthemax Hydrojelly — Хиалуронова киселина",sub:"Интензивна хидратация — суха и дехидратирана кожа",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: суха, дехидратирана, чувствителна кожа и след интензивни процедури.",devices:['Esthemax Hydrojelly Hyaluronic Acid Mask'],zones:'Лице (включително очи и устни)',results:['Незабавна дълбока хидратация','Запълване на линии от дехидратация','Плътна, сияйна кожа'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-24k',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'✨',bg:'#f5efe0',fg:'#b8966a',name:"Esthemax Hydrojelly — Youthful Elixir (24K Gold & Truffle)",sub:"Премиум анти-ейдж маска с 24K злато и трюфел",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: всички типове кожа — анти-ейдж, подмладяване, лукс.",devices:['Esthemax Youthful Elixir Mask (24K Gold + Truffle)'],zones:'Лице',results:['Стимулиране на клетъчното обновяване','Незабавен блясък и плъмп','Луксозна анти-ейдж грижа'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-rose',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'🌹',bg:'#fdf0f5',fg:'#d4849a',name:"Esthemax Hydrojelly — Egyptian Rose",sub:"8 вида рози — хидратация, фирминг, сияние",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: суха, нежна кожа — за тен и еластичност.",devices:['Esthemax Egyptian Rose Mask (8 видa рози)'],zones:'Лице',results:['Хидратация и укрепване','Сияние и фирминг','Деликатна грижа'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-charcoal',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'🖤',bg:'#3a3a4a',fg:'#bbb4a8',name:"Esthemax Hydrojelly — Activated Charcoal",sub:"Детокс и дълбоко почистване на пори",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: мазна, комбинирана, задръстена кожа, акне.",devices:['Esthemax Activated Charcoal Mask'],zones:'Лице',results:['Абсорбиране на токсини и себум','Дълбоко почистване на пори','Матиращ ефект'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-greentea',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'🍃',bg:'#e8f4ec',fg:'#5a9a6a',name:"Esthemax Hydrojelly — Green Tea Tree",sub:"Акне, зачервяване — анти-бактериален и успокояващ",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: акне-склонна, мазна, чувствителна, раздразнена кожа.",devices:['Esthemax Green Tea Tree Mask'],zones:'Лице',results:['Анти-бактериален ефект','Успокояване на акне','Намаляване на зачервяване'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-goji',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'🍒',bg:'#fde8e4',fg:'#c06858',name:"Esthemax Hydrojelly — Antioxidant Goji",sub:"Яркост, антиоксидантна защита, умора",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: всички типове кожа — анти-ейдж, яркост, умора.",devices:['Esthemax Antioxidant Goji Mask (Vitamin C rich)'],zones:'Лице',results:['Антиоксидантна защита от свободни радикали','Изравнен тон и яркост','Подновяване на клетките'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-aftercare',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'🌿',bg:'#e8f4ec',fg:'#5a9a6a',name:"Esthemax Hydrojelly — Intensive Aftercare",sub:"Успокояваща маска след лазер, пилинг, депилация",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: всички типове кожа след интензивни процедури.",devices:['Esthemax Intensive Aftercare Mask (Grape Seed + Bromelain + Lavender)'],zones:'Лице (включително очи и устни)',results:['Незабавно успокояване и охлаждане','Намаляване на зачервяване','Ускорено заздравяване'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'По нужда',sessions:'Единична или след всяка интензивна процедура'},
+{id:'es-vitc',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'🍊',bg:'#fff3e0',fg:'#d4843a',name:"Esthemax Hydrojelly — Vitamin C Brightening",sub:"Пигментни петна, неравен тон, умора",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: всички типове кожа — пигментация, умора, слънчеви петна.",devices:['Esthemax Vitamin C Brightening Mask'],zones:'Лице',results:['Изравнен тон','Намаляване на пигментни петна','Незабавен блясък'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'es-collagen',cat:'cosm',subcat:"Esthemax Hydrojelly",icon:'💎',bg:'#e4f0f7',fg:'#6fa8c8',name:"Esthemax Hydrojelly — Collagen",sub:"Анти-ейдж, стягане и еластичност",what:"Esthemax Hydrojelly маската създава вакуум ефект чрез алгинат, притискайки активните съставки дълбоко в порите. Без парабени, органична формула. Подходяща за: зряла кожа — загуба на еластичност, фини линии.",devices:['Esthemax Collagen Mask'],zones:'Лице',results:['Подпомагане на колагеновата структура','Подобрена еластичност','Намаляване на фини линии'],contra:['Алергия към алое или водорасли','Активни кожни инфекции','Открити рани'],before:[['💧',"Чиста кожа без грим"],['🧴',"Без активни съставки в деня"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF при излизане"],['💄',"НЕ грим <strong>4–6ч</strong>"]],interval:'2–4 седмици',sessions:'По желание'},
+{id:'forlle-hydra',cat:'cosm',subcat:"Forlle\'d",icon:'🔮',bg:'#f0edf9',fg:'#9b8ec4',name:"Forlle\'d — Хидратираща терапия",sub:"Японска биотехнология за дълбока хидратация",what:"Forlle\'d е японска медицинска козметика с биоферментирала хиалуронова киселина. Терапиите използват H-HA (висок молекулен клас) и L-HA (нисък молекулен клас) за дълбоко проникване.",devices:['Forlle\'d Hyaluronate Lotion','Forlle\'d Hyaluronate Cream'],zones:'Лице, шия, деколте',results:['Дълбока хидратация на всички слоеве','Подобрена текстура и тургор','Незабавно сияние'],contra:['Активни инфекции'],before:[['💧',"Чиста кожа без активни съставки"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF 50+"]],interval:'3–4 седмици',sessions:'По желание или курс'},
+{id:'forlle-ion',cat:'cosm',subcat:"Forlle\'d",icon:'⚡',bg:'#f0edf9',fg:'#9b8ec4',name:"Forlle\'d Ion Booster терапия",sub:"Йонофореза за дълбоко въвеждане на ХА",what:"Японски Ion Booster апарат — йонофорезна технология, транспортираща хиалуронова киселина директно в дермата, заобикаляйки бариерната функция.",devices:['Forlle\'d Ion Booster апарат','Forlle\'d Hyaluronate Serum'],zones:'Лице, шия, деколте, очен контур',results:['По-дълбока хидратация от конвенционалните методи','Видим плъмпинг ефект','Намаляване на фини линии'],contra:['Пейсмейкър','Метални импланти в лицевата зона'],before:[['💧',"Чиста кожа"]],after:[['💧',"Хидратирай с нежни продукти"]],interval:'3–4 седмици',sessions:'Курс 4–6'},
+{id:'hp-hydroglow',cat:'cosm',subcat:"HydroPeptide",icon:'✨',bg:'#e4f0f7',fg:'#6fa8c8',name:"HydroPeptide HydroGlow Facial",sub:"Ексфолиация и хидратация с пептиди — за сияние",what:"Ензимна ексфолиация с богата доза пептиди и хиалуронова киселина. Резултатът е стъкловидна кожа с незабавен блясък.",devices:['HydroPeptide Pro HydroGlow Treatment'],zones:'Лице, шия, деколте',results:['Незабавно сияние','Хидратация и изгладена текстура','Идеална за умора и дехидратация'],contra:['Активни кожни инфекции'],before:[['🧴',"Без агресивни активни <strong>2–3 дни</strong>"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF 50+"],['💄',"НЕ грим <strong>12ч</strong>"]],interval:'3–4 седмици',sessions:'По желание'},
+{id:'hp-collagen',cat:'cosm',subcat:"HydroPeptide",icon:'💎',bg:'#e4f0f7',fg:'#6fa8c8',name:"HydroPeptide Collagen Renew Facial",sub:"Колагенова стимулация с пептиди от следващо поколение",what:"Пептиди от следващо поколение стимулират синтеза на колаген и еластин. Видимо стягане и намаляване на бръчки.",devices:['HydroPeptide Collagen Renew Protocol'],zones:'Лице, шия',results:['Стягане и намаляване на бръчки','Подобрена еластичност','Пълен ефект при курс'],contra:['Активни кожни инфекции'],before:[['🧴',"Без агресивни активни <strong>2–3 дни</strong>"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF 50+"],['💄',"НЕ грим <strong>12ч</strong>"]],interval:'3–4 седмици',sessions:'Курс 4–6'},
+{id:'hp-powerlift',cat:'cosm',subcat:"HydroPeptide",icon:'🚀',bg:'#e4f0f7',fg:'#6fa8c8',name:"HydroPeptide Power Lift Facial",sub:"Интензивна лифтинг процедура с пептиди",what:"Активира механизмите на клетъчно обновяване. Видим лифтинг и стягане с минимален downtime.",devices:['HydroPeptide Power Lift Protocol'],zones:'Лице, шия',results:['Видим лифт и стягане','Намаляване на отпускане','Подходяща за зряла кожа'],contra:['Активни кожни инфекции'],before:[['🧴',"Без агресивни активни <strong>2–3 дни</strong>"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF 50+"],['💄',"НЕ грим <strong>12ч</strong>"]],interval:'4 седмици',sessions:'По желание или курс'},
+{id:'hp-calming',cat:'cosm',subcat:"HydroPeptide",icon:'🌿',bg:'#e4f0f7',fg:'#6fa8c8',name:"HydroPeptide Calming Recovery Facial",sub:"Успокояване и регенерация — чувствителна кожа",what:"Специализирана терапия за чувствителна и раздразнена кожа и след агресивни процедури. Укрепва бариерната функция.",devices:['HydroPeptide Calming Recovery Protocol'],zones:'Лице',results:['Незабавно успокояване','Укрепена бариерна функция','Ускорена регенерация'],contra:['Активни кожни инфекции'],before:[['🧴',"Без агресивни активни <strong>2–3 дни</strong>"]],after:[['💧',"Хидратирай с нежни продукти"],['🧴',"SPF 50+"],['💄',"НЕ грим <strong>12ч</strong>"]],interval:'3–4 седмици',sessions:'По желание'},
+{id:'meso-cosmelan',cat:'cosm',subcat:"Mesoesthetic",icon:'🌙',bg:'#fff3e0',fg:'#d4843a',name:"Mesoesthetic Cosmelan депигментационна система",sub:"Мелазма, хиперпигментация — двуфазна система",what:"Двуфазна система: клинична маска (Cosmelan 1) + домашен протокол (Cosmelan 2). Ефективна при мелазма и хиперпигментация от всякакъв произход.",devices:['Cosmelan 1 (клинична маска)','Cosmelan 2 (домашен крем)'],zones:'Лице, деколте, ръце',results:['Значително намаляване на пигментни петна','Ефективна при мелазма','Изравнен тон след 2–4 седмици'],contra:['Бременност','Активни инфекции','Roaccutane (6 мес.)'],before:[['☀️',"Без слънце <strong>2–4 седмици</strong>"],['🧴',"Стриктна слънцезащита"]],after:[['🧴',"<strong>SPF 50+ — КРИТИЧНО</strong> при всяко излизане"],['💧',"Нежна хидратация"],['🚫',"НЕ дращи при лющене"]],interval:'6–12 месеца (поддръжка)',sessions:'1 клинична + домашен протокол'},
+{id:'meso-mesopeel',cat:'cosm',subcat:"Mesoesthetic",icon:'✨',bg:'#fff3e0',fg:'#d4843a',name:"Mesoesthetic Mesopeel",sub:"Текстура, пигментация, акне — серия пилинги",what:"Серия ексфолиращи пилинги таргетиращи различни проблеми: текстура, пигментация, акне, фотостареене.",devices:['Mesopeel Azelan','Mesopeel Glycolic','Mesopeel TCA','Mesopeel Mandelic'],zones:'Лице, шия, деколте, гръб',results:['Изгладена текстура','Намаляване на пигментация','Подобрен тен'],contra:['Бременност','Роaccutane','Активен херпес','Скорошен тен'],before:[['☀️',"Без слънце <strong>2–4 седмици</strong>"],['🧴',"Без ретинол <strong>5 дни</strong>"]],after:[['🧴',"<strong>SPF 50+</strong> стриктно"],['💧',"Нежна хидратация"],['🚫',"НЕ дращи"]],interval:'4 седмици',sessions:'1–6 (зависи от пилинга)'},
+{id:'meso-skinreborn',cat:'cosm',subcat:"Mesoesthetic",icon:'🌱',bg:'#fff3e0',fg:'#d4843a',name:"Mesoesthetic Skin Reborn",sub:"PDRN + Growth Factors — регенерация и подмладяване",what:"Регенериращ протокол с PDRN и Growth Factors за интензивна клетъчна регенерация и подобряване качеството на кожата.",devices:['PDRN Skin Reborn Protocol','Growth Factor Complex'],zones:'Лице, шия, деколте',results:['Клетъчна регенерация','Подобрено качество и текстура','Намаляване на фини линии'],contra:['Бременност','Активни инфекции'],before:[['🧴',"Без агресивни активни <strong>3 дни</strong>"]],after:[['💧',"Хидратирай"],['🧴',"SPF 50+"]],interval:'3–4 седмици',sessions:'Курс 3–4'},
+{id:'rosequre',cat:'cosm',subcat:"RoseQure",icon:'🌹',bg:'#fdf0f5',fg:'#d4849a',name:"RoseQure терапия",sub:"Кристален кварц и розова вода — чувствителна кожа",what:"Деликатна ексфолиация с розов кварц и интензивна хидратация с розова вода. Подходяща за чувствителна кожа.",devices:['RoseQure Crystal Products','Rose Quartz','Rose Water'],zones:'Лице',results:['Деликатна ексфолиация','Интензивна хидратация','Успокояване'],contra:['Активни инфекции'],before:[['💧',"Чиста кожа"]],after:[['💧',"Хидратирай"],['🧴',"SPF"]],interval:'2–3 седмици',sessions:'По желание'},
+{id:'led-therapy',cat:'cosm',subcat:"LED фототерапия",icon:'💡',bg:'#fff8e0',fg:'#c4a020',name:"LED фототерапия (Dermalux, Celluma)",sub:"Червена, синя, NIR светлина — акне, колаген, регенерация",what:"Различни вълни: червена (630nm) стимулира колагена, синя (415nm) унищожава акне-бактерии, NIR (810nm) ускорява регенерацията.",devices:['Dermalux Flex MD','Celluma Pro','Omnilux Contour','Lutronic Healite II'],zones:'Лице, тяло, скалп',results:['Намаляване на акне (синя светлина)','Стимулиране на колаген (червена)','Ускорена регенерация след процедури (NIR)','Без болка, без downtime'],contra:['Фоточувствителни медикаменти','Активен рак на кожата','Епилепсия'],before:[],after:[['🧴',"SPF при излизане"],['💧',"Хидратирай"]],interval:'2–3 пъти седмично (курс)',sessions:'Курс 6–12 или по желание'},
+{id:'botox-wrinkles',cat:'inject',subcat:"Ботулинов токсин",icon:'💉',bg:'#eeeaf8',fg:'#9b8ec4',name:"Ботокс — Изглаждане на бръчки",sub:"Чело, межуочие, очна бръчка, пачи крак, Nefertiti lift",what:"Ботулиновият токсин тип А временно блокира нервно-мускулното предаване, релаксирайки мимическите мускули. Всяка зона изисква прецизна техника. Nefertiti lift — шия и долна челюст.",devices:['Botox / Vistabel (AbbVie)','Dysport (Ipsen)','Xeomin / Bocouture (Merz)','Azzalure (Galderma)'],zones:'Чело, межуочие (глабела), очна бръчка, пачи крак, устни (lip flip), шия (Nefertiti), подбрадие',results:['Видимо изглаждане след <strong>5–10 дни</strong>','Пълен ефект на <strong>14-ия ден</strong>','Трае <strong>3–6 месеца</strong>','При редовно приложение мускулите отслабват и ефектът е по-дълготраен'],contra:['Бременност и кърмене','Миастения гравис','Алергия към ботулинов токсин','Активни инфекции в зоната','Антикоагулантна терапия'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['🧴',"Без кремове в деня"]],after:[['😊',"<strong>Движи мускулите</strong> 1–2ч след"],['🛌',"Спи <strong>по гръб</strong> 1 нощ"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['🍷',"НЕ алкохол <strong>24ч</strong>"],['🏋️',"НЕ спорт <strong>24ч</strong>"]],interval:'3–6 месеца',sessions:'Поддържащи по преценка'},
+{id:'botox-hyperhidrosis',cat:'inject',subcat:"Ботулинов токсин",icon:'💉',bg:'#eeeaf8',fg:'#9b8ec4',name:"Ботокс — Хиперхидроза",sub:"Прекомерно изпотяване — подмишници, длани, стъпала",what:"Ботулиновият токсин тип А временно блокира нервно-мускулното предаване, релаксирайки мимическите мускули. При хиперхидроза блокира нервите, стимулиращи потните жлези. Намалява изпотяването с до 90%.",devices:['Botox / Vistabel (AbbVie)','Dysport (Ipsen)','Xeomin / Bocouture (Merz)','Azzalure (Galderma)'],zones:'Подмишници (основна), длани, стъпала',results:['Намаляване на изпотяването с до 90%','Ефект 6–9 месеца','Значително подобряване на качеството на живот'],contra:['Бременност и кърмене','Миастения гравис','Алергия към ботулинов токсин','Активни инфекции в зоната','Антикоагулантна терапия'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['🧴',"Без кремове в деня"]],after:[['😊',"<strong>Движи мускулите</strong> 1–2ч след"],['🛌',"Спи <strong>по гръб</strong> 1 нощ"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['🍷',"НЕ алкохол <strong>24ч</strong>"],['🏋️',"НЕ спорт <strong>24ч</strong>"]],interval:'6–9 месеца',sessions:'По преценка'},
+{id:'botox-bruxism',cat:'inject',subcat:"Ботулинов токсин",icon:'💉',bg:'#eeeaf8',fg:'#9b8ec4',name:"Ботокс — Бруксизъм",sub:"Стягане и скърцане с зъби — масетерен мускул",what:"Ботулиновият токсин тип А временно блокира нервно-мускулното предаване, релаксирайки мимическите мускули. Инжекцията в масетерния мускул го релаксира — спира нощното стискане. Допълнително стеснява долната трета.",devices:['Botox / Vistabel (AbbVie)','Dysport (Ipsen)','Xeomin / Bocouture (Merz)','Azzalure (Galderma)'],zones:'Масетер (дъвкателен мускул) — двустранно',results:['Намаляване на бруксизма','Облекчаване на главоболие и болка в ставата','Стесняване на долната третина'],contra:['Бременност и кърмене','Миастения гравис','Алергия към ботулинов токсин','Активни инфекции в зоната','Антикоагулантна терапия'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['🧴',"Без кремове в деня"]],after:[['😊',"<strong>Движи мускулите</strong> 1–2ч след"],['🛌',"Спи <strong>по гръб</strong> 1 нощ"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['🍷',"НЕ алкохол <strong>24ч</strong>"],['🏋️',"НЕ спорт <strong>24ч</strong>"]],interval:'4–6 месеца',sessions:'По преценка'},
+{id:'filler-juvederm',cat:'inject',subcat:"Филъри — Juvederm",icon:'💎',bg:'#f0e8dc',fg:'#b8966a',name:"Juvederm филъри (Voluma, Volift, Volbella, SKINVIVE)",sub:"AbbVie — VYCROSS и NASHA технология",what:"Juvederm е водещата серия. Voluma — бузи и ябълки, Volift — назолабиални бразди, Volbella — устни, SKINVIVE — дермален бустер.",devices:['Juvederm Voluma XC','Juvederm Volift','Juvederm Volbella XC','Juvederm SKINVIVE','Juvederm Volux (брадичка)'],zones:'Устни, назолабиални гънки, бузи, ябълки, брадичка, долна челюст, ръце',results:['Незабавен видим резултат','Хиалуроновите филъри траят <strong>9–18 месеца</strong>','При правилно приложение — напълно естествен вид'],contra:['Бременност и кърмене','Автоимунни заболявания','Активни инфекции','Склонност към келоиди'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['❄️',"Антихерпесна профилактика при устни"]],after:[['🧊',"Студен компрес при оток"],['🛌',"Спи по гръб <strong>1 нощ</strong>"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['☀️',"НЕ слънце без SPF"]],interval:'9–24 месеца',sessions:'По преценка'},
+{id:'filler-restylane',cat:'inject',subcat:"Филъри — Restylane",icon:'💎',bg:'#f0e8dc',fg:'#b8966a',name:"Restylane филъри (Defyne, Lyft, Skinboosters)",sub:"Galderma — OBT технология",what:"Restylane OBT и NASHA. Defyne — гъвкав гел за бразди, Lyft — обем, Skinboosters — дермална хидратация.",devices:['Restylane Lyft','Restylane Defyne','Restylane Refyne','Restylane Skinboosters','Restylane Kysse'],zones:'Устни, назолабиални гънки, бузи, под очи, ръце',results:['Незабавен видим резултат','Хиалуроновите филъри траят <strong>9–18 месеца</strong>','При правилно приложение — напълно естествен вид'],contra:['Бременност и кърмене','Автоимунни заболявания','Активни инфекции','Склонност към келоиди'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['❄️',"Антихерпесна профилактика при устни"]],after:[['🧊',"Студен компрес при оток"],['🛌',"Спи по гръб <strong>1 нощ</strong>"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['☀️',"НЕ слънце без SPF"]],interval:'9–18 месеца',sessions:'По преценка'},
+{id:'filler-stylage',cat:'inject',subcat:"Филъри — Stylage",icon:'💎',bg:'#f0e8dc',fg:'#b8966a',name:"Stylage филъри (XXL, XL, M, Bi-Soft)",sub:"Vivacy — французка серия с антиоксидантна защита",what:"Stylage с вградена антиоксидантна защита (манитол). XXL/XL — обемизиране, M — средни зони, Bi-Soft — устни.",devices:['Stylage XXL','Stylage XL','Stylage M','Stylage S','Stylage Bi-Soft','Stylage Special Lips'],zones:'Устни, назолабиални, бузи, ябълки, под очи, ръце',results:['Незабавен видим резултат','Хиалуроновите филъри траят <strong>9–18 месеца</strong>','При правилно приложение — напълно естествен вид'],contra:['Бременност и кърмене','Автоимунни заболявания','Активни инфекции','Склонност към келоиди'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['❄️',"Антихерпесна профилактика при устни"]],after:[['🧊',"Студен компрес при оток"],['🛌',"Спи по гръб <strong>1 нощ</strong>"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['☀️',"НЕ слънце без SPF"]],interval:'9–18 месеца',sessions:'По преценка'},
+{id:'filler-teosyal',cat:'inject',subcat:"Филъри — Teosyal",icon:'💎',bg:'#f0e8dc',fg:'#b8966a',name:"Teosyal филъри (RHA, Kiss, PureSense)",sub:"Teoxane — швейцарска RHA технология за естествени движения",what:"Teosyal RHA (Resilient Hyaluronic Acid) — запазва естествените движения на лицето.",devices:['Teosyal Kiss (устни)','Teosyal RHA 3','Teosyal RHA 4','Teosyal PureSense Redensity'],zones:'Устни, назолабиални, бузи, долна третина',results:['Незабавен видим резултат','Хиалуроновите филъри траят <strong>9–18 месеца</strong>','При правилно приложение — напълно естествен вид'],contra:['Бременност и кърмене','Автоимунни заболявания','Активни инфекции','Склонност към келоиди'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['❄️',"Антихерпесна профилактика при устни"]],after:[['🧊',"Студен компрес при оток"],['🛌',"Спи по гръб <strong>1 нощ</strong>"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['☀️',"НЕ слънце без SPF"]],interval:'9–18 месеца',sessions:'По преценка'},
+{id:'bio-harmonyca',cat:'inject',subcat:"Биостимулатори",icon:'✨',bg:'#fdf0f5',fg:'#d4849a',name:"HarmonyCa (AbbVie) — ХА + CaHA",sub:"Двоен ефект: незабавен обем + дългосрочна колагенова стимулация",what:"Комбинира ХА (незабавен обем) с калциев хидроксиапатит (колагенова стимулация) в единна формула.",devices:['HarmonyCa (AbbVie/Allergan)'],zones:'Бузи, ябълки, долна третина, шия',results:['Незабавен обем и лифт','Колагеногенеза — ефект след 4–8 седмици','Трае 12–18 месеца'],contra:['Бременност','Автоимунни заболявания','Нерезорбируеми филъри'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['❄️',"Антихерпесна профилактика при устни"]],after:[['🧊',"Студен компрес при оток"],['🛌',"Спи по гръб <strong>1 нощ</strong>"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['☀️',"НЕ слънце без SPF"]],interval:'12–18 месеца',sessions:'1–2 сесии'},
+{id:'bio-sculptra',cat:'inject',subcat:"Биостимулатори",icon:'💫',bg:'#fdf0f5',fg:'#d4849a',name:"Sculptra (Galderma) — Поли-L-млечна киселина (PLLA)",sub:"Постепенна биостимулация — пълен ефект след 3–6 месеца",what:"PLLA микрочастици стимулират собствения колаген на тялото. Постепенен, естествен и дълготраен ефект.",devices:['Sculptra Aesthetic (Galderma)'],zones:'Темпорална зона, бузи, долна третина, шия, деколте, тяло',results:['Постепенен, естествен ефект','Пълен резултат след 3–6 месеца','Трае 2+ години'],contra:['Бременност','Автоимунни заболявания'],before:[['🍷',"Без алкохол <strong>24–48ч</strong>"],['💊',"Без аспирин <strong>7 дни</strong>"],['❄️',"Антихерпесна профилактика при устни"]],after:[['🧊',"Студен компрес при оток"],['🛌',"Спи по гръб <strong>1 нощ</strong>"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"],['☀️',"НЕ слънце без SPF"]],interval:'2+ години',sessions:'Курс 3 сесии'},
+{id:'sb-rejuran',cat:'inject',subcat:"Скинбустери / Полинуклеотиди",icon:'💫',bg:'#e4f0f7',fg:'#6fa8c8',name:"Rejuran Healer / S / I (Samsung Bioepis)",sub:"PDRN — полинуклеотиди за дълбока регенерация",what:"PDRN (от ДНК на сьомга) — биологично съвместими с човешката ДНК фрагменти. Стимулира клетъчната регенерация.",devices:['Rejuran Healer (лице)','Rejuran S (белези)','Rejuran I (под очи)'],zones:'Лице, белези от акне, зона под очи',results:['Стъкловидна, хидратирана кожа','Намаляване на фини линии','Пълен ефект след <strong>3–4 седмици</strong>','Резултатите се натрупват с курса'],contra:['Бременност','Активни инфекции','Автоимунни заболявания'],before:[['🍷',"Без алкохол <strong>24ч</strong>"],['💊',"Без аспирин <strong>5 дни</strong>"]],after:[['💧',"Хидратирай обилно"],['🧴',"SPF 50+"],['🚫',"НЕ масажирай <strong>24ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'3–4 седмици (курс 3), после 6–12 мес.',sessions:'Курс 3 ×'},
+{id:'sb-profhilo',cat:'inject',subcat:"Скинбустери / Полинуклеотиди",icon:'💫',bg:'#e4f0f7',fg:'#6fa8c8',name:"Profhilo (IBSA) — Биоремоделиращ агент",sub:"64mg ХА — биоремоделиране на кожата",what:"Уникален: 64mg ХА в H-L-HA комплекс. Разпределя се из тъканите и биоремоделира кожата — не е филър.",devices:['Profhilo (IBSA Farmaceutici)'],zones:'Лице, шия, деколте, ръце (BAP техника — 5 точки)',results:['Стъкловидна, хидратирана кожа','Намаляване на фини линии','Пълен ефект след <strong>3–4 седмици</strong>','Резултатите се натрупват с курса'],contra:['Бременност','Активни инфекции','Автоимунни заболявания'],before:[['🍷',"Без алкохол <strong>24ч</strong>"],['💊',"Без аспирин <strong>5 дни</strong>"]],after:[['💧',"Хидратирай обилно"],['🧴',"SPF 50+"],['🚫',"НЕ масажирай <strong>24ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'3–4 седмици (2 сесии), после 6 мес.',sessions:'2 сесии (протокол) + поддържащи'},
+{id:'sb-jalupro',cat:'inject',subcat:"Скинбустери / Полинуклеотиди",icon:'💫',bg:'#e4f0f7',fg:'#6fa8c8',name:"Jalupro (Classic, Super Hydro, Young Eye)",sub:"Аминокиселини + ХА за биоревитализация",what:"Jalupro е биоревитализатор на аминокиселини и ХА. Classic — лице, Super Hydro — интензивна хидратация, Young Eye — деликатна зона под очи.",devices:['Jalupro Classic','Jalupro Super Hydro','Jalupro Young Eye'],zones:'Лице, шия, деколте, ръце, зона под очи',results:['Стъкловидна, хидратирана кожа','Намаляване на фини линии','Пълен ефект след <strong>3–4 седмици</strong>','Резултатите се натрупват с курса'],contra:['Бременност','Активни инфекции','Автоимунни заболявания'],before:[['🍷',"Без алкохол <strong>24ч</strong>"],['💊',"Без аспирин <strong>5 дни</strong>"]],after:[['💧',"Хидратирай обилно"],['🧴',"SPF 50+"],['🚫',"НЕ масажирай <strong>24ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'3–4 седмици (курс 3), после 6–12 мес.',sessions:'Курс 3 ×'},
+{id:'sb-rrs',cat:'inject',subcat:"Скинбустери / Полинуклеотиди",icon:'💫',bg:'#e4f0f7',fg:'#6fa8c8',name:"RRS HA Long Lasting",sub:"ХА + витамини + аминокиселини — дълготраен бустер",what:"Дермален бустер с ХА и комплекс от витамини, аминокиселини и антиоксиданти. Дълготрайна хидратация.",devices:['RRS HA Long Lasting (Skin Tech)'],zones:'Лице, шия, деколте',results:['Стъкловидна, хидратирана кожа','Намаляване на фини линии','Пълен ефект след <strong>3–4 седмици</strong>','Резултатите се натрупват с курса'],contra:['Бременност','Активни инфекции','Автоимунни заболявания'],before:[['🍷',"Без алкохол <strong>24ч</strong>"],['💊',"Без аспирин <strong>5 дни</strong>"]],after:[['💧',"Хидратирай обилно"],['🧴',"SPF 50+"],['🚫',"НЕ масажирай <strong>24ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'3–4 седмици (курс 3)',sessions:'Курс 3 ×'},
+{id:'meso-bcn',cat:'inject',subcat:"Мезотерапия",icon:'🔮',bg:'#e8f0ec',fg:'#8fa89a',name:"Мезотерапия — BCN протоколи",sub:"Коктейли с витамини, аминокиселини и ХА",what:"Интрадермални микроинжекции на активни BCN коктейли. Различни протоколи за лице, коса, тяло.",devices:['Institute BCN коктейли','Автоматичен мезоинжектор','Дермограф'],zones:'Лице, шия, деколте, скалп, ръце, тяло',results:['Подобрена хидратация и хранене','Блясък и изравнен тон','Намаляване на косопад (скалп)'],contra:['Бременност','Активни инфекции'],before:[['🧴',"Без кремове в деня"]],after:[['💧',"Хидратирай обилно"],['🧴',"SPF 50+"],['💄',"НЕ грим <strong>12ч</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'2–3 седмици',sessions:'Курс 4–6'},
+{id:'prp',cat:'inject',subcat:"Мезотерапия",icon:'🩸',bg:'#fde8e4',fg:'#c06858',name:"ПРП — Плазмотерапия (PRP)",sub:"100% натурален метод с растежни фактори",what:"Плазма с концентрирани тромбоцити и растежни фактори — инжектирана обратно активира регенерацията без чужди вещества.",devices:['RegenKit (Regen Lab)','Arthrex Angel PRP','Emcyte Pure PRP'],zones:'Лице, шия, деколте, ръце, скалп',results:['Подобрено качество на кожата','Значително намаляване на косопад след 3–6 мес.','100% натурален метод'],contra:['Нарушения на кръвосъсирването','Тромбоцитопения','Антикоагуланти'],before:[['🍷',"Без алкохол <strong>24ч</strong>"],['💧',"Хидратирай се преди"]],after:[['🚫',"НЕ мокри скалпа <strong>24ч</strong> (при коса)"],['🧴',"SPF 50+"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'3–4 седмици',sessions:'Курс 3–4'},
+{id:'threads-pdo',cat:'inject',subcat:"Нишки (Thread Lift)",icon:'🪡',bg:'#eeeaf8',fg:'#9b8ec4',name:"PDO нишки — Thread Lift",sub:"Минималноинвазивен лифтинг с абсорбируеми нишки",what:"PDO нишки се въвеждат с игла и стягат + стимулират колагена. Моно — регенерация, куки — лифт, спирали — обем.",devices:['PDO Monofilament','PDO Cog (кука)','PDO Screw (спирала)'],zones:'Лице (бузи, шия, долна челюст), тяло',results:['Незабавен лифтинг ефект','Стимулиране на колаген 4–6 месеца','Ефект 12–18 месеца'],contra:['Активни инфекции','Склонност към келоиди','Бременност'],before:[['💊',"Без аспирин <strong>7 дни</strong>"],['🍷',"Без алкохол <strong>48ч</strong>"]],after:[['🧊',"Студен компрес при нужда"],['🚫',"НЕ масажирай <strong>2 седмици</strong>"],['♨️',"НЕ сауна <strong>2 седмици</strong>"]],interval:'12–18 месеца',sessions:'Единична или комбинирана'},
+{id:'ft-3d4d',cat:'fotona',subcat:"Лифтинг",icon:'🌟',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA 3D/4D LIFTING",sub:"Ендорален + външен Nd:YAG — лифтинг без игла",what:"Smooth режим (ендорален) стяга от вътре, FRAC3 таргетира дермата, Piano загрява дълбоко, SupErficial завършва. Стягане без инжекции.",devices:['Fotona SP Dynamis Pro','Fotona StarWalker MaQX'],zones:'Лице (пълен), шия, периорбитална зона',results:['Видим лифтинг и стягане след 1–2 сесии','Колагеновият отговор продължава <strong>4–8 седмици</strong>','Ефектът трае <strong>12–18 месеца</strong>'],contra:['Активен орален херпес','Пейсмейкър','Метални зъбни импланти в зоната'],before:[['🧴',"Без активни <strong>1 седмица</strong>"],['☀️',"Без слънце <strong>2 седмици</strong>"],['💄',"Без грим в деня"]],after:[['🧴',"Нежни продукти и <strong>интензивна хидратация</strong>"],['🧴',"<strong>SPF 50+</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"],['🚫',"НЕ ретинол <strong>1 седмица</strong>"]],interval:'3–6 месеца',sessions:'1–3 сесии'},
+{id:'ft-smootheye',cat:'fotona',subcat:"Лифтинг",icon:'👁',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA SmoothEye",sub:"Бръчки около очи — Er:YAG без downtime",what:"SmoothEye Er:YAG загрява деликатно тъканите около очите. Стяга пачи крак и горния клепач без downtime.",devices:['Fotona Er:YAG SMOOTH режим'],zones:'Периорбитална зона — пачи крак, горен клепач',results:['Намаляване на пачи крак','Стягане на горния клепач','Без downtime'],contra:['Активен орален херпес','Пейсмейкър','Метални зъбни импланти в зоната'],before:[['🧴',"Без активни <strong>1 седмица</strong>"],['☀️',"Без слънце <strong>2 седмици</strong>"],['💄',"Без грим в деня"]],after:[['🧴',"Нежни продукти и <strong>интензивна хидратация</strong>"],['🧴',"<strong>SPF 50+</strong>"],['♨️',"НЕ сауна <strong>48ч</strong>"],['🚫',"НЕ ретинол <strong>1 седмица</strong>"]],interval:'4–6 седмици',sessions:'3–5 сесии'},
+{id:'ft-lightpeel',cat:'fotona',subcat:"Ресурфейсинг",icon:'✨',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA LightPeel / Pixel Er:YAG",sub:"Фракционен Er:YAG — текстура, пигментация, белези",what:"LightPeel (повърхностен) и Pixel (средна дълбочина) — ексфолиират и стимулират регенерацията.",devices:['Fotona Er:YAG (LightPeel/Pixel/FullAblative)'],zones:'Лице, шия, деколте, очен контур, около устата',results:['Изгладена текстура','Намаляване на пигментни петна','Видими резултати след 5–14 дни'],contra:['Активен херпес (профилактика!)','Активен тен','Roaccutane (6+ мес.)'],before:[['💊',"Антивирусна профилактика"],['☀️',"Без слънце <strong>4 седмици</strong>"]],after:[['🧴',"Регенериращ мехлем до зарастване"],['💧',"Интензивна хидратация"],['🧴',"SPF 50+"],['🚫',"НЕ грим до зарастване"]],interval:'4–8 седмици',sessions:'1–4 сесии'},
+{id:'ft-genesis',cat:'fotona',subcat:"Съдови / Розацея",icon:'🌸',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA Genesis — Зачервяване и розацея",sub:"Nd:YAG термична терапия — телеангиектазии, пори",what:"Мека термична Nd:YAG процедура. Стимулира колаген, намалява зачервяване и телеангиектазии, свива пори.",devices:['Fotona Nd:YAG 1064nm (Genesis режим)'],zones:'Лице, шия, деколте',results:['Намаляване на зачервяване','Свиване на пори','Подобрен тонус'],contra:['Активни инфекции','Тен'],before:[['☀️',"Без слънце <strong>2 седмици</strong>"]],after:[['🧴',"SPF 50+"],['💧',"Хидратирай"],['♨️',"НЕ сауна <strong>24ч</strong>"]],interval:'3–4 седмици',sessions:'4–6 сесии'},
+{id:'ft-veins',cat:'fotona',subcat:"Съдови / Розацея",icon:'🩷',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA — Вени и капиляри",sub:"Nd:YAG — паяжинни вени, телеангиектазии, хемангиоми",what:"Nd:YAG таргетира хемоглобина в съдовете. Коагулира ги — изчезват за 2–4 седмици.",devices:['Fotona Nd:YAG 1064nm'],zones:'Лице (телеангиектазии), крака (паяжинни вени), тяло',results:['Намаляване/изчезване на третираните съдове','Изчезване за 2–4 седмици'],contra:['Активен тен','Антикоагуланти'],before:[['☀️',"Без слънце <strong>4 седмици</strong>"]],after:[['🧴',"SPF 50+"],['🩵',"Компресия при крака"],['♨️',"НЕ сауна <strong>1 седмица</strong>"]],interval:'4–6 седмици',sessions:'1–4 сесии'},
+{id:'ft-liplase',cat:'fotona',subcat:"Устни и орална зона",icon:'💋',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA LipLase — Обем без инжекции",sub:"Nd:YAG SMOOTH — естествен обем и дефиниция на устни",what:"LipLase загрява колагена в устните. Стимулира неоколагеногенезата за естествен обем без игла.",devices:['Fotona Nd:YAG SMOOTH режим'],zones:'Устни — горна, долна, контур',results:['Видим обем и дефиниция след 2–4 сесии','Естествен резултат без инжекции'],contra:['Активен херпес','Лезии по устните'],before:[['❄️',"Антихерпесна профилактика"]],after:[['💧',"Хидратирай устните"],['🌶️',"НЕ горещи напитки <strong>24ч</strong>"]],interval:'3–4 седмици',sessions:'3–5 сесии'},
+{id:'ft-nightlase',cat:'fotona',subcat:"Устни и орална зона",icon:'😴',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA NightLase — Хъркане и сънна апнея",sub:"Er:YAG SMOOTH — стягане на небцето без операция",what:"Стяга тъканите на мекото небце. Намалява хъркането без операция.",devices:['Fotona Er:YAG SMOOTH режим'],zones:'Устна кухина — мекото небце и язула',results:['Значително намаляване на хъркане','Без операция','Ефект 12–18 месеца'],contra:['Тежка сънна апнея','Активни орални инфекции'],before:[['🚫',"Без тежка вечеря вечерта преди"]],after:[['💧',"Пий вода след"],['🌶️',"НЕ горещи/лютиви храни <strong>24ч</strong>"]],interval:'2–3 седмици',sessions:'3 сесии'},
+{id:'ft-hair',cat:'fotona',subcat:"Коса",icon:'💆',bg:'#fdf0f5',fg:'#d4849a',name:"FOTONA HAIRestart — Косопад",sub:"Er:YAG + Nd:YAG биостимулация на фоликули",what:"Комбинира Er:YAG и Nd:YAG за биостимулация на фоликулите. Увеличава кръвоснабдяването и активира фоликулите.",devices:['Fotona SP Dynamis (Er:YAG + Nd:YAG)'],zones:'Скалп',results:['Намаляване на косопад','Активиране на дремещи фоликули'],contra:['Активни инфекции на скалпа','Тотална алопеция'],before:[['🧴',"Без продукти на скалпа в деня"]],after:[['🚫',"НЕ мокри скалпа <strong>24ч</strong>"]],interval:'3–4 седмици',sessions:'Курс 4–6'},
+{id:'ft-removal',cat:'fotona',subcat:"Премахване на образувания",icon:'🔴',bg:'#fde8e4',fg:'#c06858',name:"FOTONA — Премахване на кожни образувания",sub:"Фиброми, брадавички, бенки, мазни кисти, милиуми",what:"Прецизно Er:YAG/Nd:YAG лазерно отстраняване. По-малко кървене от хирургия, по-бърза регенерация.",devices:['Fotona Er:YAG Ablation','Fotona Nd:YAG коагулация'],zones:'Лице и тяло — по преценка на дерматолог',results:['Ефективно в 1 сесия','Коричка 1–2 седмици','Минимален риск от белег'],contra:['Тъмен тен','Склонност към келоиди','Злокачествени образувания'],before:[['🩺',"<strong>Задължителен дерматологичен преглед</strong>"]],after:[['🧴',"Регенериращ мехлем"],['🚫',"НЕ дращи коричката"],['☀️',"НЕ слънце до зарастване"]],interval:'4–6 седмици',sessions:'1–2 сесии'},
+{id:'co2-laser',cat:'co2',subcat:"CO2 лазер",icon:'🔬',bg:'#fde8e4',fg:'#c06858',name:"CO2 лазер ресурфейсинг",sub:"Фракционен CO2 — подмладяване, белези, стрии",what:"Изпарява микроколони кожа, стимулирайки интензивно производство на колаген. Сред най-ефективните методи.",devices:['Lumenis UltraPulse','Fraxel CO2 (Solta)','SmartXide DOT (Deka)','Alma Pixel CO2','Sciton HALO'],zones:'Лице, шия, деколте, ръце, периорбитална зона',results:['Значително подобрена текстура, тон и еластичност','Намаляване на белези и стрии','Пълни резултати след <strong>3–6 месеца</strong>'],contra:['Активен херпес','Скорошен тен','Roaccutane (6+ мес.)','Бременност'],before:[['💊',"Антивирусна профилактика"],['☀️',"Без слънце <strong>4–6 седмици</strong>"]],after:[['🧴',"Мехлем до зарастване (5–10 дни)"],['💧',"Интензивна хидратация"],['🧴',"<strong>SPF 50+ 3–6 месеца</strong>"],['☀️',"БЕЗ слънце <strong>минимум 1 месец</strong>"]],interval:'3–12 месеца',sessions:'1–3 сесии'},
+{id:'morpheus8-face',cat:'co2',subcat:"Morpheus8",icon:'🔬',bg:'#fde8e4',fg:'#c06858',name:"Morpheus8 — RF Микронидлинг (Лице)",sub:"InMode — ремоделиране, стягане, пори",what:"RF + микроиглички. Ремоделира, стяга и намалява мазнинните депозити.",devices:['Morpheus8 (InMode)','Morpheus8 Prime'],zones:'Лице, долна челюст, бузи, шия',results:['Видимо стягане след 4–8 седмици','Пълен ефект след 3–6 месеца','Подобрена текстура и пори'],contra:['Метални импланти','Пейсмейкър','Бременност'],before:[['🧴',"Спри ретинол <strong>1 седмица</strong>"],['☀️',"Без слънце <strong>2 седмици</strong>"]],after:[['🧊',"Студен компрес <strong>24ч</strong>"],['💧',"Интензивна хидратация"],['🧴',"SPF 50+"],['♨️',"НЕ сауна <strong>1 седмица</strong>"]],interval:'4–6 седмици',sessions:'1–3 сесии'},
+{id:'morpheus8-body',cat:'co2',subcat:"Morpheus8",icon:'🔬',bg:'#fde8e4',fg:'#c06858',name:"Morpheus8 Body — RF Микронидлинг (Тяло)",sub:"InMode — ремоделиране и топене на мазнини по тяло",what:"По-дълги иглички (24–40mm) достигат подкожната мазнина. Апоптоза + стягане на кожата.",devices:['Morpheus8 Body (InMode)'],zones:'Корем, ръце, вътрешни бедра, колене, седалище',results:['Стягане на кожата','Намаляване на мастни депозити','Пълен ефект след 3–6 месеца'],contra:['Метални импланти','Пейсмейкър','Бременност'],before:[['🧴',"Без кремове <strong>2 дни</strong>"]],after:[['💧',"Много вода"],['♨️',"НЕ сауна <strong>1 седмица</strong>"]],interval:'6–8 седмици',sessions:'1–3 сесии'},
+{id:'hifu',cat:'rf',subcat:"HIFU",icon:'📡',bg:'#fde8e4',fg:'#c06858',name:"HIFU — Фокусиран ултразвук",sub:"Ultherapy, Ultraformer, Doublo — достига до SMAS слоя",what:"HIFU достига SMAS слоя — структурата при хирургичен лифтинг. Без операция, без анестезия.",devices:['Ultherapy (Merz)','Ultraformer III / MPT (Classys)','Doublo Gold'],zones:'Лице, вежди, долна челюст, шия, деколте, тяло',results:['Видим лифт след 3–6 месеца','Ефект 12–18+ месеца'],contra:['Метални импланти или пейсмейкър','Активни лезии','Бременност'],before:[['💧',"Хидратирана кожа"],['☀️',"Без слънце <strong>2 седмици</strong>"]],after:[['💧',"Интензивна хидратация"],['🧴',"SPF 50+"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'12–18 месеца',sessions:'1 сесия'},
+{id:'thermage',cat:'rf',subcat:"Thermage FLX",icon:'📡',bg:'#fde8e4',fg:'#c06858',name:"Thermage FLX",sub:"Монополарна RF — лице (включително клепачи) и тяло",what:"Монополарна RF загрява дермата прецизно. Незабавно свиване на колаген + продължаваща неоколагеногенеза.",devices:['Thermage FLX (Solta Medical)'],zones:'Лице (клепачи — специален накрайник), шия, ръце, корем, крака',results:['Незабавно и прогресиращо стягане','Ефект 12–24+ месеца'],contra:['Метални импланти или пейсмейкър','Активни лезии','Бременност'],before:[['💧',"Хидратирана кожа"],['☀️',"Без слънце <strong>2 седмици</strong>"]],after:[['💧',"Интензивна хидратация"],['🧴',"SPF 50+"],['♨️',"НЕ сауна <strong>48ч</strong>"]],interval:'12–24 месеца',sessions:'1 сесия'},
+{id:'rf-body',cat:'rf',subcat:"RF за тяло",icon:'📡',bg:'#e8f0ec',fg:'#8fa89a',name:"RF за тяло — Топене и стягане",sub:"PrimeX, Exilis Ultra, Venus Legacy, InMode BodyFX",what:"RF нагрява мастния слой до 42–45°C — апоптоза на мастните клетки + стягане на кожата.",devices:['Alma PrimeX RF','PrimeX RF+US','Exilis Ultra 360','Venus Legacy','InMode BodyFX'],zones:'Корем, талия, бедра, седалище, ръце, вътрешни бедра',results:['Намаляване на сантиметри','Видимо стягане','Намаляване на целулит'],contra:['Метални импланти или пейсмейкър','Активни лезии','Бременност'],before:[['💧',"Хидратирай се"],['🧴',"Без кремове в деня"]],after:[['💧',"2 л вода"],['🚶',"Разходка 30 мин"],['🍷',"Ограничи алкохол"]],interval:'7–14 дни',sessions:'6–10 сесии — интервалът се разширява с напредването по препоръка на терапевт'},
+{id:'endosphere',cat:'rf',subcat:"Ендосфера",icon:'🔵',bg:'#e8f0ec',fg:'#8fa89a',name:"Ендосфера терапия",sub:"Компресивна микровибрация — целулит и оформяне",what:"Компресивна микровибрация — активира лимфодренажа и разкъсва фиброзните нишки на целулита.",devices:['Endosphere (Sphera Health)'],zones:'Тяло (бедра, корем, ръце), лице, скалп',results:['Намаляване на целулит','Намаляване на отоци','Оформяне на силуета'],contra:['Дълбока венозна тромбоза','Бременност'],before:[['💧',"Хидратирай се"]],after:[['💧',"2+ л вода"],['♨️',"НЕ сауна <strong>24ч</strong>"]],interval:'7 дни',sessions:'8–12 сесии'},
+{id:'kriolip',cat:'body',subcat:"Криолиполиза",icon:'❄️',bg:'#e8f0ec',fg:'#8fa89a',name:"Криолиполиза",sub:"CoolSculpting, CoolTech, Clatuu — замразяване на мастни клетки",what:"Охлаждане до -4°C — кристализация и апоптоза на мастните клетки. Без увреждане на кожата.",devices:['CoolSculpting / Elite (AbbVie)','CoolTech (Zimmer)','Clatuu Alpha'],zones:'Корем, love handles, бедра, двойна брадичка, гръб, ръце',results:['20–25% намаляване на мастния слой','Резултати след 4–12 седмици'],contra:['Синдром на Raynaud','Криоглобулинемия','Бременност','Херния'],before:[['🧴',"Без кремове в деня"]],after:[['💆',"Масаж веднага след (включен)"],['💧',"Много вода"]],interval:'Минимум 3 месеца',sessions:'1–3 сесии на зона'},
+{id:'lymph',cat:'body',subcat:"Лимфен дренаж",icon:'🦵',bg:'#e8f0ec',fg:'#8fa89a',name:"Лимфен дренаж",sub:"Therabody, пресотерапия, ръчен лимфодренаж (по Vodder)",what:"Стимулира лимфната система. Намалява отоци, детоксикира. Препоръчителна след редица процедури.",devices:['Therabody RecoveryAir','Пресотерапевтични апарати','Ръчен лимфодренаж (по Vodder)'],zones:'Крака, ръце, корем, лице, скалп',results:['Незабавно намаляване на отоци','Детоксикиращ ефект','Ускорено възстановяване'],contra:['Дълбока венозна тромбоза','Тежка сърдечна недостатъчност'],before:[],after:[['💧',"Много вода"],['🦵',"Повдигай краката"]],interval:'7 дни',sessions:'6–10 сесии'},
+{id:'pressotherapy',cat:'body',subcat:"Пресотерапия",icon:'🎐',bg:'#e8f0ec',fg:'#8fa89a',name:"Пресотерапия",sub:"Пневматичен компресионен масаж на крайниците",what:"Пневматични ботуши/ръкавели компресират последователно от периферията към центъра.",devices:['Therabody RecoveryAir','NormaTec','Rapid Reboot'],zones:'Крака (основно), ръце, корем',results:['Намаляване на отоци','Ускорено мускулно възстановяване','Подобрено кръвообращение'],contra:['Дълбока венозна тромбоза','Активни инфекции'],before:[],after:[['💧',"Много вода"],['🚶',"Лека разходка след"]],interval:'3–7 дни',sessions:'6–10 или по желание'},
+{id:'derm-consult',cat:'derm',subcat:"Консултации",icon:'🩺',bg:'#eeeaf8',fg:'#9b8ec4',name:"Дерматологичен преглед",sub:"Диагностика, дерматоскопия, индивидуален план",what:"Цялостна оценка с дерматоскоп, Wood лампа и VISIA анализатор. Индивидуален план за лечение.",devices:['Дерматоскоп (Dermlite)','Wood лампа','VISIA / Observ анализатор'],zones:'Лице, тяло, скалп, нокти',results:['Ясна диагноза и план','Ранна детекция','Препоръки за продукти и процедури'],contra:[],before:[['🧴',"Без грим за по-точна оценка"]],after:[['📋',"Следвай препоръките"],['📸',"Документирай с снимки"]],interval:'6–12 месеца',sessions:'По преценка'},
+{id:'derm-acne',cat:'derm',subcat:"Кожни заболявания",icon:'🌿',bg:'#eeeaf8',fg:'#9b8ec4',name:"Акне — Дерматологично лечение",sub:"Комплексен медикаментозен и процедурен подход",what:"Комплексен подход: местни и системни медикаменти + процедури (пилинги, LED, инжекции).",devices:['Медикаменти (по рецепта)','Химични пилинги','LED синя светлина','Kenalog (при кисти)'],zones:'Лице, гръб, гърди',results:['Контрол на акнето','Предотвратяване на белези'],contra:['Бременност (повечето лекарства)'],before:[['🩺',"Консултация за диагноза"]],after:[['💧',"Следвай предписания режим"],['🧴',"SPF 50+"]],interval:'По индивидуален план',sessions:'По преценка'},
+{id:'derm-rosacea',cat:'derm',subcat:"Кожни заболявания",icon:'🌹',bg:'#eeeaf8',fg:'#9b8ec4',name:"Розацея — Дерматологично лечение",sub:"Медикаментозно и лазерно лечение на хроничното заболяване",what:"Хронично заболяване с периоди на обостряния. Медикаменти + Nd:YAG/IPL + специална козметика.",devices:['Метронидазол, азелаинова киселина','Nd:YAG / IPL','Fotona Genesis'],zones:'Лице',results:['Намаляване на зачервяване','Контрол на пустулите'],contra:[],before:[['🩺',"Консултация за диагноза"]],after:[['🧴',"Нежни успокояващи продукти"],['☀️',"СТРИКТНА слънцезащита"],['🌡️',"Избягвай тригери (алкохол, лютиви храни, сауна)"]],interval:'Хронично — по план',sessions:'По преценка'},
+];
+
+
+// ── HELPERS ──
+const BG_M=['яну','фев','мар','апр','май','юни','юли','авг','сеп','окт','ное','дек'];
+const BG_D=['нед','пон','вт','ср','чет','пет','съб'];
+function fmtDate(d){return`${d.getDate()} ${BG_M[d.getMonth()]} ${d.getFullYear()}`;}
+function fmtFull(d){return`${BG_D[d.getDay()]}, ${fmtDate(d)}`;}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+const F=()=>window._f;const DB=()=>window._db;const AU=()=>window._auth;
+
+
+// ── i18n ──
+window._lang = localStorage.getItem('gt_lang') || 'bg';
+
+const T = {
+  bg: {
+    // Auth
+    welcome: 'Добре дошъл',
+    register: 'Регистрация',
+    email: 'Имейл',
+    password: 'Парола',
+    name: 'Ime',
+    namePh: 'Твоето ime',
+    passPh: 'Минимум 6 символа',
+    loginBtn: 'Влез',
+    regBtn: 'Създай акаунт',
+    noAccount: 'Нямаш акаунт?',
+    doReg: 'Регистрирай се',
+    hasAccount: 'Вече имаш акаунт?',
+    doLogin: 'Влез',
+    // Nav
+    navProcs: 'Процедури',
+    navDiary: 'Дневник',
+    navClinics: 'Клиники',
+    navProducts: 'Продукти',
+    navProfile: 'Профил',
+    navSoon: 'Очаквайте',
+    // Pages
+    procsTitle: 'Процедури',
+    procsSub: 'Пълна енциклопедия — намери, научи, проследи',
+    procsSearch: 'Търси процедура...',
+    noResults: 'Няма намерени процедури',
+    diaryTitle: 'Моят дневник',
+    diarySub: 'Лична история на процедурите ти',
+    clinicsTitle: 'Клиники',
+    clinicsSub: 'Партньорски клиники',
+    clinicsSearch: 'Търси клиника или процедура...',
+    productsTitle: 'Козметика & грижа',
+    productsSub: 'Препоръчани продукти за след процедура',
+    productsSearch: 'Търси продукт или процедура...',
+    profileTitle: 'Моят профил',
+    logoutBtn: 'Изход',
+    deleteBtn: '🗑️ Изтрий профила',
+    // Sheet
+    whatIs: 'Какво представлява',
+    devices: 'Апарати / Марки',
+    zones: 'Зони на приложение',
+    results: 'Резултати',
+    contra: 'Противопоказания',
+    before: 'Преди процедурата',
+    after: 'След процедурата',
+    clinicAds: '🏥 Клиники предлагащи тази процедура',
+    productAds: '🧴 Препоръчани продукти',
+    partnerBadge: 'Партньор',
+    adLabel: 'Реклама',
+    myDiary: 'Моят дневник',
+    newEntry: '📝 Нов запис —',
+    clinic: 'Клиника (по желание)',
+    clinicPh: 'напр. Beauty Clinic',
+    specialist: 'Специалист (по желание)',
+    specialistPh: 'напр. д-р Иванова',
+    contact: 'Контакти (по желание)',
+    contactPh: 'напр. 0888 123 456 · website.bg',
+    advice: 'Какво каза специалистът / Препоръки',
+    advicePh: 'Специални инструкции, допълнителни препоръки...',
+    feeling: 'Лично усещане / Наблюдения',
+    feelingPh: 'Как се чувстваш, какво забелязваш след процедурата...',
+    products: 'Препоръчани продукти от специалиста',
+    productsPh: 'напр. La Roche-Posay Toleriane · Anthelios SPF50+',
+    photoBtn: '📷 Снимка',
+    saveBtn: 'Запази',
+    loginToDiary: 'Влез за да водиш личен дневник',
+    aiChatBtn: 'Попитай AI за тази процедура',
+    // Feedback
+    feedbackTitle: '💬 Изпрати предложение',
+    feedbackSub: 'Идея, корекция или нова функция — споделяй!',
+    fbIdea: '💡 Идея',
+    fbBug: '🐛 Грешка',
+    fbContent: '📝 Съдържание',
+    fbPlaceholder: 'Опиши предложението си...',
+    fbSend: 'Изпрати ✦',
+    // Admin
+    adminTitle: '⚙️ Admin панел',
+    adminClinics: '🏥 Клиники (партньори)',
+    adminProducts: '🧴 Продукти (реклами)',
+    adminInbox: '📬 Предложения от потребители',
+    addClinic: '+ Добави клиника',
+    addProduct: '+ Добави продукт',
+    // Diary entry labels
+    clinicSpecLabel: '🏥 Клиника / Специалист',
+    adviceLabel: '👩‍⚕️ Препоръки от специалиста',
+    feelingLabel: '💬 Лично усещане',
+    productsLabel: '🧴 Препоръчани продукти',
+    editBtn: '✏️ Редактирай',
+    deleteEntryBtn: '🗑️ Изтрий',
+    // AI
+    aiWelcome: 'Здравей! 👋 Аз съм AI асистентът на GlowTrack. Можеш да ме питаш всичко за',
+    aiAbout: '— подготовка, грижа след, резултати, противопоказания...',
+    aiInputPh: 'Задай въпрос...',
+    aiSuggestions: ['Колко процедури са нужни?','Има ли странични ефекти?','Кой е подходящ кандидат?'],
+    aiFollowUp: ['Разкажи повече','Каква е цената?','Как да се подготвя?'],
+    aiSystem: 'Ти си AI асистент на GlowTrack — приложение за естетични процедури. Отговаряй на БЪЛГАРСКИ. Бъди топъл, конкретен, информативен. Не препоръчваш конкретни клиники или лекари.',
+    // Toast
+    soonToast: '🔒 Очаквайте скоро',
+    langSaved: '🌐 Език: Български',
+  },
+  en: {
+    welcome: 'Welcome back',
+    register: 'Create account',
+    email: 'Email',
+    password: 'Password',
+    name: 'Name',
+    namePh: 'Your name',
+    passPh: 'Minimum 6 characters',
+    loginBtn: 'Sign in',
+    regBtn: 'Create account',
+    noAccount: "Don't have an account?",
+    doReg: 'Sign up',
+    hasAccount: 'Already have an account?',
+    doLogin: 'Sign in',
+    navProcs: 'Procedures',
+    navDiary: 'Diary',
+    navClinics: 'Clinics',
+    navProducts: 'Products',
+    navProfile: 'Profile',
+    navSoon: 'Coming soon',
+    procsTitle: 'Procedures',
+    procsSub: 'Full encyclopedia — find, learn, track',
+    procsSearch: 'Search procedures...',
+    noResults: 'No procedures found',
+    diaryTitle: 'My Diary',
+    diarySub: 'Your personal procedure history',
+    clinicsTitle: 'Clinics',
+    clinicsSub: 'Partner clinics',
+    clinicsSearch: 'Search clinic or procedure...',
+    productsTitle: 'Skincare & Care',
+    productsSub: 'Recommended post-procedure products',
+    productsSearch: 'Search product or procedure...',
+    profileTitle: 'My Profile',
+    logoutBtn: 'Sign out',
+    deleteBtn: '🗑️ Delete profile',
+    whatIs: 'What it is',
+    devices: 'Devices / Brands',
+    zones: 'Treatment zones',
+    results: 'Results',
+    contra: 'Contraindications',
+    before: 'Before the procedure',
+    after: 'After the procedure',
+    clinicAds: '🏥 Clinics offering this procedure',
+    productAds: '🧴 Recommended products',
+    partnerBadge: 'Partner',
+    adLabel: 'Ad',
+    myDiary: 'My diary',
+    newEntry: '📝 New entry —',
+    clinic: 'Clinic (optional)',
+    clinicPh: 'e.g. Beauty Clinic',
+    specialist: 'Specialist (optional)',
+    specialistPh: 'e.g. Dr. Smith',
+    contact: 'Contact (optional)',
+    contactPh: 'e.g. +1 555 0123 · website.com',
+    advice: "Specialist's advice / Recommendations",
+    advicePh: 'Special instructions, additional recommendations...',
+    feeling: 'Personal notes / Observations',
+    feelingPh: 'How do you feel, what do you notice after the procedure...',
+    products: 'Products recommended by specialist',
+    productsPh: 'e.g. La Roche-Posay Toleriane · Anthelios SPF50+',
+    photoBtn: '📷 Photo',
+    saveBtn: 'Save',
+    loginToDiary: 'Sign in to keep a personal diary',
+    aiChatBtn: 'Ask AI about this procedure',
+    feedbackTitle: '💬 Send feedback',
+    feedbackSub: 'Idea, correction or new feature — share it!',
+    fbIdea: '💡 Idea',
+    fbBug: '🐛 Bug',
+    fbContent: '📝 Content',
+    fbPlaceholder: 'Describe your suggestion...',
+    fbSend: 'Send ✦',
+    adminTitle: '⚙️ Admin panel',
+    adminClinics: '🏥 Clinics (partners)',
+    adminProducts: '🧴 Products (ads)',
+    adminInbox: '📬 User suggestions',
+    addClinic: '+ Add clinic',
+    addProduct: '+ Add product',
+    clinicSpecLabel: '🏥 Clinic / Specialist',
+    adviceLabel: "👩‍⚕️ Specialist's advice",
+    feelingLabel: '💬 Personal notes',
+    productsLabel: '🧴 Recommended products',
+    editBtn: '✏️ Edit',
+    deleteEntryBtn: '🗑️ Delete',
+    aiWelcome: "Hi! 👋 I'm GlowTrack's AI assistant. Ask me anything about",
+    aiAbout: '— preparation, aftercare, results, contraindications...',
+    aiInputPh: 'Ask a question...',
+    aiSuggestions: ['How many sessions are needed?','Are there side effects?','Who is a good candidate?'],
+    aiFollowUp: ['Tell me more','What is the price?','How do I prepare?'],
+    aiSystem: "You are GlowTrack's AI assistant — an app for aesthetic procedures. Reply in ENGLISH. Be warm, specific and informative. Do not recommend specific clinics or doctors.",
+    soonToast: '🔒 Coming soon',
+    langSaved: '🌐 Language: English',
+  }
+};
+
+function t(key){ return T[window._lang]?.[key] || T.bg[key] || key; }
+
+function applyLang(){
+  const l = window._lang;
+  const btn = l === 'bg' ? 'EN' : 'БГ';
+  document.querySelectorAll('.lang-btn').forEach(b => b.textContent = btn);
+  document.documentElement.lang = l === 'bg' ? 'bg' : 'en';
+
+  // Auth
+  const lf = document.getElementById('login-form');
+  const rf = document.getElementById('reg-form');
+  if(lf){
+    lf.querySelector('.auth-title').textContent = t('welcome');
+    const labs = lf.querySelectorAll('.auth-label');
+    if(labs[0]) labs[0].textContent = t('email');
+    if(labs[1]) labs[1].textContent = t('password');
+    const lb = document.getElementById('login-btn');
+    if(lb) lb.textContent = t('loginBtn');
+    const sw = lf.querySelector('.auth-switch');
+    if(sw) sw.innerHTML = t('noAccount')+' <a onclick="showReg()">'+t('doReg')+'</a>';
+  }
+  if(rf){
+    rf.querySelector('.auth-title').textContent = t('register');
+    const labs = rf.querySelectorAll('.auth-label');
+    if(labs[0]) labs[0].textContent = t('name');
+    if(labs[1]) labs[1].textContent = t('email');
+    if(labs[2]) labs[2].textContent = t('password');
+    const ni = document.getElementById('reg-name');
+    if(ni) ni.placeholder = t('namePh');
+    const pi = document.getElementById('reg-pass');
+    if(pi) pi.placeholder = t('passPh');
+    const rb = document.getElementById('reg-btn');
+    if(rb) rb.textContent = t('regBtn');
+    const sw = rf.querySelector('.auth-switch');
+    if(sw) sw.innerHTML = t('hasAccount')+' <a onclick="showLogin()">'+t('doLogin')+'</a>';
+  }
+
+  // Nav labels
+  const nls = document.querySelectorAll('.nl');
+  const navKeys = ['navProcs','navDiary','navSoon','navSoon','navProfile'];
+  nls.forEach((nl,i) => { if(navKeys[i]) nl.textContent = t(navKeys[i]); });
+
+  // Page headers
+  const setHdr = (id, title, sub) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const t1 = el.querySelector('.page-hdr-title');
+    const t2 = el.querySelector('.page-hdr-sub');
+    if(t1) t1.innerHTML = title;
+    if(t2 && sub) t2.textContent = sub;
+  };
+  setHdr('page-procs', t('procsTitle'), t('procsSub'));
+  setHdr('page-diary', 'My <em>diary</em>', t('diarySub'));
+  setHdr('page-clinics', '<em>'+t('clinicsTitle')+'</em>', t('clinicsSub'));
+  setHdr('page-products', t('productsTitle'), t('productsSub'));
+  setHdr('page-profile', 'My <em>profile</em>', '');
+
+  // Search placeholders
+  const si = document.getElementById('proc-search');
+  if(si) si.placeholder = t('procsSearch');
+  const ci = document.getElementById('clinic-search');
+  if(ci) ci.placeholder = t('clinicsSearch');
+  const pi = document.getElementById('prod-search');
+  if(pi) pi.placeholder = t('productsSearch');
+
+  // Profile btns
+  const pb = document.querySelector('.profile-btn.danger');
+  if(pb) pb.textContent = t('logoutBtn');
+
+  // No-results
+  const nr = document.getElementById('no-results');
+  if(nr) nr.textContent = t('noResults');
+
+  // AI input placeholder
+  const ai = document.getElementById('ai-input');
+  if(ai) ai.placeholder = t('aiInputPh');
+
+  // Feedback section
+  const ft = document.querySelector('.feedback-title');
+  if(ft) ft.textContent = t('feedbackTitle');
+  const fs = document.querySelector('.feedback-sub');
+  if(fs) fs.textContent = t('feedbackSub');
+  const fbp = document.getElementById('fb-text');
+  if(fbp) fbp.placeholder = t('fbPlaceholder');
+  const fbs = document.querySelector('[onclick*="sendFeedback"]');
+  if(fbs) fbs.textContent = t('fbSend');
+  const fbtns = document.querySelectorAll('.fb-type-btn');
+  const fbKeys = ['fbIdea','fbBug','fbContent'];
+  fbtns.forEach((b,i) => { if(fbKeys[i]) b.textContent = t(fbKeys[i]); });
+
+  // Re-render procedures with new language
+  renderCats();
+  renderProcs();
+}
+
+async function toggleLang(){
+  window._lang = window._lang === 'bg' ? 'en' : 'bg';
+  localStorage.setItem('gt_lang', window._lang);
+  // Save to Firebase if logged in
+  if(window._user){
+    try{
+      await F().setDoc(F().doc(DB(),'users',window._user.uid),{lang:window._lang},{merge:true});
+    }catch(e){}
+  }
+  applyLang();
+  showToast(t('langSaved'));
+}
+
+
+// ── AUTH ──
+function showAuthError(m){const e=document.getElementById('auth-error');e.textContent=m;e.classList.add('show');}
+function clearAuthError(){document.getElementById('auth-error').classList.remove('show');}
+function showReg(){document.getElementById('login-form').style.display='none';document.getElementById('reg-form').style.display='block';clearAuthError();}
+function showLogin(){document.getElementById('reg-form').style.display='none';document.getElementById('login-form').style.display='block';clearAuthError();}
+
+async function doLogin(){
+  clearAuthError();
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  if(!email||!pass){showAuthError('Попълни всички полета');return;}
+  const btn=document.getElementById('login-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  try{await F().signInWithEmailAndPassword(AU(),email,pass);}
+  catch(e){
+    showAuthError(e.code==='auth/user-not-found'?'Акаунтът не съществува':e.code==='auth/invalid-email'?'Невалиден имейл':'Грешен имейл или парола');
+  }finally{btn.disabled=false;btn.textContent='Влез';}
+}
+async function doRegister(){
+  clearAuthError();
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  if(!name||!email||!pass){showAuthError('Попълни всички полета');return;}
+  if(pass.length<6){showAuthError('Паролата трябва да е поне 6 символа');return;}
+  const btn=document.getElementById('reg-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
+  try{
+    const cred=await F().createUserWithEmailAndPassword(AU(),email,pass);
+    await F().updateProfile(cred.user,{displayName:name});
+    await F().setDoc(F().doc(DB(),'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:F().serverTimestamp()});
+  }catch(e){
+    showAuthError(e.code==='auth/email-already-in-use'?'Имейлът вече е регистриран':'Грешка при регистрация');
+  }finally{btn.disabled=false;btn.textContent='Създай акаунт';}
+}
+async function doLogout(){await F().signOut(AU());showToast('Излязохте');}
+async function confirmDeleteAccount(){
+  if(!confirm('Изтрий профила и всички данни?\nТова е необратимо.'))return;
+  try{
+    await F().deleteDoc(F().doc(DB(),'users',window._user.uid));
+    await F().deleteUser(window._user);
+  }catch(e){showToast('Влез отново и опитай пак');}
+}
+
+// ── NAVIGATION ──
+function goPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='diary')loadDiaryTab();
+}
+
+// ── PROCEDURES ──
+window.PROCS=PROCS;
+let activeCat='all',searchTerm='';
+
+// ── EN procedure translations ──
+const PROCS_EN = {
+  'le-alex-face': {name:'Alexandrite Laser — Face', sub:'755nm · Fair skin, dark hair', what:'The Alexandrite laser (755nm) is most effective for fair to medium skin with dark hair. Precisely targets melanin in the follicle. Fast and effective for smaller areas.', subcat:'Alexandrite Laser', zones:'Upper lip, chin, cheekbones, sideburns, areolas, eyebrow/hairline shaping', results:['70–90% permanent reduction after full 6–10 session course','Hair sheds in <strong>10–14 days</strong> after session','Progressive thinning from session 2–3 onwards','Full result assessment 3 months after last session'], contra:['Pregnancy and breastfeeding','Active tan or recent sun exposure','Active skin infections or herpes','Photosensitive medications (Roaccutane, antibiotics)','Tattoos in the treated area'], before:[['🪒','Shave the area <strong>24–48h before</strong> — no waxing or threading'],['☀️','No sun or tanning bed <strong>2–4 weeks</strong>'],['🧴','No self-tanners 2 weeks'],['💊','Inform specialist of all medications']], after:[['🧴','Apply <strong>100% Aloe Vera</strong> or soothing cream'],['🧴','<strong>SPF 50+</strong> — mandatory when outdoors'],['🚿','<strong>Cool</strong> showers 24–48h'],['🚫','NO sauna, jacuzzi, pool 24–48h'],['🏋️','NO intense exercise on the day'],['✂️','Between sessions — shaving only']], interval:'Face: 30–40 days · Torso: 45–60 days · Legs: 60–90 days', sessions:'6–10 sessions'},
+  'le-alex-body': {name:'Alexandrite Laser — Body', sub:'755nm · Underarms, arms, legs, intimate area', what:'The Alexandrite laser works excellently on lighter skin types. Especially effective for fine to medium hair. Faster coverage for larger areas.', subcat:'Alexandrite Laser', zones:'Underarms, arms (half or full), legs (half or full), intimate area, abdomen, back, chest, buttocks, shoulders', results:['70–90% permanent reduction after full 6–10 session course','Hair sheds in <strong>10–14 days</strong> after session','Progressive thinning from session 2–3 onwards','Full result assessment 3 months after last session'], contra:['Pregnancy and breastfeeding','Active tan or recent sun exposure','Active skin infections or herpes','Photosensitive medications (Roaccutane, antibiotics)','Tattoos in the treated area'], before:[['🪒','Shave the area <strong>24–48h before</strong> — no waxing or threading'],['☀️','No sun or tanning bed <strong>2–4 weeks</strong>'],['🧴','No self-tanners 2 weeks'],['💊','Inform specialist of all medications']], after:[['🧴','Apply <strong>100% Aloe Vera</strong> or soothing cream'],['🧴','<strong>SPF 50+</strong> — mandatory when outdoors'],['🚿','<strong>Cool</strong> showers 24–48h'],['🚫','NO sauna, jacuzzi, pool 24–48h'],['🏋️','NO intense exercise on the day'],['✂️','Between sessions — shaving only']], interval:'Face: 30–40 days · Torso: 45–60 days · Legs: 60–90 days', sessions:'6–10 sessions — interval widens as course progresses'},
+  'le-diode-face': {name:'Diode Laser — Face', sub:'810nm · Universal, all skin types', what:'The diode laser (810nm) is the universal standard — effective for a wide range of skin types. Soprano ICE with cooling makes the procedure virtually painless.', subcat:'Diode Laser', zones:'Upper lip, chin, cheekbones, sideburns, areolas, neck, hairline shaping', results:['70–90% permanent reduction after full 6–10 session course','Hair sheds in <strong>10–14 days</strong> after session','Progressive thinning from session 2–3 onwards','Full result assessment 3 months after last session'], contra:['Pregnancy and breastfeeding','Active tan or recent sun exposure','Active skin infections or herpes','Photosensitive medications (Roaccutane, antibiotics)','Tattoos in the treated area'], before:[['🪒','Shave the area <strong>24–48h before</strong> — no waxing or threading'],['☀️','No sun or tanning bed <strong>~5 days</strong>'],['🧴','No self-tanners 2 weeks'],['💊','Inform specialist of all medications']], after:[['🧴','Apply <strong>100% Aloe Vera</strong> or soothing cream'],['🧴','<strong>SPF 50+</strong> — mandatory when outdoors'],['🚿','<strong>Cool</strong> showers 24–48h'],['🚫','NO sauna, jacuzzi, pool 24–48h'],['🏋️','NO intense exercise on the day'],['✂️','Between sessions — shaving only']], interval:'Face: 30–40 days · Torso: 45–60 days · Legs: 60–90 days', sessions:'6–10 sessions'},
+  'le-diode-body': {name:'Diode Laser — Body', sub:'810nm · Universal, all skin types', what:'The 810nm diode laser is the choice of most clinics. Soprano ICE Platinum can treat even darker skin and light tans. Cooling technology minimises discomfort.', subcat:'Diode Laser', zones:'Underarms, arms, legs, intimate area, chest, abdomen, back, buttocks, shoulders, lower back', results:['70–90% permanent reduction after full 6–10 session course','Hair sheds in <strong>10–14 days</strong> after session','Progressive thinning from session 2–3 onwards','Full result assessment 3 months after last session'], contra:['Pregnancy and breastfeeding','Active tan or recent sun exposure','Active skin infections or herpes','Photosensitive medications (Roaccutane, antibiotics)','Tattoos in the treated area'], before:[['🪒','Shave the area <strong>24–48h before</strong> — no waxing or threading'],['☀️','No sun or tanning bed <strong>~5 days</strong>'],['🧴','No self-tanners 2 weeks'],['💊','Inform specialist of all medications']], after:[['🧴','Apply <strong>100% Aloe Vera</strong> or soothing cream'],['🧴','<strong>SPF 50+</strong> — mandatory when outdoors'],['🚿','<strong>Cool</strong> showers 24–48h'],['🚫','NO sauna, jacuzzi, pool 24–48h'],['🏋️','NO intense exercise on the day'],['✂️','Between sessions — shaving only']], interval:'Face: 30–40 days · Torso: 45–60 days · Legs: 60–90 days', sessions:'6–10 sessions — interval widens as course progresses'},
+  'le-ndyag-face': {name:'Nd:YAG Laser — Face', sub:'1064nm · Darker skin, tanned skin', what:'Nd:YAG (1064nm) is the only safe choice for darker skin types (IV–VI) and tanned skin. Penetrates deeper and is effective for coarser hair.', subcat:'Nd:YAG Laser', zones:'Upper lip, chin, cheekbones, sideburns — for darker skin types', results:['70–90% permanent reduction after full 6–10 session course','Hair sheds in <strong>10–14 days</strong> after session','Progressive thinning from session 2–3 onwards','Full result assessment 3 months after last session'], contra:['Pregnancy and breastfeeding','Active tan or recent sun exposure','Active skin infections or herpes','Photosensitive medications (Roaccutane, antibiotics)','Tattoos in the treated area'], before:[['🪒','Shave the area <strong>24–48h before</strong>'],['☀️','No sun or tanning bed <strong>2–4 weeks</strong>'],['🧴','No self-tanners 2 weeks'],['💊','Inform specialist of all medications']], after:[['🧴','Apply <strong>100% Aloe Vera</strong> or soothing cream'],['🧴','<strong>SPF 50+</strong> — mandatory'],['🚿','<strong>Cool</strong> showers 24–48h'],['🚫','NO sauna, jacuzzi, pool 24–48h'],['🏋️','NO intense exercise on the day'],['✂️','Between sessions — shaving only']], interval:'Face: 30–40 days · Torso: 45–60 days · Legs: 60–90 days', sessions:'8–12 sessions'},
+  'le-ndyag-body': {name:'Nd:YAG Laser — Body', sub:'1064nm · Darker skin, tanned skin', what:'Nd:YAG is mandatory for darker skin (III–VI Fitzpatrick) or after sun exposure. Effective for coarse body hair.', subcat:'Nd:YAG Laser', zones:'Underarms, arms, legs, intimate area, back — for darker skin types', results:['70–90% permanent reduction after full 6–10 session course','Hair sheds in <strong>10–14 days</strong> after session','Progressive thinning from session 2–3 onwards','Full result assessment 3 months after last session'], contra:['Pregnancy and breastfeeding','Active tan or recent sun exposure','Active skin infections or herpes','Photosensitive medications (Roaccutane, antibiotics)','Tattoos in the treated area'], before:[['🪒','Shave the area <strong>24–48h before</strong>'],['☀️','No sun or tanning bed <strong>2–4 weeks</strong>'],['🧴','No self-tanners 2 weeks'],['💊','Inform specialist of all medications']], after:[['🧴','Apply <strong>100% Aloe Vera</strong> or soothing cream'],['🧴','<strong>SPF 50+</strong> — mandatory'],['🚿','<strong>Cool</strong> showers 24–48h'],['🚫','NO sauna, jacuzzi, pool 24–48h'],['🏋️','NO intense exercise on the day'],['✂️','Between sessions — shaving only']], interval:'Face: 30–40 days · Torso: 45–60 days · Legs: 60–90 days', sessions:'8–12 sessions'},
+};
+
+// Helper: get localized proc data
+function procL(p){
+  if(window._lang === 'en' && PROCS_EN[p.id]){
+    return Object.assign({}, p, PROCS_EN[p.id]);
+  }
+  return p;
+}
+
+const CATS_EN = {
+  all: 'All',
+  laser: 'Laser hair removal',
+  cosm: 'Cosmetic procedures',
+  body: 'Body treatments',
+  inj: 'Injections',
+  hw: 'Hardware',
+};
+
+function renderCats(){
+  document.getElementById('cats-bar').innerHTML=CATS_LIST.map(c=>{
+    const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
+    return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
+  }).join('');
+}
+function setCat(c){activeCat=c;renderCats();renderProcs();
+if(window._pendingLang){window._pendingLang=false;applyLang();}}
+function filterProcs(){searchTerm=document.getElementById('proc-search').value;renderProcs();}
+function renderProcs(){
+  const s=searchTerm.toLowerCase();
+  const filtered=PROCS.filter(p=>(activeCat==='all'||p.cat===activeCat)&&(!s||p.name.toLowerCase().includes(s)||p.sub.toLowerCase().includes(s)||(p.what||'').toLowerCase().includes(s)||(p.subcat||'').toLowerCase().includes(s)));
+  document.getElementById('no-results').style.display=filtered.length?'none':'block';
+
+  if(s){
+    // When searching — flat list no grouping
+    document.getElementById('proc-list').innerHTML=filtered.map(p=>{
+      const lp=procL(p);
+      return `<div class="proc-row" onclick="openSheet('${p.id}')">
+        <div class="proc-row-icon" style="background:${p.bg}">${p.icon}</div>
+        <div class="proc-row-info">
+          <div class="proc-row-name">${lp.name}</div>
+          <div class="proc-row-sub">${lp.sub}</div>
+          <div class="proc-row-subcat">${lp.subcat||p.subcat}</div>
+        </div>
+        <div class="proc-row-arrow">›</div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
+  // Group by subcat
+  const groups={};
+  filtered.forEach(p=>{
+    const k=p.subcat||'Общо';
+    if(!groups[k])groups[k]=[];
+    groups[k].push(p);
+  });
+
+  document.getElementById('proc-list').innerHTML=Object.entries(groups).map(([subcat,procs])=>`
+    <div class="subcat-group">
+      <div class="subcat-header">${subcat}</div>
+      ${procs.map(p=>`
+        <div class="proc-row" onclick="openSheet('${p.id}')">
+          <div class="proc-row-icon" style="background:${p.bg}">${p.icon}</div>
+          <div class="proc-row-info">
+            <div class="proc-row-name">${p.name}</div>
+            <div class="proc-row-sub">${p.sub}</div>
+          </div>
+          <div class="proc-row-arrow">›</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+renderCats();renderProcs();
+
+// ── SHEET ──
+let currentProcId=null,pendingPhotos=[];
+async function openSheet(id){
+  const p=PROCS.find(x=>x.id===id);if(!p)return;
+  const lp=procL(p);
+  currentProcId=id;pendingPhotos=[];
+  document.getElementById('sh-icon').innerHTML=`<span style="font-size:20px">${p.icon}</span>`;
+  document.getElementById('sh-icon').style.background=p.bg;
+  const catLabel = (window._lang==='en' && CATS_EN[p.cat]) ? CATS_EN[p.cat] : (CATS_LIST.find(c=>c.id===p.cat)?.label||p.cat);
+  document.getElementById('sh-cat').textContent=catLabel;
+  document.getElementById('sh-title').textContent=lp.name;
+  let clinicAdsHTML='',productAdsHTML='',diaryEntriesHTML='';
+  try{
+    const [cSnap,pSnap]=await Promise.all([
+      F().getDocs(F().query(F().collection(DB(),'clinic_ads'),F().where('procIds','array-contains',id))),
+      F().getDocs(F().query(F().collection(DB(),'product_ads'),F().where('procIds','array-contains',id)))
+    ]);
+    if(!cSnap.empty)clinicAdsHTML=`<div class="info-section"><div class="info-title">🏥 Клиники предлагащи тази процедура</div>
+      ${cSnap.docs.map(d=>{const a=d.data();return`<div class="clinic-ad-card">
+        <div class="clinic-ad-logo">${a.icon||'🏥'}</div>
+        <div class="clinic-ad-info"><div class="clinic-ad-name">${a.name}</div>
+        <div class="clinic-ad-sub">${[a.address,a.phone].filter(Boolean).join(' · ')}</div>
+        ${a.url?`<div style="font-size:10.5px;color:var(--sage);margin-top:2px">🔗 ${a.url}</div>`:''}</div>
+        <span class="clinic-ad-badge">Партньор</span></div>`;}).join('')}</div>`;
+    if(!pSnap.empty)productAdsHTML=`<div class="info-section"><div class="info-title">🧴 Препоръчани продукти</div>
+      ${pSnap.docs.map(d=>{const a=d.data();return`<div class="product-ad-row">
+        <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.icon||'🧴'}</div>
+        <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
+        <div class="product-ad-name">${a.name}</div>
+        ${a.desc?`<div class="product-ad-desc">${a.desc}</div>`:''}</div>
+        <span class="ad-label">Реклама</span></div>`;}).join('')}</div>`;
+  }catch(e){console.log('ads',e);}
+  if(window._user){
+    try{
+      const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
+      const entries=snap.docs.filter(d=>d.data().procId===id).sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
+      diaryEntriesHTML=entries.length?`<div class="diary-entries">${entries.map(d=>renderEntryCard(d)).join('')}</div>`:`<div style="text-align:center;padding:16px;color:var(--ink2);font-size:12px">Все още няма записи. Добави наблюдения! 📝</div>`;
+    }catch(e){console.log('diary',e);}
+  }
+  const mk=(arr,cls)=>(arr||[]).map(([em,txt])=>`<div class="care-item ${cls}"><span class="care-em">${em}</span><span class="care-txt">${txt}</span></div>`).join('');
+  const notPrefix = window._lang==='en' ? 'NO' : 'НЕ';
+  document.getElementById('sh-body').innerHTML=`
+    <div class="info-section"><div class="info-title">${t('whatIs')}</div><div class="info-card"><div class="info-text">${lp.what}</div></div></div>
+    ${lp.devices?.length?`<div class="info-section"><div class="info-title">${t('devices')}</div><div class="device-tags">${lp.devices.map(d=>`<span class="device-tag">${d}</span>`).join('')}</div></div>`:''}
+    ${lp.zones?`<div class="info-section"><div class="info-title">${t('zones')}</div><div class="info-card"><div class="info-text">${lp.zones}</div></div></div>`:''}
+    ${lp.results?.length?`<div class="info-section"><div class="info-title">${t('results')}</div><div class="info-card">${lp.results.map(r=>`<div class="result-row"><div class="result-dot"></div><div class="result-txt">${r}</div></div>`).join('')}<div style="margin-top:8px;padding-top:7px;border-top:1px solid var(--goldlt);font-size:10.5px;color:var(--sage)">⏱️ ${lp.interval||''} · 💊 ${lp.sessions||''}</div></div></div>`:''}
+    ${lp.contra?.length?`<div class="info-section"><div class="info-title">${t('contra')}</div><div class="info-card">${lp.contra.map(c=>`<div class="contra-item"><div class="contra-dot"></div><div>${c}</div></div>`).join('')}</div></div>`:''}
+    ${lp.before?.length?`<div class="info-section"><div class="info-title">${t('before')}</div><div class="care-list">${mk(lp.before,'warn')}</div></div>`:''}
+    ${lp.after?.length?`<div class="info-section"><div class="info-title">${t('after')}</div><div class="care-list">${mk(lp.after.filter(a=>!a[1].startsWith(notPrefix)),'do')}${mk(lp.after.filter(a=>a[1].startsWith(notPrefix)),'dont')}</div></div>`:''}
+    ${clinicAdsHTML}${productAdsHTML}
+    <div class="ai-chat-section">
+      <button class="ai-chat-btn" onclick="openAiChat('${id}','${lp.name}')">
+        <span style="font-size:16px">✦</span>
+        <span>${t('aiChatBtn')}</span>
+        <span style="font-size:12px;opacity:.6">›</span>
+      </button>
+    </div>
+    ${window._user?`<div class="diary-section">
+      <div class="diary-section-title">Моят <em>дневник</em></div>
+      <div class="diary-form">
+        <div class="diary-date-lbl">${t('newEntry')} ${fmtDate(new Date())}</div>
+        <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="${t('clinicPh')}"></div>
+        <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="${t('specialistPh')}"></div>
+        <div class="form-row"><label class="form-lbl">Контакти (по желание)</label><input class="form-input" type="text" id="de-contact" placeholder="напр. 0888 123 456 · website.bg"></div>
+        <div class="form-row"><label class="form-lbl">Какво каза специалистът / Препоръки</label><textarea class="form-input" id="de-advice" placeholder="Специални инструкции, допълнителни препоръки..." rows="3"></textarea></div>
+        <div class="form-row"><label class="form-lbl">Лично усещане / Наблюдения</label><textarea class="form-input" id="de-feeling" placeholder="Как се чувстваш, какво забелязваш след процедурата..." rows="2"></textarea></div>
+        <div class="form-row"><label class="form-lbl">Препоръчани продукти от специалиста</label><input class="form-input" type="text" id="de-products" placeholder="напр. La Roche-Posay Toleriane · Anthelios SPF50+"></div>
+        <div class="photo-previews" id="de-previews"></div>
+        <div class="diary-actions">
+          <label class="photo-btn">📷 Снимка<input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event)"></label>
+          <button class="save-btn" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
+        </div>
+      </div>
+      <div id="de-entries-list">${diaryEntriesHTML}</div>
+    </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}`;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  // Scroll to top
+  document.getElementById('sh-body').scrollTop=0;
+}
+
+function renderEntryCard(docSnap){
+  const d=docSnap.data(),eid=docSnap.id;
+  const dt=d.createdAt?.toDate?d.createdAt.toDate():new Date();
+  const photos=d.photos||[];
+  return`<div class="entry-card" id="ec-${eid}">
+    <div class="entry-date">📅 ${fmtFull(dt)}</div>
+    ${d.clinic||d.specialist?`<div class="entry-field"><span class="lbl">🏥 Клиника / Специалист</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
+    ${d.advice?`<div class="entry-field"><span class="lbl">👩‍⚕️ Препоръки от специалиста</span>${d.advice}</div>`:''}
+    ${d.feeling?`<div class="entry-field"><span class="lbl">💬 Лично усещане</span>${d.feeling}</div>`:''}
+    ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
+    ${d.products?`<div class="entry-field" style="margin-top:6px"><span class="lbl">🧴 Препоръчани продукти</span><span class="product-chip">${d.products}</span></div>`:''}
+    <div class="entry-actions">
+      <button class="mini-btn" onclick="startEditEntry('${eid}','${currentProcId}')">✏️ Редактирай</button>
+      <button class="mini-btn danger" onclick="deleteEntry('${eid}','${currentProcId}')">🗑️ Изтрий</button>
+    </div>
+  </div>`;
+}
+
+function closeSheet(e){
+  if(e&&e.target!==document.getElementById('overlay'))return;
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow='';
+  currentProcId=null;pendingPhotos=[];
+}
+
+// ── PHOTOS ──
+function addPhotos(e){
+  Array.from(e.target.files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const c=document.createElement('canvas');
+        const MAX=600;let w=img.width,h=img.height;
+        if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+        c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+        pendingPhotos.push(c.toDataURL('image/jpeg',0.72));
+        renderPreviews();
+      };img.src=ev.target.result;
+    };reader.readAsDataURL(file);
+  });
+}
+function renderPreviews(){
+  const c=document.getElementById('de-previews');if(!c)return;
+  c.innerHTML=pendingPhotos.map((ph,i)=>`<div class="photo-preview-wrap"><img class="photo-thumb" src="${ph}"><button class="photo-remove" onclick="removePhoto(${i})">✕</button></div>`).join('');
+}
+function removePhoto(i){pendingPhotos.splice(i,1);renderPreviews();}
+
+// ── DIARY SAVE/EDIT/DELETE ──
+async function saveDiaryEntry(procId){
+  if(!window._user){showToast('Влез за да запазиш');return;}
+  const clinic=document.getElementById('de-clinic')?.value.trim()||'';
+  const specialist=document.getElementById('de-specialist')?.value.trim()||'';
+  const contact=document.getElementById('de-contact')?.value.trim()||'';
+  const advice=document.getElementById('de-advice')?.value.trim()||'';
+  const feeling=document.getElementById('de-feeling')?.value.trim()||'';
+  const products=document.getElementById('de-products')?.value.trim()||'';
+  if(!clinic&&!specialist&&!advice&&!feeling&&!pendingPhotos.length){showToast('Добави поне едно наблюдение');return;}
+  const btn=document.querySelector('.save-btn');
+  btn.disabled=true;btn.textContent='Запазване...';
+  const p=PROCS.find(x=>x.id===procId);
+  try{
+    await F().addDoc(F().collection(DB(),'diary_entries'),{
+      userId:window._user.uid,procId,procName:p?.name||'',procIcon:p?.icon||'',
+      clinic,specialist,contact,advice,feeling,products,photos:pendingPhotos,
+      createdAt:F().serverTimestamp()
+    });
+    showToast('✅ Записано!');
+    pendingPhotos=[];
+    await openSheet(procId);
+  }catch(e){showToast('Грешка при запазване');btn.disabled=false;btn.textContent='Запази';}
+}
+
+function startEditEntry(eid,procId){
+  F().getDoc(F().doc(DB(),'diary_entries',eid)).then(snap=>{
+    if(!snap.exists())return;
+    const d=snap.data();
+    const card=document.getElementById('ec-'+eid);if(!card)return;
+    card.innerHTML=`
+      <div class="diary-date-lbl">✏️ Редактиране</div>
+      <div class="form-row"><label class="form-lbl">Клиника</label><input class="form-input" id="ee-clinic-${eid}" value="${d.clinic||''}"></div>
+      <div class="form-row"><label class="form-lbl">Специалист</label><input class="form-input" id="ee-spec-${eid}" value="${d.specialist||''}"></div>
+      <div class="form-row"><label class="form-lbl">Контакти</label><input class="form-input" id="ee-contact-${eid}" value="${d.contact||''}"></div>
+      <div class="form-row"><label class="form-lbl">Препоръки от специалиста</label><textarea class="form-input" id="ee-advice-${eid}" rows="3">${d.advice||''}</textarea></div>
+      <div class="form-row"><label class="form-lbl">Лично усещане</label><textarea class="form-input" id="ee-feel-${eid}" rows="2">${d.feeling||''}</textarea></div>
+      <div class="form-row"><label class="form-lbl">Препоръчани продукти</label><input class="form-input" id="ee-prod-${eid}" value="${d.products||''}"></div>
+      <div class="entry-actions">
+        <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">💾 Запази</button>
+        <button class="mini-btn" onclick="openSheet('${procId}')">Откажи</button>
+      </div>`;
+  });
+}
+async function saveEditEntry(eid,procId){
+  try{
+    await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
+      clinic:document.getElementById('ee-clinic-'+eid)?.value.trim()||'',
+      specialist:document.getElementById('ee-spec-'+eid)?.value.trim()||'',
+      contact:document.getElementById('ee-contact-'+eid)?.value.trim()||'',
+      advice:document.getElementById('ee-advice-'+eid)?.value.trim()||'',
+      feeling:document.getElementById('ee-feel-'+eid)?.value.trim()||'',
+      products:document.getElementById('ee-prod-'+eid)?.value.trim()||'',
+    });
+    showToast('✅ Обновено!');await openSheet(procId);
+  }catch(e){showToast('Грешка при обновяване');}
+}
+async function deleteEntry(eid,procId){
+  if(!confirm('Изтрий този запис?'))return;
+  try{await F().deleteDoc(F().doc(DB(),'diary_entries',eid));showToast('Записът е изтрит');await openSheet(procId);}
+  catch(e){showToast('Грешка при изтриване');}
+}
+
+// ── DIARY TAB ──
+async function loadDiaryTab(){
+  const c=document.getElementById('diary-tab-content');
+  if(!window._user){c.innerHTML='<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">Влез в акаунта си</div><div class="empty-sub">За да виждаш личния си дневник</div></div>';return;}
+  c.innerHTML='<div class="loading">⏳ Зарежда...</div>';
+  try{
+    const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
+    if(snap.empty){c.innerHTML='<div class="empty-state"><div class="empty-ic">📖</div><div class="empty-title">Дневникът е празен</div><div class="empty-sub">Отвори процедура и добави първия си запис</div></div>';return;}
+    const grouped={};
+    snap.docs.forEach(d=>{
+      const data=d.data();
+      if(!grouped[data.procId])grouped[data.procId]={name:data.procName,icon:data.procIcon,entries:[]};
+      grouped[data.procId].entries.push(d);
+    });
+    Object.values(grouped).forEach(g=>g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0)));
+    c.innerHTML=`<div class="diary-tab-list">${Object.entries(grouped).map(([pid,g])=>{
+      const p=PROCS.find(x=>x.id===pid);
+      const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
+      return`<div class="diary-group">
+        <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
+          <div class="diary-group-icon" style="background:${p?.bg||'#eee'}">${g.icon||'📋'}</div>
+          <div class="diary-group-info"><div class="diary-group-name">${g.name}</div><div class="diary-group-meta">Последно: ${lastDate}</div></div>
+          <span class="diary-group-count">${g.entries.length} записа</span>
+        </div>
+        <div class="diary-group-entries" id="dg-${pid}">
+          ${g.entries.map(d=>renderEntryCard(d)).join('')}
+          <button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ Нов запис</button>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }catch(e){c.innerHTML='<div class="loading">Грешка при зареждане</div>';}
+}
+function toggleGroup(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+
+// ── CLINICS TAB ──
+let allClinics=[];
+async function loadClinicsTab(){
+  try{
+    const snap=await F().getDocs(F().collection(DB(),'clinic_ads'));
+    allClinics=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderClinics();
+  }catch(e){}
+}
+function filterClinics(){renderClinics();}
+function renderClinics(){
+  const s=document.getElementById('clinic-search')?.value.toLowerCase()||'';
+  const c=document.getElementById('clinics-list');
+  const filtered=allClinics.filter(a=>!s||a.name?.toLowerCase().includes(s)||(a.procIds||[]).some(pid=>PROCS.find(p=>p.id===pid)?.name.toLowerCase().includes(s)));
+  if(!filtered.length){c.innerHTML='<div class="empty-state"><div class="empty-ic">🏥</div><div class="empty-title">Няма клиники</div><div class="empty-sub">Скоро ще има партньорски клиники</div></div>';return;}
+  c.innerHTML=filtered.map(a=>{
+    const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
+    return`<div class="clinic-card">
+      <div class="clinic-card-hdr">
+        <div class="clinic-logo">${a.icon||'🏥'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="clinic-name">${a.name}</div>
+          ${a.address?`<div class="clinic-address">📍 ${a.address}</div>`:''}
+          ${a.phone?`<div class="clinic-phone">📞 ${a.phone}</div>`:''}
+          ${a.url?`<div style="font-size:11px;color:var(--sage);margin-top:1px">🔗 ${a.url}</div>`:''}
+        </div>
+        <span class="sponsored-pill">Партньор</span>
+      </div>
+      ${procNames.length?`<div class="clinic-procs">${procNames.slice(0,6).map(n=>`<span class="clinic-proc-tag">${n}</span>`).join('')}${procNames.length>6?`<span class="clinic-proc-tag">+${procNames.length-6}</span>`:''}</div>`:''}</div>`;
+  }).join('');
+}
+
+// ── PRODUCTS TAB ──
+let allProducts=[];
+async function loadProductsTab(){
+  try{
+    const snap=await F().getDocs(F().collection(DB(),'product_ads'));
+    allProducts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderProducts();
+  }catch(e){}
+}
+function filterProducts(){renderProducts();}
+function renderProducts(){
+  const s=document.getElementById('prod-search')?.value.toLowerCase()||'';
+  const c=document.getElementById('products-tab-list');
+  const filtered=allProducts.filter(a=>!s||a.name?.toLowerCase().includes(s)||a.brand?.toLowerCase().includes(s)||(a.procIds||[]).some(pid=>PROCS.find(p=>p.id===pid)?.name.toLowerCase().includes(s)));
+  if(!filtered.length){c.innerHTML='<div class="empty-state"><div class="empty-ic">🧴</div><div class="empty-title">Няма продукти</div><div class="empty-sub">Скоро ще има препоръчани продукти</div></div>';return;}
+  c.innerHTML=filtered.map(a=>{
+    const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
+    return`<div class="product-tab-card">
+      <div class="product-tab-icon" style="background:${a.color||'#eeeaf8'}">${a.icon||'🧴'}</div>
+      <div class="product-tab-info">
+        <div class="product-tab-brand">${a.brand||''}</div>
+        <div class="product-tab-name">${a.name}</div>
+        ${a.desc?`<div class="product-tab-desc">${a.desc}</div>`:''}
+        ${procNames.length?`<div class="product-tab-procs">📋 ${procNames.slice(0,4).join(', ')}${procNames.length>4?' …':''}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ADMIN ──
+let acSelProcs=[],apSelProcs=[];
+function toggleAdminForm(type){
+  const f=document.getElementById('admin-'+type+'-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+function filterAdminPicker(type){
+  const searchId=type==='clinic'?'ac-proc-search':'ap-proc-search';
+  const resultsId=type==='clinic'?'ac-proc-results':'ap-proc-results';
+  const selArr=type==='clinic'?acSelProcs:apSelProcs;
+  const term=document.getElementById(searchId).value.toLowerCase();
+  const el=document.getElementById(resultsId);
+  if(!term){el.innerHTML='';el.classList.remove('open');return;}
+  const m=PROCS.filter(p=>(p.name.toLowerCase().includes(term)||p.sub.toLowerCase().includes(term))&&!selArr.includes(p.id)).slice(0,20);
+  el.innerHTML=m.length?m.map(p=>`<div class="proc-picker-item" onclick="addAdminProc('${type}','${p.id}')">${p.icon} ${p.name}</div>`).join(''):`<div style="padding:9px 12px;font-size:12px;color:var(--ink2)">Няма резултати</div>`;
+  el.classList.add('open');
+}
+function addAdminProc(type,procId){
+  const arr=type==='clinic'?acSelProcs:apSelProcs;
+  if(!arr.includes(procId))arr.push(procId);
+  document.getElementById(type==='clinic'?'ac-proc-search':'ap-proc-search').value='';
+  document.getElementById(type==='clinic'?'ac-proc-results':'ap-proc-results').innerHTML='';
+  document.getElementById(type==='clinic'?'ac-proc-results':'ap-proc-results').classList.remove('open');
+  renderAdminChips(type);
+}
+function removeAdminProc(type,procId){
+  if(type==='clinic')acSelProcs=acSelProcs.filter(x=>x!==procId);
+  else apSelProcs=apSelProcs.filter(x=>x!==procId);
+  renderAdminChips(type);
+}
+function renderAdminChips(type){
+  const arr=type==='clinic'?acSelProcs:apSelProcs;
+  const el=document.getElementById(type==='clinic'?'ac-chips':'ap-chips');
+  el.innerHTML=arr.map(id=>{const p=PROCS.find(x=>x.id===id);return`<span class="chip">${p?p.icon+' '+p.name:id}<button onclick="removeAdminProc('${type}','${id}')">✕</button></span>`;}).join('');
+}
+async function saveClinicAd(){
+  const icon=document.getElementById('ac-icon').value.trim()||'🏥';
+  const name=document.getElementById('ac-name').value.trim();
+  const address=document.getElementById('ac-address').value.trim();
+  const phone=document.getElementById('ac-phone').value.trim();
+  const url=document.getElementById('ac-url').value.trim();
+  const editId=document.getElementById('ac-edit-id').value;
+  if(!name){showToast('Въведи ime');return;}
+  const data={icon,name,address,phone,url,procIds:acSelProcs,updatedAt:F().serverTimestamp()};
+  try{
+    if(editId){await F().setDoc(F().doc(DB(),'clinic_ads',editId),data,{merge:true});}
+    else{data.createdAt=F().serverTimestamp();await F().addDoc(F().collection(DB(),'clinic_ads'),data);}
+    showToast('✅ Клиниката е запазена');
+    document.getElementById('admin-clinic-form').style.display='none';
+    acSelProcs=[];renderAdminChips('clinic');
+    document.getElementById('ac-icon').value='';document.getElementById('ac-name').value='';
+    document.getElementById('ac-address').value='';document.getElementById('ac-phone').value='';
+    document.getElementById('ac-url').value='';document.getElementById('ac-edit-id').value='';
+    loadAdminLists();loadClinicsTab();
+  }catch(e){console.error(e);showToast('Грешка');}
+}
+async function saveProductAd(){
+  const icon=document.getElementById('ap-icon').value.trim()||'🧴';
+  const brand=document.getElementById('ap-brand').value.trim();
+  const name=document.getElementById('ap-name').value.trim();
+  const desc=document.getElementById('ap-desc').value.trim();
+  const editId=document.getElementById('ap-edit-id').value;
+  if(!name){showToast('Въведи ime');return;}
+  const colors=['#e4f0f7','#fdf0f5','#eeeaf8','#e8f0ec','#f0e8dc'];
+  const fgs=['#6fa8c8','#d4849a','#9b8ec4','#8fa89a','#b8966a'];
+  const ci=Math.floor(Math.random()*colors.length);
+  const data={icon,brand,name,desc,color:colors[ci],fg:fgs[ci],procIds:apSelProcs,updatedAt:F().serverTimestamp()};
+  try{
+    if(editId){await F().setDoc(F().doc(DB(),'product_ads',editId),data,{merge:true});}
+    else{data.createdAt=F().serverTimestamp();await F().addDoc(F().collection(DB(),'product_ads'),data);}
+    showToast('✅ Продуктът е запазен');
+    document.getElementById('admin-product-form').style.display='none';
+    apSelProcs=[];renderAdminChips('product');
+    document.getElementById('ap-icon').value='';document.getElementById('ap-brand').value='';
+    document.getElementById('ap-name').value='';document.getElementById('ap-desc').value='';document.getElementById('ap-edit-id').value='';
+    loadAdminLists();loadProductsTab();
+  }catch(e){console.error(e);showToast('Грешка');}
+}
+async function loadAdminLists(){
+  if(!window._isAdmin)return;
+  try{
+    const [cs,ps]=await Promise.all([F().getDocs(F().collection(DB(),'clinic_ads')),F().getDocs(F().collection(DB(),'product_ads'))]);
+    document.getElementById('admin-clinics-list').innerHTML=cs.empty?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма клиники</div>':cs.docs.map(d=>{const a=d.data();return`<div class="admin-list-item"><span style="flex:1">${a.icon||'🏥'} ${a.name}</span><button class="admin-btn sm red" onclick="deleteAdminItem('clinic_ads','${d.id}')">✕</button></div>`;}).join('');
+    document.getElementById('admin-products-list').innerHTML=ps.empty?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма продукти</div>':ps.docs.map(d=>{const a=d.data();return`<div class="admin-list-item"><span style="flex:1">${a.icon||'🧴'} ${a.brand?a.brand+' — ':''}${a.name}</span><button class="admin-btn sm red" onclick="deleteAdminItem('product_ads','${d.id}')">✕</button></div>`;}).join('');
+  }catch(e){}
+}
+async function deleteAdminItem(col,id){
+  if(!confirm('Изтрий?'))return;
+  try{await F().deleteDoc(F().doc(DB(),col,id));showToast('Изтрито');loadAdminLists();loadClinicsTab();loadProductsTab();}catch(e){showToast('Грешка');}
+}
+
+// ── LIGHTBOX ──
+function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+
+
+// ── AI CHAT ──
+let _aiProcId=null,_aiProcName='',_aiHistory=[];
+const AI_SUGGESTIONS={
+  default:['Колко процедури са нужни?','Има ли странични ефекти?','Кой е подходящ кандидат?'],
+};
+function openAiChat(procId,procName){
+  _aiProcId=procId;_aiProcName=procName;_aiHistory=[];
+  document.getElementById('ai-proc-title').textContent=procName;
+  document.getElementById('ai-messages').innerHTML='';
+  // Welcome message
+  addAiMsg('bot',t('aiWelcome')+' <strong>'+procName+'</strong> '+t('aiAbout'));
+  showAiSuggestions(t('aiSuggestions'));
+  document.getElementById('ai-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('ai-input').focus(),400);
+}
+function closeAiChat(){
+  document.getElementById('ai-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function addAiMsg(role,html){
+  const div=document.createElement('div');
+  div.className='ai-msg '+role;
+  div.innerHTML=html;
+  document.getElementById('ai-messages').appendChild(div);
+  document.getElementById('ai-messages').scrollTop=99999;
+  return div;
+}
+function showAiSuggestions(arr){
+  document.getElementById('ai-suggestions').innerHTML=arr.map(s=>`<button class="ai-sug-btn" onclick="pickSuggestion('${s.replace(/'/g,"\'")}')"> ${s}</button>`).join('');
+}
+function pickSuggestion(txt){
+  document.getElementById('ai-input').value=txt;
+  document.getElementById('ai-suggestions').innerHTML='';
+  sendAiMsg();
+}
+async function sendAiMsg(){
+  const inp=document.getElementById('ai-input');
+  const text=inp.value.trim();if(!text)return;
+  inp.value='';
+  document.getElementById('ai-suggestions').innerHTML='';
+  addAiMsg('user',text);
+  _aiHistory.push({role:'user',content:text});
+  // Loading
+  const loadDiv=addAiMsg('bot','<span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>');
+  loadDiv.classList.add('loading');
+  document.getElementById('ai-send-btn').disabled=true;
+  // Find proc data
+  const proc=window.PROCS?window.PROCS.find(p=>p.id===_aiProcId):null;
+  const procContext=proc?`Процедура: ${proc.name}. ${proc.what||''} Зони: ${proc.zones||''}. Резултати: ${(proc.results||[]).join(', ')}. Противопоказания: ${(proc.contra||[]).join(', ')}.`:'';
+  const systemPrompt=t('aiSystem')+' Procedure context: '+procContext;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:systemPrompt,
+        messages:_aiHistory
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.[0]?.text||'Нещо се обърка. Опитай пак.';
+    _aiHistory.push({role:'assistant',content:reply});
+    loadDiv.remove();
+    addAiMsg('bot',reply.replace(/\n/g,'<br>'));
+    // Follow-up suggestions
+    showAiSuggestions(t('aiFollowUp'));
+  }catch(e){
+    loadDiv.remove();
+    addAiMsg('bot','Грешка при свързване с AI. Провери интернет връзката.');
+  }
+  document.getElementById('ai-send-btn').disabled=false;
+}
+
+// ── FEEDBACK ──
+let _fbType='idea';
+function setFbType(btn,type){
+  _fbType=type;
+  document.querySelectorAll('.fb-type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+async function sendFeedback(){
+  const text=document.getElementById('fb-text').value.trim();
+  if(!text){showToast('Напиши предложението си');return;}
+  if(!window._user){showToast('Влез за да изпратиш');return;}
+  try{
+    await F().addDoc(F().collection(DB(),'feedback'),{
+      type:_fbType,
+      text,
+      userId:window._user.uid,
+      userName:window._user.displayName||window._user.email.split('@')[0],
+      userEmail:window._user.email,
+      createdAt:F().serverTimestamp(),
+      read:false
+    });
+    document.getElementById('fb-text').value='';
+    showToast('✅ Предложението е изпратено!');
+  }catch(e){showToast('Грешка при изпращане');}
+}
+async function loadAdminInbox(){
+  try{
+    const snap=await F().getDocs(F().query(F().collection(DB(),'feedback')));
+    const items=snap.docs.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
+    const unread=items.filter(d=>!d.data().read).length;
+    const badge=document.getElementById('inbox-badge');
+    if(unread>0){badge.style.display='inline';badge.textContent=unread+' нови';}else{badge.style.display='none';}
+    const typeLabel={idea:'💡 Идея',bug:'🐛 Грешка',content:'📝 Съдържание'};
+    document.getElementById('admin-inbox-list').innerHTML=items.length?items.map(d=>{
+      const fb=d.data();
+      const dt=fb.createdAt?.toDate?fb.createdAt.toDate():new Date();
+      return`<div class="admin-inbox-item">
+        <div class="admin-inbox-type">${typeLabel[fb.type]||fb.type}</div>
+        <div class="admin-inbox-text">${fb.text}</div>
+        <div class="admin-inbox-meta">от ${fb.userName||fb.userEmail} · ${fmtFull(dt)}</div>
+      </div>`;
+    }).join(''):'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма предложения</div>';
+    // mark all as read
+    items.filter(d=>!d.data().read).forEach(d=>{F().updateDoc(F().doc(DB(),'feedback',d.id),{read:true}).catch(()=>{});});
+  }catch(e){document.getElementById('admin-inbox-list').innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
+}
+
+// close pickers on outside click
+document.addEventListener('click',e=>{
+  ['admin-clinic-picker','admin-product-picker'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&!el.contains(e.target)){const r=el.querySelector('.proc-picker-results');if(r){r.innerHTML='';r.classList.remove('open');}}
+  });
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){if(document.getElementById('reg-form').style.display!=='none')doRegister();else doLogin();}
+});
+</script>
+</body>
+</html>
