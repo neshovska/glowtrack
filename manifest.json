@@ -1,0 +1,50 @@
+{
+  "name": "GlowTrack — Aesthetic Procedures",
+  "short_name": "GlowTrack",
+  "description": "Complete encyclopedia of aesthetic procedures with personal diary",
+  "start_url": "/glowtrack/",
+  "scope": "/glowtrack/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#b8966a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23b8966a' width='192' height='192'/><text x='96' y='120' font-size='80' font-weight='bold' fill='white' text-anchor='middle' font-family='serif'>GT</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23b8966a' width='512' height='512'/><text x='256' y='380' font-size='280' font-weight='bold' fill='white' text-anchor='middle' font-family='serif'>GT</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23f7f5f2' width='540' height='720'/><text x='270' y='300' font-size='60' text-anchor='middle' fill='%23b8966a'>GlowTrack</text><text x='270' y='370' font-size='20' text-anchor='middle' fill='%235a5870'>Aesthetic Procedures App</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["health", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "View Procedures",
+      "short_name": "Procedures",
+      "description": "Browse all aesthetic procedures",
+      "url": "/glowtrack/?page=procs",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><circle cx='48' cy='48' r='48' fill='%23b8966a'/><text x='48' y='60' font-size='50' text-anchor='middle' fill='white'>✦</text></svg>", "sizes": "96x96"}]
+    },
+    {
+      "name": "My Diary",
+      "short_name": "Diary",
+      "description": "View your procedure diary",
+      "url": "/glowtrack/?page=diary",
+      "icons": [{"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><circle cx='48' cy='48' r='48' fill='%23b8966a'/><text x='48' y='60' font-size='50' text-anchor='middle' fill='white'>📖</text></svg>", "sizes": "96x96"}]
+    }
+  ]
+}
