@@ -412,25 +412,7 @@ textarea.form-input{resize:none}
   </div>
   <div class="page" id="page-profile">
     <div class="page-hdr"><div class="page-hdr-title">Моят <em>профил</em></div></div>
-    <div class="profile-card"><div class="profile-av" id="profile-av-wrap" style="display:flex;align-items:center;justify-content:center;width:80px;height:80px">
-<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="pfg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b8966a"/><stop offset="100%" stop-color="#d4a96a"/></linearGradient></defs>
-  <!-- Head -->
-  <ellipse cx="34" cy="44" rx="16" ry="18" fill="none" stroke="url(#pfg)" stroke-width="2.2"/>
-  <!-- Neck -->
-  <path d="M29 62 L29 67 M39 62 L39 67" stroke="url(#pfg)" stroke-width="2" stroke-linecap="round"/>
-  <!-- Shoulders -->
-  <path d="M10 80 C10 72 20 68 34 68 C48 68 58 72 58 80" stroke="url(#pfg)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-  <!-- Hair base -->
-  <path d="M18 42 C18 28 24 22 34 22 C44 22 50 28 50 42" stroke="url(#pfg)" stroke-width="2.2" fill="none"/>
-  <!-- Hair tie -->
-  <circle cx="48" cy="26" r="3" fill="url(#pfg)" opacity=".6"/>
-  <!-- Ponytail up and back -->
-  <path d="M48 23 C52 14 62 11 65 16 C68 21 64 27 59 29 C54 31 50 30 48 29" stroke="url(#pfg)" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <!-- Initials -->
-  <text x="34" y="46" text-anchor="middle" dominant-baseline="middle" font-size="13" font-family="DM Sans,sans-serif" font-weight="700" fill="url(#pfg)" id="profile-initials-svg">?</text>
-</svg>
-</div><div class="profile-name" id="prof-name">—</div><div class="profile-email" id="prof-email">—</div></div>
+    <div class="profile-card"><div class="profile-av" id="profile-av-wrap" style="width:80px;height:80px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08)" id="profile-initials-svg">?</div><div class="profile-name" id="prof-name">—</div><div class="profile-email" id="prof-email">—</div></div>
     <div class="profile-btns">
       <button class="profile-btn danger" onclick="doLogout()">Изход</button>
       <button class="profile-btn danger" onclick="confirmDeleteAccount()">🗑️ Изтрий профила</button>
@@ -503,24 +485,7 @@ textarea.form-input{resize:none}
     <button class="nb" onclick="goPage('diary',this)"><span class="ni">📖</span><span class="nl">Дневник</span></button>
     <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showToast('🔒 Очаквайте скоро')"><span class="ni">🔒</span><span class="nl">Очаквайте</span></button>
     <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showToast('🔒 Очаквайте скоро')"><span class="ni">🔒</span><span class="nl">Очаквайте</span></button>
-    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px">
-<svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Head -->
-  <ellipse cx="11" cy="14" rx="5.5" ry="6" fill="none" stroke="#c5bdb4" stroke-width="1.3"/>
-  <!-- Neck -->
-  <path d="M9 20 L9 22 M13 20 L13 22" stroke="#c5bdb4" stroke-width="1.3" stroke-linecap="round"/>
-  <!-- Shoulders -->
-  <path d="M4 26 C4 23 7 22 11 22 C15 22 18 23 18 26" stroke="#c5bdb4" stroke-width="1.3" stroke-linecap="round" fill="none"/>
-  <!-- Hair base -->
-  <path d="M6 13 C6 8 8 6.5 11 6.5 C14 6.5 16 8 16 13" stroke="#c5bdb4" stroke-width="1.3" fill="none"/>
-  <!-- Hair tie -->
-  <circle cx="15.5" cy="8" r="1" fill="#c5bdb4" opacity=".7"/>
-  <!-- Ponytail -->
-  <path d="M15.5 7 C17 5 20 4.5 21 6 C22 7.5 20.5 9 19 10 C17.5 11 16 11 15.5 9" stroke="#c5bdb4" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-  <!-- Initials -->
-  <text x="11" y="15.5" text-anchor="middle" dominant-baseline="middle" font-size="4" font-family="DM Sans,sans-serif" font-weight="700" fill="#c5bdb4" id="nav-initials-svg"></text>
-</svg>
-</span><span class="nl">Профил</span></button>
+    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em" id="nav-initials-svg"></span><span class="nl">Профил</span></button>
   </nav>
 </div>
 <div class="overlay" id="overlay" onclick="closeSheet(event)">
@@ -591,8 +556,8 @@ onAuthStateChanged(auth,async user=>{
     const _parts=_name.trim().split(/\s+/);
     const _ini=(_parts[0]?_parts[0][0]:'')+((_parts.length>1&&_parts[_parts.length-1])?_parts[_parts.length-1][0]:'');
     const _iniUp=_ini.toUpperCase();
-    const _navSvg=document.getElementById('nav-initials-svg');
-    const _profSvg=document.getElementById('profile-initials-svg');
+    const _navSvg=document.getElementById('nav-avatar');
+    const _profSvg=document.getElementById('profile-av-wrap');
     if(_navSvg)_navSvg.textContent=_iniUp;
     if(_profSvg)_profSvg.textContent=_iniUp;
     const _navBtn=document.getElementById('nav-profile-btn');
