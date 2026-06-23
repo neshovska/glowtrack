@@ -361,7 +361,7 @@ textarea.form-input{resize:none}
 <body>
 <div class="bg"></div>
 <div class="auth-screen" id="auth-screen">
-  <button class="lang-btn auth-lang" id="auth-lang-btn" onclick="toggleLang()">EN</button>
+  
   <div class="auth-logo">Glow<span>Track</span></div>
   <div class="auth-tagline">Know your glow.</div>
   <div class="auth-card">
@@ -372,6 +372,9 @@ textarea.form-input{resize:none}
       <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="auth-btn" id="login-btn" onclick="doLogin()">Влез</button>
       <div class="auth-switch">Нямаш акаунт? <a onclick="showReg()">Регистрирай се</a></div>
+      <div style="text-align:center;margin-top:12px">
+        <button class="lang-btn" id="auth-lang-btn" onclick="toggleLang()" style="width:auto">EN / БГ</button>
+      </div>
     </div>
     <div id="reg-form" style="display:none">
       <div class="auth-title">Регистрация</div>
@@ -496,6 +499,20 @@ textarea.form-input{resize:none}
   </div>
 </div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><button class="lb-close" onclick="closeLightbox()">✕</button><img id="lb-img" src=""></div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgot-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:400">
+  <div style="background:white;border-radius:20px;padding:24px;width:90%;max-width:340px;box-shadow:0 8px 32px rgba(26,26,46,.2)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px">Забравена парола</div>
+      <div style="font-size:12px;color:var(--ink2)">Въведи имейла си и ще получиш линк за reset</div>
+    </div>
+    <input class="auth-input" id="forgot-email" type="email" placeholder="Твоят имейл" style="margin-bottom:12px">
+    <button class="auth-btn" onclick="sendPasswordReset()" style="margin-bottom:8px">Изпрати линк</button>
+    <button style="width:100%;padding:11px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" onclick="closeForgotModal()">Отмени</button>
+    <div id="forgot-message" style="margin-top:12px;font-size:12px;color:var(--sage);text-align:center;display:none"></div>
+  </div>
+</div>
 
 <!-- AI CHAT OVERLAY -->
 <div class="ai-overlay" id="ai-overlay">
@@ -1626,6 +1643,34 @@ async function loadAdminInbox(){
     // mark all as read
     items.filter(d=>!d.data().read).forEach(d=>{F().updateDoc(F().doc(DB(),'feedback',d.id),{read:true}).catch(()=>{});});
   }catch(e){document.getElementById('admin-inbox-list').innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
+}
+
+
+// ── FORGOT PASSWORD ──
+function showForgotPassword(){
+  document.getElementById('forgot-modal').style.display='flex';
+  document.getElementById('forgot-email').focus();
+}
+function closeForgotModal(){
+  document.getElementById('forgot-modal').style.display='none';
+  document.getElementById('forgot-email').value='';
+  document.getElementById('forgot-message').style.display='none';
+}
+async function sendPasswordReset(){
+  const email = document.getElementById('forgot-email').value.trim();
+  if(!email){showToast('Въведи имейл');return;}
+  const msg = document.getElementById('forgot-message');
+  msg.style.display='block';
+  msg.textContent='Изпращаме...';
+  try{
+    await F().sendPasswordResetEmail(F().getAuth(), email);
+    msg.textContent='✅ Линк за reset е изпратен на '+email;
+    msg.style.color='#2d9d78';
+    setTimeout(closeForgotModal, 2500);
+  }catch(e){
+    msg.textContent='❌ Имейла не е регистриран';
+    msg.style.color='#e85d5d';
+  }
 }
 
 // close pickers on outside click
