@@ -1211,29 +1211,36 @@ function setCat(c){activeCat=c;renderCats();renderProcs();
 if(window._pendingLang){window._pendingLang=false;applyLang();}}
 function filterProcs(){searchTerm=document.getElementById('proc-search').value;renderProcs();}
 function renderProcs(){
-  const s=searchTerm.toLowerCase();
-  const filtered=PROCS.filter(p=>(activeCat==='all'||p.cat===activeCat)&&(!s||p.name.toLowerCase().includes(s)||p.sub.toLowerCase().includes(s)||(p.what||'').toLowerCase().includes(s)||(p.subcat||'').toLowerCase().includes(s)));
+  const s=searchTerm.toLowerCase().trim();
+  const sWords = s ? s.split(/\s+/).filter(Boolean) : [];
+  const filtered=PROCS.filter(p=>{
+    const catOk=activeCat==='all'||p.cat===activeCat;
+    if(!s) return catOk;
+    const hay=(p.name+' '+p.sub+' '+(p.subcat||'')+' '+(p.what||'')+' '+(p.zones||'')).toLowerCase();
+    return catOk && sWords.every(w=>hay.includes(w));
+  });
   document.getElementById('no-results').style.display=filtered.length?'none':'block';
 
+  const favIds = (typeof getFavs==='function') ? getFavs() : [];
+  const procRow = (p) => {
+    const lp=procL(p);
+    const isFav=favIds.includes(p.id);
+    return `<div class="proc-row" onclick="openSheet('${p.id}')">
+      <div class="proc-row-icon" style="background:${p.bg};font-size:22px">${p.icon}</div>
+      <div class="proc-row-info">
+        <div class="proc-row-name">${lp.name}</div>
+        <div class="proc-row-sub">${lp.sub}</div>
+        <div class="proc-row-subcat">${lp.subcat||p.subcat}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="proc-fav-btn" data-id="${p.id}" onclick="event.stopPropagation();toggleFavFromList('${p.id}',this)" style="font-size:16px;cursor:pointer;padding:4px">${isFav?'❤️':'🤍'}</span>
+        <div class="proc-row-arrow">›</div>
+      </div>
+    </div>`;
+  };
+
   if(s){
-    // When searching — flat list no grouping
-    const favIds = getFavs ? getFavs() : [];
-    document.getElementById('proc-list').innerHTML=filtered.map(p=>{
-      const lp=procL(p);
-      const isFav = favIds.includes(p.id);
-      return `<div class="proc-row" onclick="openSheet('${p.id}')">
-        <div class="proc-row-icon" style="background:${p.bg};font-size:22px">${p.icon}</div>
-        <div class="proc-row-info">
-          <div class="proc-row-name">${lp.name}</div>
-          <div class="proc-row-sub">${lp.sub}</div>
-          <div class="proc-row-subcat">${lp.subcat||p.subcat}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <span class="proc-fav-btn" data-id="${p.id}" onclick="event.stopPropagation();toggleFavFromList('${p.id}',this)" style="font-size:16px;cursor:pointer;padding:4px">${isFav?'❤️':'🤍'}</span>
-          <div class="proc-row-arrow">›</div>
-        </div>
-      </div>`;
-    }).join('');
+    document.getElementById('proc-list').innerHTML=filtered.map(p=>procRow(p)).join('');
     return;
   }
 
@@ -1248,15 +1255,7 @@ function renderProcs(){
   document.getElementById('proc-list').innerHTML=Object.entries(groups).map(([subcat,procs])=>`
     <div class="subcat-group">
       <div class="subcat-header">${subcat}</div>
-      ${procs.map(p=>`
-        <div class="proc-row" onclick="openSheet('${p.id}')">
-          <div class="proc-row-icon" style="background:${p.bg}">${p.icon}</div>
-          <div class="proc-row-info">
-            <div class="proc-row-name">${p.name}</div>
-            <div class="proc-row-sub">${p.sub}</div>
-          </div>
-          <div class="proc-row-arrow">›</div>
-        </div>`).join('')}
+      ${procs.map(p=>procRow(p)).join('')}
     </div>`).join('');
 }
 renderCats();renderProcs();
