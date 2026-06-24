@@ -417,12 +417,17 @@ textarea.form-input{resize:none}
   <!-- Backdrop -->
   <div style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(6px)" onclick="document.getElementById('reminder-banner').style.display='none'"></div>
   <!-- Card -->
-  <div style="position:relative;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-radius:24px;padding:28px 24px;margin:0 28px;box-shadow:0 20px 60px rgba(26,26,46,.25);border:1px solid rgba(184,150,106,.3);text-align:center;max-width:340px;width:100%">
-    <div style="font-size:36px;margin-bottom:12px">🔔</div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Предстояща процедура</div>
-    <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px;font-family:'Cormorant Garamond',serif" id="banner-title"></div>
-    <div style="font-size:13px;color:var(--ink2);margin-bottom:20px" id="banner-sub"></div>
-    <button onclick="document.getElementById('reminder-banner').style.display='none'" style="background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;color:#fff;border-radius:50px;padding:11px 32px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.03em">OK ✦</button>
+  <div style="position:relative;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-radius:24px;padding:24px;margin:0 24px;box-shadow:0 20px 60px rgba(26,26,46,.25);border:1px solid rgba(184,150,106,.3);max-width:340px;width:100%">
+    <!-- Single reminder -->
+    <div id="banner-single" style="text-align:center">
+      <div style="font-size:36px;margin-bottom:10px">🔔</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Предстояща процедура</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px;font-family:'Cormorant Garamond',serif" id="banner-title"></div>
+      <div style="font-size:13px;color:var(--ink2);margin-bottom:20px" id="banner-sub"></div>
+      <button onclick="document.getElementById('reminder-banner').style.display='none'" style="background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;color:#fff;border-radius:50px;padding:11px 32px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">OK ✦</button>
+    </div>
+    <!-- Multiple reminders -->
+    <div id="banner-multi" style="display:none"></div>
   </div>
 </div>
   <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><button class="lang-btn" id="app-lang-btn" style="position:absolute;right:14px;top:50%;transform:translateY(-50%)" onclick="toggleLang()">EN</button></div><div id="topbar-right" style="display:none"></div></div>
@@ -588,7 +593,6 @@ textarea.form-input{resize:none}
     </div>
     <div class="profile-btns" style="margin-top:16px">
       <button class="profile-btn danger" onclick="doLogout()">Изход</button>
-      <button class="profile-btn danger" onclick="confirmDeleteAccount()">🗑️ Изтрий профила</button>
     </div>
     <div style="text-align:center;padding:16px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v8.1</div>
   </div>
@@ -2079,19 +2083,23 @@ function loadNotifProcSelector(){
   // Load saved
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
   const nl = document.getElementById('notif-list');
-  if(nl) nl.innerHTML = saved.map(n=>{
-    const dt = new Date(n.date);
-    const diff = Math.ceil((dt - new Date()) / 86400000);
-    const diffTxt = diff > 0 ? diff + ' дни' : diff === 0 ? 'Днес' : 'Минало';
-    const color = diff < 0 ? '#e85d5d' : diff === 0 ? '#b8966a' : 'var(--ink2)';
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#faf8f5;border-radius:10px;border:1px solid var(--goldlt)">
-      <div>
-        <div style="font-size:12px;font-weight:600;color:var(--ink1)">${n.procName}</div>
-        <div style="font-size:11px;color:${color}">${dt.toLocaleDateString('bg-BG')} ${n.time?'в '+n.time:''} · ${diffTxt}</div>
-      </div>
-      <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:16px">✕</button>
-    </div>`;
-  }).join('');
+  if(nl) nl.innerHTML = saved.length ? `
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+      ${saved.map(n=>{
+        const dt = new Date(n.date);
+        const diff = Math.ceil((dt - new Date()) / 86400000);
+        const diffTxt = diff > 0 ? 'След '+diff+' дни' : diff === 0 ? '🔔 Днес' : '⚠️ Минало';
+        const color = diff < 0 ? '#e85d5d' : diff === 0 ? '#b8966a' : 'var(--ink2)';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#faf8f5;border-radius:10px;border:1px solid var(--goldlt)">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.procName}</div>
+            <div style="font-size:10px;color:${color};margin-top:1px">${dt.toLocaleDateString('bg-BG')} ${n.time?'в '+n.time:''} · ${diffTxt}</div>
+          </div>
+          <button onclick="editNotif('${n.id}')" style="background:none;border:1px solid var(--goldlt);border-radius:6px;color:var(--gold);cursor:pointer;font-size:11px;padding:3px 7px;white-space:nowrap">✏️</button>
+          <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:2px">✕</button>
+        </div>`;
+      }).join('')}
+    </div>` : '';
 }
 
 function deleteNotif(id){
@@ -2162,27 +2170,57 @@ function checkReminders(){
   const notifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
   if(!notifs.length) return;
   const now = new Date();
-  const today = now.toDateString();
   const upcoming = notifs.filter(n=>{
     const nd = new Date(n.date);
     const diff = Math.ceil((nd - now) / 86400000);
-    return diff >= 0 && diff <= 3; // show if within 3 days
+    return diff >= 0 && diff <= 3;
   });
   if(!upcoming.length) return;
-  const next = upcoming[0];
-  const nd = new Date(next.date);
-  const diff = Math.ceil((nd - now) / 86400000);
-  const diffTxt = diff === 0 ? 'Днес' : diff === 1 ? 'Утре' : 'След ' + diff + ' дни';
+
   const banner = document.getElementById('reminder-banner');
   const title = document.getElementById('banner-title');
   const sub = document.getElementById('banner-sub');
-  if(banner && title && sub){
-    title.textContent = '🔔 ' + next.procName;
-    sub.textContent = diffTxt + (next.time ? ' в ' + next.time : '') + ' · Натисни да видиш детайли';
-    banner.style.display = 'flex';
-    // Auto hide after 8 seconds
-    setTimeout(()=>{ banner.style.display='none'; }, 8000);
+  const multiWrap = document.getElementById('banner-multi');
+  if(!banner) return;
+
+  if(upcoming.length === 1){
+    // Single — big card as before
+    const n = upcoming[0];
+    const nd = new Date(n.date);
+    const diff = Math.ceil((nd - now) / 86400000);
+    const diffTxt = diff === 0 ? 'Днес' : diff === 1 ? 'Утре' : 'След ' + diff + ' дни';
+    document.getElementById('banner-single').style.display = 'block';
+    if(multiWrap) multiWrap.style.display = 'none';
+    title.textContent = '🔔 ' + n.procName;
+    sub.textContent = diffTxt + (n.time ? ' в ' + n.time : '');
+  } else {
+    // Multiple — small compact cards
+    document.getElementById('banner-single').style.display = 'none';
+    if(multiWrap){
+      multiWrap.style.display = 'block';
+      multiWrap.innerHTML = `
+        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;text-align:center">🔔 Предстоящи процедури</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${upcoming.map(n=>{
+            const nd = new Date(n.date);
+            const diff = Math.ceil((nd - now) / 86400000);
+            const diffTxt = diff === 0 ? 'Днес' : diff === 1 ? 'Утре' : 'След '+diff+' дни';
+            const color = diff === 0 ? '#b8966a' : 'var(--ink2)';
+            return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#faf8f5;border-radius:12px;border:1px solid rgba(184,150,106,.2)">
+              <span style="font-size:20px">🔔</span>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:700;color:var(--ink1)">${n.procName}</div>
+                <div style="font-size:11px;color:${color}">${nd.toLocaleDateString('bg-BG')} ${n.time?'в '+n.time:''} · ${diffTxt}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <button onclick="document.getElementById('reminder-banner').style.display='none'" style="width:100%;margin-top:14px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;color:#fff;border-radius:50px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">OK ✦</button>`;
+    }
   }
+
+  banner.style.display = 'flex';
+  setTimeout(()=>{ banner.style.display='none'; }, 10000);
 }
 
 
@@ -2224,6 +2262,63 @@ function removeFavFromList(procId){
   const btn = document.querySelector(`.proc-fav-btn[data-id="${procId}"]`);
   if(btn) btn.textContent = '🤍';
   showToast('Премахнато от Любими');
+}
+
+
+// ── EDIT NOTIF ──
+function editNotif(id){
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const n = saved.find(x=>x.id===id);
+  if(!n) return;
+  document.getElementById('edit-notif-id').value = id;
+  document.getElementById('edit-notif-proc-search').value = n.procName || '';
+  document.getElementById('edit-notif-proc-id').value = n.procId || '';
+  document.getElementById('edit-notif-date').value = n.date || '';
+  document.getElementById('edit-notif-time').value = n.time || '10:00';
+  document.getElementById('edit-notif-modal').style.display = 'flex';
+}
+
+function closeEditNotif(){
+  document.getElementById('edit-notif-modal').style.display = 'none';
+  document.getElementById('edit-notif-dropdown').style.display = 'none';
+}
+
+function saveEditNotif(){
+  const id = document.getElementById('edit-notif-id').value;
+  const procId = document.getElementById('edit-notif-proc-id').value;
+  const procName = document.getElementById('edit-notif-proc-search').value;
+  const date = document.getElementById('edit-notif-date').value;
+  const time = document.getElementById('edit-notif-time').value;
+  if(!date){showToast('Избери дата');return;}
+  if(!procName){showToast('Избери процедура');return;}
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const idx = saved.findIndex(x=>x.id===id);
+  if(idx>-1) saved[idx] = {...saved[idx], procId, procName, date, time};
+  localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  closeEditNotif();
+  loadNotifProcSelector();
+  showToast('✅ Напомнянето е обновено!');
+}
+
+function filterEditNotifProcs(){
+  const q = (document.getElementById('edit-notif-proc-search').value||'').toLowerCase();
+  const dd = document.getElementById('edit-notif-dropdown');
+  if(!dd || !window.PROCS) return;
+  const filtered = window.PROCS.filter(p=>p.name.toLowerCase().includes(q));
+  dd.innerHTML = filtered.slice(0,10).map(p=>`
+    <div onclick="selectEditNotifProc('${p.id}','${p.icon} ${p.name.replace(/'/g,"&#39;")}')"
+         style="padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--goldlt);display:flex;gap:8px">
+      <span>${p.icon}</span><span>${p.name}</span>
+    </div>`).join('');
+  dd.style.display = 'block';
+}
+
+function showEditNotifProcs(){ filterEditNotifProcs(); }
+
+function selectEditNotifProc(id, name){
+  document.getElementById('edit-notif-proc-search').value = name;
+  document.getElementById('edit-notif-proc-id').value = id;
+  document.getElementById('edit-notif-dropdown').style.display = 'none';
 }
 
 // close pickers on outside click
