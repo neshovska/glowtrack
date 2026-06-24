@@ -412,6 +412,16 @@ textarea.form-input{resize:none}
   </div>
 </div>
 <div class="app" id="app">
+<!-- IN-APP REMINDER BANNER -->
+<div id="reminder-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:linear-gradient(135deg,#b8966a,#d4a96a);padding:12px 16px;box-shadow:0 2px 12px rgba(184,150,106,.4)">
+  <div style="display:flex;align-items:center;justify-content:space-between;max-width:480px;margin:0 auto">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px" id="banner-title">🔔 Предстояща процедура</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.85)" id="banner-sub"></div>
+    </div>
+    <button onclick="document.getElementById('reminder-banner').style.display='none'" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+  </div>
+</div>
   <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><button class="lang-btn" id="app-lang-btn" style="position:absolute;right:14px;top:50%;transform:translateY(-50%)" onclick="toggleLang()">EN</button></div><div id="topbar-right" style="display:none"></div></div>
   <div class="page active" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub">Пълна енциклопедия — намери, научи, проследи</div></div>
@@ -493,11 +503,16 @@ textarea.form-input{resize:none}
         </div>
       </div>
 
-      <!-- FAVORITES -->
-      <div class="profile-card-section">
-        <div class="pcs-title">❤️ Любими процедури</div>
-        <div id="favs-list" style="margin-top:10px">
-          <div style="font-size:12px;color:var(--ink2)">Натисни ❤️ на процедура за да я запазиш</div>
+      <!-- FAVORITES ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">❤️ Любими процедури</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div id="favs-list" style="margin-top:8px">
+            <div style="font-size:12px;color:var(--ink2)">Натисни 🤍 на процедура за да я запазиш</div>
+          </div>
         </div>
       </div>
 
@@ -536,6 +551,7 @@ textarea.form-input{resize:none}
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:12px">
+          <input type="time" id="notif-time" class="form-input" style="width:100px;font-size:12px" value="10:00">
           <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
         </div>
         <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
@@ -692,6 +708,7 @@ onAuthStateChanged(auth,async user=>{
       if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};nbtns[1].querySelector('.ni').textContent='🧴';nbtns[1].querySelector('.nl').textContent='Продукти';}
     }
     loadClinicsTab();loadProductsTab();
+    setTimeout(checkReminders, 3000);
     // Load user lang preference
     F().getDoc(F().doc(DB(),'users',window._user.uid)).then(d=>{
       if(d.exists()&&d.data().lang){window._lang=d.data().lang;localStorage.setItem('gt_lang',window._lang);}
@@ -1645,7 +1662,8 @@ async function loadAdminLists(){
 }
 async function deleteAdminItem(col,id){
   if(!confirm('Изтрий?'))return;
-  try{await F().deleteDoc(F().doc(DB(),col,id));showToast('Изтрито');loadAdminLists();loadClinicsTab();loadProductsTab();}catch(e){showToast('Грешка');}
+  try{await F().deleteDoc(F().doc(DB(),col,id));showToast('Изтрито');loadAdminLists();loadClinicsTab();loadProductsTab();
+    setTimeout(checkReminders, 3000);}catch(e){showToast('Грешка');}
 }
 
 // ── LIGHTBOX ──
@@ -1853,17 +1871,19 @@ function saveNotifDate(){
   const procName = document.getElementById('notif-proc-search')?.value || '';
   if(!d){showToast('Избери дата');return;}
   if(!procId){showToast('Избери процедура');return;}
+  const time = document.getElementById('notif-time')?.value || '10:00';
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
-  saved.push({id:'n_'+Date.now(), procId, procName, date:d});
+  saved.push({id:'n_'+Date.now(), procId, procName, date:d, time});
   localStorage.setItem('gt_notifs', JSON.stringify(saved));
-  const dt = new Date(d);
-  const diff = Math.ceil((dt - new Date()) / 86400000);
+  const dt = new Date(d + 'T' + time);
+  const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
-  if(diff > 0) info.textContent = '✅ ' + procName + ' — ' + dt.toLocaleDateString('bg-BG') + ' (' + diff + ' дни)';
+  if(diff >= 0) info.textContent = '✅ ' + procName + ' — ' + new Date(d).toLocaleDateString('bg-BG') + ' в ' + time;
   else info.textContent = '⚠️ Датата е в миналото';
   showToast('✅ Напомняне запазено!');
   document.getElementById('notif-date').value = '';
-  procSel.value = '';
+  document.getElementById('notif-proc-search').value = '';
+  document.getElementById('notif-proc').value = '';
   loadNotifProcSelector();
 }
 
@@ -1885,19 +1905,34 @@ function loadProfileStats(){
     if(inp) inp.value = nd;
     saveNotifDate();
   }
-  // Load routine checkboxes
+  // Load routine checkboxes - auto reset each day
   renderCustomRoutine();
   const today = new Date().toDateString();
+  const lastRoutineDate = localStorage.getItem('gt_routine_last_date');
+  
+  // Auto-reset if new day
+  if(lastRoutineDate && lastRoutineDate !== today){
+    // Save yesterday completion before reset
+    const yChecked = JSON.parse(localStorage.getItem('gt_routine_'+lastRoutineDate)||'[]');
+    if(yChecked.length > 0){
+      localStorage.setItem('gt_routine_history_'+lastRoutineDate, JSON.stringify(yChecked));
+    }
+  }
+  
   const saved = JSON.parse(localStorage.getItem('gt_routine_'+today)||'[]');
+  const totalCbs = document.querySelectorAll('.routine-cb').length;
+  
   document.querySelectorAll('.routine-cb').forEach(cb=>{
     if(saved.includes(cb.dataset.r)) cb.checked = true;
     cb.addEventListener('change', ()=>{
       const checked = Array.from(document.querySelectorAll('.routine-cb:checked')).map(c=>c.dataset.r);
       localStorage.setItem('gt_routine_'+today, JSON.stringify(checked));
-      const streak = document.getElementById('routine-streak');
-      if(streak) streak.textContent = checked.length === 5 ? '🌟 Пълна рутина за днес!' : checked.length + '/5 завършени';
+      localStorage.setItem('gt_routine_last_date', today);
+      updateRoutineStreak(checked, today);
     });
   });
+  
+  updateRoutineStreak(saved, today);
   // Show/hide admin inbox
   if(window._isAdmin){
     const wrap = document.getElementById('admin-inbox-wrap');
@@ -2025,14 +2060,19 @@ function loadNotifProcSelector(){
   // Load saved
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
   const nl = document.getElementById('notif-list');
-  if(nl) nl.innerHTML = saved.map(n=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#faf8f5;border-radius:8px;border:1px solid var(--goldlt)">
+  if(nl) nl.innerHTML = saved.map(n=>{
+    const dt = new Date(n.date);
+    const diff = Math.ceil((dt - new Date()) / 86400000);
+    const diffTxt = diff > 0 ? diff + ' дни' : diff === 0 ? 'Днес' : 'Минало';
+    const color = diff < 0 ? '#e85d5d' : diff === 0 ? '#b8966a' : 'var(--ink2)';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#faf8f5;border-radius:10px;border:1px solid var(--goldlt)">
       <div>
         <div style="font-size:12px;font-weight:600;color:var(--ink1)">${n.procName}</div>
-        <div style="font-size:11px;color:var(--ink2)">${new Date(n.date).toLocaleDateString('bg-BG')}</div>
+        <div style="font-size:11px;color:${color}">${dt.toLocaleDateString('bg-BG')} ${n.time?'в '+n.time:''} · ${diffTxt}</div>
       </div>
-      <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer">✕</button>
-    </div>`).join('');
+      <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:16px">✕</button>
+    </div>`;
+  }).join('');
 }
 
 function deleteNotif(id){
@@ -2096,6 +2136,64 @@ document.addEventListener('click', e=>{
 });
 
 // Update saveNotifDate to use text of search input
+
+
+// ── IN-APP REMINDERS ──
+function checkReminders(){
+  const notifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  if(!notifs.length) return;
+  const now = new Date();
+  const today = now.toDateString();
+  const upcoming = notifs.filter(n=>{
+    const nd = new Date(n.date);
+    const diff = Math.ceil((nd - now) / 86400000);
+    return diff >= 0 && diff <= 3; // show if within 3 days
+  });
+  if(!upcoming.length) return;
+  const next = upcoming[0];
+  const nd = new Date(next.date);
+  const diff = Math.ceil((nd - now) / 86400000);
+  const diffTxt = diff === 0 ? 'Днес' : diff === 1 ? 'Утре' : 'След ' + diff + ' дни';
+  const banner = document.getElementById('reminder-banner');
+  const title = document.getElementById('banner-title');
+  const sub = document.getElementById('banner-sub');
+  if(banner && title && sub){
+    title.textContent = '🔔 ' + next.procName;
+    sub.textContent = diffTxt + (next.time ? ' в ' + next.time : '') + ' · Натисни да видиш детайли';
+    banner.style.display = 'block';
+    // Auto hide after 8 seconds
+    setTimeout(()=>{ banner.style.display='none'; }, 8000);
+  }
+}
+
+
+// ── ROUTINE STREAK ──
+function updateRoutineStreak(checked, today){
+  const streak = document.getElementById('routine-streak');
+  if(!streak) return;
+  
+  const total = document.querySelectorAll('.routine-cb').length + 
+                document.querySelectorAll('.routine-cb-custom').length;
+  const allChecked = checked.length >= total && total > 0;
+  
+  const todayFmt = new Date().toLocaleDateString('bg-BG', {day:'numeric', month:'long', year:'numeric'});
+  
+  if(allChecked){
+    localStorage.setItem('gt_routine_last_date', today);
+    streak.innerHTML = `<span style="color:var(--gold);font-weight:700">🌟 Пълна рутина!</span><br><span style="font-size:10px;color:var(--ink2)">Изпълнена на ${todayFmt}</span>`;
+  } else if(checked.length > 0){
+    streak.innerHTML = `<span style="color:var(--ink2)">${checked.length}/${total} завършени</span><br><span style="font-size:10px;color:var(--ink2)">Днес · ${todayFmt}</span>`;
+  } else {
+    // Show last completion date
+    const lastDate = localStorage.getItem('gt_routine_last_date');
+    if(lastDate && lastDate !== today){
+      const lastFmt = new Date(lastDate).toLocaleDateString('bg-BG', {day:'numeric', month:'long'});
+      streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">Последно изпълнена: ${lastFmt}</span><br><span style="font-size:10px;color:var(--sage)">✨ Нов ден — маркирай рутината!</span>`;
+    } else {
+      streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">Маркирай стъпките за днес · ${todayFmt}</span>`;
+    }
+  }
+}
 
 // close pickers on outside click
 document.addEventListener('click',e=>{
