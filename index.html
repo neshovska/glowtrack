@@ -487,9 +487,9 @@ textarea.form-input{resize:none}
       <div class="profile-card-section">
         <div class="pcs-title">📊 Моята статистика</div>
         <div style="display:flex;gap:10px;margin-top:10px">
-          <div class="stat-box"><div class="stat-num" id="stat-diary">0</div><div class="stat-lbl">Записа</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-favs">0</div><div class="stat-lbl">Любими</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-procs">0</div><div class="stat-lbl">Процедури</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:11px;opacity:.4">GT</span></div><div class="stat-lbl">Записа</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:11px;opacity:.4">GT</span></div><div class="stat-lbl">Любими</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:11px;opacity:.4">GT</span></div><div class="stat-lbl">Процедури</div></div>
         </div>
       </div>
 
@@ -528,12 +528,16 @@ textarea.form-input{resize:none}
       <!-- NOTIFICATIONS -->
       <div class="profile-card-section">
         <div class="pcs-title">🔔 Напомняния за процедури</div>
-        <div style="margin-top:10px;font-size:12px;color:var(--ink2)">Задай дата за следваща процедура и получи напомняне.</div>
-        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <div style="margin-top:10px;font-size:12px;color:var(--ink2)">Задай процедура и дата за следващото си посещение.</div>
+        <select id="notif-proc" class="form-input" style="margin-top:10px;font-size:12px;color:var(--ink1)">
+          <option value="">🪷 Избери процедура...</option>
+        </select>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:12px">
           <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
         </div>
         <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
+        <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
       </div>
 
       <!-- FEEDBACK (clients only — hidden from admin view) -->
@@ -581,7 +585,10 @@ textarea.form-input{resize:none}
     <div class="sheet-hdr">
       <div class="sheet-icon" id="sh-icon"></div>
       <div class="sheet-tw"><div class="sheet-cat" id="sh-cat"></div><div class="sheet-title" id="sh-title"></div></div>
-      <button class="close-btn" onclick="closeSheet()">✕</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button id="fav-btn" onclick="toggleFav()" style="background:none;border:none;font-size:22px;cursor:pointer;padding:4px;line-height:1">🤍</button>
+        <button class="close-btn" onclick="closeSheet()">✕</button>
+      </div>
     </div>
     <div class="sheet-body" id="sh-body"></div>
   </div>
@@ -666,7 +673,10 @@ onAuthStateChanged(auth,async user=>{
     if(_profSvg)_profSvg.textContent=_iniUp;
     const _navBtn=document.getElementById('nav-profile-btn');
     if(_navBtn){const svgEls=_navBtn.querySelectorAll('circle,path,text');svgEls.forEach(el=>{if(el.tagName!=='text'){el.setAttribute('stroke','#b8966a');el.setAttribute('fill',el.getAttribute('fill')?'rgba(184,150,106,.25)':'none');}else{el.setAttribute('fill','#b8966a');}});}
-    if(window._isAdmin){
+    loadFavsList();
+  updateFavsStat();
+  loadNotifProcSelector();
+  if(window._isAdmin){
       document.getElementById('admin-panel').style.display='block';
       loadAdminLists();
       loadAdminInbox();
@@ -1332,6 +1342,7 @@ async function openSheet(id){
   document.body.style.overflow='hidden';
   // Scroll to top
   document.getElementById('sh-body').scrollTop=0;
+  updateFavBtn(id);
 }
 
 function renderEntryCard(docSnap){
@@ -1832,14 +1843,23 @@ window.addEventListener('load', () => {
 // ── PROFILE EXTRAS ──
 function saveNotifDate(){
   const d = document.getElementById('notif-date').value;
+  const procSel = document.getElementById('notif-proc');
+  const procId = procSel?.value;
+  const procName = procSel?.options[procSel.selectedIndex]?.text || '';
   if(!d){showToast('Избери дата');return;}
-  localStorage.setItem('gt_notif_date', d);
+  if(!procId){showToast('Избери процедура');return;}
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  saved.push({id:'n_'+Date.now(), procId, procName, date:d});
+  localStorage.setItem('gt_notifs', JSON.stringify(saved));
   const dt = new Date(d);
   const diff = Math.ceil((dt - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
-  if(diff > 0) info.textContent = '✅ Напомняне за ' + dt.toLocaleDateString('bg-BG') + ' (' + diff + ' дни)';
+  if(diff > 0) info.textContent = '✅ ' + procName + ' — ' + dt.toLocaleDateString('bg-BG') + ' (' + diff + ' дни)';
   else info.textContent = '⚠️ Датата е в миналото';
-  showToast('✅ Напомняне запазено');
+  showToast('✅ Напомняне запазено!');
+  document.getElementById('notif-date').value = '';
+  procSel.value = '';
+  loadNotifProcSelector();
 }
 
 function loadProfileStats(){
@@ -1931,6 +1951,88 @@ function deleteCustomRoutine(id){
   const customs = JSON.parse(localStorage.getItem('gt_custom_routine')||'[]');
   localStorage.setItem('gt_custom_routine', JSON.stringify(customs.filter(c=>c.id!==id)));
   renderCustomRoutine();
+}
+
+
+// ── FAVORITES ──
+function getFavs(){ return JSON.parse(localStorage.getItem('gt_favs')||'[]'); }
+function saveFavs(f){ localStorage.setItem('gt_favs', JSON.stringify(f)); }
+
+function toggleFav(){
+  if(!window._user){showToast('Влез за да запазиш');return;}
+  const favs = getFavs();
+  const id = window.currentProcId;
+  const isFav = favs.includes(id);
+  if(isFav){
+    saveFavs(favs.filter(f=>f!==id));
+    document.getElementById('fav-btn').textContent='🤍';
+    showToast('Премахнато от Любими');
+  } else {
+    favs.push(id);
+    saveFavs(favs);
+    document.getElementById('fav-btn').textContent='❤️';
+    showToast('❤️ Добавено в Любими!');
+  }
+  loadFavsList();
+  updateFavsStat();
+}
+
+function updateFavBtn(procId){
+  const btn = document.getElementById('fav-btn');
+  if(!btn) return;
+  btn.textContent = getFavs().includes(procId) ? '❤️' : '🤍';
+}
+
+function loadFavsList(){
+  const list = document.getElementById('favs-list');
+  if(!list) return;
+  const favs = getFavs();
+  if(!favs.length){
+    list.innerHTML='<div style="font-size:12px;color:var(--ink2)">Натисни 🤍 на процедура за да я запазиш</div>';
+    return;
+  }
+  list.innerHTML = favs.map(id=>{
+    const p = window.PROCS?.find(x=>x.id===id);
+    if(!p) return '';
+    return `<div onclick="openSheet('${id}')" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+      <span style="font-size:20px">${p.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--ink1)">${p.name}</div>
+        <div style="font-size:11px;color:var(--ink2)">${p.sub}</div>
+      </div>
+      <span style="color:var(--gold);font-size:14px">›</span>
+    </div>`;
+  }).join('');
+}
+
+function updateFavsStat(){
+  const el = document.getElementById('stat-favs');
+  if(el) el.textContent = getFavs().length || '<span style="font-size:11px;opacity:.4">GT</span>';
+}
+
+// Populate proc selector in notifications
+function loadNotifProcSelector(){
+  const sel = document.getElementById('notif-proc');
+  if(!sel || !window.PROCS) return;
+  sel.innerHTML = '<option value="">🪷 Избери процедура...</option>' +
+    window.PROCS.map(p=>`<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
+  // Load saved
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const nl = document.getElementById('notif-list');
+  if(nl) nl.innerHTML = saved.map(n=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#faf8f5;border-radius:8px;border:1px solid var(--goldlt)">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink1)">${n.procName}</div>
+        <div style="font-size:11px;color:var(--ink2)">${new Date(n.date).toLocaleDateString('bg-BG')}</div>
+      </div>
+      <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer">✕</button>
+    </div>`).join('');
+}
+
+function deleteNotif(id){
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  localStorage.setItem('gt_notifs', JSON.stringify(saved.filter(n=>n.id!==id)));
+  loadNotifProcSelector();
 }
 
 // close pickers on outside click
