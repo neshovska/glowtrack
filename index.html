@@ -487,9 +487,9 @@ textarea.form-input{resize:none}
       <div class="profile-card-section">
         <div class="pcs-title">📊 Моята статистика</div>
         <div style="display:flex;gap:10px;margin-top:10px">
-          <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:11px;opacity:.4">GT</span></div><div class="stat-lbl">Записа</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:11px;opacity:.4">GT</span></div><div class="stat-lbl">Любими</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:11px;opacity:.4">GT</span></div><div class="stat-lbl">Процедури</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl">Записа</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px">🤍</span></div><div class="stat-lbl">Любими</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl">Процедури</div></div>
         </div>
       </div>
 
@@ -529,9 +529,11 @@ textarea.form-input{resize:none}
       <div class="profile-card-section">
         <div class="pcs-title">🔔 Напомняния за процедури</div>
         <div style="margin-top:10px;font-size:12px;color:var(--ink2)">Задай процедура и дата за следващото си посещение.</div>
-        <select id="notif-proc" class="form-input" style="margin-top:10px;font-size:12px;color:var(--ink1)">
-          <option value="">🪷 Избери процедура...</option>
-        </select>
+        <div style="position:relative;margin-top:10px">
+          <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." style="font-size:12px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
+          <input type="hidden" id="notif-proc">
+          <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--goldlt);border-radius:10px;max-height:180px;overflow-y:auto;z-index:50;box-shadow:0 4px 16px rgba(26,26,46,.12);margin-top:4px"></div>
+        </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:12px">
           <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
@@ -837,7 +839,7 @@ const T = {
     navSoon: 'Очаквайте',
     // Pages
     procsTitle: 'Процедури',
-    procsSub: 'Пълна енциклопедия — намери, научи, проследи',
+    procsSub: 'Открий своя glow',
     procsSearch: 'Търси процедура...',
     noResults: 'Няма намерени процедури',
     diaryTitle: 'Моят дневник',
@@ -935,7 +937,7 @@ const T = {
     navProfile: 'Profile',
     navSoon: 'Coming soon',
     procsTitle: 'Procedures',
-    procsSub: 'Full encyclopedia — find, learn, track',
+    procsSub: 'Discover your glow',
     procsSearch: 'Search procedures...',
     noResults: 'No procedures found',
     diaryTitle: 'My Diary',
@@ -1215,16 +1217,21 @@ function renderProcs(){
 
   if(s){
     // When searching — flat list no grouping
+    const favIds = getFavs ? getFavs() : [];
     document.getElementById('proc-list').innerHTML=filtered.map(p=>{
       const lp=procL(p);
+      const isFav = favIds.includes(p.id);
       return `<div class="proc-row" onclick="openSheet('${p.id}')">
-        <div class="proc-row-icon" style="background:${p.bg}">${p.icon}</div>
+        <div class="proc-row-icon" style="background:${p.bg};font-size:22px">${p.icon}</div>
         <div class="proc-row-info">
           <div class="proc-row-name">${lp.name}</div>
           <div class="proc-row-sub">${lp.sub}</div>
           <div class="proc-row-subcat">${lp.subcat||p.subcat}</div>
         </div>
-        <div class="proc-row-arrow">›</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="proc-fav-btn" data-id="${p.id}" onclick="event.stopPropagation();toggleFavFromList('${p.id}',this)" style="font-size:16px;cursor:pointer;padding:4px">${isFav?'❤️':'🤍'}</span>
+          <div class="proc-row-arrow">›</div>
+        </div>
       </div>`;
     }).join('');
     return;
@@ -1843,9 +1850,8 @@ window.addEventListener('load', () => {
 // ── PROFILE EXTRAS ──
 function saveNotifDate(){
   const d = document.getElementById('notif-date').value;
-  const procSel = document.getElementById('notif-proc');
-  const procId = procSel?.value;
-  const procName = procSel?.options[procSel.selectedIndex]?.text || '';
+  const procId = document.getElementById('notif-proc')?.value;
+  const procName = document.getElementById('notif-proc-search')?.value || '';
   if(!d){showToast('Избери дата');return;}
   if(!procId){showToast('Избери процедура');return;}
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
@@ -2007,7 +2013,8 @@ function loadFavsList(){
 
 function updateFavsStat(){
   const el = document.getElementById('stat-favs');
-  if(el) el.textContent = getFavs().length || '<span style="font-size:11px;opacity:.4">GT</span>';
+  const count = getFavs().length;
+  if(el) el.innerHTML = count > 0 ? '❤️<div style="font-size:11px;margin-top:2px;color:var(--gold);font-weight:700">'+count+'</div>' : '<span style="font-size:18px">🤍</span>';
 }
 
 // Populate proc selector in notifications
@@ -2034,6 +2041,62 @@ function deleteNotif(id){
   localStorage.setItem('gt_notifs', JSON.stringify(saved.filter(n=>n.id!==id)));
   loadNotifProcSelector();
 }
+
+
+// ── FAV FROM LIST ──
+function toggleFavFromList(procId, btn){
+  if(!window._user){showToast('Влез за да запазиш');return;}
+  const favs = getFavs();
+  const isFav = favs.includes(procId);
+  if(isFav){
+    saveFavs(favs.filter(f=>f!==procId));
+    btn.textContent='🤍';
+    showToast('Премахнато от Любими');
+  } else {
+    favs.push(procId);
+    saveFavs(favs);
+    btn.textContent='❤️';
+    showToast('❤️ Добавено в Любими!');
+  }
+  // Update fav btn in open sheet if same proc
+  if(window.currentProcId===procId) updateFavBtn(procId);
+  loadFavsList();
+  updateFavsStat();
+}
+
+// ── NOTIF PROC SEARCH ──
+function showNotifProcs(){
+  filterNotifProcs();
+  document.getElementById('notif-proc-dropdown').style.display='block';
+}
+function filterNotifProcs(){
+  const q = (document.getElementById('notif-proc-search').value||'').toLowerCase();
+  const dd = document.getElementById('notif-proc-dropdown');
+  if(!dd || !window.PROCS) return;
+  const filtered = window.PROCS.filter(p=>p.name.toLowerCase().includes(q)||p.subcat.toLowerCase().includes(q));
+  dd.innerHTML = filtered.slice(0,15).map(p=>`
+    <div onclick="selectNotifProc('${p.id}','${p.icon} ${p.name.replace(/'/g,"&#39;")}')" 
+         style="padding:9px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--goldlt);display:flex;align-items:center;gap:8px">
+      <span>${p.icon}</span><span>${p.name}</span>
+    </div>`).join('') || '<div style="padding:10px;font-size:12px;color:var(--ink2)">Няма намерени</div>';
+  dd.style.display = 'block';
+}
+function selectNotifProc(id, name){
+  document.getElementById('notif-proc-search').value = name;
+  document.getElementById('notif-proc').value = id;
+  document.getElementById('notif-proc-dropdown').style.display='none';
+}
+
+// Close notif dropdown on outside click
+document.addEventListener('click', e=>{
+  const dd = document.getElementById('notif-proc-dropdown');
+  const inp = document.getElementById('notif-proc-search');
+  if(dd && inp && !dd.contains(e.target) && e.target!==inp){
+    dd.style.display='none';
+  }
+});
+
+// Update saveNotifDate to use text of search input
 
 // close pickers on outside click
 document.addEventListener('click',e=>{
