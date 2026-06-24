@@ -501,13 +501,18 @@ textarea.form-input{resize:none}
     <!-- CLIENT PROFILE SECTIONS -->
     <div id="client-profile-sections">
 
-      <!-- STATS -->
-      <div class="profile-card-section">
-        <div class="pcs-title">📊 Моята статистика</div>
-        <div style="display:flex;gap:10px;margin-top:10px">
-          <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl">Записа</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px">🤍</span></div><div class="stat-lbl">Любими</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl">Процедури</div></div>
+      <!-- STATS ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">📊 Моята статистика</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl">Записа</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px">🤍</span></div><div class="stat-lbl">Любими</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl">Процедури</div></div>
+          </div>
         </div>
       </div>
 
@@ -548,10 +553,14 @@ textarea.form-input{resize:none}
         </div>
       </div>
 
-      <!-- NOTIFICATIONS -->
-      <div class="profile-card-section">
-        <div class="pcs-title">🔔 Напомняния за процедури</div>
-        <div style="margin-top:10px;font-size:12px;color:var(--ink2)">Задай процедура и дата за следващото си посещение.</div>
+      <!-- NOTIFICATIONS ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">🔔 Напомняния за процедури</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+        <div style="margin-top:8px;font-size:12px;color:var(--ink2)">Задай процедура и дата за следващото си посещение.</div>
         <div style="position:relative;margin-top:10px">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." style="font-size:12px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
           <input type="hidden" id="notif-proc">
@@ -564,12 +573,17 @@ textarea.form-input{resize:none}
         </div>
         <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
         <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+        </div>
       </div>
 
-      <!-- FEEDBACK (clients only — hidden from admin view) -->
-      <div class="profile-card-section" id="client-feedback-section">
-        <div class="pcs-title">💬 Изпрати предложение</div>
-        <div style="font-size:11px;color:var(--ink2);margin-bottom:10px">Идея, корекция или нова функция — споделяй!</div>
+      <!-- FEEDBACK ACCORDION -->
+      <div class="acc-section profile-card-section" id="client-feedback-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">💬 Изпрати предложение</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+        <div style="font-size:11px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Идея, корекция или нова функция — споделяй!</div>
         <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
           <button class="fb-type-btn active" data-type="idea" onclick="setFbType(this,'idea')">💡 Идея</button>
           <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
@@ -577,6 +591,7 @@ textarea.form-input{resize:none}
         </div>
         <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." rows="3" style="font-size:13px"></textarea>
         <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()">Изпрати ✦</button>
+        </div>
       </div>
     </div>
 
@@ -593,6 +608,7 @@ textarea.form-input{resize:none}
     </div>
     <div class="profile-btns" style="margin-top:16px">
       <button class="profile-btn danger" onclick="doLogout()">Изход</button>
+      <button class="profile-btn" onclick="confirmDeleteAccount()" style="color:#e85d5d;border-color:rgba(232,93,93,.2);font-size:12px;padding:9px">🗑️ Изтрий профила</button>
     </div>
     <div style="text-align:center;padding:16px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v8.1</div>
   </div>
@@ -2183,19 +2199,9 @@ function checkReminders(){
   const multiWrap = document.getElementById('banner-multi');
   if(!banner) return;
 
-  if(upcoming.length === 1){
-    // Single — big card as before
-    const n = upcoming[0];
-    const nd = new Date(n.date);
-    const diff = Math.ceil((nd - now) / 86400000);
-    const diffTxt = diff === 0 ? 'Днес' : diff === 1 ? 'Утре' : 'След ' + diff + ' дни';
-    document.getElementById('banner-single').style.display = 'block';
-    if(multiWrap) multiWrap.style.display = 'none';
-    title.textContent = '🔔 ' + n.procName;
-    sub.textContent = diffTxt + (n.time ? ' в ' + n.time : '');
-  } else {
-    // Multiple — small compact cards
-    document.getElementById('banner-single').style.display = 'none';
+  // Always show compact cards
+  document.getElementById('banner-single').style.display = 'none';
+  {
     if(multiWrap){
       multiWrap.style.display = 'block';
       multiWrap.innerHTML = `
