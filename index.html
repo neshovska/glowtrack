@@ -621,8 +621,8 @@ textarea.form-input{resize:none}
   <nav class="bnav">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni">📖</span><span class="nl">Дневник</span></button>
-    <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-block"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-6px;background:#e85d5d;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1"></span></span><span class="nl" id="nav-notifs-lbl">Известия</span></button>
-    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni">🔒</span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni">🎁</span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Известия</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em" id="nav-initials-svg"></span><span class="nl">Профил</span></button>
   </nav>
 </div>
@@ -765,6 +765,10 @@ onAuthStateChanged(auth,async user=>{
     }
     loadClinicsTab();loadProductsTab();
     setTimeout(checkReminders, 3000);
+    // Init notif badge
+    const _initNotifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+    const _initUpcoming = _initNotifs.filter(n=>Math.ceil((new Date(n.date)-new Date())/86400000)>=0).length;
+    updateNotifBadge(_initUpcoming);
     // Load user lang preference
     F().getDoc(F().doc(DB(),'users',window._user.uid)).then(d=>{
       if(d.exists()&&d.data().lang){window._lang=d.data().lang;localStorage.setItem('gt_lang',window._lang);}
@@ -1721,7 +1725,11 @@ async function loadAdminLists(){
 async function deleteAdminItem(col,id){
   if(!confirm('Изтрий?'))return;
   try{await F().deleteDoc(F().doc(DB(),col,id));showToast('Изтрито');loadAdminLists();loadClinicsTab();loadProductsTab();
-    setTimeout(checkReminders, 3000);}catch(e){showToast('Грешка');}
+    setTimeout(checkReminders, 3000);
+    // Init notif badge
+    const _initNotifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+    const _initUpcoming = _initNotifs.filter(n=>Math.ceil((new Date(n.date)-new Date())/86400000)>=0).length;
+    updateNotifBadge(_initUpcoming);}catch(e){showToast('Грешка');}
 }
 
 // ── LIGHTBOX ──
@@ -2154,9 +2162,12 @@ function loadNotifProcSelector(){
 }
 
 function deleteNotif(id){
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
-  localStorage.setItem('gt_notifs', JSON.stringify(saved.filter(n=>n.id!==id)));
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]').filter(n=>n.id!==id);
+  localStorage.setItem('gt_notifs', JSON.stringify(saved));
   loadNotifProcSelector();
+  loadNotifsPage();
+  const upcoming = saved.filter(n=>Math.ceil((new Date(n.date)-new Date())/86400000)>=0).length;
+  updateNotifBadge(upcoming);
 }
 
 
@@ -2428,7 +2439,9 @@ function updateNotifBadge(count){
   if(!badge) return;
   if(count > 0){
     badge.style.display='flex';
-    badge.textContent = count > 9 ? '9+' : count;
+    badge.style.alignItems='center';
+    badge.style.justifyContent='center';
+    badge.textContent = count > 9 ? '9+' : String(count);
   } else {
     badge.style.display='none';
   }
