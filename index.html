@@ -1557,16 +1557,21 @@ async function loadDiaryTab(){
     Object.values(grouped).forEach(g=>g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0)));
     c.innerHTML=`<div class="diary-tab-list">${Object.entries(grouped).map(([pid,g])=>{
       const p=PROCS.find(x=>x.id===pid);
+      const isRoutine = pid==='skin-routine';
+      const bg = isRoutine ? 'linear-gradient(135deg,#f0ede8,#e8e0d8)' : (p?.bg||'#eee');
+      const icon = isRoutine ? '🌙' : (g.icon||'📋');
+      const name = isRoutine ? '🌙 Скин рутина' : g.name;
       const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
+      const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ Нов запис</button>`;
       return`<div class="diary-group">
         <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
-          <div class="diary-group-icon" style="background:${p?.bg||'#eee'}">${g.icon||'📋'}</div>
-          <div class="diary-group-info"><div class="diary-group-name">${g.name}</div><div class="diary-group-meta">Последно: ${lastDate}</div></div>
+          <div class="diary-group-icon" style="background:${bg}">${icon}</div>
+          <div class="diary-group-info"><div class="diary-group-name">${name}</div><div class="diary-group-meta">Последно: ${lastDate}</div></div>
           <span class="diary-group-count">${g.entries.length} записа</span>
         </div>
         <div class="diary-group-entries" id="dg-${pid}">
           ${g.entries.map(d=>renderEntryCard(d)).join('')}
-          <button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ Нов запис</button>
+          ${newEntryBtn}
         </div>
       </div>`;
     }).join('')}</div>`;
