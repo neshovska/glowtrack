@@ -619,36 +619,11 @@ textarea.form-input{resize:none}
     <div style="text-align:center;padding:16px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v8.2</div>
   </div>
   <nav class="bnav">
-    <button class="nb active" onclick="goPage('procs',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="24" viewBox="0 0 22 24" fill="none">
-  <!-- Bottom stone - large, wide -->
-  <ellipse cx="11" cy="21.5" rx="9" ry="2.8" fill="#c5bdb4"/>
-  <ellipse cx="11" cy="20.5" rx="9" ry="2.8" fill="#bdb5af"/>
-  <!-- 2nd stone -->
-  <ellipse cx="11.5" cy="17" rx="7" ry="2.3" fill="#c5bdb4"/>
-  <ellipse cx="11.5" cy="16.2" rx="7" ry="2.3" fill="#b8b0aa"/>
-  <!-- 3rd stone -->
-  <ellipse cx="11" cy="13" rx="5.5" ry="2" fill="#c5bdb4"/>
-  <ellipse cx="11" cy="12.3" rx="5.5" ry="2" fill="#bdb5af"/>
-  <!-- 4th stone - slightly offset -->
-  <ellipse cx="11.8" cy="9.5" rx="4" ry="1.8" fill="#b8b0aa"/>
-  <ellipse cx="11.8" cy="8.8" rx="4" ry="1.8" fill="#c5bdb4"/>
-  <!-- Top stone - small, round -->
-  <ellipse cx="12" cy="6.2" rx="2.8" ry="2.2" fill="#d0c8c2"/>
-  <ellipse cx="12" cy="5.5" rx="2.8" ry="2.2" fill="#c5bdb4"/>
-</svg></span><span class="nl">Процедури</span></button>
-    <button class="nb" onclick="goPage('diary',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-  <!-- Mirror oval frame -->
-  <ellipse cx="12" cy="10" rx="5.5" ry="7" fill="none" stroke="#c5bdb4" stroke-width="1.5"/>
-  <!-- Mirror shine -->
-  <ellipse cx="9.5" cy="7" rx="1.2" ry="1.8" fill="#c5bdb4" opacity=".3" transform="rotate(-20 9.5 7)"/>
-  <!-- Handle -->
-  <rect x="11" y="17" width="2" height="5" rx="1" fill="#c5bdb4"/>
-  <!-- Handle base -->
-  <ellipse cx="12" cy="22.2" rx="2.5" ry=".8" fill="#c5bdb4" opacity=".6"/>
-</svg></span><span class="nl">Дневник</span></button>
-    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.2)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
+    <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl">Дневник</span></button>
+    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
-    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em" id="nav-initials-svg"></span><span class="nl">Профил</span></button>
+    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl">Профил</span></button>
   </nav>
 </div>
 <!-- COMING SOON SHEET -->
