@@ -452,6 +452,13 @@ textarea.form-input{resize:none}
     <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="prod-search" placeholder="Търси продукт или процедура..." oninput="filterProducts()"></div></div>
     <div class="products-tab-list" id="products-tab-list"></div>
   </div>
+  <div class="page" id="page-notifs">
+    <div class="page-hdr">
+      <div class="page-hdr-title" id="notifs-page-title">Известия</div>
+      <div class="page-hdr-sub" id="notifs-page-sub">Предстоящи процедури</div>
+    </div>
+    <div id="notifs-page-content" style="padding:0 16px"></div>
+  </div>
   <div class="page" id="page-profile">
     <div class="page-hdr"><div class="page-hdr-title">Моят <em>профил</em></div></div>
     <div class="profile-card"><div class="profile-av" id="profile-av-wrap" style="width:80px;height:80px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08)" id="profile-initials-svg">?</div><div class="profile-name" id="prof-name">—</div><div class="profile-email" id="prof-email">—</div></div>
@@ -614,10 +621,37 @@ textarea.form-input{resize:none}
   <nav class="bnav">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni">📖</span><span class="nl">Дневник</span></button>
-    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showToast('🔒 Очаквайте скоро')"><span class="ni">🔒</span><span class="nl">Очаквайте</span></button>
-    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showToast('🔒 Очаквайте скоро')"><span class="ni">🔒</span><span class="nl">Очаквайте</span></button>
+    <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-block"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-4px;right:-6px;background:#e85d5d;color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1"></span></span><span class="nl" id="nav-notifs-lbl">Известия</span></button>
+    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni">🔒</span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em" id="nav-initials-svg"></span><span class="nl">Профил</span></button>
   </nav>
+</div>
+<!-- COMING SOON SHEET -->
+<div id="coming-soon-overlay" style="display:none;position:fixed;inset:0;z-index:250;align-items:flex-end">
+  <div style="position:absolute;inset:0;background:rgba(26,26,46,.4);backdrop-filter:blur(4px)" onclick="closeComingSoon()"></div>
+  <div style="position:relative;background:#fff;border-radius:24px 24px 0 0;padding:20px 0 32px;width:100%;box-shadow:0 -8px 32px rgba(26,26,46,.15)">
+    <div style="width:36px;height:4px;background:#e8e4de;border-radius:2px;margin:0 auto 20px"></div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)" id="cs-title">🔒 Очаквайте скоро</div>
+    </div>
+    <div style="display:flex;gap:12px;padding:0 18px">
+      <div style="flex:1;background:#faf8f5;border-radius:16px;padding:20px 14px;text-align:center;border:1px solid var(--goldlt)">
+        <div style="font-size:32px;margin-bottom:8px">🏥</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink1);margin-bottom:4px" id="cs-clinics-lbl">Клиники</div>
+        <div style="font-size:11px;color:var(--ink2)" id="cs-clinics-sub">Партньорски клиники</div>
+        <div style="margin-top:10px;background:var(--gold);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;display:inline-block">Скоро</div>
+      </div>
+      <div style="flex:1;background:#faf8f5;border-radius:16px;padding:20px 14px;text-align:center;border:1px solid var(--goldlt)">
+        <div style="font-size:32px;margin-bottom:8px">🧴</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink1);margin-bottom:4px" id="cs-products-lbl">Продукти</div>
+        <div style="font-size:11px;color:var(--ink2)" id="cs-products-sub">Препоръчани продукти</div>
+        <div style="margin-top:10px;background:var(--gold);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;display:inline-block">Скоро</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <button onclick="closeComingSoon()" style="background:none;border:1px solid var(--goldlt);border-radius:20px;padding:8px 24px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px">Затвори</button>
+    </div>
+  </div>
 </div>
 <div class="overlay" id="overlay" onclick="closeSheet(event)">
   <div class="sheet" id="sheet">
@@ -876,6 +910,7 @@ const T = {
     navProducts: 'Продукти',
     navProfile: 'Профил',
     navSoon: 'Очаквайте',
+    navNotifs: 'Известия',
     // Pages
     procsTitle: 'Процедури',
     procsSub: 'Открий своя glow',
@@ -975,6 +1010,7 @@ const T = {
     navProducts: 'Products',
     navProfile: 'Profile',
     navSoon: 'Coming soon',
+    navNotifs: 'Notifications',
     procsTitle: 'Procedures',
     procsSub: 'Discover your glow',
     procsSearch: 'Search procedures...',
@@ -1088,7 +1124,7 @@ function applyLang(){
 
   // Nav labels
   const nls = document.querySelectorAll('.nl');
-  const navKeys = ['navProcs','navDiary','navSoon','navSoon','navProfile'];
+  const navKeys = ['navProcs','navDiary','navNotifs','navSoon','navProfile'];
   nls.forEach((nl,i) => { if(navKeys[i]) nl.textContent = t(navKeys[i]); });
 
   // Page headers
@@ -2226,6 +2262,7 @@ function checkReminders(){
 
   banner.style.display = 'flex';
   setTimeout(()=>{ banner.style.display='none'; }, 10000);
+  updateNotifBadge(upcoming.length);
 }
 
 
@@ -2324,6 +2361,86 @@ function selectEditNotifProc(id, name){
   document.getElementById('edit-notif-proc-search').value = name;
   document.getElementById('edit-notif-proc-id').value = id;
   document.getElementById('edit-notif-dropdown').style.display = 'none';
+}
+
+
+// ── NOTIFICATIONS PAGE ──
+function loadNotifsPage(){
+  const notifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const now = new Date();
+  const content = document.getElementById('notifs-page-content');
+  if(!content) return;
+
+  // Sort by date
+  const sorted = [...notifs].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const upcoming = sorted.filter(n=>Math.ceil((new Date(n.date)-now)/86400000)>=0);
+  const past = sorted.filter(n=>Math.ceil((new Date(n.date)-now)/86400000)<0);
+
+  // Update badge
+  updateNotifBadge(upcoming.length);
+
+  if(!notifs.length){
+    content.innerHTML = `<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:48px;margin-bottom:12px">🔔</div>
+      <div style="font-size:14px;color:var(--ink2)">${window._lang==='en'?'No reminders yet':'Все още няма напомняния'}</div>
+      <div style="font-size:12px;color:var(--ink2);margin-top:6px">${window._lang==='en'?'Add them from your Profile':'Добави ги от Профила'}</div>
+    </div>`;
+    return;
+  }
+
+  const renderCard = (n, isPast) => {
+    const dt = new Date(n.date);
+    const diff = Math.ceil((dt - now) / 86400000);
+    const diffTxt = diff === 0 ? (window._lang==='en'?'Today':'Днес') :
+                    diff === 1 ? (window._lang==='en'?'Tomorrow':'Утре') :
+                    diff > 0 ? (window._lang==='en'?'In '+diff+' days':'След '+diff+' дни') :
+                    (window._lang==='en'?'Past':'Минало');
+    const color = isPast ? '#c5bdb4' : diff===0 ? '#b8966a' : 'var(--ink1)';
+    const bg = isPast ? '#faf8f5' : '#fff';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${bg};border-radius:14px;border:1px solid ${isPast?'rgba(184,150,106,.1)':'var(--goldlt)'};margin-bottom:8px;${isPast?'opacity:.6':''}">
+      <div style="width:42px;height:42px;border-radius:50%;background:${isPast?'#f0ede8':'linear-gradient(135deg,rgba(184,150,106,.15),rgba(212,169,106,.15))'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span style="font-size:20px">${isPast?'✓':'🔔'}</span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:${color};margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.procName}</div>
+        <div style="font-size:11px;color:var(--ink2)">${dt.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'})} ${n.time?'· '+n.time:''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;color:${isPast?'#c5bdb4':diff===0?'#b8966a':'var(--sage)'}">${diffTxt}</div>
+      </div>
+    </div>`;
+  };
+
+  let html = '';
+  if(upcoming.length){
+    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px">${window._lang==='en'?'Upcoming':'Предстоящи'}</div>`;
+    html += upcoming.map(n=>renderCard(n,false)).join('');
+  }
+  if(past.length){
+    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c5bdb4;margin:16px 0 8px">${window._lang==='en'?'Past':'Минали'}</div>`;
+    html += past.map(n=>renderCard(n,true)).join('');
+  }
+  content.innerHTML = html;
+}
+
+function updateNotifBadge(count){
+  const badge = document.getElementById('notif-badge');
+  if(!badge) return;
+  if(count > 0){
+    badge.style.display='flex';
+    badge.textContent = count > 9 ? '9+' : count;
+  } else {
+    badge.style.display='none';
+  }
+}
+
+function showComingSoonSheet(){
+  const el = document.getElementById('coming-soon-overlay');
+  if(el) el.style.display='flex';
+}
+function closeComingSoon(){
+  const el = document.getElementById('coming-soon-overlay');
+  if(el) el.style.display='none';
 }
 
 // close pickers on outside click
