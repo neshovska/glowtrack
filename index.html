@@ -1540,7 +1540,15 @@ function startEditEntry(eid,procId){
     if(!snap.exists())return;
     const d=snap.data();
     const card=document.getElementById('ec-'+eid);if(!card)return;
-    card.innerHTML=`
+    const isRoutineEntry = d.isRoutine||(d.procId||'').startsWith('home-care-');
+    const routineLabel = d.procId==='home-care-morning'?'☀️ Сутрешна грижа':'🌙 Вечерна грижа';
+    card.innerHTML=isRoutineEntry?`
+      <div class="diary-date-lbl" style="color:var(--gold)">✏️ Редактиране · ${routineLabel}</div>
+      <div class="form-row"><label class="form-lbl">Бележки</label><textarea class="form-input" id="ee-feel-${eid}" rows="3">${d.feeling||''}</textarea></div>
+      <div class="entry-actions">
+        <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">💾 Запази</button>
+        <button class="mini-btn" onclick="loadDiaryTab()">Откажи</button>
+      </div>`:`
       <div class="diary-date-lbl">✏️ Редактиране</div>
       <div class="form-row"><label class="form-lbl">Клиника</label><input class="form-input" id="ee-clinic-${eid}" value="${d.clinic||''}"></div>
       <div class="form-row"><label class="form-lbl">Специалист</label><input class="form-input" id="ee-spec-${eid}" value="${d.specialist||''}"></div>
@@ -2413,13 +2421,16 @@ function removeFavFromList(procId){
 function editNotif(id){
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
   const n = saved.find(x=>x.id===id);
-  if(!n) return;
+  if(!n){ showToast('Не е намерено'); return; }
+  const modal = document.getElementById('edit-notif-modal');
+  if(!modal){ showToast('Грешка'); return; }
   document.getElementById('edit-notif-id').value = id;
   document.getElementById('edit-notif-proc-search').value = n.procName || '';
   document.getElementById('edit-notif-proc-id').value = n.procId || '';
   document.getElementById('edit-notif-date').value = n.date || '';
   document.getElementById('edit-notif-time').value = n.time || '10:00';
-  document.getElementById('edit-notif-modal').style.display = 'flex';
+  modal.style.display = 'flex';
+  modal.style.zIndex = '600';
 }
 
 function closeEditNotif(){
