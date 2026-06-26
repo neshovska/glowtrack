@@ -476,52 +476,65 @@ textarea.form-input{resize:none}
     <div class="profile-card"><div class="profile-av" id="profile-av-wrap" style="width:80px;height:80px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08)" id="profile-initials-svg">?</div><div class="profile-name" id="prof-name">—</div><div class="profile-email" id="prof-email">—</div></div>
 
     <div id="admin-panel" style="display:none;margin-top:20px">
-      <!-- ADMIN STATS -->
-      <div class="admin-section" style="margin-bottom:12px">
-        <div class="admin-title" style="display:flex;align-items:center;justify-content:space-between">
-          📊 Статистика
-          <button onclick="loadAdminStats()" style="background:none;border:1px solid var(--goldlt);border-radius:8px;padding:3px 8px;font-size:11px;color:var(--gold);cursor:pointer">↻ Обнови</button>
+      <!-- ADMIN STATS ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
+        <div class="acc-header" onclick="toggleAcc(this);loadAdminStats()" style="padding:0">
+          <span class="pcs-title">📊 Статистика</span>
+          <span class="acc-arrow">⌄</span>
         </div>
-        <div id="admin-stats-content" style="margin-top:8px;font-size:12px;color:var(--ink2)">Натисни ↻ за зареждане</div>
-      </div>
-      <div style="padding:0 18px 10px"><div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lilac)">⚙️ Admin панел</div></div>
-      <div class="admin-section">
-        <div class="admin-title">🏥 Клиники (партньори)</div>
-        <div id="admin-clinics-list"></div>
-        <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
-        <div id="admin-clinic-form" style="display:none" class="admin-form">
-          <input class="admin-input" type="text" id="ac-icon" placeholder="🏥 Икона">
-          <input class="admin-input" type="text" id="ac-name" placeholder="Ime на клиниката *">
-          <input class="admin-input" type="text" id="ac-address" placeholder="Адрес">
-          <input class="admin-input" type="text" id="ac-phone" placeholder="Телефон">
-          <input class="admin-input" type="text" id="ac-url" placeholder="Уебсайт">
-          <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
-          <div class="proc-picker" id="admin-clinic-picker">
-            <input class="admin-input" type="text" id="ac-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('clinic')">
-            <div class="proc-picker-results" id="ac-proc-results"></div>
-          </div>
-          <div class="chips" id="ac-chips"></div>
-          <input type="hidden" id="ac-edit-id">
-          <button class="admin-btn" onclick="saveClinicAd()">💾 Запази</button>
+        <div class="acc-body">
+          <div id="admin-stats-content" style="margin-top:8px;font-size:12px;color:var(--ink2)">Зарежда...</div>
         </div>
       </div>
-      <div class="admin-section">
-        <div class="admin-title">🧴 Продукти (реклами)</div>
-        <div id="admin-products-list"></div>
-        <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
-        <div id="admin-product-form" style="display:none" class="admin-form">
-          <input class="admin-input" type="text" id="ap-icon" placeholder="🧴 Икона">
-          <input class="admin-input" type="text" id="ap-brand" placeholder="Марка">
-          <input class="admin-input" type="text" id="ap-name" placeholder="Ime на продукта *">
-          <textarea class="admin-input" id="ap-desc" placeholder="Описание..." style="resize:none;min-height:55px"></textarea>
-          <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
-          <div class="proc-picker" id="admin-product-picker">
-            <input class="admin-input" type="text" id="ap-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('product')">
-            <div class="proc-picker-results" id="ap-proc-results"></div>
+      <!-- CLINICS ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">🏥 Клиники (партньори)</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div id="admin-clinics-list" style="margin-top:8px"></div>
+          <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
+          <div id="admin-clinic-form" style="display:none" class="admin-form">
+            <input class="admin-input" type="text" id="ac-icon" placeholder="🏥 Икона">
+            <input class="admin-input" type="text" id="ac-name" placeholder="Ime на клиниката *">
+            <input class="admin-input" type="text" id="ac-address" placeholder="Адрес">
+            <input class="admin-input" type="text" id="ac-phone" placeholder="Телефон">
+            <input class="admin-input" type="text" id="ac-url" placeholder="Уебсайт">
+            <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
+            <div class="proc-picker" id="admin-clinic-picker">
+              <input class="admin-input" type="text" id="ac-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('clinic')">
+              <div class="proc-picker-results" id="ac-proc-results"></div>
+            </div>
+            <div class="chips" id="ac-chips"></div>
+            <input type="hidden" id="ac-edit-id">
+            <button class="admin-btn" onclick="saveClinicAd()">💾 Запази</button>
           </div>
-          <div class="chips" id="ap-chips"></div>
-          <input type="hidden" id="ap-edit-id">
-          <button class="admin-btn" onclick="saveProductAd()">💾 Запази</button>
+        </div>
+      </div>
+      <!-- PRODUCTS ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">🧴 Продукти (реклами)</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div id="admin-products-list" style="margin-top:8px"></div>
+          <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
+          <div id="admin-product-form" style="display:none" class="admin-form">
+            <input class="admin-input" type="text" id="ap-icon" placeholder="🧴 Икона">
+            <input class="admin-input" type="text" id="ap-brand" placeholder="Марка">
+            <input class="admin-input" type="text" id="ap-name" placeholder="Ime на продукта *">
+            <textarea class="admin-input" id="ap-desc" placeholder="Описание..." style="resize:none;min-height:55px"></textarea>
+            <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
+            <div class="proc-picker" id="admin-product-picker">
+              <input class="admin-input" type="text" id="ap-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('product')">
+              <div class="proc-picker-results" id="ap-proc-results"></div>
+            </div>
+            <div class="chips" id="ap-chips"></div>
+            <input type="hidden" id="ap-edit-id">
+            <button class="admin-btn" onclick="saveProductAd()">💾 Запази</button>
+          </div>
         </div>
       </div>
     </div>
@@ -648,12 +661,14 @@ textarea.form-input{resize:none}
 
     <!-- ADMIN INBOX - only visible to admin -->
     <div id="admin-inbox-wrap" style="display:none">
-      <div class="admin-section" id="admin-inbox-section" style="margin-top:4px">
-        <div class="admin-title" style="display:flex;align-items:center;justify-content:space-between">
-          📬 Предложения от потребители
-          <span class="inbox-badge" id="inbox-badge" style="display:none"></span>
+      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title">📬 Предложения <span class="inbox-badge" id="inbox-badge" style="display:none"></span></span>
+          <span class="acc-arrow">⌄</span>
         </div>
-        <div id="admin-inbox-list"><div style="font-size:12px;color:var(--ink2);padding:6px 0">Зарежда...</div></div>
+        <div class="acc-body">
+          <div id="admin-inbox-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зарежда...</div></div>
+        </div>
       </div>
     </div>
     <div class="profile-btns" style="margin:16px 18px 0">
@@ -2984,7 +2999,9 @@ async function loadAdminStats(){
   if(!statsEl) return;
   statsEl.innerHTML = '<div style="font-size:12px;color:var(--ink2)">Зарежда...</div>';
   try{
+    // Only count users with Firestore documents (active users)
     const usersSnap = await F().getDocs(F().collection(DB(),'users'));
+    const activeUsers = usersSnap.docs.filter(d => d.data().email); // only real users
     const diarySnap = await F().getDocs(F().collection(DB(),'diary_entries'));
     
     // Count proc occurrences
@@ -3010,7 +3027,7 @@ async function loadAdminStats(){
 
     statsEl.innerHTML = `
       <div style="display:flex;gap:10px;margin-bottom:14px">
-        <div class="stat-box"><div class="stat-num" style="font-size:28px">${usersSnap.size}</div><div class="stat-lbl">Потребители</div></div>
+        <div class="stat-box"><div class="stat-num" style="font-size:28px">${activeUsers.length}</div><div class="stat-lbl">Активни</div></div>
         <div class="stat-box"><div class="stat-num" style="font-size:28px">${diarySnap.size}</div><div class="stat-lbl">Записа</div></div>
         <div class="stat-box"><div class="stat-num" style="font-size:28px">${Object.keys(procCount).length}</div><div class="stat-lbl">Процедури</div></div>
       </div>
