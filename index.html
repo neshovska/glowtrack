@@ -536,27 +536,49 @@ textarea.form-input{resize:none}
         </div>
       </div>
 
-      <!-- SKIN ROUTINE ACCORDION -->
+      <!-- ДОМАШНА ГРИЖА ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0 0 0 0">
-          <span class="pcs-title">🌙 Скин рутин тракер</span>
+          <span class="pcs-title">🌿 Домашна грижа</span>
           <span class="acc-arrow">⌄</span>
         </div>
-        <div class="acc-body" id="routine-acc-body">
-          <div style="font-size:12px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Отбележи рутините за днес:</div>
-          <div style="display:flex;flex-direction:column;gap:8px" id="routine-list">
-            <label class="routine-item"><input type="checkbox" class="routine-cb" data-r="cleanse"> <span>🫧 Почистване</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb" data-r="tone"> <span>💧 Тонер</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb" data-r="serum"> <span>✨ Серум</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb" data-r="moisturize"> <span>🧴 Хидратация</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb" data-r="spf"> <span>☀️ SPF</span></label>
+        <div class="acc-body">
+          <!-- Сутрешна грижа -->
+          <div style="margin-top:10px">
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">☀️ Сутрешна грижа</div>
+            <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
+              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span>🫧 Почистване</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span>💧 Тонер</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-serum"> <span>✨ Серум</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-moisturize"> <span>🧴 Хидратация</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-spf"> <span>☀️ SPF</span></label>
+            </div>
+            <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:12px;padding:7px 10px">
+              <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
+            </div>
+            <button onclick="saveRoutine('morning')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">Запази ☀️</button>
+            <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:6px"></div>
           </div>
-          <div id="custom-routine-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
-          <div style="display:flex;gap:8px;margin-top:10px">
-            <input type="text" id="custom-routine-input" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:12px;padding:8px 12px">
-            <button onclick="addCustomRoutine()" style="padding:8px 14px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:18px">+</button>
+          <!-- Вечерна грижа -->
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--goldlt)">
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">🌙 Вечерна грижа</div>
+            <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
+              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span>🫧 Почистване</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span>💧 Тонер/Есенция</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-serum"> <span>✨ Серум/Ампула</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-eye"> <span>👁️ Крем за очи</span></label>
+              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-moisturize"> <span>🧴 Нощен крем</span></label>
+            </div>
+            <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:12px;padding:7px 10px">
+              <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
+            </div>
+            <button onclick="saveRoutine('evening')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">Запази 🌙</button>
+            <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:6px"></div>
           </div>
-          <div style="margin-top:10px;font-size:11px;color:var(--sage)" id="routine-streak"></div>
         </div>
       </div>
 
@@ -750,6 +772,7 @@ onAuthStateChanged(auth,async user=>{
     loadFavsList();
   updateFavsStat();
   loadNotifProcSelector();
+  loadHomeCare();
   if(window._isAdmin){
       document.getElementById('admin-panel').style.display='block';
       loadAdminLists();
@@ -1245,7 +1268,9 @@ function goPage(name,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
-  if(name==='diary')loadDiaryTab();
+  if(name==='diary') loadDiaryTab();
+  if(name==='notifs') loadNotifsPage();
+  if(name==='profile') loadProfileStats();
 }
 
 // ── PROCEDURES ──
@@ -1557,7 +1582,7 @@ async function loadDiaryTab(){
     Object.values(grouped).forEach(g=>g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0)));
     c.innerHTML=`<div class="diary-tab-list">${Object.entries(grouped).map(([pid,g])=>{
       const p=PROCS.find(x=>x.id===pid);
-      const isRoutine = pid==='skin-routine';
+      const isRoutine = pid==='skin-routine'||pid==='home-care-morning'||pid==='home-care-evening';
       const bg = isRoutine ? 'linear-gradient(135deg,#f0ede8,#e8e0d8)' : (p?.bg||'#eee');
       const icon = isRoutine ? '🌙' : (g.icon||'📋');
       const name = isRoutine ? '🌙 Скин рутина' : g.name;
@@ -2491,6 +2516,118 @@ function showComingSoonSheet(){
 function closeComingSoon(){
   const el = document.getElementById('coming-soon-overlay');
   if(el) el.style.display='none';
+}
+
+
+// ── ДОМАШНА ГРИЖА ──
+function loadHomeCare(){
+  const today = new Date().toDateString();
+  ['morning','evening'].forEach(type => {
+    const prefix = type === 'morning' ? 'm' : 'e';
+    const saved = JSON.parse(localStorage.getItem('gt_care_'+type+'_'+today)||'[]');
+    // Load checkboxes
+    document.querySelectorAll('.routine-cb-'+type).forEach(cb => {
+      cb.checked = saved.includes(cb.dataset.r);
+    });
+    // Load custom steps
+    renderCustomSteps(type);
+    // Show streak
+    updateCareStreak(type, saved, today);
+  });
+}
+
+function addCustomStep(type){
+  const inp = document.getElementById('custom-'+type+'-input');
+  const val = inp.value.trim();
+  if(!val) return;
+  const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+type)||'[]');
+  customs.push({id:'c_'+Date.now(), label: val});
+  localStorage.setItem('gt_care_custom_'+type, JSON.stringify(customs));
+  renderCustomSteps(type);
+  inp.value = '';
+}
+
+function renderCustomSteps(type){
+  const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+type)||'[]');
+  const list = document.getElementById('custom-'+type+'-list');
+  if(!list) return;
+  const today = new Date().toDateString();
+  const saved = JSON.parse(localStorage.getItem('gt_care_'+type+'_'+today)||'[]');
+  list.innerHTML = customs.map(c=>`
+    <div style="display:flex;align-items:center;gap:6px">
+      <label class="routine-item" style="flex:1">
+        <input type="checkbox" class="routine-cb-${type}-custom" data-r="${c.id}" ${saved.includes(c.id)?'checked':''}>
+        <span>${c.label}</span>
+      </label>
+      <button onclick="deleteCustomStep('${type}','${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer">✕</button>
+    </div>`).join('');
+}
+
+function deleteCustomStep(type, id){
+  const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+type)||'[]');
+  localStorage.setItem('gt_care_custom_'+type, JSON.stringify(customs.filter(c=>c.id!==id)));
+  renderCustomSteps(type);
+}
+
+async function saveRoutine(type){
+  const today = new Date().toDateString();
+  const checked = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(c=>c.dataset.r);
+  const customChecked = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(c=>c.dataset.r);
+  const all = [...checked, ...customChecked];
+  localStorage.setItem('gt_care_'+type+'_'+today, JSON.stringify(all));
+  localStorage.setItem('gt_care_'+type+'_last', today);
+  updateCareStreak(type, all, today);
+
+  // Save to diary
+  if(window._user && all.length > 0){
+    const savedKey = 'gt_care_diary_'+type+'_'+today;
+    if(!localStorage.getItem(savedKey)){
+      try{
+        const label = type === 'morning' ? '☀️ Сутрешна грижа' : '🌙 Вечерна грижа';
+        const steps = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(cb=>cb.nextElementSibling?.textContent||'');
+        const customSteps = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(cb=>cb.nextElementSibling?.textContent||'');
+        await F().addDoc(F().collection(DB(),'diary_entries'),{
+          userId: window._user.uid,
+          procId: 'home-care-'+type,
+          procName: label,
+          procIcon: type==='morning'?'☀️':'🌙',
+          clinic:'', specialist:'', contact:'',
+          advice: 'Стъпки: '+[...steps,...customSteps].join(', '),
+          feeling: '✅ '+label+' завършена',
+          products:'', photos:[],
+          isRoutine: true,
+          createdAt: F().serverTimestamp()
+        });
+        localStorage.setItem(savedKey, '1');
+        showToast((type==='morning'?'☀️':'🌙')+' Запазено в дневника!');
+        if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
+      } catch(e){}
+    } else {
+      showToast('✅ Рутината е запазена!');
+    }
+  } else {
+    showToast('✅ Запазено!');
+  }
+}
+
+function updateCareStreak(type, checked, today){
+  const el = document.getElementById(type+'-streak');
+  if(!el) return;
+  const todayFmt = new Date().toLocaleDateString('bg-BG',{day:'numeric',month:'long',year:'numeric'});
+  const total = document.querySelectorAll('.routine-cb-'+type).length +
+                document.querySelectorAll('.routine-cb-'+type+'-custom').length;
+  if(checked.length === 0){
+    const last = localStorage.getItem('gt_care_'+type+'_last');
+    if(last && last !== today){
+      el.innerHTML = `<span style="color:var(--ink2)">Последно: ${new Date(last).toLocaleDateString('bg-BG',{day:'numeric',month:'long'})}</span>`;
+    } else {
+      el.innerHTML = `<span style="color:var(--ink2)">Маркирай стъпките · ${todayFmt}</span>`;
+    }
+  } else if(checked.length >= total && total > 0){
+    el.innerHTML = `<span style="color:var(--gold);font-weight:700">✅ Завършена!</span> <span style="color:var(--ink2);font-size:10px">${todayFmt}</span>`;
+  } else {
+    el.innerHTML = `<span style="color:var(--ink2)">${checked.length}/${total} стъпки · ${todayFmt}</span>`;
+  }
 }
 
 // close pickers on outside click
