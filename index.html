@@ -96,6 +96,29 @@
   --card:#fff;--blur:blur(20px);--r:14px;--rs:10px;--red:#d95f5f;
   --shadow:0 2px 12px rgba(26,26,46,.07);
 }
+body.dark{
+  --ink:#f0ede8;--ink2:#a09890;--mist:#12122a;
+  --gold:#d4a96a;--goldlt:rgba(212,169,106,.15);--roselt:#1e1e38;
+  --sage:#8ab89a;--lilac:#b8a8e0;--lilaclt:rgba(184,168,224,.1);
+  --card:#1e1e38;--red:#e87070;
+  --shadow:0 2px 16px rgba(0,0,0,.4);
+}
+body.dark,.dark .bg{background:#12122a}
+body.dark .bg{background:radial-gradient(ellipse 70% 50% at 15% 8%,rgba(100,80,160,.15),transparent 55%),radial-gradient(ellipse 50% 60% at 88% 92%,rgba(184,150,106,.1),transparent 50%),#12122a}
+body.dark .topbar{background:#1a1a2e!important;border-bottom:1px solid rgba(212,169,106,.12)}
+body.dark .bnav{background:#1a1a2e!important;border-top:1px solid rgba(212,169,106,.12)}
+body.dark .sheet,.dark .sheet{background:#1a1a2e}
+body.dark .proc-row{background:#1e1e38;border-color:rgba(212,169,106,.1)}
+body.dark .auth-card{background:rgba(30,30,56,.9)}
+body.dark .form-input,.dark input,.dark textarea,.dark select{background:#252545!important;color:#f0ede8!important;border-color:rgba(212,169,106,.2)!important}
+body.dark .profile-card-section,.dark .profile-card-section{background:#1e1e38;border-color:rgba(212,169,106,.12)}
+body.dark .routine-item{background:#252545}
+body.dark .stat-box{background:#252545;border-color:rgba(212,169,106,.12)}
+body.dark .diary-group{background:#1e1e38}
+body.dark .entry-card{background:#252545}
+body.dark .acc-body{background:transparent}
+body.dark .info-card{background:#1e1e38}
+body.dark .care-item,.dark .care-item{background:#1e1e38}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-height:100vh;color:var(--ink);overflow-x:hidden}
 .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 15% 8%,rgba(155,142,196,.1),transparent 55%),radial-gradient(ellipse 50% 60% at 88% 92%,rgba(184,150,106,.08),transparent 50%),#f7f5f2}
@@ -2135,6 +2158,7 @@ function showPremiumMsg(){
 
 // ── SPLASH ──
 window.addEventListener('load', () => {
+  initDarkMode();
   const splash = document.getElementById('splash');
   const logo = document.getElementById('splash-logo');
   // Animate in
@@ -3124,6 +3148,23 @@ function suggestReminder(lastDate, minDays, maxDays){
 }
 
 // ── SAVE PRICE & RATING with diary entry ──
+
+
+// ── DARK MODE ──
+function toggleDarkMode(){
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('gt_dark', isDark ? '1' : '0');
+  document.getElementById('dark-btn').textContent = isDark ? '🌙' : '☀️';
+}
+
+function initDarkMode(){
+  const saved = localStorage.getItem('gt_dark');
+  if(saved === '1'){
+    document.body.classList.add('dark');
+    const btn = document.getElementById('dark-btn');
+    if(btn) btn.textContent = '🌙';
+  }
+}
 
 // close pickers on outside click
 document.addEventListener('click',e=>{
