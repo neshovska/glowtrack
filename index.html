@@ -822,6 +822,12 @@ onAuthStateChanged(auth,async user=>{
       if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};nbtns[1].querySelector('.ni').textContent='🧴';nbtns[1].querySelector('.nl').textContent='Продукти';}
     }
     loadClinicsTab();loadProductsTab();
+    // Restore last page
+    const _lastPage = localStorage.getItem('gt_last_page');
+    if(_lastPage && _lastPage !== 'procs'){
+      const _lastBtn = document.querySelector(`[onclick*="goPage('${_lastPage}"]`);
+      if(_lastBtn) goPage(_lastPage, _lastBtn);
+    }
     // checkReminders disabled — using notifications tab instead
     // Init notif badge = total count
     const _initNotifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
@@ -1303,6 +1309,7 @@ function goPage(name,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
+  localStorage.setItem('gt_last_page', name);
   if(name==='diary') loadDiaryTab();
   if(name==='notifs') loadNotifsPage();
   if(name==='profile') loadProfileStats();
