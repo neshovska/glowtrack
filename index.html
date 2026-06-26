@@ -1276,8 +1276,7 @@ async function doLogin(){
   if(!email||!pass){showAuthError('Попълни всички полета');return;}
   const btn=document.getElementById('login-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
   try{
-    const result = await signInWithEmailAndPassword(AU(),email,pass);
-    if(!result) throw new Error('No result');
+    await signInWithEmailAndPassword(auth, email, pass);
   }
   catch(e){
     console.log('Login error:',e?.code,e?.message);
