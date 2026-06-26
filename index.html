@@ -348,6 +348,12 @@ textarea.form-input{resize:none}
 .routine-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#faf8f5;cursor:pointer;font-size:13px;color:var(--ink1)}
 .routine-item input{width:16px;height:16px;accent-color:var(--gold)}
 .routine-cb:checked ~ span{text-decoration:line-through;opacity:.5}
+/* DRAG & DROP DIARY */
+.diary-group{touch-action:none}
+.diary-group.dragging{opacity:.5;background:#f5efe6;border-radius:14px}
+.diary-group.drag-over{border-top:2px solid var(--gold)}
+.drag-handle{cursor:grab;color:#c5bdb4;font-size:16px;padding:0 8px;user-select:none;display:flex;align-items:center}
+.drag-handle:active{cursor:grabbing}
 /* ACCORDION */
 .acc-section{border-bottom:1px solid var(--goldlt);margin-bottom:0}
 .acc-header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;user-select:none}
@@ -1582,7 +1588,21 @@ async function loadDiaryTab(){
       grouped[data.procId].entries.push(d);
     });
     Object.values(grouped).forEach(g=>g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0)));
-    c.innerHTML=`<div class="diary-tab-list">${Object.entries(grouped).map(([pid,g])=>{
+    // Sort: home-care first, then by saved order or last entry date
+    const savedOrder = JSON.parse(localStorage.getItem('gt_diary_order')||'[]');
+    const homeCareFirst = ['home-care-morning','home-care-evening'];
+    const sortedEntries = Object.entries(grouped).sort(([a],[b])=>{
+      const ai = homeCareFirst.indexOf(a);
+      const bi = homeCareFirst.indexOf(b);
+      if(ai>=0 && bi>=0) return ai-bi;
+      if(ai>=0) return -1;
+      if(bi>=0) return 1;
+      const ao = savedOrder.indexOf(a);
+      const bo = savedOrder.indexOf(b);
+      if(ao>=0 && bo>=0) return ao-bo;
+      return 0;
+    });
+    c.innerHTML=`<div class="diary-tab-list" id="diary-sortable">${sortedEntries.map(([pid,g])=>{
       const p=PROCS.find(x=>x.id===pid);
       const isRoutine = pid==='skin-routine'||pid==='home-care-morning'||pid==='home-care-evening';
       const bg = pid==='home-care-morning' ? 'linear-gradient(135deg,#fdf6e8,#f5ede0)' : pid==='home-care-evening' ? 'linear-gradient(135deg,#1a1a2e,#2d2d4e)' : isRoutine ? 'linear-gradient(135deg,#f0ede8,#e8e0d8)' : (p?.bg||'#eee');
@@ -1590,8 +1610,12 @@ async function loadDiaryTab(){
       const name = pid==='home-care-morning' ? 'Домашна грижа · Сутрешна' : pid==='home-care-evening' ? 'Домашна грижа · Вечерна' : isRoutine ? 'Домашна грижа' : g.name;
       const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
       const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ Нов запис</button>`;
-      return`<div class="diary-group">
+      const isPinned = pid==='home-care-morning'||pid==='home-care-evening';
+      return`<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}" 
+        ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)" 
+        ondrop="diaryDrop(event)" ondragend="diaryDragEnd(event)">
         <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
+          ${!isPinned?'<div class="drag-handle" onclick="event.stopPropagation()">⠿</div>':'<div style="width:8px"></div>'}
           <div class="diary-group-icon" style="background:${bg}">${icon}</div>
           <div class="diary-group-info"><div class="diary-group-name">${name}</div><div class="diary-group-meta">Последно: ${lastDate}</div></div>
           <span class="diary-group-count">${g.entries.length} записа</span>
@@ -2630,6 +2654,50 @@ function updateCareStreak(type, checked, today){
   } else {
     el.innerHTML = `<span style="color:var(--ink2)">${checked.length}/${total} стъпки · ${todayFmt}</span>`;
   }
+}
+
+
+// ── DIARY DRAG & DROP ──
+let _dragSrc = null;
+
+function diaryDragStart(e){
+  _dragSrc = e.currentTarget;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', e.currentTarget.dataset.pid);
+}
+
+function diaryDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
+  const target = e.currentTarget;
+  if(target !== _dragSrc && target.draggable==='true') target.classList.add('drag-over');
+}
+
+function diaryDrop(e){
+  e.preventDefault();
+  const target = e.currentTarget;
+  if(!target || target === _dragSrc || target.draggable!=='true') return;
+  const list = document.getElementById('diary-sortable');
+  if(!list) return;
+  const items = Array.from(list.querySelectorAll('.diary-group'));
+  const srcIdx = items.indexOf(_dragSrc);
+  const tgtIdx = items.indexOf(target);
+  if(srcIdx < tgtIdx) target.after(_dragSrc);
+  else target.before(_dragSrc);
+  // Save order
+  const newOrder = Array.from(list.querySelectorAll('.diary-group[data-pid]'))
+    .map(el=>el.dataset.pid)
+    .filter(pid=>pid!=='home-care-morning'&&pid!=='home-care-evening');
+  localStorage.setItem('gt_diary_order', JSON.stringify(newOrder));
+  document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
+}
+
+function diaryDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
+  _dragSrc = null;
 }
 
 // close pickers on outside click
