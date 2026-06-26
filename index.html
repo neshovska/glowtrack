@@ -348,6 +348,12 @@ textarea.form-input{resize:none}
 .routine-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#faf8f5;cursor:pointer;font-size:13px;color:var(--ink1)}
 .routine-item input{width:16px;height:16px;accent-color:var(--gold)}
 .routine-cb:checked ~ span{text-decoration:line-through;opacity:.5}
+/* PROGRESS BAR */
+.routine-progress{height:6px;background:#f0ede8;border-radius:3px;margin:10px 0 6px;overflow:hidden}
+.routine-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#b8966a,#d4a96a);transition:width .4s ease}
+/* HEART ANIMATION */
+@keyframes heartPop{0%{transform:scale(1)}30%{transform:scale(1.4)}60%{transform:scale(0.9)}100%{transform:scale(1)}}
+.heart-pop{animation:heartPop .4s ease}
 /* DRAG & DROP DIARY */
 .diary-group{touch-action:none}
 .diary-group.dragging{opacity:.5;background:#f5efe6;border-radius:14px}
@@ -470,6 +476,14 @@ textarea.form-input{resize:none}
     <div class="profile-card"><div class="profile-av" id="profile-av-wrap" style="width:80px;height:80px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08)" id="profile-initials-svg">?</div><div class="profile-name" id="prof-name">—</div><div class="profile-email" id="prof-email">—</div></div>
 
     <div id="admin-panel" style="display:none;margin-top:20px">
+      <!-- ADMIN STATS -->
+      <div class="admin-section" style="margin-bottom:12px">
+        <div class="admin-title" style="display:flex;align-items:center;justify-content:space-between">
+          📊 Статистика
+          <button onclick="loadAdminStats()" style="background:none;border:1px solid var(--goldlt);border-radius:8px;padding:3px 8px;font-size:11px;color:var(--gold);cursor:pointer">↻ Обнови</button>
+        </div>
+        <div id="admin-stats-content" style="margin-top:8px;font-size:12px;color:var(--ink2)">Натисни ↻ за зареждане</div>
+      </div>
       <div style="padding:0 18px 10px"><div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lilac)">⚙️ Admin панел</div></div>
       <div class="admin-section">
         <div class="admin-title">🏥 Клиники (партньори)</div>
@@ -565,7 +579,8 @@ textarea.form-input{resize:none}
               <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
             </div>
             <button onclick="saveRoutine('morning')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">Запази ☀️</button>
-            <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:6px"></div>
+            <div class="routine-progress"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
+          <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
           </div>
           <!-- Вечерна грижа -->
           <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--goldlt)">
@@ -583,7 +598,8 @@ textarea.form-input{resize:none}
               <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
             </div>
             <button onclick="saveRoutine('evening')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">Запази 🌙</button>
-            <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:6px"></div>
+            <div class="routine-progress"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
+          <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
           </div>
         </div>
       </div>
@@ -682,6 +698,41 @@ textarea.form-input{resize:none}
   </div>
 </div>
 
+<!-- ONBOARDING MODAL -->
+<div id="onboarding-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(26,26,46,.6);backdrop-filter:blur(8px)">
+  <div style="background:#fff;border-radius:24px;padding:28px 24px;margin:0 24px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(26,26,46,.3)">
+    <div class="ob-step" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🪷</div>
+      <div style="font-size:20px;font-weight:700;color:var(--ink1);font-family:'Cormorant Garamond',serif;margin-bottom:8px">Добре дошла в GlowTrack</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.6">Твоята лична beauty енциклопедия и дневник за процедури.</div>
+      <button onclick="nextOnboarding(1)" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Напред →</button>
+    </div>
+    <div class="ob-step" style="display:none;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🔍</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);font-family:'Cormorant Garamond',serif;margin-bottom:8px">Открий процедури</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.6">Търси и разглеждай над 80 козметични процедури. Научи всичко преди и след.</div>
+      <button onclick="nextOnboarding(2)" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Напред →</button>
+    </div>
+    <div class="ob-step" style="display:none;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🧸</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);font-family:'Cormorant Garamond',serif;margin-bottom:8px">Води дневник</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.6">Записвай всяка процедура, домашната грижа и следи напредъка си.</div>
+      <button onclick="nextOnboarding(3)" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Напред →</button>
+    </div>
+    <div class="ob-step" style="display:none;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🔔</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);font-family:'Cormorant Garamond',serif;margin-bottom:8px">Напомняния</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.6">Задай дата за следваща процедура и не пропускай нито една сесия.</div>
+      <button onclick="finishOnboarding()" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">✦ Започни</button>
+    </div>
+    <div style="display:flex;justify-content:center;gap:6px;margin-top:14px">
+      <div class="ob-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold)"></div>
+      <div class="ob-dot" style="width:8px;height:8px;border-radius:50%;background:#e8e4de"></div>
+      <div class="ob-dot" style="width:8px;height:8px;border-radius:50%;background:#e8e4de"></div>
+      <div class="ob-dot" style="width:8px;height:8px;border-radius:50%;background:#e8e4de"></div>
+    </div>
+  </div>
+</div>
 <!-- EDIT NOTIF MODAL -->
 <div id="edit-notif-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:600">
   <div style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(6px)" onclick="closeEditNotif()"></div>
@@ -858,6 +909,7 @@ onAuthStateChanged(auth,async user=>{
       if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};const ni1=nbtns[1].querySelector('.nl');if(ni1)ni1.textContent='Продукти';}
     }
     loadClinicsTab();loadProductsTab();
+    if(!window._isAdmin) setTimeout(checkOnboarding, 2500);
     // Restore last page
     const _lastPage = localStorage.getItem('gt_last_page');
     if(_lastPage && _lastPage !== 'procs'){
@@ -2320,6 +2372,9 @@ function toggleFavFromList(procId, btn){
     favs.push(procId);
     saveFavs(favs);
     btn.textContent='❤️';
+    btn.classList.remove('heart-pop');
+    void btn.offsetWidth;
+    btn.classList.add('heart-pop');
     showToast('❤️ Добавено в Любими!');
   }
   // Update fav btn in open sheet if same proc
@@ -2734,6 +2789,9 @@ function updateCareStreak(type, checked, today){
   const todayFmt = new Date().toLocaleDateString('bg-BG',{day:'numeric',month:'long',year:'numeric'});
   const total = document.querySelectorAll('.routine-cb-'+type).length +
                 document.querySelectorAll('.routine-cb-'+type+'-custom').length;
+  // Update progress bar
+  const fill = document.getElementById(type+'-progress-fill');
+  if(fill && total > 0) fill.style.width = Math.round((checked.length/total)*100)+'%';
   if(checked.length === 0){
     const last = localStorage.getItem('gt_care_'+type+'_last');
     if(last && last !== today){
@@ -2865,6 +2923,81 @@ function deleteNotifFromPage(id){
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
   loadNotifsPage();
   showToast('✅ Напомнянето е изтрито');
+}
+
+
+// ── DIARY FILTER ──
+function filterDiary(){
+  const q = (document.getElementById('diary-search')?.value||'').toLowerCase();
+  const dateFilter = document.getElementById('diary-date-filter')?.value;
+  const groups = document.querySelectorAll('.diary-group');
+  groups.forEach(g=>{
+    const name = g.querySelector('.diary-group-name')?.textContent.toLowerCase()||'';
+    const matchQ = !q || name.includes(q);
+    const matchD = !dateFilter || g.dataset.lastDate?.startsWith(dateFilter);
+    g.style.display = (matchQ && matchD) ? '' : 'none';
+  });
+}
+
+// ── ONBOARDING ──
+function checkOnboarding(){
+  if(localStorage.getItem('gt_onboarded')) return;
+  const modal = document.getElementById('onboarding-modal');
+  if(modal) modal.style.display = 'flex';
+}
+
+function nextOnboarding(step){
+  document.querySelectorAll('.ob-step').forEach((s,i)=>{
+    s.style.display = i===step ? 'block' : 'none';
+  });
+}
+
+function finishOnboarding(){
+  localStorage.setItem('gt_onboarded','1');
+  const modal = document.getElementById('onboarding-modal');
+  if(modal) modal.style.display = 'none';
+}
+
+// ── ADMIN STATS ──
+async function loadAdminStats(){
+  if(!window._isAdmin) return;
+  const statsEl = document.getElementById('admin-stats-content');
+  if(!statsEl) return;
+  statsEl.innerHTML = '<div style="font-size:12px;color:var(--ink2)">Зарежда...</div>';
+  try{
+    const usersSnap = await F().getDocs(F().collection(DB(),'users'));
+    const diarySnap = await F().getDocs(F().collection(DB(),'diary_entries'));
+    
+    // Count proc occurrences
+    const procCount = {};
+    diarySnap.docs.forEach(d=>{
+      const pid = d.data().procId;
+      if(pid && !pid.startsWith('home-care') && pid !== 'skin-routine'){
+        procCount[pid] = (procCount[pid]||0) + 1;
+      }
+    });
+    
+    // Top 5 procedures
+    const topProcs = Object.entries(procCount)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,5)
+      .map(([pid,count])=>{
+        const p = window.PROCS?.find(x=>x.id===pid);
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--goldlt)">
+          <span style="font-size:12px">${p?.icon||'✦'} ${p?.name||pid}</span>
+          <span style="font-size:11px;font-weight:700;color:var(--gold)">${count} записа</span>
+        </div>`;
+      }).join('') || '<div style="font-size:12px;color:var(--ink2)">Няма данни</div>';
+
+    statsEl.innerHTML = `
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div class="stat-box"><div class="stat-num" style="font-size:28px">${usersSnap.size}</div><div class="stat-lbl">Потребители</div></div>
+        <div class="stat-box"><div class="stat-num" style="font-size:28px">${diarySnap.size}</div><div class="stat-lbl">Записа</div></div>
+        <div class="stat-box"><div class="stat-num" style="font-size:28px">${Object.keys(procCount).length}</div><div class="stat-lbl">Процедури</div></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">ТОП ПРОЦЕДУРИ</div>
+      ${topProcs}`;
+  }catch(e){ statsEl.innerHTML = '<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>'; }
 }
 
 // close pickers on outside click
