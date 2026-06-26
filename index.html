@@ -2940,8 +2940,18 @@ function filterDiary(){
 }
 
 // ── ONBOARDING ──
-function checkOnboarding(){
-  if(localStorage.getItem('gt_onboarded')) return;
+async function checkOnboarding(){
+  if(!window._user) return;
+  // Check localStorage first (fast)
+  if(localStorage.getItem('gt_onboarded_'+window._user.uid)) return;
+  // Check Firestore
+  try{
+    const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+    if(snap.exists() && snap.data().onboarded) {
+      localStorage.setItem('gt_onboarded_'+window._user.uid,'1');
+      return;
+    }
+  }catch(e){}
   const modal = document.getElementById('onboarding-modal');
   if(modal) modal.style.display = 'flex';
 }
@@ -2950,12 +2960,21 @@ function nextOnboarding(step){
   document.querySelectorAll('.ob-step').forEach((s,i)=>{
     s.style.display = i===step ? 'block' : 'none';
   });
+  // Update dots
+  document.querySelectorAll('.ob-dot').forEach((d,i)=>{
+    d.style.background = i===step ? 'var(--gold)' : '#e8e4de';
+  });
 }
 
-function finishOnboarding(){
-  localStorage.setItem('gt_onboarded','1');
+async function finishOnboarding(){
   const modal = document.getElementById('onboarding-modal');
   if(modal) modal.style.display = 'none';
+  if(!window._user) return;
+  localStorage.setItem('gt_onboarded_'+window._user.uid,'1');
+  // Save to Firestore so it persists across devices
+  try{
+    await F().updateDoc(F().doc(DB(),'users',window._user.uid),{onboarded:true});
+  }catch(e){}
 }
 
 // ── ADMIN STATS ──
