@@ -1458,13 +1458,15 @@ function renderEntryCard(docSnap){
   const d=docSnap.data(),eid=docSnap.id;
   const dt=d.createdAt?.toDate?d.createdAt.toDate():new Date();
   const photos=d.photos||[];
+  const isRoutineEntry = d.isRoutine || d.procId==='skin-routine' || (d.procId||'').startsWith('home-care-');
   return`<div class="entry-card" id="ec-${eid}">
     <div class="entry-date">📅 ${fmtFull(dt)}</div>
-    ${d.clinic||d.specialist?`<div class="entry-field"><span class="lbl">🏥 Клиника / Специалист</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
-    ${d.advice?`<div class="entry-field"><span class="lbl">👩‍⚕️ Препоръки от специалиста</span>${d.advice}</div>`:''}
+    ${!isRoutineEntry&&(d.clinic||d.specialist)?`<div class="entry-field"><span class="lbl">🏥 Клиника / Специалист</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
+    ${d.advice&&!isRoutineEntry?`<div class="entry-field"><span class="lbl">👩‍⚕️ Препоръки от специалиста</span>${d.advice}</div>`:''}
+    ${isRoutineEntry&&d.advice?`<div class="entry-field">${d.advice}</div>`:''}
     ${d.feeling?`<div class="entry-field"><span class="lbl">💬 Лично усещане</span>${d.feeling}</div>`:''}
     ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
-    ${d.products?`<div class="entry-field" style="margin-top:6px"><span class="lbl">🧴 Препоръчани продукти</span><span class="product-chip">${d.products}</span></div>`:''}
+    ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">🧴 Препоръчани продукти</span><span class="product-chip">${d.products}</span></div>`:''}
     <div class="entry-actions">
       <button class="mini-btn" onclick="startEditEntry('${eid}','${currentProcId}')">✏️ Редактирай</button>
       <button class="mini-btn danger" onclick="deleteEntry('${eid}','${currentProcId}')">🗑️ Изтрий</button>
@@ -1583,9 +1585,9 @@ async function loadDiaryTab(){
     c.innerHTML=`<div class="diary-tab-list">${Object.entries(grouped).map(([pid,g])=>{
       const p=PROCS.find(x=>x.id===pid);
       const isRoutine = pid==='skin-routine'||pid==='home-care-morning'||pid==='home-care-evening';
-      const bg = isRoutine ? 'linear-gradient(135deg,#f0ede8,#e8e0d8)' : (p?.bg||'#eee');
-      const icon = isRoutine ? '🌙' : (g.icon||'📋');
-      const name = isRoutine ? '🌙 Скин рутина' : g.name;
+      const bg = pid==='home-care-morning' ? 'linear-gradient(135deg,#fdf6e8,#f5ede0)' : pid==='home-care-evening' ? 'linear-gradient(135deg,#1a1a2e,#2d2d4e)' : isRoutine ? 'linear-gradient(135deg,#f0ede8,#e8e0d8)' : (p?.bg||'#eee');
+      const icon = pid==='home-care-morning' ? '☀️' : pid==='home-care-evening' ? '🌙' : isRoutine ? '🌿' : (g.icon||'📋');
+      const name = pid==='home-care-morning' ? 'Домашна грижа · Сутрешна' : pid==='home-care-evening' ? 'Домашна грижа · Вечерна' : isRoutine ? 'Домашна грижа' : g.name;
       const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
       const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ Нов запис</button>`;
       return`<div class="diary-group">
