@@ -2582,16 +2582,17 @@ function loadNotifsPage(){
                     (window._lang==='en'?'Past':'Минало');
     const color = isPast ? '#c5bdb4' : diff===0 ? '#b8966a' : 'var(--ink1)';
     const bg = isPast ? '#faf8f5' : '#fff';
-    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${bg};border-radius:14px;border:1px solid ${isPast?'rgba(184,150,106,.1)':'var(--goldlt)'};margin-bottom:8px;${isPast?'opacity:.6':''}">
-      <div style="width:42px;height:42px;border-radius:50%;background:${isPast?'#f0ede8':'linear-gradient(135deg,rgba(184,150,106,.15),rgba(212,169,106,.15))'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <span style="font-size:20px">${isPast?'✓':'🔔'}</span>
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:${bg};border-radius:14px;border:1px solid ${isPast?'rgba(184,150,106,.1)':'var(--goldlt)'};margin-bottom:8px;${isPast?'opacity:.6':''}">
+      <div style="width:38px;height:38px;border-radius:50%;background:${isPast?'#f0ede8':'linear-gradient(135deg,rgba(184,150,106,.15),rgba(212,169,106,.15))'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span style="font-size:18px">${isPast?'✓':'🔔'}</span>
       </div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:700;color:${color};margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.procName}</div>
-        <div style="font-size:11px;color:var(--ink2)">${dt.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'})} ${n.time?'· '+n.time:''}</div>
+        <div style="font-size:11px;color:var(--ink2)">${dt.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'})} ${n.time?'· '+n.time:''} · ${diffTxt}</div>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:11px;font-weight:700;color:${isPast?'#c5bdb4':diff===0?'#b8966a':'var(--sage)'}">${diffTxt}</div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="editNotif('${n.id}')" style="background:none;border:1px solid var(--goldlt);border-radius:8px;color:var(--gold);cursor:pointer;font-size:14px;padding:4px 8px">✏️</button>
+        <button onclick="deleteNotifFromPage('${n.id}')" style="background:none;border:1px solid rgba(232,93,93,.2);border-radius:8px;color:#e85d5d;cursor:pointer;font-size:14px;padding:4px 8px">✕</button>
       </div>
     </div>`;
   };
@@ -2855,6 +2856,15 @@ function toggleNewEntry(){
   btn.style.borderStyle = isOpen ? 'dashed' : 'solid';
   btn.style.background = isOpen ? '#fff' : '#faf8f5';
   if(!isOpen) form.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+
+function deleteNotifFromPage(id){
+  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]').filter(n=>n.id!==id);
+  localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
+  loadNotifsPage();
+  showToast('✅ Напомнянето е изтрито');
 }
 
 // close pickers on outside click
