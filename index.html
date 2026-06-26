@@ -762,12 +762,12 @@ textarea.form-input{resize:none}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,deleteUser}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,deleteUser,setPersistence,browserLocalStoragePersistence}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
 const auth=getAuth(fb);const db=getFirestore(fb);
 window._auth=auth;window._db=db;
-window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
+window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,deleteUser,setPersistence,browserLocalStoragePersistence,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 onAuthStateChanged(auth,async user=>{
   if(user){
     window._user=user;
@@ -1273,7 +1273,7 @@ async function doLogin(){
   const pass=document.getElementById('login-pass').value;
   if(!email||!pass){showAuthError('Попълни всички полета');return;}
   const btn=document.getElementById('login-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span>';
-  try{await F().signInWithEmailAndPassword(AU(),email,pass);}
+  try{await F().setPersistence(AU(),F().browserLocalStoragePersistence);await F().signInWithEmailAndPassword(AU(),email,pass);}
   catch(e){
     showAuthError(e.code==='auth/user-not-found'?'Акаунтът не съществува':e.code==='auth/invalid-email'?'Невалиден имейл':'Грешен имейл или парола');
   }finally{btn.disabled=false;btn.textContent='Влез';}
