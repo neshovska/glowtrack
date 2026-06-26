@@ -118,6 +118,13 @@ body.dark .diary-group{background:#1e1e38}
 body.dark .entry-card{background:#252545}
 body.dark .acc-body{background:transparent}
 body.dark .info-card{background:#1e1e38}
+body.dark .info-text{color:#e8e4de}
+body.dark .care-txt{color:#e8e4de}
+body.dark .result-txt{color:#e8e4de}
+body.dark .contra-item{color:#c8c0b8}
+body.dark .device-tag{background:rgba(184,168,224,.15);color:#c8b8f0;border-color:rgba(184,168,224,.25)}
+body.dark .sheet-body [style*="background:#fff"]{background:#252545!important}
+body.dark .sheet-body [style*="background: #fff"]{background:#252545!important}
 body.dark .care-item,.dark .care-item{background:#1e1e38}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-height:100vh;color:var(--ink);overflow-x:hidden}
@@ -1554,7 +1561,7 @@ async function openSheet(id){
   }
   const mk=(arr,cls)=>(arr||[]).map(([em,txt])=>`<div class="care-item ${cls}"><span class="care-em">${em}</span><span class="care-txt">${txt}</span></div>`).join('');
   const notPrefix = window._lang==='en' ? 'NO' : 'НЕ';
-  const goldCard = (content) => `<div style="border:1.5px solid #b8966a33;border-radius:14px;background:#fff;padding:14px 14px 12px;margin-top:2px">${content}</div>`;
+  const goldCard = (content) => `<div style="border:1.5px solid #b8966a33;border-radius:14px;background:var(--card);padding:14px 14px 12px;margin-top:2px">${content}</div>`;
   const acc = (title, body, open=false, styled=false) => `
     <div class="acc-section">
       <div class="acc-header" onclick="toggleAcc(this)">
