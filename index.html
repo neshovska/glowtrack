@@ -1487,8 +1487,11 @@ async function openSheet(id){
     </div>
     ${window._user?`<div class="diary-section">
       <div class="diary-section-title">Моят <em>дневник</em></div>
-      <div class="diary-form">
-        <div class="diary-date-lbl">${t('newEntry')} ${fmtDate(new Date())}</div>
+      <div id="de-entries-list">${diaryEntriesHTML}</div>
+      <button onclick="toggleNewEntry()" id="new-entry-btn" style="width:100%;margin-top:10px;padding:11px;background:#fff;border:1.5px dashed var(--goldlt);border-radius:12px;color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left">
+        📝 ${t('newEntry')} ${fmtDate(new Date())}
+      </button>
+      <div class="diary-form" id="new-entry-form" style="display:none;margin-top:10px">
         <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="${t('clinicPh')}"></div>
         <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="${t('specialistPh')}"></div>
         <div class="form-row"><label class="form-lbl">Контакти (по желание)</label><input class="form-input" type="text" id="de-contact" placeholder="напр. 0888 123 456 · website.bg"></div>
@@ -1501,7 +1504,6 @@ async function openSheet(id){
           <button class="save-btn" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
         </div>
       </div>
-      <div id="de-entries-list">${diaryEntriesHTML}</div>
     </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}`;
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -2836,6 +2838,18 @@ async function saveRoutineEdit(eid, procId, type){
     showToast('✅ Обновено!');
     loadDiaryTab();
   }catch(e){showToast('Грешка при обновяване');}
+}
+
+
+function toggleNewEntry(){
+  const form = document.getElementById('new-entry-form');
+  const btn = document.getElementById('new-entry-btn');
+  if(!form) return;
+  const isOpen = form.style.display !== 'none';
+  form.style.display = isOpen ? 'none' : 'block';
+  btn.style.borderStyle = isOpen ? 'dashed' : 'solid';
+  btn.style.background = isOpen ? '#fff' : '#faf8f5';
+  if(!isOpen) form.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 // close pickers on outside click
