@@ -648,9 +648,9 @@ textarea.form-input{resize:none}
   </div>
   <nav class="bnav">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
-    <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl">Дневник</span></button>
-    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
+    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl">Дневник</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl">Профил</span></button>
   </nav>
 </div>
@@ -1230,7 +1230,7 @@ function applyLang(){
 
   // Nav labels
   const nls = document.querySelectorAll('.nl');
-  const navKeys = ['navProcs','navDiary','navSoon','navNotifs','navProfile'];
+  const navKeys = ['navProcs','navNotifs','navSoon','navDiary','navProfile'];
   nls.forEach((nl,i) => { if(navKeys[i]) nl.textContent = t(navKeys[i]); });
 
   // Page headers
