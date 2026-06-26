@@ -1127,7 +1127,7 @@ function applyLang(){
 
   // Nav labels
   const nls = document.querySelectorAll('.nl');
-  const navKeys = ['navProcs','navDiary','navNotifs','navSoon','navProfile'];
+  const navKeys = ['navProcs','navDiary','navSoon','navNotifs','navProfile'];
   nls.forEach((nl,i) => { if(navKeys[i]) nl.textContent = t(navKeys[i]); });
 
   // Page headers
