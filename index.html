@@ -521,12 +521,12 @@ textarea.form-input{resize:none}
   </div>
   <div class="page" id="page-clinics">
     <div class="page-hdr"><div class="page-hdr-title"><em>Клиники</em></div><div class="page-hdr-sub">Партньорски клиники</div></div>
-    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="clinic-search" placeholder="${t('searchClinics')}" oninput="filterClinics()"></div></div>
+    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="clinic-search" placeholder="Търси клиника или процедура..." data-ph="searchClinics" oninput="filterClinics()"></div></div>
     <div class="clinics-list" id="clinics-list"></div>
   </div>
   <div class="page" id="page-products">
     <div class="page-hdr"><div class="page-hdr-title">Козметика & <em>грижа</em></div><div class="page-hdr-sub">Препоръчани продукти за след процедура</div></div>
-    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="prod-search" placeholder="${t('searchProducts')}" oninput="filterProducts()"></div></div>
+    <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="prod-search" placeholder="Търси продукт или процедура..." data-ph="searchProducts" oninput="filterProducts()"></div></div>
     <div class="products-tab-list" id="products-tab-list"></div>
   </div>
   <div class="page" id="page-notifs">
@@ -608,7 +608,7 @@ textarea.form-input{resize:none}
             <input class="admin-input" type="text" id="ap-icon" placeholder="🧴 Икона">
             <input class="admin-input" type="text" id="ap-brand" placeholder="Марка">
             <input class="admin-input" type="text" id="ap-name" placeholder="Ime на продукта *">
-            <textarea class="admin-input" id="ap-desc" placeholder="${t('descPh')}" style="resize:none;min-height:55px"></textarea>
+            <textarea class="admin-input" id="ap-desc" placeholder="Описание..." data-ph="descPh" style="resize:none;min-height:55px"></textarea>
             <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
             <div class="proc-picker" id="admin-product-picker">
               <input class="admin-input" type="text" id="ap-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('product')">
@@ -746,7 +746,7 @@ textarea.form-input{resize:none}
           <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
           <button class="fb-type-btn" data-type="content" onclick="setFbType(this,'content')">📝 Съдържание</button>
         </div>
-        <textarea class="form-input" id="fb-text" placeholder="${t('suggestionPh')}" rows="3" style="font-size:13px"></textarea>
+        <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." data-ph="suggestionPh" rows="3" style="font-size:13px"></textarea>
         <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()">Изпрати ✦</button>
         </div>
       </div>
@@ -899,7 +899,7 @@ textarea.form-input{resize:none}
       <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px">Забравена парола</div>
       <div style="font-size:12px;color:var(--ink2)">Въведи имейла си и ще получиш линк за reset</div>
     </div>
-    <input class="auth-input" id="forgot-email" type="email" placeholder="${t('emailPh2')}" style="margin-bottom:12px">
+    <input class="auth-input" id="forgot-email" type="email" placeholder="Твоят имейл" data-ph="emailPh2" style="margin-bottom:12px">
     <button class="auth-btn" onclick="sendPasswordReset()" style="margin-bottom:8px">Изпрати линк</button>
     <button style="width:100%;padding:11px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" onclick="closeForgotModal()">Отмени</button>
     <div id="forgot-message" style="margin-top:12px;font-size:12px;color:var(--sage);text-align:center;display:none"></div>
@@ -919,7 +919,7 @@ textarea.form-input{resize:none}
     <div class="ai-messages" id="ai-messages"></div>
     <div class="ai-suggestions" id="ai-suggestions"></div>
     <div class="ai-input-row">
-      <input class="ai-input" id="ai-input" type="text" placeholder="${t('aiQuestionPh')}" onkeydown="if(event.key==='Enter')sendAiMsg()">
+      <input class="ai-input" id="ai-input" type="text" placeholder="Задай въпрос..." data-ph="aiQuestionPh" onkeydown="if(event.key==='Enter')sendAiMsg()">
       <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMsg()">›</button>
     </div>
   </div>
@@ -2062,12 +2062,12 @@ async function openSheet(id){
         ✦ ${t('newEntry')} ${fmtDate(new Date())}
       </button>
       <div class="diary-form" id="new-entry-form" style="display:none;margin-top:10px">
-        <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="${t('clinicPh')}"></div>
-        <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="${t('specialistPh')}"></div>
-        <div class="form-row"><label class="form-lbl">${t('contact')}</label><input class="form-input" type="text" id="de-contact" placeholder="${t('contactPh')}"></div>
-        <div class="form-row"><label class="form-lbl">${t('advice')}</label><textarea class="form-input" id="de-advice" placeholder="${t('advicePh')}" rows="3"></textarea></div>
-        <div class="form-row"><label class="form-lbl">${t('feeling')}</label><textarea class="form-input" id="de-feeling" placeholder="${t('feelingPh')}" rows="2"></textarea></div>
-        <div class="form-row"><label class="form-lbl">${t('products')}</label><input class="form-input" type="text" id="de-products" placeholder="${t('productsPh')}"></div>
+        <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="" data-ph="clinicPh"></div>
+        <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specialistPh"></div>
+        <div class="form-row"><label class="form-lbl">${t('contact')}</label><input class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
+        <div class="form-row"><label class="form-lbl">${t('advice')}</label><textarea class="form-input" id="de-advice" placeholder="" data-ph="advicePh" rows="3"></textarea></div>
+        <div class="form-row"><label class="form-lbl">${t('feeling')}</label><textarea class="form-input" id="de-feeling" placeholder="" data-ph="feelingPh" rows="2"></textarea></div>
+        <div class="form-row"><label class="form-lbl">${t('products')}</label><input class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
         <div class="form-row">
           <label class="form-lbl">${t('priceLabel')} (€)</label>
           <input class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:120px">
