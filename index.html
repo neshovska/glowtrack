@@ -394,7 +394,7 @@ textarea.form-input{resize:none}
 .chip{display:inline-flex;align-items:center;gap:4px;background:var(--goldlt);color:var(--gold);border-radius:12px;padding:3px 9px;font-size:10.5px;font-weight:500;border:1px solid rgba(184,150,106,.2)}
 .chip button{background:none;border:none;color:var(--gold);font-size:11px;cursor:pointer;padding:0}
 /* NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);background:rgba(247,245,242,.94);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid rgba(184,150,106,.18);padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 7px);display:flex;justify-content:space-around;z-index:50}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);background:rgba(247,245,242,.94);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid rgba(184,150,106,.18);padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 7px);display:flex;justify-content:space-around;z-index:150}
 .nb{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:10px;border:none;background:none;min-width:50px}
 .nb.active .ni{color:var(--gold)}.nb.active svg ellipse,.nb.active svg path{fill:var(--gold) !important;stroke:var(--gold)}
 .nb.active .nl{color:var(--gold);font-weight:600}
@@ -773,7 +773,7 @@ textarea.form-input{resize:none}
   <nav class="bnav" role="navigation" aria-label="Главна навигация">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
-    <button class="nb nb-soon" onclick="showComingSoon()" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb nb-soon" onclick="showComingSoonSheet()" style="opacity:.4;cursor:default"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl">Дневник</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl">Профил</span></button>
   </nav>
@@ -1711,6 +1711,7 @@ function goPage(name,btn){
   if(name==='notifs') loadNotifsPage();
   if(name==='profile') loadProfileStats();
 }
+window.goPage=goPage;
 
 // ── PROCEDURES ──
 window.PROCS=PROCS;
