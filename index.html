@@ -516,7 +516,7 @@ textarea.form-input{resize:none}
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
   </div>
   <div class="page" id="page-diary">
-    <div class="page-hdr"><div class="page-hdr-title">${window._lang==='en'?'My <em>diary</em>':'Моят <em>дневник</em>'}</div><div class="page-hdr-sub">Лична история на процедурите ти</div></div>
+    <div class="page-hdr"><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Лична история на процедурите ти</div></div>
     <div id="diary-tab-content"></div>
   </div>
   <div class="page" id="page-clinics">
@@ -1175,10 +1175,10 @@ const T = {
     searchProducts: 'Търси продукт или процедура...',
     descPh: 'Описание...',
     suggestionPh: 'Опиши предложението си...',
-    wrongCredentials: t('wrongCredentials'),
-    emailExists: t('emailExists'),
-    registerError: t('registerError'),
-    fillAllFields: t('fillAllFields'),
+    wrongCredentials: 'Грешен имейл или парола',
+    emailExists: 'Имейлът вече е регистриран',
+    registerError: 'Грешка при регистрация',
+    fillAllFields: 'Попълни всички полета',
     aiQuestionPh: 'Задай въпрос...',
     emailPh2: 'Твоят имейл',
     exportCSV: 'Експортирай дневника (CSV)',
@@ -1620,6 +1620,10 @@ function applyLang(){
   hideSuggestions();
   // Re-render diary if active
   if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
+  // Update diary header
+  document.querySelectorAll('[data-diary-hdr]').forEach(el=>{
+    el.innerHTML=window._lang==="en"?'My <em>diary</em>':'Моят <em>дневник</em>';
+  });
 }
 
 async function toggleLang(){
@@ -1683,8 +1687,9 @@ function goPage(name,btn){
   hideSuggestions();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  btn.classList.add('active');
+  const pg=document.getElementById('page-'+name);
+  if(pg)pg.classList.add('active');
+  if(btn)btn.classList.add('active');
   localStorage.setItem('gt_last_page', name);
   if(name==='diary') loadDiaryTab();
   if(name==='notifs') loadNotifsPage();
@@ -2743,18 +2748,7 @@ function showPremiumMsg(){
 
 // ── SPLASH ──
 window.addEventListener('load', () => {
-  // Fallback: ако Firebase не се зареди след 4 секунди, покажи auth screen
-  setTimeout(()=>{
-    const splash=document.getElementById('splash');
-    const auth=document.getElementById('auth-screen');
-    if(splash&&splash.style.display!=='none'){
-      splash.style.opacity='0';
-      setTimeout(()=>{splash.style.display='none';},600);
-    }
-    if(auth&&!auth.classList.contains('hidden')){
-      auth.style.display='flex';
-    }
-  },4000);
+
   initDarkMode();
   const splash = document.getElementById('splash');
   const logo = document.getElementById('splash-logo');
