@@ -2743,6 +2743,18 @@ function showPremiumMsg(){
 
 // ── SPLASH ──
 window.addEventListener('load', () => {
+  // Fallback: ако Firebase не се зареди след 4 секунди, покажи auth screen
+  setTimeout(()=>{
+    const splash=document.getElementById('splash');
+    const auth=document.getElementById('auth-screen');
+    if(splash&&splash.style.display!=='none'){
+      splash.style.opacity='0';
+      setTimeout(()=>{splash.style.display='none';},600);
+    }
+    if(auth&&!auth.classList.contains('hidden')){
+      auth.style.display='flex';
+    }
+  },4000);
   initDarkMode();
   const splash = document.getElementById('splash');
   const logo = document.getElementById('splash-logo');
