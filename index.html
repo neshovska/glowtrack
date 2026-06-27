@@ -1169,6 +1169,14 @@ const T = {
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
+    noReminders: 'Няма напомняния',
+    noRemindersSub: 'Добави напомняне за следваща процедура',
+    browseProcs: 'Разгледай процедури',
+    notifToday: 'Днес',
+    notifTomorrow: 'Утре',
+    notifPast: 'Минали',
+    notifUpcoming: 'Предстоящи',
+    notifPastSection: 'Минали напомняния',
     namePh2: 'Твоето име',
     searchProcs: 'Търси процедура...',
     searchClinics: 'Търси клиника или процедура...',
@@ -1369,6 +1377,14 @@ const T = {
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
+    noReminders: 'No reminders',
+    noRemindersSub: 'Add a reminder for your next procedure',
+    browseProcs: 'Browse procedures',
+    notifToday: 'Today',
+    notifTomorrow: 'Tomorrow',
+    notifPast: 'Past',
+    notifUpcoming: 'Upcoming',
+    notifPastSection: 'Past reminders',
     namePh2: 'Your name',
     searchProcs: 'Search procedure...',
     searchClinics: 'Search clinic or procedure...',
@@ -3251,6 +3267,18 @@ function editNotif(id){
   modal.style.zIndex = '600';
 }
 
+function openEditNotif(id){
+  const notifs=JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const n=notifs.find(x=>x.id===id);
+  if(!n)return;
+  const modal=document.getElementById('edit-notif-modal');
+  if(!modal)return;
+  document.getElementById('edit-notif-id').value=id;
+  document.getElementById('edit-notif-proc').value=n.procId||'';
+  document.getElementById('edit-notif-date').value=n.date||'';
+  document.getElementById('edit-notif-time').value=n.time||'';
+  modal.style.display='flex';
+}
 function closeEditNotif(){
   document.getElementById('edit-notif-modal').style.display = 'none';
   document.getElementById('edit-notif-dropdown').style.display = 'none';
