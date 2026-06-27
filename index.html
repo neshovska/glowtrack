@@ -509,7 +509,7 @@ textarea.form-input{resize:none}
   <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1">☀️</button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none"></div></div>
   <div class="page active" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub">Пълна енциклопедия — намери, научи, проследи</div></div>
-    <div class="search-wrap"><div class="search-box" style="position:relative"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" placeholder="Търси процедура..." oninput="debounceSearch()" onfocus="showSuggestions()" onblur="setTimeout(hideSuggestions,200)" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div></div>
+    <div class="search-wrap"><div class="search-box" style="position:relative"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." oninput="debounceSearch()" onfocus="showSuggestions()" onblur="setTimeout(hideSuggestions,200)" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div></div>
     <div class="cats" id="cats-bar"></div>
     <div class="proc-list" id="proc-list"></div>
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
@@ -544,7 +544,7 @@ textarea.form-input{resize:none}
   <button onclick="showEditProfile()" style="margin-top:10px;padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit" id="edit-profile-btn">✏️ <span data-t="editProfileBtn">Редактирай профила</span></button>
 </div>
 <!-- Edit profile modal -->
-<div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)">
+<div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
     <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">✏️ Редактирай профила</div>
     <div class="form-row"><label class="form-lbl" data-t="newName">Ново име</label><input class="form-input" id="ep-name" placeholder="Твоето име"></div>
@@ -670,7 +670,7 @@ textarea.form-input{resize:none}
         <div class="acc-body">
           <!-- Сутрешна грижа -->
           <div style="margin-top:10px">
-            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">☀️ Сутрешна грижа</div>
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px" data-t="morningCare">☀️ Сутрешна грижа</div>
             <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span>🫧 Почистване</span></label>
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span>💧 Тонер</span></label>
@@ -680,16 +680,16 @@ textarea.form-input{resize:none}
             </div>
             <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
             <div style="display:flex;gap:8px;margin-top:8px">
-              <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:12px;padding:7px 10px">
+              <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:12px;padding:7px 10px">
               <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
             </div>
-            <button onclick="saveRoutine('morning')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">Запази ☀️</button>
+            <button onclick="saveRoutine('morning')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600" data-t="saveRoutineMorning">Запази ☀️</button>
             <div class="routine-progress"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
           <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
           </div>
           <!-- Вечерна грижа -->
           <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--goldlt)">
-            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">🌙 Вечерна грижа</div>
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px" data-t="eveningCare">🌙 Вечерна грижа</div>
             <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span>🫧 Почистване</span></label>
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span>💧 Тонер/Есенция</span></label>
@@ -699,10 +699,10 @@ textarea.form-input{resize:none}
             </div>
             <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
             <div style="display:flex;gap:8px;margin-top:8px">
-              <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:12px;padding:7px 10px">
+              <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:12px;padding:7px 10px">
               <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
             </div>
-            <button onclick="saveRoutine('evening')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">Запази 🌙</button>
+            <button onclick="saveRoutine('evening')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600" data-t="saveRoutineEvening">Запази 🌙</button>
             <div class="routine-progress"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
           <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
           </div>
@@ -767,12 +767,12 @@ textarea.form-input{resize:none}
       <button class="profile-btn danger" onclick="doLogout()">Изход</button>
       <button class="profile-btn" onclick="confirmDeleteAccount()" style="color:#e85d5d;border-color:rgba(232,93,93,.2);font-size:12px;padding:9px">🗑️ Изтрий профила</button>
     </div>
-    <div style="text-align:center;padding:16px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v8.2</div>
+    <div style="text-align:center;padding:16px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v2026.06.27</div>
   </div>
-  <nav class="bnav">
+  <nav class="bnav" role="navigation" aria-label="Главна навигация">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
-    <button class="nb nb-soon" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb nb-soon" onclick="showComingSoon()" style="opacity:.4;cursor:default" onclick="showComingSoonSheet()"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl">Дневник</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl">Профил</span></button>
   </nav>
@@ -844,11 +844,11 @@ textarea.form-input{resize:none}
 <div id="edit-notif-modal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:600">
   <div style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(6px)" onclick="closeEditNotif()"></div>
   <div style="position:relative;background:var(--card);border-radius:20px;padding:22px;margin:0 24px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
-    <div style="font-size:15px;font-weight:700;color:var(--ink1);margin-bottom:16px">✏️ Редактирай напомняне</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink1);margin-bottom:16px" data-t="editNotifTitle">✏️ Редактирай напомняне</div>
     <input type="hidden" id="edit-notif-id">
     <div style="margin-bottom:10px">
-      <div style="font-size:11px;color:var(--ink2);margin-bottom:5px">Процедура</div>
-      <input type="text" id="edit-notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." style="font-size:12px" oninput="filterEditNotifProcs()" onfocus="showEditNotifProcs()">
+      <div style="font-size:11px;color:var(--ink2);margin-bottom:5px" data-t="notifProc">Процедура</div>
+      <input type="text" id="edit-notif-proc-search" class="form-input" data-ph="procsSearch" placeholder="🔍 Търси процедура..." style="font-size:12px" oninput="filterEditNotifProcs()" onfocus="showEditNotifProcs()">
       <input type="hidden" id="edit-notif-proc-id">
       <div id="edit-notif-dropdown" style="display:none;background:var(--card);border:1px solid var(--goldlt);border-radius:10px;max-height:150px;overflow-y:auto;margin-top:4px;box-shadow:0 4px 12px rgba(26,26,46,.1)"></div>
     </div>
@@ -868,7 +868,7 @@ textarea.form-input{resize:none}
     </div>
   </div>
 </div>
-<div class="overlay" id="overlay" onclick="closeSheet(event)">
+<div class="overlay" id="overlay" onclick="closeSheet(event)" role="dialog" aria-modal="true" aria-label="Процедура детайл">
   <div class="sheet" id="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-hdr">
@@ -927,7 +927,7 @@ textarea.form-input{resize:none}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,deleteUser}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
 const auth=getAuth(fb);const db=getFirestore(fb);
@@ -1008,6 +1008,29 @@ onAuthStateChanged(auth,async user=>{
     loadFavsList();
   updateFavsStat();
   loadNotifProcSelector();
+  // Restore notifs from Firebase (cross-device sync)
+  try{
+    const uSnap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+    if(uSnap.exists() && uSnap.data().notifs){
+      const fbNotifs = uSnap.data().notifs;
+      const localNotifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+      // Merge: keep all unique by id
+      const merged = [...localNotifs];
+      fbNotifs.forEach(fn=>{ if(!merged.find(ln=>ln.id===fn.id)) merged.push(fn); });
+      localStorage.setItem('gt_notifs', JSON.stringify(merged));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
+    }
+  }catch(e){}
+  // Restore favs from Firebase
+  try{
+    const uSnap2 = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+    if(uSnap2.exists() && uSnap2.data().favs){
+      const fbFavs = uSnap2.data().favs;
+      const localFavs = getFavs();
+      const merged = [...new Set([...localFavs,...fbFavs])];
+      if(merged.length !== localFavs.length) saveFavs(merged);
+    }
+  }catch(e){}
   loadHomeCare();
   if(window._isAdmin){
       document.getElementById('admin-panel').style.display='block';
@@ -1197,6 +1220,23 @@ const T = {
     navProfile: 'Профил',
     navSoon: 'Очаквайте',
     navNotifs: 'Напомняне',
+    notifsTitle: 'Напомняне',
+    noReminders: 'Все още няма напомняния',
+    noRemindersSub: 'Отвори процедура и задай дата за следваща сесия',
+    browseProcs: 'Разгледай процедури →',
+    notifToday: 'Днес',
+    notifTomorrow: 'Утре',
+    notifPast: 'Минало',
+    notifPastSection: 'Минали',
+    notifUpcoming: 'Предстоящи',
+    notifLast: 'Последно',
+    morningCare: '☀️ Сутрешна грижа',
+    eveningCare: '🌙 Вечерна грижа',
+    saveRoutineMorning: 'Запази ☀️',
+    saveRoutineEvening: 'Запази 🌙',
+    eveningCare: '🌙 Вечерна грижа',
+    addStep: '+ Добави стъпка...',
+    notifsSub: 'Предстоящи процедури',
     // Pages
     procsTitle: 'Процедури',
     procsSub: 'Открий своя glow',
@@ -1214,6 +1254,8 @@ const T = {
     logoutBtn: 'Изход',
     editProfileBtn: 'Редактирай профила',
     editProfileTitle: '✏️ Редактирай профила',
+    editNotifTitle: '✏️ Редактирай напомняне',
+    notifProc: 'Процедура',
     newName: 'Ново име',
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
@@ -1250,6 +1292,8 @@ const T = {
     saveBtn: 'Запази',
     loginToDiary: 'Влез за да водиш личен дневник',
     aiChatBtn: 'Попитай AI за тази процедура',
+    disclaimerTitle: 'Информацията е обща и с образователна цел.',
+    disclaimerBody: 'Тя не замества индивидуална медицинска консултация. Преди всяка процедура се консултирайте с квалифициран специалист, който да оцени вашия конкретен случай.',
     // Feedback
     feedbackTitle: '💬 Изпрати предложение',
     feedbackSub: 'Идея, корекция или нова функция — споделяй!',
@@ -1365,6 +1409,23 @@ const T = {
     navProfile: 'Profile',
     navSoon: 'Coming soon',
     navNotifs: 'Reminders',
+    notifsTitle: 'Reminders',
+    noReminders: 'No reminders yet',
+    noRemindersSub: 'Open a procedure and set your next session date',
+    browseProcs: 'Browse procedures →',
+    notifToday: 'Today',
+    notifTomorrow: 'Tomorrow',
+    notifPast: 'Past',
+    notifPastSection: 'Past',
+    notifUpcoming: 'Upcoming',
+    notifLast: 'Last',
+    morningCare: '☀️ Morning care',
+    eveningCare: '🌙 Evening care',
+    saveRoutineMorning: 'Save ☀️',
+    saveRoutineEvening: 'Save 🌙',
+    eveningCare: '🌙 Evening care',
+    addStep: '+ Add step...',
+    notifsSub: 'Upcoming procedures',
     procsTitle: 'Procedures',
     procsSub: 'Discover your glow',
     procsSearch: 'Search procedures...',
@@ -1381,6 +1442,8 @@ const T = {
     logoutBtn: 'Sign out',
     editProfileBtn: 'Edit profile',
     editProfileTitle: '✏️ Edit profile',
+    editNotifTitle: '✏️ Edit reminder',
+    notifProc: 'Procedure',
     newName: 'New name',
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
@@ -1416,6 +1479,8 @@ const T = {
     saveBtn: 'Save',
     loginToDiary: 'Sign in to keep a personal diary',
     aiChatBtn: 'Ask AI about this procedure',
+    disclaimerTitle: 'This information is general and educational in nature.',
+    disclaimerBody: 'It does not replace individual medical advice. Before any procedure, consult a qualified specialist to assess your specific case.',
     feedbackTitle: '💬 Send feedback',
     feedbackSub: 'Idea, correction or new feature — share it!',
     fbIdea: '💡 Idea',
@@ -1443,6 +1508,62 @@ const T = {
     aiSystem: "You are GlowTrack's AI assistant — an app for aesthetic procedures. Reply in ENGLISH. Be warm, specific and informative. Do not recommend specific clinics or doctors.",
     soonToast: '🔒 Coming soon',
     langSaved: '🌐 Language: English',
+    // Missing keys — added
+    confirmDelete: 'Delete this entry?',
+    editEntry: '✏️ Edit entry',
+    emptyDiary: 'Diary is empty',
+    emptyDiarySub: 'Open a procedure and add your first entry',
+    noEntries: 'No entries yet. Add observations! 📝',
+    offline: '⚠️ No internet connection — working offline',
+    online: '✅ Connection restored',
+    priceLabel: '💰 Price',
+    profileCare: '🌿 Home care',
+    profileFavs: '❤️ Favourite procedures',
+    profileNotifs: '🔔 Procedure reminders',
+    profileStats: '📊 My statistics',
+    profileSuggest: '💬 Send suggestion',
+    pullRefresh: '↓ Pull to refresh',
+    pullRelease: '↑ Release to refresh',
+    ratingLabel: '⭐ Rating',
+    refreshed: '🔄 Refreshed!',
+    statDiary: 'Entries',
+    statFavs: 'Favourites',
+    statLastProc: 'Last procedure',
+    statProcs: 'Procedures',
+    statRating: 'Avg rating',
+    statSpend: 'Spent €',
+    toastAddObs: 'Add at least one observation',
+    toastClinicSaved: '✅ Clinic saved',
+    toastCopied: '✅ Link copied!',
+    toastDeleted: 'Entry deleted',
+    toastDeleted2: 'Deleted',
+    toastEnterEmail: 'Enter email',
+    toastEnterName: 'Enter name',
+    toastErr: 'Error',
+    toastErrDel: 'Error deleting',
+    toastErrSave: 'Error saving',
+    toastErrSend: 'Error sending',
+    toastErrUpd: 'Error updating',
+    toastFavAdd: '❤️ Added to Favourites!',
+    toastFavRem: 'Removed from Favourites',
+    toastFbLogin: 'Sign in to send',
+    toastFbSent: '✅ Suggestion sent!',
+    toastFbWrite: 'Write your suggestion',
+    toastLineSaved: '✅ Row saved',
+    toastLogout: 'Signed out',
+    toastNeedLogin: 'Sign in to save',
+    toastNotFound: 'Not found',
+    toastNotifDel: '✅ Reminder deleted',
+    toastNotifSaved: '✅ Reminder added!',
+    toastNotifUpd: '✅ Reminder updated!',
+    toastProdSaved: '✅ Product saved',
+    toastRelogin: 'Sign in again and retry',
+    toastRoutineDiary: '🌙 Routine logged in diary!',
+    toastRoutineSaved: '✅ Routine saved!',
+    toastSaved: '✅ Saved!',
+    toastSelectDate: 'Select a date',
+    toastSelectProc: 'Select a procedure',
+    toastUpdated: '✅ Updated!',
   }
 };
 
@@ -1502,6 +1623,11 @@ function applyLang(){
   setHdr('page-clinics', '<em>'+t('clinicsTitle')+'</em>', t('clinicsSub'));
   setHdr('page-products', t('productsTitle'), t('productsSub'));
   setHdr('page-profile', 'My <em>profile</em>', '');
+  // Notifs page title (not a standard hdr)
+  const nt = document.getElementById('notifs-page-title');
+  if(nt) nt.textContent = t('notifsTitle');
+  const ns = document.getElementById('notifs-page-sub');
+  if(ns) ns.textContent = t('notifsSub');
 
   // Search placeholders
   const si = document.getElementById('proc-search');
@@ -1541,10 +1667,23 @@ function applyLang(){
     const key=el.getAttribute('data-t');
     if(key) el.textContent=t(key);
   });
+  // Update all data-ph placeholders
+  document.querySelectorAll('[data-ph]').forEach(el=>{
+    const key=el.getAttribute('data-ph');
+    if(key) el.placeholder=t(key);
+  });
 
   // Re-render procedures with new language
   renderCats();
   renderProcs();
+  // Re-render notifs (contain inline lang checks)
+  loadNotifsPage();
+  // Re-render favs empty state
+  loadFavsList();
+  // Clear suggestions (language changed)
+  hideSuggestions();
+  // Re-render diary if active
+  if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
 }
 
 async function toggleLang(){
@@ -1571,15 +1710,41 @@ function showLogin(){document.getElementById('reg-form').style.display='none';do
 // doRegister defined in module
 // doLogout defined in module
 async function confirmDeleteAccount(){
-  if(!confirm('Изтрий профила и всички данни?\nТова е необратимо.'))return;
+  const msg = window._lang==='en'
+    ? 'Delete your profile and ALL data?\nThis cannot be undone.'
+    : 'Изтрий профила и ВСИЧКИ данни?\nТова е необратимо.';
+  if(!confirm(msg)) return;
+  if(!window._user){ showToast(t('toastNeedLogin')); return; }
+  const uid = window._user.uid;
+  showToast(window._lang==='en'?'⏳ Deleting...':'⏳ Изтриване...');
   try{
-    await F().deleteDoc(F().doc(DB(),'users',window._user.uid));
-    await F().deleteUser(window._user);
-  }catch(e){showToast(t('toastRelogin'));}
+    // 1. Delete all diary entries
+    const diarySnap = await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',uid)));
+    await Promise.all(diarySnap.docs.map(d=>F().deleteDoc(d.ref)));
+    // 2. Delete user Firestore doc
+    await F().deleteDoc(F().doc(DB(),'users',uid)).catch(()=>{});
+    // 3. Clear localStorage
+    Object.keys(localStorage).filter(k=>k.includes(uid)||k.startsWith('gt_')).forEach(k=>localStorage.removeItem(k));
+    // 4. Delete Auth user (must be last)
+    await deleteUser(window._user);
+    // UI reset handled by onAuthStateChanged
+  }catch(e){
+    if(e.code==='auth/requires-recent-login'){
+      showToast(window._lang==='en'?'Please sign out and sign in again first':t('toastRelogin'));
+    } else {
+      showToast(t('toastErr'));
+    }
+  }
 }
 
 // ── NAVIGATION ──
+function showComingSoon(){
+  const cs = document.getElementById('coming-soon-overlay');
+  if(cs) cs.style.display='flex';
+}
+
 function goPage(name,btn){
+  hideSuggestions();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
@@ -1662,9 +1827,12 @@ function hideSuggestions(){
 }
 function selectSuggestion(id){
   hideSuggestions();
-  openSheet(id);
-  document.getElementById('proc-search').value='';
+  const si = document.getElementById('proc-search');
+  if(si){ si.value=''; si.style.paddingRight='12px'; }
+  const cb = document.getElementById('search-clear');
+  if(cb) cb.style.display='none';
   filterProcs();
+  openSheet(id);
 }
 function clearSearch(){
   document.getElementById('proc-search').value='';
@@ -1743,7 +1911,8 @@ async function openSheet(id){
   // Show overlay immediately, skeleton in body
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
-  document.getElementById('sh-body').innerHTML=`
+  const _shBody = document.getElementById('sh-body');
+  _shBody.innerHTML=`
     <div class="skeleton-wrap">
       <div class="skeleton skeleton-title"></div>
       <div class="skeleton skeleton-line"></div>
@@ -1777,7 +1946,7 @@ async function openSheet(id){
         <div class="clinic-ad-sub">${[a.address,a.phone].filter(Boolean).join(' · ')}</div>
         ${a.url?`<div style="font-size:10.5px;color:var(--sage);margin-top:2px">🔗 ${a.url}</div>`:''}</div>
         <span class="clinic-ad-badge">Партньор</span></div>`).join('')}</div>`;
-    if(productsForProc.length)productAdsHTML=`<div class="info-section"><div class="info-title">🧴 Препоръчани продукти</div>
+    if(productsForProc.length)productAdsHTML=`<div class="info-section"><div class="info-title">${t('productAds')}</div>
       ${productsForProc.map(a=>`<div class="product-ad-row">
         <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.icon||'🧴'}</div>
         <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
@@ -1820,7 +1989,7 @@ async function openSheet(id){
     ${clinicAdsHTML}${productAdsHTML}
     <div style="margin:12px 18px 8px;padding:12px 14px;background:rgba(184,150,106,.06);border-radius:12px;border-left:3px solid var(--gold)">
       <div style="font-size:10.5px;color:var(--ink2);line-height:1.6">
-        ⭐ <strong style="color:var(--gold)">Информацията е обща и с образователна цел.</strong> Тя не замества индивидуална медицинска консултация. Преди всяка процедура се консултирайте с квалифициран специалист, който да оцени вашия конкретен случай.
+        ⭐ <strong style="color:var(--gold)">${t('disclaimerTitle')}</strong> ${t('disclaimerBody')}
       </div>
     </div>
 
@@ -1833,13 +2002,13 @@ async function openSheet(id){
       <div class="diary-form" id="new-entry-form" style="display:none;margin-top:10px">
         <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="${t('clinicPh')}"></div>
         <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="${t('specialistPh')}"></div>
-        <div class="form-row"><label class="form-lbl">Контакти (по желание)</label><input class="form-input" type="text" id="de-contact" placeholder="напр. 0888 123 456 · website.bg"></div>
-        <div class="form-row"><label class="form-lbl">Какво каза специалистът / Препоръки</label><textarea class="form-input" id="de-advice" placeholder="Специални инструкции, допълнителни препоръки..." rows="3"></textarea></div>
-        <div class="form-row"><label class="form-lbl">Лично усещане / Наблюдения</label><textarea class="form-input" id="de-feeling" placeholder="Как се чувстваш, какво забелязваш след процедурата..." rows="2"></textarea></div>
-        <div class="form-row"><label class="form-lbl">Препоръчани продукти от специалиста</label><input class="form-input" type="text" id="de-products" placeholder="напр. La Roche-Posay Toleriane · Anthelios SPF50+"></div>
+        <div class="form-row"><label class="form-lbl">${t('contact')}</label><input class="form-input" type="text" id="de-contact" placeholder="${t('contactPh')}"></div>
+        <div class="form-row"><label class="form-lbl">${t('advice')}</label><textarea class="form-input" id="de-advice" placeholder="${t('advicePh')}" rows="3"></textarea></div>
+        <div class="form-row"><label class="form-lbl">${t('feeling')}</label><textarea class="form-input" id="de-feeling" placeholder="${t('feelingPh')}" rows="2"></textarea></div>
+        <div class="form-row"><label class="form-lbl">${t('products')}</label><input class="form-input" type="text" id="de-products" placeholder="${t('productsPh')}"></div>
         <div class="form-row">
           <label class="form-lbl">${t('priceLabel')} (€)</label>
-          <input class="form-input" type="number" id="de-price" placeholder="напр. 50" style="width:120px">
+          <input class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:120px">
         </div>
         <div class="form-row">
           <label class="form-lbl">${t('ratingLabel')}</label>
@@ -1850,7 +2019,7 @@ async function openSheet(id){
         </div>
         <div class="photo-previews" id="de-previews"></div>
         <div class="diary-actions">
-          <label class="photo-btn">📷 Снимка<input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event)"></label>
+          <label class="photo-btn">${t('photoBtn')}<input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event)"></label>
           <button class="save-btn" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
         </div>
       </div>
@@ -1866,24 +2035,24 @@ async function openSheet(id){
   document.getElementById('calc-result') && (document.getElementById('calc-result').innerHTML='');
 }
 
-function renderEntryCard(docSnap){
+function renderEntryCard(docSnap, overrideProcId){
   const d=docSnap.data(),eid=docSnap.id;
   const dt=d.createdAt?.toDate?d.createdAt.toDate():new Date();
   const photos=d.photos||[];
   const isRoutineEntry = d.isRoutine || d.procId==='skin-routine' || (d.procId||'').startsWith('home-care-');
   return`<div class="entry-card" id="ec-${eid}">
     <div class="entry-date">📅 ${fmtFull(dt)}</div>
-    ${!isRoutineEntry&&(d.clinic||d.specialist)?`<div class="entry-field"><span class="lbl">🏥 Клиника / Специалист</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
-    ${d.advice&&!isRoutineEntry?`<div class="entry-field"><span class="lbl">👩‍⚕️ Препоръки от специалиста</span>${d.advice}</div>`:''}
+    ${!isRoutineEntry&&(d.clinic||d.specialist)?`<div class="entry-field"><span class="lbl">${t('clinicSpecLabel')}</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
+    ${d.advice&&!isRoutineEntry?`<div class="entry-field"><span class="lbl">${t('adviceLabel')}</span>${d.advice}</div>`:''}
     ${isRoutineEntry&&d.advice?`<div class="entry-field">${d.advice}</div>`:''}
     ${d.rating>0?`<div class="entry-field"><span class="lbl">${t('ratingLabel')}</span>${'⭐'.repeat(d.rating)}${'☆'.repeat(5-d.rating)}</div>`:''}
     ${d.price>0?`<div class="entry-field"><span class="lbl">${t('priceLabel')}</span>${d.price} €</div>`:''}
-    ${d.feeling?`<div class="entry-field"><span class="lbl">💬 Лично усещане</span>${d.feeling}</div>`:''}
-    ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
-    ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">🧴 Препоръчани продукти</span><span class="product-chip">${d.products}</span></div>`:''}
+    ${d.feeling?`<div class="entry-field"><span class="lbl">${t('feelingLabel')}</span>${d.feeling}</div>`:''}
+    ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" alt="Снимка от процедура" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
+    ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">${t('productsLabel')}</span><span class="product-chip">${d.products}</span></div>`:''}
     <div class="entry-actions">
-      <button class="mini-btn" onclick="startEditEntry('${eid}','${currentProcId}')">${t('editBtn')}</button>
-      <button class="mini-btn danger" onclick="deleteEntry('${eid}','${currentProcId}')">${t('deleteEntryBtn')}</button>
+      <button class="mini-btn" onclick="startEditEntry('${eid}','${overrideProcId||currentProcId||d.procId}')">${t('editBtn')}</button>
+      <button class="mini-btn danger" onclick="deleteEntry('${eid}','${overrideProcId||currentProcId||d.procId}')">${t('deleteEntryBtn')}</button>
     </div>
   </div>`;
 }
@@ -1920,7 +2089,12 @@ function closeSheet(e){
     ptr.innerHTML=t('pullRefresh');
     if(dy>80){
       invalidateCache();
-      if(typeof loadDiaryTab==='function'&&document.getElementById('page-diary').classList.contains('active'))loadDiaryTab();
+      const activePage = document.querySelector('.page.active');
+      if(activePage){
+        if(activePage.id==='page-diary') loadDiaryTab();
+        else if(activePage.id==='page-notifs') loadNotifsPage();
+        else if(activePage.id==='page-profile') loadProfileStats();
+      }
       showToast(t('refreshed'));
     }
     _pulling=false;
@@ -1998,12 +2172,12 @@ async function saveDiaryEntry(procId){
 }
 
 function startEditEntry(eid,procId){
-  F().getDoc(F().doc(DB(),'diary_entries',eid)).then(snap=>{
-    if(!snap.exists())return;
-    const d=snap.data();
+  // Try cache first, fall back to Firebase
+  const cachedDoc = (window._cache.diary||[]).find(d=>d.id===eid);
+  const _doEdit = (d) => {
     const card=document.getElementById('ec-'+eid);if(!card)return;
     const isRoutineEntry = d.isRoutine||(d.procId||'').startsWith('home-care-');
-    const routineLabel = d.procId==='home-care-morning'?'☀️ Сутрешна грижа':'🌙 Вечерна грижа';
+    const routineLabel = d.procId==='home-care-morning'?t('morningCare'):t('eveningCare');
     const routineType = d.procId==='home-care-morning'?'morning':'evening';
     const defaultSteps = routineType==='morning'
       ? [{r:'m-cleanse',l:'🫧 Почистване'},{r:'m-tone',l:'💧 Тонер'},{r:'m-serum',l:'✨ Серум'},{r:'m-moisturize',l:'🧴 Хидратация'},{r:'m-spf',l:'☀️ SPF'}]
@@ -2053,7 +2227,15 @@ function startEditEntry(eid,procId){
         <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">💾 Запази</button>
         <button class="mini-btn" onclick="openSheet('${procId}')">Откажи</button>
       </div>`;
-  });
+  };
+  if(cachedDoc){
+    _doEdit(cachedDoc.data());
+  } else {
+    F().getDoc(F().doc(DB(),'diary_entries',eid)).then(snap=>{
+      if(!snap.exists())return;
+      _doEdit(snap.data());
+    });
+  }
 }
 async function saveEditEntry(eid,procId){
   try{
@@ -2111,13 +2293,15 @@ async function loadDiaryTab(){
       return 0;
     });
     c.innerHTML=`<div class="diary-tab-list" id="diary-sortable">${sortedEntries.map(([pid,g])=>{
-      const p=PROCS.find(x=>x.id===pid);
+      const p=(window.PROCS||PROCS||[]).find(x=>x.id===pid);
       const isRoutine = pid==='skin-routine'||pid==='home-care-morning'||pid==='home-care-evening';
       const bg = pid==='home-care-morning' ? 'linear-gradient(135deg,#fdf6e8,#f5ede0)' : pid==='home-care-evening' ? 'linear-gradient(135deg,#1a1a2e,#2d2d4e)' : isRoutine ? 'linear-gradient(135deg,#f0ede8,#e8e0d8)' : (p?.bg||'#eee');
       const icon = pid==='home-care-morning' ? '☀️' : pid==='home-care-evening' ? '🌙' : isRoutine ? '🌿' : (g.icon||'📋');
-      const name = pid==='home-care-morning' ? 'Домашна грижа · Сутрешна' : pid==='home-care-evening' ? 'Домашна грижа · Вечерна' : isRoutine ? 'Домашна грижа' : g.name;
+      const _dp = (window.PROCS||PROCS||[]).find(x=>x.id===pid);
+      const _dlp = _dp ? procL(_dp) : null;
+      const name = pid==='home-care-morning' ? (window._lang==='en'?'Home Care · Morning':'Домашна грижа · Сутрешна') : pid==='home-care-evening' ? (window._lang==='en'?'Home Care · Evening':'Домашна грижа · Вечерна') : isRoutine ? (window._lang==='en'?'Home Care':'Домашна грижа') : (_dlp?.name||g.name);
       const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
-      const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ Нов запис</button>`;
+      const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ ${t('newEntry')||'Нов запис'}</button>`;
       const isPinned = pid==='home-care-morning'||pid==='home-care-evening';
       return`<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}" 
         ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)" 
@@ -2128,16 +2312,19 @@ async function loadDiaryTab(){
             <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:1px;line-height:1">▼</button>
           </div>`:'<div style="width:28px"></div>'}
           <div class="diary-group-icon" style="background:${bg}">${icon}</div>
-          <div class="diary-group-info"><div class="diary-group-name">${name}</div><div class="diary-group-meta">Последно: ${lastDate}</div></div>
-          <span class="diary-group-count">${g.entries.length} записа</span>
+          <div class="diary-group-info" onclick="event.stopPropagation();if(!isRoutine)openSheet('${pid}')" style="${!isRoutine?'cursor:pointer':''}">
+            <div class="diary-group-name" style="${!isRoutine?'color:var(--gold)':''}">${name}${!isRoutine?'  ›':''}</div>
+            <div class="diary-group-meta">${t('notifLast')||'Последно'}: ${lastDate}</div>
+          </div>
+          <span class="diary-group-count">${g.entries.length} ${window._lang==='en'?'entries':'записа'}</span>
         </div>
         <div class="diary-group-entries" id="dg-${pid}">
-          ${g.entries.map(d=>renderEntryCard(d)).join('')}
+          ${g.entries.map(d=>renderEntryCard(d,pid)).join('')}
           ${newEntryBtn}
         </div>
       </div>`;
     }).join('')}</div>`;
-  }catch(e){c.innerHTML='<div class="loading">Грешка при зареждане</div>';}
+  }catch(e){c.innerHTML=`<div class="loading">${window._lang==='en'?'Error loading':'Грешка при зареждане'}</div>`;}
 }
 function toggleGroup(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
 
@@ -2520,6 +2707,7 @@ function saveNotifDate(){
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
   saved.push({id:'n_'+Date.now(), procId, procName, date:d, time});
   localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
   const dt = new Date(d + 'T' + time);
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
@@ -2679,7 +2867,10 @@ function deleteCustomRoutine(id){
 
 // ── FAVORITES ──
 function getFavs(){ return JSON.parse(localStorage.getItem('gt_favs')||'[]'); }
-function saveFavs(f){ localStorage.setItem('gt_favs', JSON.stringify(f)); }
+function saveFavs(f){
+  localStorage.setItem('gt_favs', JSON.stringify(f));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{favs:f},{merge:true}).catch(()=>{}); }catch(e){} }
+}
 
 function toggleFav(){
   if(!window._user){showToast(t('toastNeedLogin'));return;}
@@ -2718,7 +2909,7 @@ function loadFavsList(){
     const p = window.PROCS?.find(x=>x.id===id);
     if(!p) return '';
     const lp = procL(p);
-    const removeTitle = window._lang==='en'?'Remove from favourites':'Премахни от любими';
+    const removeTitle = t('toastFavRem');
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--goldlt)">
       <div onclick="openSheet('${id}')" style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer">
         <div style="width:38px;height:38px;border-radius:10px;background:${p.bg||'rgba(184,150,106,.1)'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${p.icon}</div>
@@ -2784,6 +2975,7 @@ function loadNotifProcSelector(){
 function deleteNotif(id){
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]').filter(n=>n.id!==id);
   localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
   loadNotifProcSelector();
   loadNotifsPage();
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
@@ -3008,6 +3200,7 @@ function saveEditNotif(){
   const idx = saved.findIndex(x=>x.id===id);
   if(idx>-1) saved[idx] = {...saved[idx], procId, procName, date, time};
   localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
   closeEditNotif();
   loadNotifProcSelector();
   showToast(t('toastNotifUpd'));
@@ -3044,8 +3237,13 @@ function loadNotifsPage(){
 
   // Sort by date
   const sorted = [...notifs].sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const upcoming = sorted.filter(n=>Math.ceil((new Date(n.date)-now)/86400000)>=0);
-  const past = sorted.filter(n=>Math.ceil((new Date(n.date)-now)/86400000)<0);
+  const getNotifTime = n => {
+    let d = new Date(n.date);
+    if(n.time){ const [hh,mm]=(n.time.split(':')).map(Number); d.setHours(hh||0,mm||0,0,0); }
+    return d;
+  };
+  const upcoming = sorted.filter(n=>getNotifTime(n) >= now);
+  const past = sorted.filter(n=>getNotifTime(n) < now);
 
   // Update badge
   updateNotifBadge(upcoming.length);
@@ -3053,10 +3251,10 @@ function loadNotifsPage(){
   if(!notifs.length){
     content.innerHTML = `<div style="text-align:center;padding:40px 20px">
       <div style="font-size:48px;margin-bottom:12px">🔔</div>
-      <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">${window._lang==='en'?'No reminders yet':'Все още няма напомняния'}</div>
-      <div style="font-size:12px;color:var(--ink2);margin-bottom:20px">${window._lang==='en'?'Open a procedure and set your next session date':'Отвори процедура и задай дата за следваща сесия'}</div>
+      <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px">${t('noReminders')||'Все още няма напомняния'}</div>
+      <div style="font-size:12px;color:var(--ink2);margin-bottom:20px">${t('noRemindersSub')||'Отвори процедура и задай дата за следваща сесия'}</div>
       <button onclick="goPage('procs',document.querySelector('.nb-btn'))" style="padding:11px 24px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
-        ${window._lang==='en'?'Browse procedures →':'Разгледай процедури →'}
+        ${t('browseProcs')||'Разгледай процедури →'}
       </button>
     </div>`;
     return;
@@ -3064,12 +3262,21 @@ function loadNotifsPage(){
 
   const renderCard = (n, isPast) => {
     const dt = new Date(n.date);
-    const diff = Math.ceil((dt - now) / 86400000);
-    const diffTxt = diff === 0 ? (window._lang==='en'?'Today':'Днес') :
-                    diff === 1 ? (window._lang==='en'?'Tomorrow':'Утре') :
-                    diff > 0 ? (window._lang==='en'?'In '+diff+' days':'След '+diff+' дни') :
-                    (window._lang==='en'?'Past':'Минало');
-    const color = isPast ? '#c5bdb4' : diff===0 ? '#b8966a' : 'var(--ink1)';
+    // Use exact time if available
+    let dtExact = new Date(n.date);
+    if(n.time){
+      const [hh,mm]=(n.time.split(':')).map(Number);
+      dtExact.setHours(hh||0, mm||0, 0, 0);
+    }
+    const diffMs = dtExact - now;
+    const diff = Math.ceil(diffMs / 86400000);
+    const isPastExact = diffMs < 0;
+    const diffTxt = !isPastExact && diff === 0 ? (t('notifToday')||'Днес') :
+                    !isPastExact && diff === 1 ? (t('notifTomorrow')||'Утре') :
+                    !isPastExact && diff > 0 ? (window._lang==='en'?'In '+diff+' days':'След '+diff+' дни') :
+                    (t('notifPast')||'Минало');
+    const isPast2 = isPast || isPastExact;
+    const color = isPast2 ? '#c5bdb4' : diff===0 ? '#b8966a' : 'var(--ink1)';
     const bg = isPast ? 'var(--goldlt)' : 'var(--card)';
     return `<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:${bg};border-radius:14px;border:1px solid ${isPast?'rgba(184,150,106,.1)':'var(--goldlt)'};margin-bottom:8px;${isPast?'opacity:.6':''}">
       <div style="width:38px;height:38px;border-radius:50%;background:${isPast?'#f0ede8':'linear-gradient(135deg,rgba(184,150,106,.15),rgba(212,169,106,.15))'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -3088,11 +3295,11 @@ function loadNotifsPage(){
 
   let html = '';
   if(upcoming.length){
-    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px">${window._lang==='en'?'Upcoming':'Предстоящи'}</div>`;
+    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px">${t('notifUpcoming')||'Предстоящи'}</div>`;
     html += upcoming.map(n=>renderCard(n,false)).join('');
   }
   if(past.length){
-    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c5bdb4;margin:16px 0 8px">${window._lang==='en'?'Past':'Минали'}</div>`;
+    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c5bdb4;margin:16px 0 8px">${t('notifPastSection')||'Минали'}</div>`;
     html += past.map(n=>renderCard(n,true)).join('');
   }
   content.innerHTML = html;
@@ -3354,6 +3561,7 @@ function toggleNewEntry(){
 function deleteNotifFromPage(id){
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]').filter(n=>n.id!==id);
   localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
   loadNotifsPage();
   showToast(t('toastNotifDel'));
@@ -3419,7 +3627,8 @@ async function exportDiaryCSV(){
         const e = d.data();
         const dt = e.createdAt?.toDate?.() ? e.createdAt.toDate().toLocaleDateString('bg-BG') : '';
         const esc = v => '"'+(String(v||'').replace(/"/g,'""'))+'"';
-        return [dt,e.procName,e.clinic,e.specialist,e.advice,e.feeling,e.products,e.price||'',e.rating||''].map(esc).join(',');
+        const pName = e.procName || window.PROCS?.find(x=>x.id===e.procId)?.name || e.procId || '';
+        return [dt,pName,e.clinic,e.specialist,e.advice,e.feeling,e.products,e.price||'',e.rating||''].map(esc).join(',');
       });
     const csv = [headers.join(','), ...rows].join('\n');
     const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
@@ -3449,13 +3658,15 @@ async function saveEditProfile(){
   errEl.style.display = 'none';
   if(!name){ errEl.textContent = window._lang==='en'?'Enter a name':'Въведи име'; errEl.style.display='block'; return; }
   try{
+    const saveBtn = document.querySelector('#edit-profile-modal .save-btn, #edit-profile-modal button:first-of-type');
+    if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent=window._lang==='en'?'Saving...':'Запазване...'; }
     const updates = [];
     if(name !== window._user.displayName){
-      updates.push(F().updateProfile(window._user, {displayName: name}));
+      updates.push(updateProfile(window._user, {displayName: name}));
     }
     if(pass){
       if(pass.length < 6){ errEl.textContent = window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа'; errEl.style.display='block'; return; }
-      updates.push(F().updatePassword(window._user, pass));
+      updates.push(updatePassword(window._user, pass));
     }
     await Promise.all(updates);
     // Update UI
@@ -3474,6 +3685,8 @@ async function saveEditProfile(){
       : (window._lang==='en'?'Error: '+e.message:'Грешка: '+e.message);
     errEl.textContent = msg;
     errEl.style.display = 'block';
+    const saveBtn2 = document.querySelector('#edit-profile-modal button');
+    if(saveBtn2){ saveBtn2.disabled=false; saveBtn2.textContent=t('saveBtn2'); }
   }
 }
 
@@ -3493,7 +3706,7 @@ async function loadAdminStats(){
   if(!window._isAdmin) return;
   const statsEl = document.getElementById('admin-stats-content');
   if(!statsEl) return;
-  statsEl.innerHTML = '<div style="font-size:12px;color:var(--ink2)">Зарежда...</div>';
+  statsEl.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${window._lang==='en'?'Loading...':'Зарежда...'}</div>`;
   try{
     // Only count users with Firestore documents (active users)
     const usersSnap = await F().getDocs(F().collection(DB(),'users'));
@@ -3517,7 +3730,7 @@ async function loadAdminStats(){
         const p = window.PROCS?.find(x=>x.id===pid);
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--goldlt)">
           <span style="font-size:12px">${p?.icon||'✦'} ${p?.name||pid}</span>
-          <span style="font-size:11px;font-weight:700;color:var(--gold)">${count} записа</span>
+          <span style="font-size:11px;font-weight:700;color:var(--gold)">${count} ${window._lang==='en'?'entries':'записа'}</span>
         </div>`;
       }).join('') || '<div style="font-size:12px;color:var(--ink2)">Няма данни</div>';
 
@@ -3600,6 +3813,7 @@ function suggestReminder(lastDate, minDays, maxDays){
   const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
   saved.push({id:'n_'+Date.now(), procId:window.currentProcId, procName, date:dateStr, time:'10:00'});
   localStorage.setItem('gt_notifs', JSON.stringify(saved));
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
   const upcoming = saved.filter(n=>new Date(n.date)>=new Date()).length;
   updateNotifBadge(upcoming);
   showToast(t('toastNotifSaved'));
