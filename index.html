@@ -2144,16 +2144,18 @@ async function openSheet(id){
         <div class="form-row"><label class="form-lbl">${t('advice')}</label><textarea class="form-input" id="de-advice" placeholder="" data-ph="advicePh" rows="3"></textarea></div>
         <div class="form-row"><label class="form-lbl">${t('feeling')}</label><textarea class="form-input" id="de-feeling" placeholder="" data-ph="feelingPh" rows="2"></textarea></div>
         <div class="form-row"><label class="form-lbl">${t('products')}</label><input class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
-        <div class="form-row">
-          <label class="form-lbl">${t('priceLabel')} (€)</label>
-          <input class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:120px">
-        </div>
-        <div class="form-row">
-          <label class="form-lbl">${t('ratingLabel')}</label>
-          <div style="display:flex;gap:6px;margin-top:4px" id="de-rating-stars">
-            ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="font-size:24px;cursor:pointer;opacity:.3;transition:opacity .15s">⭐</span>`).join('')}
+        <div class="form-row" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex:1">
+            <label class="form-lbl">💰 ${t('priceLabel')} (€)</label>
+            <input class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:100%">
           </div>
-          <input type="hidden" id="de-rating" value="0">
+          <div style="flex:1">
+            <label class="form-lbl">⭐ ${t('ratingLabel')}</label>
+            <div style="display:flex;gap:4px;margin-top:6px" id="de-rating-stars">
+              ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="font-size:20px;cursor:pointer;opacity:.3;transition:opacity .15s">⭐</span>`).join('')}
+            </div>
+            <input type="hidden" id="de-rating" value="0">
+          </div>
         </div>
         <div class="photo-previews" id="de-previews"></div>
         <div class="diary-actions">
@@ -2185,9 +2187,15 @@ function renderEntryCard(docSnap, overrideProcId){
   const photos=d.photos||[];
   const isRoutineEntry = d.isRoutine || d.procId==='skin-routine' || (d.procId||'').startsWith('home-care-');
   return`<div class="entry-card" id="ec-${eid}" style="padding:0;overflow:hidden;border-radius:14px;border:1.5px solid var(--roselt);background:var(--card);margin-bottom:8px">
-    <div onclick="toggleEntryCard('ec-${eid}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer">
-      <div style="font-size:12px;font-weight:600;color:var(--ink)">📅 ${fmtFull(dt)}</div>
-      <div class="entry-toggle-arrow" id="arr-${eid}" style="font-size:14px;color:var(--ink2);transition:transform .2s">⌄</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;gap:8px">
+      <div onclick="toggleEntryCard('ec-${eid}')" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+        <span style="font-size:12px;font-weight:600;color:var(--ink)">📅 ${fmtFull(dt)}</span>
+        <span class="entry-toggle-arrow" id="arr-${eid}" style="font-size:12px;color:var(--ink2);transition:transform .2s;flex-shrink:0">⌄</span>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button onclick="startEditEntry('${eid}','${overrideProcId||currentProcId||d.procId}')" style="background:none;border:1px solid var(--gold);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:var(--gold)">✏️</button>
+        <button onclick="if(confirm('${t('deleteConfirm')||'Изтрий?'}'))deleteEntry('${eid}')" style="background:none;border:1px solid #e85d5d;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:#e85d5d">✕</button>
+      </div>
     </div>
     <div id="body-${eid}" style="display:none;padding:0 16px 14px;border-top:1px solid var(--roselt)">
     ${!isRoutineEntry&&(d.clinic||d.specialist)?`<div class="entry-field"><span class="lbl">${t('clinicSpecLabel')}</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
@@ -2199,11 +2207,7 @@ function renderEntryCard(docSnap, overrideProcId){
     ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" alt="Снимка от процедура" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
     ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">${t('productsLabel')}</span><span class="product-chip">${d.products}</span></div>`:''}
     </div>
-    <div class="entry-actions" style="padding:0 16px 12px">
-      <button class="mini-btn" onclick="startEditEntry('${eid}','${overrideProcId||currentProcId||d.procId}')">${t('editBtn')}</button>
-      <button class="mini-btn danger" onclick="deleteEntry('${eid}','${overrideProcId||currentProcId||d.procId}')">${t('deleteEntryBtn')}</button>
-    </div>
-  </div>`;
+    `;
 }
 
 function closeSheet(e){
