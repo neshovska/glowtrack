@@ -526,6 +526,9 @@ body.dark input[type="search"]{background:#12122a!important;color:#f0ede8!import
 body.dark .cat-btn svg { stroke:currentColor }
 .diary-group-entries.open{border-top:1px solid var(--roselt)}
 #diary-tab-content{padding:8px 16px 16px}
+.diary-entry-row{background:var(--card)}
+.diary-entry-row+.diary-entry-row{border-top:1px solid var(--roselt)}
+body.dark .diary-entry-row{background:#1a1a2e}
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -2560,90 +2563,154 @@ async function deleteEntry(eid,procId){
 
 // ── DIARY TAB ──
 async function loadDiaryTab(){
-  const c=document.getElementById('diary-tab-content');
-  if(!window._user){c.innerHTML='<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">Влез в акаунта си</div><div class="empty-sub">За да виждаш личния си дневник</div></div>';return;}
-  c.innerHTML=`<div class="skeleton-wrap">
-  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
-  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div>
-  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
-</div>`;
+  const el=document.getElementById('diary-tab-content');
+  if(!window._user){
+    el.innerHTML=`<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">${window._lang==='en'?'Sign in':'Влез в акаунта си'}</div><div class="empty-sub">${window._lang==='en'?'To see your personal diary':'За да виждаш личния си дневник'}</div></div>`;
+    return;
+  }
+  // Show skeleton while loading
+  el.innerHTML=`<div class="skeleton-wrap"><div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div><div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div><div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div></div>`;
   try{
     if(cacheInvalid(window._cache.diaryTs)){
       const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
       window._cache.diary=snap.docs;
       window._cache.diaryTs=Date.now();
     }
-    const snap={docs:window._cache.diary||[],empty:!(window._cache.diary||[]).length};
-    if(snap.empty){c.innerHTML=`<div class="empty-state"><div class="empty-ic">📖</div><div class="empty-title">${t('emptyDiary')}</div><div class="empty-sub">${t('emptyDiarySub')}</div></div>`;return;}
+    const docs=window._cache.diary||[];
+    if(!docs.length){
+      el.innerHTML=`<div class="empty-state"><div class="empty-ic">📋</div><div class="empty-title">${window._lang==='en'?'Diary is empty':'Дневникът е празен'}</div><div class="empty-sub">${window._lang==='en'?'Open a procedure and add your first entry':'Отвори процедура и добави първия си запис'}</div></div>`;
+      return;
+    }
+
+    // Group by procId, sort entries by date DESC
     const grouped={};
-    snap.docs.forEach(d=>{
+    docs.forEach(d=>{
       const data=d.data();
-      if(!grouped[data.procId])grouped[data.procId]={name:data.procName,icon:data.procIcon,entries:[]};
-      grouped[data.procId].entries.push(d);
+      const pid=data.procId||'unknown';
+      if(!grouped[pid]) grouped[pid]={name:data.procName||'',icon:data.procIcon||'',entries:[]};
+      grouped[pid].entries.push(d);
     });
-    Object.values(grouped).forEach(g=>g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0)));
-    // Sort: home-care first, then by saved order or last entry date
-    const savedOrder = _lsGet('gt_diary_order')||[];
-    const homeCareFirst = ['home-care-morning','home-care-evening'];
-    const sortedEntries = Object.entries(grouped).sort(([a],[b])=>{
-      const ai = homeCareFirst.indexOf(a);
-      const bi = homeCareFirst.indexOf(b);
-      if(ai>=0 && bi>=0) return ai-bi;
+    Object.values(grouped).forEach(g=>
+      g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0))
+    );
+
+    // Sort groups: morning first, evening second, rest by savedOrder then lastDate
+    const PINNED=['home-care-morning','home-care-evening'];
+    const savedOrder=(_lsGet('gt_diary_order')||[]);
+    const sorted=Object.entries(grouped).sort(([a],[b])=>{
+      const ai=PINNED.indexOf(a),bi=PINNED.indexOf(b);
+      if(ai>=0&&bi>=0) return ai-bi;
       if(ai>=0) return -1;
       if(bi>=0) return 1;
-      const ao = savedOrder.indexOf(a);
-      const bo = savedOrder.indexOf(b);
-      if(ao>=0 && bo>=0) return ao-bo;
-      return 0;
+      const ao=savedOrder.indexOf(a),bo=savedOrder.indexOf(b);
+      if(ao>=0&&bo>=0) return ao-bo;
+      const at=grouped[a].entries[0]?.data().createdAt?.toMillis?.()??0;
+      const bt=grouped[b].entries[0]?.data().createdAt?.toMillis?.()??0;
+      return bt-at;
     });
-    c.innerHTML=`<div class="diary-tab-list" id="diary-sortable">${sortedEntries.map(([pid,g])=>{
+
+    const isBG=window._lang!=='en';
+    const html=sorted.map(([pid,g])=>{
       const p=(window.PROCS||PROCS||[]).find(x=>x.id===pid);
-      const isRoutine = pid==='home-care-morning'||pid==='home-care-evening';
-      const isPinned = isRoutine;
-      const bg = pid==='home-care-morning'
-        ? 'linear-gradient(135deg,#fdf6e8,#f5ede0)'
-        : pid==='home-care-evening'
-        ? 'linear-gradient(135deg,#1a1a2e,#2d2d4e)'
-        : 'linear-gradient(135deg,#f0ede8,#e8e0d8)';
-      const icon = pid==='home-care-morning'?'☀️':pid==='home-care-evening'?'🌙':'';
-      const _dlp = p?procL(p):null;
-      const name = pid==='home-care-morning'?(window._lang==='en'?'Home Care · Morning':'Домашна грижа · Сутрешна')
-                 : pid==='home-care-evening'?(window._lang==='en'?'Home Care · Evening':'Домашна грижа · Вечерна')
-                 : (_dlp?.name||g.name);
-      const lastDate = fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
-      const lastLbl = window._lang==='en'?'Last':'Последно';
-      const entriesLbl = window._lang==='en'?'entries':'записа';
-      const newEntryBtn = isRoutine?'':
-        `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ ${t('newEntry')||'Нов запис'}</button>`;
-      const reorderBtns = isPinned ? '<div style="width:20px"></div>' :
-        `<div style="display:flex;flex-direction:column;gap:2px;padding:0 4px" onclick="event.stopPropagation()">
-          <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:11px;padding:1px;line-height:1">▲</button>
-          <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:11px;padding:1px;line-height:1">▼</button>
+      const _dlp=p?procL(p):null;
+      const isRoutine=PINNED.includes(pid);
+      const isPinned=isRoutine;
+
+      // Name
+      const name=pid==='home-care-morning'?(isBG?'Домашна грижа · Сутрешна':'Home Care · Morning')
+               :pid==='home-care-evening'?(isBG?'Домашна грижа · Вечерна':'Home Care · Evening')
+               :(_dlp?.name||g.name||pid);
+
+      // Icon area
+      const bg=pid==='home-care-morning'?'linear-gradient(135deg,#fdf6e8,#f5ede0)'
+              :pid==='home-care-evening'?'linear-gradient(135deg,#1a1a2e,#2d2d4e)':'';
+      const icon=pid==='home-care-morning'?'☀️':pid==='home-care-evening'?'🌙':'';
+      const iconEl=isRoutine
+        ?`<div style="width:44px;height:44px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${icon}</div>`
+        :`<div onclick="event.stopPropagation();openSheet('${pid}')" style="cursor:pointer;flex-shrink:0">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`;
+
+      // Reorder btns
+      const reorder=isPinned?'<div style="width:20px"></div>'
+        :`<div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0" onclick="event.stopPropagation()">
+          <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:10px;line-height:1;padding:2px">▲</button>
+          <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:10px;line-height:1;padding:2px">▼</button>
         </div>`;
-      const iconEl = isRoutine
-        ? `<div style="width:44px;height:44px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${icon}</div>`
-        : `<div onclick="openSheet('${pid}')" style="cursor:pointer;flex-shrink:0">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`;
+
+      const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
+      const cnt=g.entries.length;
+      const cntLbl=isBG?(cnt===1?'запис':'записа'):(cnt===1?'entry':'entries');
+
+      // Entry rows
+      const entryRows=g.entries.map(d=>{
+        const dd=d.data(),eid=d.id;
+        const dt=dd.createdAt?.toDate?dd.createdAt.toDate():new Date();
+        const dateStr=fmtDate(dt);
+
+        // Entry body content
+        let bodyContent='';
+        if(!d.isRoutine&&(dd.clinic||dd.specialist)){
+          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">🏥 ${isBG?'Клиника / Специалист':'Clinic / Specialist'}</strong><br>${[dd.clinic,dd.specialist].filter(Boolean).join(' · ')}${dd.contact?' · '+dd.contact:''}</div>`;
+        }
+        if(dd.advice){
+          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">👩‍⚕️ ${isBG?'Препоръки':'Advice'}</strong><br>${dd.advice}</div>`;
+        }
+        if(dd.feeling){
+          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">💬 ${isBG?'Лично усещане':'Personal notes'}</strong><br>${dd.feeling}</div>`;
+        }
+        if(dd.products){
+          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">🧴 ${isBG?'Продукти':'Products'}</strong><br>${dd.products}</div>`;
+        }
+        if(dd.price){
+          bodyContent+=`<div style="font-size:12px;margin-bottom:4px">💰 ${dd.price}€${dd.rating?'  ⭐'.repeat(dd.rating):''}</div>`;
+        }
+        if(dd.photos&&dd.photos.length){
+          bodyContent+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${dd.photos.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div>`;
+        }
+        if(!bodyContent) bodyContent=`<div style="font-size:12px;color:var(--ink2)">${isBG?'Няма детайли':'No details'}</div>`;
+
+        return `<div class="diary-entry-row" id="ec-${eid}">
+          <div onclick="toggleEntryCard('ec-${eid}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;gap:8px">
+            <span style="font-size:13px;font-weight:600;color:var(--ink)">📅 ${dateStr}</span>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+              <button onclick="event.stopPropagation();startEditEntry('${eid}','${pid}')" style="background:none;border:1.5px solid var(--gold);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--gold)">✏️</button>
+              <button onclick="event.stopPropagation();deleteEntry('${eid}','${pid}')" style="background:none;border:1.5px solid #e85d5d;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;color:#e85d5d;display:flex;align-items:center;justify-content:center">✕</button>
+              <span id="arr-${eid}" style="font-size:12px;color:var(--ink2);transition:transform .2s">⌄</span>
+            </div>
+          </div>
+          <div id="body-${eid}" style="display:none;padding:6px 14px 12px;border-top:1px solid var(--roselt)">${bodyContent}</div>
+        </div>`;
+      }).join('<div style="height:1px;background:var(--roselt);margin:0 14px"></div>');
+
+      const newEntryBtn=isRoutine?''
+        :`<div style="padding:8px"><button class="mini-btn" style="width:100%;text-align:center" onclick="openSheet('${pid}')">+ ${isBG?'Нов запис':'New entry'}</button></div>`;
+
       return `<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}"
         ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)"
         ondrop="diaryDrop(event)" ondragend="diaryDragEnd(event)">
         <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
-          ${reorderBtns}
+          ${reorder}
           ${iconEl}
           <div style="flex:1;min-width:0;padding:0 6px">
             <div style="font-size:14px;font-weight:600;color:${isRoutine?'var(--ink)':'var(--gold)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}${!isRoutine?' ›':''}</div>
-            <div style="font-size:11px;color:var(--ink2);margin-top:2px">${lastLbl}: ${lastDate}</div>
+            <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBG?'Последно':'Last'}: ${lastDate}</div>
           </div>
-          <span style="font-size:11px;color:var(--ink2);background:var(--goldlt);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0">${g.entries.length} ${entriesLbl}</span>
+          <span style="font-size:11px;color:var(--ink2);background:var(--goldlt);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0">${cnt} ${cntLbl}</span>
           <span id="arr-dg-${pid}" style="font-size:13px;color:var(--ink2);transition:transform .2s;margin-left:4px;flex-shrink:0">⌄</span>
         </div>
         <div class="diary-group-entries" id="dg-${pid}">
-          ${g.entries.map(d=>renderEntryCard(d,pid)).join('')}
+          ${entryRows}
           ${newEntryBtn}
         </div>
       </div>`;
-    }).join('')}</div>`;
-  }catch(e){c.innerHTML=`<div class="loading">${window._lang==='en'?'Error loading':'Грешка при зареждане'}</div>`;}
+    }).join('');
+
+    el.innerHTML=`<div id="diary-sortable">${html}</div>`;
+  }catch(e){
+    console.error('Diary error:',e);
+    el.innerHTML=`<div class="empty-state"><div class="empty-ic">⚠️</div><div class="empty-title">${window._lang==='en'?'Error loading':'Грешка при зареждане'}</div></div>`;
+  }
 }
+
 function toggleGroup(id){
   const el=document.getElementById(id);
   if(!el)return;
@@ -2652,6 +2719,7 @@ function toggleGroup(id){
   const arr=document.getElementById('arr-'+id);
   if(arr)arr.style.transform=isOpen?'':'rotate(180deg)';
 }
+
 
 // ── CLINICS TAB ──
 let allClinics=[];
