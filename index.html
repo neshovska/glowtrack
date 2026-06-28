@@ -2572,37 +2572,43 @@ async function loadDiaryTab(){
     });
     c.innerHTML=`<div class="diary-tab-list" id="diary-sortable">${sortedEntries.map(([pid,g])=>{
       const p=(window.PROCS||PROCS||[]).find(x=>x.id===pid);
-      const isRoutine = pid==='skin-routine'||pid==='home-care-morning'||pid==='home-care-evening';
-      const isPinned = pid==='home-care-morning'||pid==='home-care-evening';
-      const bg = pid==='home-care-morning' ? 'linear-gradient(135deg,#fdf6e8,#f5ede0)' : pid==='home-care-evening' ? 'linear-gradient(135deg,#1a1a2e,#2d2d4e)' : 'linear-gradient(135deg,#f0ede8,#e8e0d8)';
-      const icon = pid==='home-care-morning' ? '☀️' : pid==='home-care-evening' ? '🌙' : (g.icon||'');
-      const _dlp = p ? procL(p) : null;
-      const name = pid==='home-care-morning' ? (window._lang==='en'?'Home Care · Morning':'Домашна грижа · Сутрешна')
-                 : pid==='home-care-evening' ? (window._lang==='en'?'Home Care · Evening':'Домашна грижа · Вечерна')
+      const isRoutine = pid==='home-care-morning'||pid==='home-care-evening';
+      const isPinned = isRoutine;
+      const bg = pid==='home-care-morning'
+        ? 'linear-gradient(135deg,#fdf6e8,#f5ede0)'
+        : pid==='home-care-evening'
+        ? 'linear-gradient(135deg,#1a1a2e,#2d2d4e)'
+        : 'linear-gradient(135deg,#f0ede8,#e8e0d8)';
+      const icon = pid==='home-care-morning'?'☀️':pid==='home-care-evening'?'🌙':'';
+      const _dlp = p?procL(p):null;
+      const name = pid==='home-care-morning'?(window._lang==='en'?'Home Care · Morning':'Домашна грижа · Сутрешна')
+                 : pid==='home-care-evening'?(window._lang==='en'?'Home Care · Evening':'Домашна грижа · Вечерна')
                  : (_dlp?.name||g.name);
       const lastDate = fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
-      const lastLbl = window._lang==='en' ? 'Last' : 'Последно';
-      const entriesLbl = window._lang==='en' ? 'entries' : 'записа';
-      const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ ${t('newEntry')||'Нов запис'}</button>`;
-      return`<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}"
+      const lastLbl = window._lang==='en'?'Last':'Последно';
+      const entriesLbl = window._lang==='en'?'entries':'записа';
+      const newEntryBtn = isRoutine?'':
+        `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ ${t('newEntry')||'Нов запис'}</button>`;
+      const reorderBtns = isPinned ? '<div style="width:20px"></div>' :
+        `<div style="display:flex;flex-direction:column;gap:2px;padding:0 4px" onclick="event.stopPropagation()">
+          <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:11px;padding:1px;line-height:1">▲</button>
+          <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:11px;padding:1px;line-height:1">▼</button>
+        </div>`;
+      const iconEl = isRoutine
+        ? `<div style="width:44px;height:44px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${icon}</div>`
+        : `<div onclick="openSheet('${pid}')" style="cursor:pointer;flex-shrink:0">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`;
+      return `<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}"
         ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)"
         ondrop="diaryDrop(event)" ondragend="diaryDragEnd(event)">
         <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
-          ${!isPinned?`<div style="display:flex;flex-direction:column;gap:2px;padding:0 4px" onclick="event.stopPropagation()">
-            <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:11px;padding:1px;line-height:1">▲</button>
-            <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:11px;padding:1px;line-height:1">▼</button>
-          </div>`:'<div style="width:20px"></div>'}
-          ${isRoutine
-            ? `<div style="width:44px;height:44px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${icon}</div>`
-            : `<div onclick="openSheet('${pid}')" style="cursor:pointer;flex-shrink:0">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`}
-          <div style="flex:1;min-width:0;padding:0 2px">
-            <div style="font-size:14px;font-weight:600;color:${isRoutine?'var(--ink)':'var(--gold)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${!isRoutine?' ›':''}</div>
+          ${reorderBtns}
+          ${iconEl}
+          <div style="flex:1;min-width:0;padding:0 6px">
+            <div style="font-size:14px;font-weight:600;color:${isRoutine?'var(--ink)':'var(--gold)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}${!isRoutine?' ›':''}</div>
             <div style="font-size:11px;color:var(--ink2);margin-top:2px">${lastLbl}: ${lastDate}</div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            <span style="font-size:11px;color:var(--ink2);background:var(--goldlt);border-radius:20px;padding:3px 10px;white-space:nowrap">${g.entries.length} ${entriesLbl}</span>
-            <span id="arr-dg-${pid}" style="font-size:13px;color:var(--ink2);transition:transform .2s">⌄</span>
-          </div>
+          <span style="font-size:11px;color:var(--ink2);background:var(--goldlt);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0">${g.entries.length} ${entriesLbl}</span>
+          <span id="arr-dg-${pid}" style="font-size:13px;color:var(--ink2);transition:transform .2s;margin-left:4px;flex-shrink:0">⌄</span>
         </div>
         <div class="diary-group-entries" id="dg-${pid}">
           ${g.entries.map(d=>renderEntryCard(d,pid)).join('')}
