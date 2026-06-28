@@ -501,6 +501,23 @@ body.dark .skeleton-item {
   margin-bottom: 10px;
 }
 body.dark .sk-card { background: #1a1a2e; border-color: rgba(212,169,106,.1); }
+
+/* ── DARK MODE FIXES ── */
+body.dark .search-input{background:#12122a!important;color:#f0ede8!important;border-color:rgba(212,169,106,.2)!important}
+body.dark .search-input::placeholder{color:rgba(240,237,232,.4)}
+body.dark .fb-type-btn{background:#1a1a2e!important;color:#f0ede8!important;border-color:rgba(212,169,106,.2)!important}
+body.dark .fb-type-btn.active{background:var(--gold)!important;color:#1a1a2e!important}
+body.dark .admin-inbox-item{background:#1a1a2e!important;border-color:rgba(212,169,106,.1)!important}
+body.dark .notif-card{background:#1a1a2e!important}
+body.dark .care-item{background:#12122a!important;border-color:rgba(212,169,106,.2)!important}
+body.dark .prof-av-wrap{background:#252545!important;border-color:rgba(212,169,106,.3)!important}
+body.dark .acc-body{background:#12122a}
+body.dark .mini-btn{background:#1a1a2e!important;color:#f0ede8!important;border-color:rgba(212,169,106,.2)!important}
+body.dark .mini-btn-danger{border-color:rgba(232,93,93,.3)!important;color:#e85d5d!important}
+body.dark .sheet{background:#12122a!important}
+body.dark .sheet-hdr{background:#12122a!important}
+body.dark .coming-soon-overlay .sheet-inner{background:#1a1a2e!important}
+body.dark input[type="search"]{background:#12122a!important;color:#f0ede8!important}
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -865,7 +882,7 @@ window.goPage=goPage;
 <!-- COMING SOON SHEET -->
 <div id="coming-soon-overlay" style="display:none;position:fixed;inset:0;z-index:250;align-items:flex-end">
   <div style="position:absolute;inset:0;background:rgba(26,26,46,.4);backdrop-filter:blur(4px)" onclick="closeComingSoon()"></div>
-  <div style="position:relative;background:#fff;border-radius:24px 24px 0 0;padding:20px 0 32px;width:100%;box-shadow:0 -8px 32px rgba(26,26,46,.15)">
+  <div style="position:relative;background:var(--card);border-radius:24px 24px 0 0;padding:20px 0 32px;width:100%;box-shadow:0 -8px 32px rgba(26,26,46,.15)">
     <div style="width:36px;height:4px;background:#e8e4de;border-radius:2px;margin:0 auto 20px"></div>
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)" id="cs-title">🔒 Очаквайте скоро</div>
