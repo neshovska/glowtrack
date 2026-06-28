@@ -240,7 +240,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .search-input::placeholder{color:#bbb4a8}
 .cats{padding:0 18px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .cats::-webkit-scrollbar{display:none}
-.cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s}
+.cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .cat-btn.active{background:var(--card);color:var(--gold);border-color:var(--gold);border-width:2px;font-weight:700}
 /* PROC LIST */
 .proc-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
@@ -521,6 +521,10 @@ body.dark .coming-soon-overlay .sheet-inner{background:#1a1a2e!important}
 body.dark input[type="search"]{background:#12122a!important;color:#f0ede8!important}
 .profile-card-section:has(.acc-body.open){overflow:visible!important}
 #page-profile{overflow:visible}
+
+.cat-btn svg { width:14px;height:14px;flex-shrink:0;transition:stroke .2s }
+.cat-btn.active svg { stroke:var(--gold) }
+body.dark .cat-btn svg { stroke:currentColor }
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
