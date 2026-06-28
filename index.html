@@ -1866,6 +1866,7 @@ const PROCS_EN = {
 
 // Helper: get localized proc data
 function procInitials(name){
+  if(!name) return '?';
   // Get up to 2 initials from procedure name
   const words = name.replace(/[—–-]/g,' ').trim().split(/\s+/).filter(Boolean);
   if(words.length === 1) return words[0].substring(0,2).toUpperCase();
@@ -1877,12 +1878,14 @@ function procInitials(name){
 }
 
 function procCircleIcon(name, fg='#b8966a', size=38, radius=10){
+  if(!name) return '';
   const ini = procInitials(name);
   const fs = ini.length > 1 ? Math.round(size*0.34) : Math.round(size*0.42);
   return `<div style="width:${size}px;height:${size}px;border-radius:50%;border:1.5px solid ${fg};display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(184,150,106,0.08)"><span style="font-size:${fs}px;font-weight:700;color:${fg};font-family:'DM Sans',sans-serif;letter-spacing:0.02em;line-height:1">${ini}</span></div>`;
 }
 
 function procL(p){
+  if(!p) return {name:'?', sub:'', subcat:''};
   if(window._lang === 'en' && PROCS_EN[p.id]){
     return Object.assign({}, p, PROCS_EN[p.id]);
   }
@@ -1909,7 +1912,10 @@ function setCat(c){activeCat=c;renderCats();renderProcs();
 let _searchTimer=null;
 function debounceSearch(){
   clearTimeout(_searchTimer);
-  _searchTimer=setTimeout(()=>{ filterProcs(); showSuggestions(); }, 150);
+  _searchTimer=setTimeout(()=>{
+    try{ filterProcs(); }catch(e){ console.error('filterProcs error:',e.message); }
+    try{ showSuggestions(); }catch(e){ console.error('showSuggestions error:',e.message); }
+  }, 150);
 }
 function showSuggestions(){
   const q = document.getElementById('proc-search')?.value.trim().toLowerCase();
@@ -1917,20 +1923,24 @@ function showSuggestions(){
   if(!box) return;
   if(!q || q.length < 2){ box.style.display='none'; return; }
   const matches = (window.PROCS||[]).filter(p=>{
-    const lp = procL(p);
-    return (lp.name+' '+(lp.sub||'')).toLowerCase().includes(q);
+    try{
+      const lp = procL(p);
+      return (lp.name+' '+(lp.sub||'')).toLowerCase().includes(q);
+    }catch(e){ return false; }
   }).slice(0,5);
   if(!matches.length){ box.style.display='none'; return; }
-  box.innerHTML = matches.map(p=>{
-    const lp = procL(p);
-    return `<div class="suggestion-item" onmousedown="selectSuggestion('${p.id}')">
-      ${procCircleIcon(lp.name, '#b8966a', 32)}
-      <div style="flex:1;min-width:0">
-        <div class="suggestion-name">${lp.name}</div>
-        <div class="suggestion-sub">${lp.sub||''}</div>
-      </div>
-    </div>`;
-  }).join('');
+  try{
+    box.innerHTML = matches.map(p=>{
+      const lp = procL(p);
+      return `<div class="suggestion-item" onmousedown="selectSuggestion('${p.id}')">
+        ${procCircleIcon(lp.name, '#b8966a', 32)}
+        <div style="flex:1;min-width:0">
+          <div class="suggestion-name">${lp.name}</div>
+          <div class="suggestion-sub">${lp.sub||''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ console.error('suggestions HTML error:',e.message); box.style.display='none'; return; }
   box.style.display = 'block';
 }
 function hideSuggestions(){
@@ -1955,7 +1965,14 @@ function clearSearch(){
   filterProcs();
 }
 if(window._pendingLang){window._pendingLang=false;applyLang();}}
-function filterProcs(){searchTerm=document.getElementById('proc-search').value;renderProcs();}
+function filterProcs(){
+  searchTerm=document.getElementById('proc-search')?.value||'';
+  const cb=document.getElementById('search-clear');
+  if(cb) cb.style.display=searchTerm?'block':'none';
+  const si=document.getElementById('proc-search');
+  if(si) si.style.paddingRight=searchTerm?'32px':'12px';
+  renderProcs();
+}
 function renderProcs(){
   const s=searchTerm.toLowerCase().trim();
   const sWords = s ? s.split(/\s+/).filter(Boolean) : [];
