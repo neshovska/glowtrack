@@ -216,7 +216,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .auth-switch{text-align:center;margin-top:14px;font-size:12.5px;color:rgba(255,255,255,.3)}
 .auth-switch a{color:var(--gold);cursor:pointer}
 /* APP */
-.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 80px;display:none}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 80px;display:block}
 .app.show{display:block}
 .topbar{position:sticky;top:0;z-index:50;background:rgba(247,245,242,.9);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
@@ -451,6 +451,28 @@ textarea.form-input{resize:none}
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
   <meta name="mobile-web-app-capable" content="yes">
+<script>
+// Minimal goPage - loads first, always available
+function goPage(name,btn){
+  var pages=document.querySelectorAll('.page');
+  var btns=document.querySelectorAll('.nb');
+  for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  var pg=document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  if(btn) btn.classList.add('active');
+  try{localStorage.setItem('gt_last_page',name);}catch(e){}
+  // Defer data loading
+  setTimeout(function(){
+    try{
+      if(name==='diary'&&typeof loadDiaryTab==='function')loadDiaryTab();
+      if(name==='notifs'&&typeof loadNotifsPage==='function')loadNotifsPage();
+      if(name==='profile'&&typeof loadProfileStats==='function')loadProfileStats();
+    }catch(e){}
+  },50);
+}
+window.goPage=goPage;
+</script>
 </head>
 <body>
 <div class="bg"></div>
@@ -1701,16 +1723,18 @@ function showComingSoon(){
 }
 
 function goPage(name,btn){
-  hideSuggestions();
+  try{hideSuggestions();}catch(e){}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const pg=document.getElementById('page-'+name);
   if(pg)pg.classList.add('active');
   if(btn)btn.classList.add('active');
-  localStorage.setItem('gt_last_page',name);
-  if(name==='diary')loadDiaryTab();
-  if(name==='notifs')loadNotifsPage();
-  if(name==='profile')loadProfileStats();
+  try{localStorage.setItem('gt_last_page',name);}catch(e){}
+  try{
+    if(name==='diary')loadDiaryTab();
+    if(name==='notifs')loadNotifsPage();
+    if(name==='profile')loadProfileStats();
+  }catch(e){}
 }
 window.goPage=goPage;
 
