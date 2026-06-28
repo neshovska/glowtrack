@@ -2455,8 +2455,8 @@ async function loadDiaryTab(){
             <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:1px;line-height:1">▲</button>
             <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:1px;line-height:1">▼</button>
           </div>`:'<div style="width:28px"></div>'}
-          ${isRoutine ? `<div class="diary-group-icon" style="background:${bg}">${icon}</div>` : procCircleIcon(_dlp?.name||g.name, '#b8966a', 38)}
-          <div class="diary-group-info" onclick="event.stopPropagation();if(!isRoutine)openSheet('${pid}')" style="${!isRoutine?'cursor:pointer':''}">
+          ${isRoutine ? `<div class="diary-group-icon" style="background:${bg}">${icon}</div>` : `<div onclick="openSheet('${pid}')" style="cursor:pointer">${procCircleIcon(_dlp?.name||g.name, '#b8966a', 38)}</div>`}
+          <div class="diary-group-info" onclick="if(!isRoutine)openSheet('${pid}')" style="${!isRoutine?'cursor:pointer':''}">
             <div class="diary-group-name" style="${!isRoutine?'color:var(--gold)':''}">${name}${!isRoutine?'  ›':''}</div>
             <div class="diary-group-meta">${t('notifLast')||'Последно'}: ${lastDate}</div>
           </div>
