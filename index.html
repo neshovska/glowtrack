@@ -1051,6 +1051,11 @@ window.doLogout=async function(){await signOut(auth);window.showToast&&window.sh
 onAuthStateChanged(auth,async user=>{
   if(user){
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
+    // Invalidate cache on user change to ensure fresh data
+    if(window._lastUserId && window._lastUserId !== user.uid){
+      if(typeof invalidateCache === 'function') invalidateCache();
+    }
+    window._lastUserId = user.uid;
     const loginSplash=document.getElementById('splash');const loginLogo=document.getElementById('splash-logo');
     if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
@@ -1084,7 +1089,9 @@ onAuthStateChanged(auth,async user=>{
     if(typeof updateNotifBadge==='function')updateNotifBadge(_initNotifs.filter(n=>new Date(n.date)>=new Date()).length);
     getDoc(doc(db,'users',user.uid)).then(d=>{if(d.exists()&&d.data().lang){window._lang=d.data().lang;localStorage.setItem('gt_lang',window._lang);}if(typeof applyLang==='function')applyLang();else window._pendingLang=true;}).catch(()=>{if(typeof applyLang==='function')applyLang();else window._pendingLang=true;});
   }else{
-    window._user=null;window._isAdmin=false;
+    window._user=null;
+    window._lastUserId=null;
+    if(typeof invalidateCache==='function')invalidateCache();window._isAdmin=false;
     document.getElementById('auth-screen').classList.remove('hidden');
     document.getElementById('app').classList.remove('show');
   }
@@ -1123,7 +1130,7 @@ window._cache = {
   clinicAds: null,     // all clinic ads
   productAds: null,    // all product ads
   adsTs: 0,
-  CACHE_TTL: 5 * 60 * 1000  // 5 minutes
+  CACHE_TTL: 2 * 60 * 1000  // 5 minutes
 };
 function cacheInvalid(ts){ return !ts || (Date.now() - ts) > window._cache.CACHE_TTL; }
 function invalidateCache(){ window._cache.diary=null; window._cache.diaryTs=0; window._cache.clinicAds=null; window._cache.productAds=null; window._cache.adsTs=0; }
