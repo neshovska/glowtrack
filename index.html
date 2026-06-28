@@ -531,6 +531,11 @@ body.dark .cat-btn svg { stroke:currentColor }
 body.dark .diary-entry-row{background:#1a1a2e}
 body.dark #diary-search{background:#12122a!important;color:#f0ede8!important}
 body.dark #page-diary [style*="position:sticky"]{background:var(--mist)!important}
+
+.dsort-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold);border-width:2px;font-weight:700}
+body.dark .dsort-btn{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:#a09890}
+body.dark .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold)}
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -624,15 +629,20 @@ window.goPage=goPage;
   <div class="page" id="page-diary">
     <div class="page-hdr"><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Лична история на процедурите ти</div></div>
     <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
-      <div class="search-wrap" style="padding:0">
+      <div class="search-wrap" style="padding:0;margin-bottom:8px">
         <span class="search-icon">🔍</span>
-        <input type="text" id="diary-search" class="search-input" 
+        <input type="text" id="diary-search" class="search-input"
           placeholder="Намери извършена процедура..."
           data-ph="diarySearch"
           oninput="filterDiaryGroups(this.value)"
           style="font-size:16px">
-        <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')" 
+        <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')"
           style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px">✕</button>
+      </div>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+        <button onclick="sortDiary('default')" id="dsort-default" class="dsort-btn dsort-active" data-t="sortDefault">📅 По дата</button>
+        <button onclick="sortDiary('name')" id="dsort-name" class="dsort-btn" data-t="sortName">🔤 По процедура</button>
+        <button onclick="sortDiary('count')" id="dsort-count" class="dsort-btn" data-t="sortCount">🔢 По брой</button>
       </div>
     </div>
     <div id="diary-tab-content"><div class="skeleton-wrap">
@@ -640,7 +650,9 @@ window.goPage=goPage;
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div>
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
 </div></div>
-  </div>
+    <!-- FAB + button for quick diary entry -->
+  <button id="diary-fab" onclick="openDiaryFab()" style="display:none;position:fixed;bottom:90px;right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(184,150,106,.5);z-index:100;align-items:center;justify-content:center">+</button>
+</div>
   <div class="page" id="page-clinics">
     <div class="page-hdr"><div class="page-hdr-title"><em>Клиники</em></div><div class="page-hdr-sub">Партньорски клиники</div></div>
     <div class="search-wrap"><div class="search-box"><span class="search-icon">🔍</span><input class="search-input" id="clinic-search" placeholder="Търси клиника или процедура..." data-ph="searchClinics" oninput="filterClinics()"></div></div>
@@ -1328,6 +1340,9 @@ const T = {
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
+    sortDefault: '📅 По дата',
+    sortName: '🔤 По процедура',
+    sortCount: '🔢 По брой',
     diarySearch: 'Намери извършена процедура...',
     notifHint: 'Задай процедура и дата за следващото си посещение.',
     deleteProfileBtn: '🗑️ Изтрий профила',
@@ -1544,6 +1559,9 @@ const T = {
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
+    sortDefault: '📅 By date',
+    sortName: '🔤 By name',
+    sortCount: '🔢 By count',
     diarySearch: 'Find a completed procedure...',
     notifHint: 'Set a procedure and date for your next visit.',
     deleteProfileBtn: '🗑️ Delete profile',
@@ -2179,7 +2197,7 @@ function renderProcs(){
 })();
 
 // ── SHEET ──
-let currentProcId=null,pendingPhotos=[];
+let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
 async function openSheet(id){
   const p=PROCS.find(x=>x.id===id);if(!p)return;
   const lp=procL(p);
@@ -2296,9 +2314,24 @@ async function openSheet(id){
           </div>
         </div>
         <div class="photo-previews" id="de-previews"></div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${t('photoBefore')||'📷 ПРЕДИ ПРОЦЕДУРАТА'}</div>
+          <div class="photo-previews" id="de-previews-before"></div>
+          <label class="photo-btn" style="width:100%;justify-content:center;margin-bottom:0">
+            ${t('addPhotoBefore')||'+ Добави снимка Преди'}
+            <input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event,'before')">
+          </label>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${t('photoAfter')||'📷 СЛЕД ПРОЦЕДУРАТА'}</div>
+          <div class="photo-previews" id="de-previews-after"></div>
+          <label class="photo-btn" style="width:100%;justify-content:center;margin-bottom:0">
+            ${t('addPhotoAfter')||'+ Добави снимка След'}
+            <input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event,'after')">
+          </label>
+        </div>
         <div class="diary-actions">
-          <label class="photo-btn">${t('photoBtn')}<input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event)"></label>
-          <button class="save-btn" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
+          <button class="save-btn" style="width:100%" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
         </div>
       </div>
     </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}
@@ -2412,68 +2445,49 @@ function closeSheet(e){
 })();
 
 // ── PHOTOS ──
-function addPhotos(e){
-  const MAX_PHOTOS = 3;
+function addPhotos(e, slot){
+  const MAX = 3;
+  const arr = slot==='before' ? pendingPhotosBefore : slot==='after' ? pendingPhotosAfter : pendingPhotos;
   const files = Array.from(e.target.files);
-  if(pendingPhotos.length >= MAX_PHOTOS){
-    showToast('Максимум 3 снимки');
-    return;
-  }
-  const remaining = MAX_PHOTOS - pendingPhotos.length;
+  if(arr.length >= MAX){ showToast(window._lang==='en'?'Max 3 photos':'Максимум 3 снимки'); return; }
+  const remaining = MAX - arr.length;
   files.slice(0, remaining).forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=ev=>{
-      const img=new Image();
-      img.onload=()=>{
-        const canvas=document.createElement('canvas');
-        const MAX=800;let w=img.width,h=img.height;
-        if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
-        canvas.width=w;canvas.height=h;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_PX = 800; let w=img.width, h=img.height;
+        if(w>h){if(w>MAX_PX){h=Math.round(h*MAX_PX/w);w=MAX_PX;}}
+        else{if(h>MAX_PX){w=Math.round(w*MAX_PX/h);h=MAX_PX;}}
+        canvas.width=w; canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        const dataUrl = canvas.toDataURL('image/jpeg',0.65);
-        // Check size ~1MB base64 limit per photo
-        if(dataUrl.length > 700000){
-          showToast('Снимката е твърде голяма');
-          return;
-        }
-        pendingPhotos.push(dataUrl);
-        renderPreviews();
-      };img.src=ev.target.result;
-    };reader.readAsDataURL(file);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
+        if(dataUrl.length > 700000){ showToast(window._lang==='en'?'Photo too large':'Снимката е твърде голяма'); return; }
+        arr.push(dataUrl);
+        renderPreviews(slot);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 }
-function renderPreviews(){
-  const c=document.getElementById('de-previews');if(!c)return;
-  c.innerHTML=pendingPhotos.map((ph,i)=>`<div class="photo-preview-wrap"><img class="photo-thumb" src="${ph}"><button class="photo-remove" onclick="removePhoto(${i})">✕</button></div>`).join('');
+function renderPreviews(slot){
+  if(slot==='before'||slot==='after'){
+    const arr = slot==='before' ? pendingPhotosBefore : pendingPhotosAfter;
+    const el = document.getElementById('de-previews-'+(slot));
+    if(!el) return;
+    el.innerHTML = arr.map((ph,i)=>`<div class="photo-preview-wrap"><img class="photo-thumb" src="${ph}"><button class="photo-remove" onclick="removePhoto(${i},'${slot}')">✕</button></div>`).join('');
+  } else {
+    const el = document.getElementById('de-previews');
+    if(!el) return;
+    el.innerHTML = pendingPhotos.map((ph,i)=>`<div class="photo-preview-wrap"><img class="photo-thumb" src="${ph}"><button class="photo-remove" onclick="removePhoto(${i})">✕</button></div>`).join('');
+  }
 }
-function removePhoto(i){pendingPhotos.splice(i,1);renderPreviews();}
-
-// ── DIARY SAVE/EDIT/DELETE ──
-async function saveDiaryEntry(procId){
-  if(!window._user){showToast(t('toastNeedLogin'));return;}
-  const clinic=document.getElementById('de-clinic')?.value.trim()||'';
-  const specialist=document.getElementById('de-specialist')?.value.trim()||'';
-  const contact=document.getElementById('de-contact')?.value.trim()||'';
-  const advice=document.getElementById('de-advice')?.value.trim()||'';
-  const feeling=document.getElementById('de-feeling')?.value.trim()||'';
-  const products=document.getElementById('de-products')?.value.trim()||'';
-  const price=parseFloat(document.getElementById('de-price')?.value)||0;
-  const rating=parseInt(document.getElementById('de-rating')?.value)||0;
-  if(!clinic&&!specialist&&!advice&&!feeling&&!pendingPhotos.length){showToast(t('toastAddObs'));return;}
-  const btn=document.querySelector('.save-btn');
-  btn.disabled=true;btn.textContent='Запазване...';
-  const p=PROCS.find(x=>x.id===procId);
-  try{
-    await F().addDoc(F().collection(DB(),'diary_entries'),{
-      userId:window._user.uid,procId,procName:p?.name||'',procIcon:p?.icon||'',
-      clinic,specialist,contact,advice,feeling,products,price,rating,photos:pendingPhotos,
-      createdAt:F().serverTimestamp()
-    });
-    showToast(t('toastSaved'));
-    pendingPhotos=[];
-    window._cache.diary=null; window._cache.diaryTs=0;
-    await openSheet(procId);
-  }catch(e){showToast(t('toastErrSave'));btn.disabled=false;btn.textContent='Запази';}
+function removePhoto(i, slot){
+  if(slot==='before'){ pendingPhotosBefore.splice(i,1); renderPreviews('before'); }
+  else if(slot==='after'){ pendingPhotosAfter.splice(i,1); renderPreviews('after'); }
+  else { pendingPhotos.splice(i,1); renderPreviews(); }
 }
 
 function startEditEntry(eid,procId){
@@ -2679,8 +2693,14 @@ async function loadDiaryTab(){
         if(dd.price){
           bodyContent+=`<div style="font-size:12px;margin-bottom:4px">💰 ${dd.price}€${dd.rating?'  ⭐'.repeat(dd.rating):''}</div>`;
         }
+        if(dd.photosBefore&&dd.photosBefore.length){
+          bodyContent+=`<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${isBG?'📷 ПРЕДИ':'📷 BEFORE'}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${dd.photosBefore.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div></div>`;
+        }
+        if(dd.photosAfter&&dd.photosAfter.length){
+          bodyContent+=`<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${isBG?'📷 СЛЕД':'📷 AFTER'}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${dd.photosAfter.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div></div>`;
+        }
         if(dd.photos&&dd.photos.length){
-          bodyContent+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${dd.photos.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div>`;
+          bodyContent+=`<div style="margin-top:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${dd.photos.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div></div>`;
         }
         if(!bodyContent) bodyContent=`<div style="font-size:12px;color:var(--ink2)">${isBG?'Няма детайли':'No details'}</div>`;
 
@@ -2727,6 +2747,73 @@ async function loadDiaryTab(){
   }
 }
 
+
+function openDiaryFab(){
+  // Show procedure picker modal for quick entry
+  const isBG = window._lang !== 'en';
+  const procs = (window.PROCS||PROCS||[]);
+  const opts = procs.map(p=>{
+    const lp = procL(p);
+    return `<div onclick="closeDiaryFab();openSheet('${p.id}')" style="padding:10px 16px;border-bottom:1px solid var(--roselt);cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px">
+      ${procCircleIcon(lp.name,'#b8966a',32)}
+      <span>${lp.name}</span>
+    </div>`;
+  }).join('');
+  
+  const modal = document.createElement('div');
+  modal.id = 'diary-fab-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;justify-content:flex-end';
+  modal.innerHTML = `
+    <div onclick="closeDiaryFab()" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>
+    <div style="position:relative;background:var(--card);border-radius:20px 20px 0 0;max-height:70vh;display:flex;flex-direction:column;z-index:1">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--roselt);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:15px;font-weight:700;color:var(--ink)">${isBG?'Избери процедура':'Choose procedure'}</div>
+        <button onclick="closeDiaryFab()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink2)">✕</button>
+      </div>
+      <div style="overflow-y:auto;-webkit-overflow-scrolling:touch">${opts}</div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function closeDiaryFab(){
+  const m = document.getElementById('diary-fab-modal');
+  if(m) m.remove();
+}
+
+let _diarySortMode = 'default';
+function sortDiary(mode){
+  _diarySortMode = mode;
+  // Update active button
+  document.querySelectorAll('.dsort-btn').forEach(b=>b.classList.remove('dsort-active'));
+  const btn = document.getElementById('dsort-'+mode);
+  if(btn) btn.classList.add('dsort-active');
+  
+  const container = document.getElementById('diary-sortable');
+  if(!container) return;
+  
+  const groups = Array.from(container.querySelectorAll('.diary-group'));
+  const pinned = groups.filter(g=>['home-care-morning','home-care-evening'].includes(g.dataset.pid));
+  const rest = groups.filter(g=>!['home-care-morning','home-care-evening'].includes(g.dataset.pid));
+  
+  rest.sort((a,b)=>{
+    if(mode==='name'){
+      const na = a.querySelector('.diary-group-hdr div div')?.textContent||'';
+      const nb = b.querySelector('.diary-group-hdr div div')?.textContent||'';
+      return na.localeCompare(nb,'bg');
+    }
+    if(mode==='count'){
+      const ca = parseInt(a.querySelector('[style*="goldlt"]')?.textContent)||0;
+      const cb = parseInt(b.querySelector('[style*="goldlt"]')?.textContent)||0;
+      return cb-ca;
+    }
+    // default: by last date (original order preserved via DOM)
+    return 0;
+  });
+  
+  // Re-append in sorted order
+  pinned.forEach(g=>container.appendChild(g));
+  rest.forEach(g=>container.appendChild(g));
+}
 
 function filterDiaryGroups(q){
   const clear = document.getElementById('diary-search-clear');
