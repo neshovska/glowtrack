@@ -982,7 +982,7 @@ onAuthStateChanged(auth,async user=>{
     if(typeof loadFavsList==='function')loadFavsList();
     if(typeof updateFavsStat==='function')updateFavsStat();
     if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();
-    try{const uSnap=await getDoc(doc(db,'users',user.uid));if(uSnap.exists()&&uSnap.data().notifs){const fbNotifs=uSnap.data().notifs;const localNotifs=JSON.parse(localStorage.getItem('gt_notifs')||'[]');const merged=[...localNotifs];fbNotifs.forEach(fn=>{if(!merged.find(ln=>ln.id===fn.id))merged.push(fn);});localStorage.setItem('gt_notifs',JSON.stringify(merged));}}catch(e){}
+    try{const uSnap=await getDoc(doc(db,'users',user.uid));if(uSnap.exists()&&uSnap.data().notifs){const fbNotifs=uSnap.data().notifs;const localNotifs=JSON.parse(_lsGet('gt_notifs')||[]);const merged=[...localNotifs];fbNotifs.forEach(fn=>{if(!merged.find(ln=>ln.id===fn.id))merged.push(fn);});_lsSet('gt_notifs',merged);}}catch(e){}
     try{const uSnap2=await getDoc(doc(db,'users',user.uid));if(uSnap2.exists()&&uSnap2.data().favs){const fbFavs=uSnap2.data().favs;const localFavs=typeof getFavs==='function'?getFavs():[];const merged=[...new Set([...localFavs,...fbFavs])];if(merged.length!==localFavs.length&&typeof saveFavs==='function')saveFavs(merged);}}catch(e){}
     if(typeof loadHomeCare==='function')loadHomeCare();
     if(window._isAdmin){document.getElementById('admin-panel').style.display='block';if(typeof loadAdminLists==='function'){loadAdminLists();loadAdminInbox();}document.querySelectorAll('.nb-soon').forEach(btn=>{btn.style.opacity='1';btn.style.cursor='pointer';});const nbtns=document.querySelectorAll('.nb-soon');if(nbtns[0]){nbtns[0].onclick=function(){goPage('clinics',this);};const ni0=nbtns[0].querySelector('.nl');if(ni0)ni0.textContent='Клиники';}if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};const ni1=nbtns[1].querySelector('.nl');if(ni1)ni1.textContent='Продукти';}}
@@ -991,7 +991,7 @@ onAuthStateChanged(auth,async user=>{
     if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding();
     const _lastPage=localStorage.getItem('gt_last_page');
     if(_lastPage&&_lastPage!=='procs'){try{const _pageMap={notifs:true,diary:true,profile:true,clinics:true,products:true};if(_pageMap[_lastPage]&&typeof goPage==='function')goPage(_lastPage,null);}catch(e){}}
-    const _initNotifs=JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+    const _initNotifs=JSON.parse(_lsGet('gt_notifs')||[]);
     if(typeof updateNotifBadge==='function')updateNotifBadge(_initNotifs.filter(n=>new Date(n.date)>=new Date()).length);
     getDoc(doc(db,'users',user.uid)).then(d=>{if(d.exists()&&d.data().lang){window._lang=d.data().lang;localStorage.setItem('gt_lang',window._lang);}if(typeof applyLang==='function')applyLang();else window._pendingLang=true;}).catch(()=>{if(typeof applyLang==='function')applyLang();else window._pendingLang=true;});
   }else{
@@ -1004,6 +1004,13 @@ onAuthStateChanged(auth,async user=>{
 
 
 <script>
+
+// ── PER-USER localStorage helpers ──
+function _lsKey(base){ return window._user ? base+'_'+window._user.uid : base+'_guest'; }
+function _lsGet(base){ try{return JSON.parse(localStorage.getItem(_lsKey(base))||'null');}catch(e){return null;} }
+function _lsSet(base,val){ try{localStorage.setItem(_lsKey(base),JSON.stringify(val));}catch(e){} }
+function _lsRem(base){ try{localStorage.removeItem(_lsKey(base));}catch(e){} }
+
 
 
 const CATS_LIST=[
@@ -1192,6 +1199,11 @@ const T = {
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
+    searchProcs: 'Търси процедура...',
+    searchClinics: 'Търси клиника...',
+    searchProducts: 'Търси продукт...',
+    descPh: 'Описание...',
+    addStep: 'Добави стъпка',
     noReminders: 'Няма напомняния',
     noRemindersSub: 'Добави напомняне за следваща процедура',
     browseProcs: 'Разгледай процедури',
@@ -1400,6 +1412,11 @@ const T = {
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
+    searchProcs: 'Search procedure...',
+    searchClinics: 'Search clinic...',
+    searchProducts: 'Search product...',
+    descPh: 'Description...',
+    addStep: 'Add step',
     noReminders: 'No reminders',
     noRemindersSub: 'Add a reminder for your next procedure',
     browseProcs: 'Browse procedures',
@@ -2389,7 +2406,7 @@ async function loadDiaryTab(){
     });
     Object.values(grouped).forEach(g=>g.entries.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0)));
     // Sort: home-care first, then by saved order or last entry date
-    const savedOrder = JSON.parse(localStorage.getItem('gt_diary_order')||'[]');
+    const savedOrder = JSON.parse(_lsGet('gt_diary_order')||[]);
     const homeCareFirst = ['home-care-morning','home-care-evening'];
     const sortedEntries = Object.entries(grouped).sort(([a],[b])=>{
       const ai = homeCareFirst.indexOf(a);
@@ -2603,7 +2620,7 @@ async function deleteAdminItem(col,id){
   try{await F().deleteDoc(F().doc(DB(),col,id));showToast(t('toastDeleted2'));loadAdminLists();loadClinicsTab();loadProductsTab();
     // checkReminders disabled — using notifications tab instead
     // Init notif badge = total count
-    const _initNotifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+    const _initNotifs = JSON.parse(_lsGet('gt_notifs')||[]);
     updateNotifBadge(_initNotifs.filter(n=>new Date(n.date)>=new Date()).length);}catch(e){showToast(t('toastErr'));}
 }
 
@@ -2820,10 +2837,10 @@ function saveNotifDate(){
   if(!d){showToast(t('toastSelectDate'));return;}
   if(!procId){showToast(t('toastSelectProc'));return;}
   const time = document.getElementById('notif-time')?.value || '10:00';
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]);
   saved.push({id:'n_'+Date.now(), procId, procName, date:d, time});
-  localStorage.setItem('gt_notifs', JSON.stringify(saved));
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
+  _lsSet('gt_notifs', saved);
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(_lsGet('gt_notifs')||[])},{merge:true}).catch(()=>{}); }catch(e){} }
   const dt = new Date(d + 'T' + time);
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
@@ -2900,20 +2917,20 @@ function loadProfileStats(){
   // Auto-reset if new day
   if(lastRoutineDate && lastRoutineDate !== today){
     // Save yesterday completion before reset
-    const yChecked = JSON.parse(localStorage.getItem('gt_routine_'+lastRoutineDate)||'[]');
+    const yChecked = JSON.parse(localStorage.getItem('gt_routine_'+(window._user?window._user.uid+'_':'')+lastRoutineDate)||'[]');
     if(yChecked.length > 0){
       localStorage.setItem('gt_routine_history_'+lastRoutineDate, JSON.stringify(yChecked));
     }
   }
   
-  const saved = JSON.parse(localStorage.getItem('gt_routine_'+today)||'[]');
+  const saved = JSON.parse(localStorage.getItem('gt_routine_'+(window._user?window._user.uid+'_':'')+today)||'[]');
   const totalCbs = document.querySelectorAll('.routine-cb').length;
   
   document.querySelectorAll('.routine-cb').forEach(cb=>{
     if(saved.includes(cb.dataset.r)) cb.checked = true;
     cb.addEventListener('change', ()=>{
       const checked = Array.from(document.querySelectorAll('.routine-cb:checked')).map(c=>c.dataset.r);
-      localStorage.setItem('gt_routine_'+today, JSON.stringify(checked));
+      localStorage.setItem('gt_routine_'+(window._user?window._user.uid+'_':'')+today, JSON.stringify(checked));
       localStorage.setItem('gt_routine_last_date', today);
       updateRoutineStreak(checked, today);
     });
@@ -2982,9 +2999,9 @@ function deleteCustomRoutine(id){
 
 
 // ── FAVORITES ──
-function getFavs(){ return JSON.parse(localStorage.getItem('gt_favs')||'[]'); }
+function getFavs(){ return JSON.parse(_lsGet('gt_favs')||[]); }
 function saveFavs(f){
-  localStorage.setItem('gt_favs', JSON.stringify(f));
+  _lsSet('gt_favs', f);
   if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{favs:f},{merge:true}).catch(()=>{}); }catch(e){} }
 }
 
@@ -3067,7 +3084,7 @@ function loadNotifProcSelector(){
   sel.innerHTML = '<option value="">🪷 Избери процедура...</option>' +
     window.PROCS.map(p=>`<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
   // Load saved
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]);
   const nl = document.getElementById('notif-list');
   if(nl) nl.innerHTML = saved.length ? `
     <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
@@ -3089,9 +3106,9 @@ function loadNotifProcSelector(){
 }
 
 function deleteNotif(id){
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]').filter(n=>n.id!==id);
-  localStorage.setItem('gt_notifs', JSON.stringify(saved));
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
+  _lsSet('gt_notifs', saved);
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(_lsGet('gt_notifs')||[])},{merge:true}).catch(()=>{}); }catch(e){} }
   loadNotifProcSelector();
   loadNotifsPage();
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
@@ -3159,7 +3176,7 @@ document.addEventListener('click', e=>{
 
 // ── IN-APP REMINDERS ──
 function checkReminders(){
-  const notifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const notifs = JSON.parse(_lsGet('gt_notifs')||[]);
   if(!notifs.length) return;
   const now = new Date();
   const upcoming = notifs.filter(n=>{
@@ -3203,7 +3220,7 @@ function checkReminders(){
 
   // Popup disabled
   // banner.style.display = 'flex';
-  const _allN = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const _allN = JSON.parse(_lsGet('gt_notifs')||[]);
   updateNotifBadge(_allN.filter(n=>new Date(n.date)>=new Date()).length);
 }
 
@@ -3285,7 +3302,7 @@ function removeFavFromList(procId){
 
 // ── EDIT NOTIF ──
 function editNotif(id){
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]);
   const n = saved.find(x=>x.id===id);
   if(!n){ showToast(t('toastNotFound')); return; }
   const modal = document.getElementById('edit-notif-modal');
@@ -3300,7 +3317,7 @@ function editNotif(id){
 }
 
 function openEditNotif(id){
-  const notifs=JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const notifs=JSON.parse(_lsGet('gt_notifs')||[]);
   const n=notifs.find(x=>x.id===id);
   if(!n)return;
   const modal=document.getElementById('edit-notif-modal');
@@ -3324,11 +3341,11 @@ function saveEditNotif(){
   const time = document.getElementById('edit-notif-time').value;
   if(!date){showToast(t('toastSelectDate'));return;}
   if(!procName){showToast(t('toastSelectProc'));return;}
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]);
   const idx = saved.findIndex(x=>x.id===id);
   if(idx>-1) saved[idx] = {...saved[idx], procId, procName, date, time};
-  localStorage.setItem('gt_notifs', JSON.stringify(saved));
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
+  _lsSet('gt_notifs', saved);
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(_lsGet('gt_notifs')||[])},{merge:true}).catch(()=>{}); }catch(e){} }
   closeEditNotif();
   loadNotifProcSelector();
   showToast(t('toastNotifUpd'));
@@ -3358,7 +3375,7 @@ function selectEditNotifProc(id, name){
 
 // ── NOTIFICATIONS PAGE ──
 function loadNotifsPage(){
-  const notifs = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const notifs = JSON.parse(_lsGet('gt_notifs')||[]);
   const now = new Date();
   const content = document.getElementById('notifs-page-content');
   if(!content) return;
@@ -3461,7 +3478,7 @@ function loadHomeCare(){
   const today = new Date().toDateString();
   ['morning','evening'].forEach(type => {
     const prefix = type === 'morning' ? 'm' : 'e';
-    const saved = JSON.parse(localStorage.getItem('gt_care_'+type+'_'+today)||'[]');
+    const saved = JSON.parse(localStorage.getItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today)||'[]');
     // Load checkboxes
     document.querySelectorAll('.routine-cb-'+type).forEach(cb => {
       cb.checked = saved.includes(cb.dataset.r);
@@ -3489,7 +3506,7 @@ function renderCustomSteps(type){
   const list = document.getElementById('custom-'+type+'-list');
   if(!list) return;
   const today = new Date().toDateString();
-  const saved = JSON.parse(localStorage.getItem('gt_care_'+type+'_'+today)||'[]');
+  const saved = JSON.parse(localStorage.getItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today)||'[]');
   list.innerHTML = customs.map(c=>`
     <div style="display:flex;align-items:center;gap:6px">
       <label class="routine-item" style="flex:1">
@@ -3511,8 +3528,8 @@ async function saveRoutine(type){
   const checked = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(c=>c.dataset.r);
   const customChecked = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(c=>c.dataset.r);
   const all = [...checked, ...customChecked];
-  localStorage.setItem('gt_care_'+type+'_'+today, JSON.stringify(all));
-  localStorage.setItem('gt_care_'+type+'_last', today);
+  localStorage.setItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today, JSON.stringify(all));
+  localStorage.setItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_last', today);
   updateCareStreak(type, all, today);
 
   // Save to diary
@@ -3562,7 +3579,7 @@ function updateCareStreak(type, checked, today){
   const fill = document.getElementById(type+'-progress-fill');
   if(fill && total > 0) fill.style.width = Math.round((checked.length/total)*100)+'%';
   if(checked.length === 0){
-    const last = localStorage.getItem('gt_care_'+type+'_last');
+    const last = localStorage.getItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_last');
     if(last && last !== today){
       el.innerHTML = `<span style="color:var(--ink2)">${window._lang==='en'?'Last: ':'Последно: '}${new Date(last).toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'})}</span>`;
     } else {
@@ -3609,7 +3626,7 @@ function diaryDrop(e){
   const newOrder = Array.from(list.querySelectorAll('.diary-group[data-pid]'))
     .map(el=>el.dataset.pid)
     .filter(pid=>pid!=='home-care-morning'&&pid!=='home-care-evening');
-  localStorage.setItem('gt_diary_order', JSON.stringify(newOrder));
+  _lsSet('gt_diary_order', newOrder);
   document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
 }
 
@@ -3638,7 +3655,7 @@ function moveDiaryGroup(pid, dir){
   const newOrder = Array.from(list.querySelectorAll('.diary-group[data-pid]'))
     .map(el=>el.dataset.pid)
     .filter(p=>!pinned.includes(p));
-  localStorage.setItem('gt_diary_order', JSON.stringify(newOrder));
+  _lsSet('gt_diary_order', newOrder);
   showToast(t('toastLineSaved'));
 }
 
@@ -3687,9 +3704,9 @@ function toggleNewEntry(){
 
 
 function deleteNotifFromPage(id){
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]').filter(n=>n.id!==id);
-  localStorage.setItem('gt_notifs', JSON.stringify(saved));
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
+  _lsSet('gt_notifs', saved);
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(_lsGet('gt_notifs')||[])},{merge:true}).catch(()=>{}); }catch(e){} }
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
   loadNotifsPage();
   showToast(t('toastNotifDel'));
@@ -3938,10 +3955,10 @@ function suggestReminder(lastDate, minDays, maxDays){
   const proc = window.PROCS?.find(p=>p.id===window.currentProcId);
   const procName = (proc?.icon||'🔔')+' '+(proc?.name||'Процедура');
   
-  const saved = JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+  const saved = JSON.parse(_lsGet('gt_notifs')||[]);
   saved.push({id:'n_'+Date.now(), procId:window.currentProcId, procName, date:dateStr, time:'10:00'});
-  localStorage.setItem('gt_notifs', JSON.stringify(saved));
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(localStorage.getItem('gt_notifs')||'[]')},{merge:true}).catch(()=>{}); }catch(e){} }
+  _lsSet('gt_notifs', saved);
+  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:JSON.parse(_lsGet('gt_notifs')||[])},{merge:true}).catch(()=>{}); }catch(e){} }
   const upcoming = saved.filter(n=>new Date(n.date)>=new Date()).length;
   updateNotifBadge(upcoming);
   showToast(t('toastNotifSaved'));
