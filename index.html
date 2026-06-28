@@ -310,7 +310,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .diary-date-lbl{font-size:10px;font-weight:600;color:var(--gold);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
 .form-row{margin-bottom:10px}
 .form-lbl{font-size:10.5px;font-weight:600;color:var(--ink2);margin-bottom:4px;display:block}
-.form-input{width:100%;padding:9px 11px;border:1.5px solid var(--roselt);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:#fafafa;outline:none;transition:border-color .2s}
+.form-input{width:100%;padding:9px 11px;border:1.5px solid var(--roselt);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);background:#fafafa;outline:none;transition:border-color .2s}
 .form-input:focus{border-color:var(--gold);background:#fff}
 body.dark .form-input:focus{background:#1a1a2e!important;color:#f0ede8!important;border-color:var(--gold)!important}
 .form-input::placeholder{color:#bbb4a8}
@@ -2256,7 +2256,7 @@ function renderEntryCard(docSnap, overrideProcId){
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
         <button onclick="startEditEntry('${eid}','${overrideProcId||currentProcId||d.procId}')" style="background:none;border:1px solid var(--gold);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:var(--gold)">✏️</button>
-        <button onclick="if(confirm('${t('deleteConfirm')||'Изтрий?'}'))deleteEntry('${eid}')" style="background:none;border:1px solid #e85d5d;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:#e85d5d">✕</button>
+        <button onclick="deleteEntry('${eid}','${overrideProcId||currentProcId||d.procId}')" style="background:none;border:1px solid #e85d5d;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:13px;color:#e85d5d">✕</button>
       </div>
     </div>
     <div id="body-${eid}" style="display:none;padding:0 16px 14px;border-top:1px solid var(--roselt)">
@@ -2468,9 +2468,16 @@ async function saveEditEntry(eid,procId){
   }catch(e){showToast(t('toastErrUpd'));}
 }
 async function deleteEntry(eid,procId){
-  if(!confirm(t('confirmDelete')))return;
-  try{await F().deleteDoc(F().doc(DB(),'diary_entries',eid));showToast(t('toastDeleted')); window._cache.diary=null; window._cache.diaryTs=0; await openSheet(procId);}
-  catch(e){showToast(t('toastErrDel'));}
+  if(!confirm(t('confirmDelete')||'Изтрий?'))return;
+  try{
+    await F().deleteDoc(F().doc(DB(),'diary_entries',eid));
+    showToast(t('toastDeleted')||'Изтрито!');
+    window._cache.diary=null;
+    window._cache.diaryTs=0;
+    const pid = procId||currentProcId;
+    if(pid) await openSheet(pid);
+    else { const el=document.getElementById('ec-'+eid); if(el)el.remove(); }
+  }catch(e){showToast(t('toastErrDel')||'Грешка при изтриване');}
 }
 
 // ── DIARY TAB ──
