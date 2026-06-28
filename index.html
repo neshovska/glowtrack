@@ -1041,6 +1041,8 @@ import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
 const auth=getAuth(fb);const db=getFirestore(fb);
+// Ensure auth persists across page reloads
+try{ auth.setPersistence && auth.setPersistence({type:'LOCAL'}); }catch(e){}
 window._auth=auth;window._db=db;
 window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 window.doLogin=async function(){const email=document.getElementById('login-email').value.trim();const pass=document.getElementById('login-pass').value;if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='...';try{await signInWithEmailAndPassword(auth,email,pass);}catch(e){window.showAuthError(t('wrongCredentials'));}finally{btn.disabled=false;btn.textContent='Влез';}};
