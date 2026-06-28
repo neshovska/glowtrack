@@ -1239,7 +1239,7 @@ const T = {
     partnerBadge: 'Партньор',
     adLabel: 'Реклама',
     myDiary: 'Моят дневник',
-    newEntry: '📝 Нов запис —',
+    newEntry: 'Опиши своята процедура',
     clinic: 'Клиника (по желание)',
     clinicPh: 'напр. Beauty Clinic',
     specialist: 'Специалист (по желание)',
@@ -1333,7 +1333,7 @@ const T = {
     confirmDelete: 'Изтрий този запис?',
     priceLabel: '💰 Цена',
     ratingLabel: '⭐ Оценка',
-    noEntries: 'Все още няма записи. Добави наблюдения! 📝',
+    noEntries: '',
     // Diary entry labels
     clinicSpecLabel: '🏥 Клиника / Специалист',
     adviceLabel: '👩‍⚕️ Препоръки от специалиста',
@@ -1451,7 +1451,7 @@ const T = {
     partnerBadge: 'Partner',
     adLabel: 'Ad',
     myDiary: 'My diary',
-    newEntry: '📝 New entry —',
+    newEntry: 'Describe your procedure',
     clinic: 'Clinic (optional)',
     clinicPh: 'e.g. Beauty Clinic',
     specialist: 'Specialist (optional)',
@@ -1502,7 +1502,7 @@ const T = {
     editEntry: '✏️ Edit entry',
     emptyDiary: 'Diary is empty',
     emptyDiarySub: 'Open a procedure and add your first entry',
-    noEntries: 'No entries yet. Add observations! 📝',
+    noEntries: '',
     offline: '⚠️ No internet connection — working offline',
     online: '✅ Connection restored',
     priceLabel: '💰 Price',
@@ -2134,7 +2134,7 @@ async function openSheet(id){
     ${window._user?`<div class="diary-section">
       <div class="diary-section-title">${window._lang==='en'?'My <em>diary</em>':'Моят <em>дневник</em>'}</div>
       <div id="de-entries-list">${diaryEntriesHTML}</div>
-      <button onclick="toggleNewEntry()" id="new-entry-btn" style="width:100%;margin-top:10px;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.1),rgba(212,169,106,.08));border:1.5px solid var(--gold);border-radius:14px;color:var(--gold);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;letter-spacing:.02em">
+      <button onclick="toggleNewEntry()" id="new-entry-btn" style="width:100%;margin-top:10px;margin-bottom:0;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.1),rgba(212,169,106,.08));border:1.5px solid var(--gold);border-radius:14px;color:var(--gold);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;letter-spacing:.02em">
         ✦ ${t('newEntry')} ${fmtDate(new Date())}
       </button>
       <div class="diary-form" id="new-entry-form" style="display:none;margin-top:10px">
@@ -2162,9 +2162,9 @@ async function openSheet(id){
         </div>
       </div>
     </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}
-    <div style="margin:12px 18px 8px;padding:12px 14px;background:rgba(184,150,106,.06);border-radius:12px;border-left:3px solid var(--gold)">
-      <div style="font-size:10.5px;color:var(--ink2);line-height:1.6">
-        ⭐ <strong style="color:var(--gold)">${t('disclaimerTitle')}</strong> ${t('disclaimerBody')}
+    <div style="margin:4px 0 0;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.08),rgba(212,169,106,.05));border:1.5px solid var(--gold);border-radius:14px;width:100%;box-sizing:border-box">
+      <div style="font-size:11px;color:var(--ink2);line-height:1.6;text-align:center">
+        ⭐ <strong style="color:var(--gold)">${t('disclaimerTitle')}</strong><br>${t('disclaimerBody')}
       </div>
     </div>
     `;
