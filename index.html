@@ -345,8 +345,7 @@ textarea.form-input{resize:none}
 .diary-group-name{font-size:12.5px;font-weight:600;color:var(--ink)}
 .diary-group-meta{font-size:10.5px;color:var(--ink2);margin-top:1px}
 .diary-group-count{font-size:10px;font-weight:700;color:var(--gold);background:var(--goldlt);border-radius:10px;padding:2px 8px;flex-shrink:0}
-.diary-group-entries{border-top:1px solid var(--goldlt);padding:10px 13px;display:none}
-.diary-group-entries.open{display:block}
+.diary-group-entries{border-top:1px solid var(--roselt);padding:8px;display:none}
 .diary-group-entries.open{display:block}
 /* CLINICS & PRODUCTS */
 .clinics-list{padding:0 18px;display:flex;flex-direction:column;gap:10px}
@@ -2559,20 +2558,21 @@ async function loadDiaryTab(){
       const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
       const newEntryBtn = isRoutine ? '' : `<button class="mini-btn" style="width:100%;margin-top:8px;text-align:center" onclick="openSheet('${pid}')">+ ${t('newEntry')||'Нов запис'}</button>`;
       const isPinned = pid==='home-care-morning'||pid==='home-care-evening';
-      return`<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}" 
-        ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)" 
+      return`<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}"
+        ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)"
         ondrop="diaryDrop(event)" ondragend="diaryDragEnd(event)">
-        <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')" style="justify-content:space-between">
+        <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
           ${!isPinned?`<div style="display:flex;flex-direction:column;gap:2px;padding:0 6px" onclick="event.stopPropagation()">
-            <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:1px;line-height:1">▲</button>
-            <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:1px;line-height:1">▼</button>
-          </div>`:'<div style="width:28px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:12px">📌</div>'}
+            <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:12px;padding:1px;line-height:1">▲</button>
+            <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:12px;padding:1px;line-height:1">▼</button>
+          </div>`:'<div style="width:28px"></div>'}
           ${isRoutine ? `<div class="diary-group-icon" style="background:${bg}">${icon}</div>` : `<div onclick="openSheet('${pid}')" style="cursor:pointer">${procCircleIcon(_dlp?.name||g.name, '#b8966a', 38)}</div>`}
           <div class="diary-group-info" onclick="if(!isRoutine)openSheet('${pid}')" style="${!isRoutine?'cursor:pointer':''}">
             <div class="diary-group-name" style="${!isRoutine?'color:var(--gold)':''}">${name}${!isRoutine?'  ›':''}</div>
             <div class="diary-group-meta">${t('notifLast')||'Последно'}: ${lastDate}</div>
           </div>
-          <span class="diary-group-count">${g.entries.length} ${window._lang==='en'?'entries':'записа'}</span><span class="dg-arrow" id="arr-dg-${pid}" style="font-size:12px;color:var(--ink2);transition:transform .2s;margin-left:6px">⌄</span>
+          <span class="diary-group-count">${g.entries.length} ${window._lang==='en'?'entries':'записа'}</span>
+          <span id="arr-dg-${pid}" style="font-size:14px;color:var(--ink2);transition:transform .2s;margin-left:4px;flex-shrink:0">⌄</span>
         </div>
         <div class="diary-group-entries" id="dg-${pid}">
           ${g.entries.map(d=>renderEntryCard(d,pid)).join('')}
