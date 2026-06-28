@@ -470,6 +470,37 @@ body.dark #search-suggestions{background:#12122a!important;border-color:rgba(212
 input, textarea, select {
   font-size: 16px !important;
 }
+
+/* ── SKELETON LOADING ── */
+.skeleton-wrap { padding: 16px; }
+.skeleton-item {
+  background: linear-gradient(90deg, var(--roselt) 25%, rgba(184,150,106,.08) 50%, var(--roselt) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+body.dark .skeleton-item {
+  background: linear-gradient(90deg, #1e1e38 25%, rgba(184,150,106,.08) 50%, #1e1e38 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.sk-row { height: 18px; border-radius: 8px; margin-bottom: 8px; }
+.sk-row.wide { width: 80%; }
+.sk-row.medium { width: 55%; }
+.sk-row.short { width: 35%; }
+.sk-card {
+  background: var(--card);
+  border: 1px solid var(--roselt);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+body.dark .sk-card { background: #1a1a2e; border-color: rgba(212,169,106,.1); }
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -562,7 +593,11 @@ window.goPage=goPage;
   </div>
   <div class="page" id="page-diary">
     <div class="page-hdr"><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Лична история на процедурите ти</div></div>
-    <div id="diary-tab-content"></div>
+    <div id="diary-tab-content"><div class="skeleton-wrap">
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div>
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
+</div></div>
   </div>
   <div class="page" id="page-clinics">
     <div class="page-hdr"><div class="page-hdr-title"><em>Клиники</em></div><div class="page-hdr-sub">Партньорски клиники</div></div>
@@ -579,7 +614,11 @@ window.goPage=goPage;
       <div class="page-hdr-title" id="notifs-page-title">Напомняне</div>
       <div class="page-hdr-sub" id="notifs-page-sub">Предстоящи процедури</div>
     </div>
-    <div id="notifs-page-content" style="padding:0 16px"></div>
+    <div id="notifs-page-content" style="padding:0 16px"><div class="skeleton-wrap">
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row short"></div></div>
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row short"></div></div>
+  <div class="sk-card"><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
+</div></div>
   </div>
   <div class="page" id="page-profile">
     <div class="page-hdr"><div class="page-hdr-title">Моят <em>профил</em></div></div>
@@ -2438,7 +2477,11 @@ async function deleteEntry(eid,procId){
 async function loadDiaryTab(){
   const c=document.getElementById('diary-tab-content');
   if(!window._user){c.innerHTML='<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">Влез в акаунта си</div><div class="empty-sub">За да виждаш личния си дневник</div></div>';return;}
-  c.innerHTML='<div class="loading">⏳ Зарежда...</div>';
+  c.innerHTML=`<div class="skeleton-wrap">
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div>
+  <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
+</div>`;
   try{
     if(cacheInvalid(window._cache.diaryTs)){
       const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
@@ -3432,10 +3475,11 @@ function selectEditNotifProc(id, name){
 
 // ── NOTIFICATIONS PAGE ──
 function loadNotifsPage(){
-  const notifs = _lsGet('gt_notifs')||[];
-  const now = new Date();
   const content = document.getElementById('notifs-page-content');
   if(!content) return;
+
+  const notifs = _lsGet('gt_notifs')||[];
+  const now = new Date();
 
   // Sort by date
   const sorted = [...notifs].sort((a,b)=>new Date(a.date)-new Date(b.date));
@@ -3506,7 +3550,6 @@ function loadNotifsPage(){
   }
   content.innerHTML = html;
 }
-
 function updateNotifBadge(count){
   const badge = document.getElementById('notif-badge');
   if(!badge) return;
