@@ -770,12 +770,12 @@ textarea.form-input{resize:none}
     </div>
     <div style="text-align:center;padding:16px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v2026.06.27</div>
   </div>
-  <nav class="bnav" role="navigation" aria-label="Главна навигация" id="main-nav">
-    <button class="nb active" data-page="procs" id="nav-procs-btn"><span class="ni">🪷</span><span class="nl">Процедури</span></button>
-    <button class="nb" data-page="notifs" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
-    <button class="nb nb-soon" data-page="soon" id="nav-soon-btn" style="opacity:.4;cursor:default"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
-    <button class="nb" data-page="diary" id="nav-diary-btn"><span class="ni">🧸</span><span class="nl">Дневник</span></button>
-    <button class="nb" data-page="profile" id="nav-profile-btn"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl">Профил</span></button>
+  <nav class="bnav" role="navigation" aria-label="Главна навигация">
+    <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
+    <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
+    <button class="nb nb-soon" onclick="showComingSoonSheet()" style="opacity:.4;cursor:default"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
+    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
   </nav>
 </div>
 <!-- COMING SOON SHEET -->
@@ -944,7 +944,7 @@ onAuthStateChanged(auth,async user=>{
     if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
     setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
-    setTimeout(()=>{document.getElementById('auth-screen').classList.add('hidden');document.getElementById('app').classList.add('show');console.log('GlowTrack: app shown, auth hidden');},1800);
+    setTimeout(()=>{document.getElementById('auth-screen').classList.add('hidden');document.getElementById('app').classList.add('show');},1800);
     setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},2000);
     document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
     document.getElementById('prof-email').textContent=user.email;
@@ -982,7 +982,6 @@ onAuthStateChanged(auth,async user=>{
 
 
 <script>
-console.log("Script3: START");
 
 
 const CATS_LIST=[
@@ -1702,39 +1701,19 @@ function showComingSoon(){
 }
 
 function goPage(name,btn){
-  console.log("goPage called:", name, "btn:", btn);
-  // Visual feedback - show which tab was clicked
-  const dbg=document.getElementById('_dbg');
-  if(dbg){dbg.textContent='✅ Tab: '+name;dbg.style.background='rgba(0,180,0,0.9)';dbg.style.display='block';setTimeout(()=>{dbg.style.display='none';dbg.style.background='rgba(0,0,0,0.85)';},3000);}
-  try{
   hideSuggestions();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const pg=document.getElementById('page-'+name);
   if(pg)pg.classList.add('active');
   if(btn)btn.classList.add('active');
-  localStorage.setItem('gt_last_page', name);
-  if(name==='diary') loadDiaryTab();
-  if(name==='notifs') loadNotifsPage();
-  if(name==='profile') loadProfileStats();
-  } catch(e) { console.error('goPage error:', e.message, e.stack); }
+  localStorage.setItem('gt_last_page',name);
+  if(name==='diary')loadDiaryTab();
+  if(name==='notifs')loadNotifsPage();
+  if(name==='profile')loadProfileStats();
 }
 window.goPage=goPage;
 
-// Nav event listeners - по-надеждни от inline onclick
-document.addEventListener('DOMContentLoaded', function() {
-  var nav = document.getElementById('main-nav');
-  if(!nav) return;
-  nav.addEventListener('click', function(e) {
-    var btn = e.target.closest('button[data-page]');
-    if(!btn) return;
-    var page = btn.getAttribute('data-page');
-    if(!page) return;
-    if(page === 'soon') { showComingSoonSheet(); return; }
-    goPage(page, btn);
-  });
-  console.log('GlowTrack: Nav event listener attached');
-});
 
 // ── PROCEDURES ──
 window.PROCS=PROCS;
@@ -4007,17 +3986,6 @@ document.addEventListener('keydown',e=>{
     if(ep&&ep.style.display==='flex') ep.style.display='none';
   }
 });
-console.log("Script3: END - goPage available:", typeof goPage);
-// Show on-screen confirmation that Script3 loaded
-document.addEventListener('DOMContentLoaded', function() {
-  var dbg = document.getElementById('_dbg');
-  if(dbg) {
-    dbg.textContent = 'Script3 ✅';
-    dbg.style.display = 'block';
-    setTimeout(function(){ dbg.style.display='none'; }, 1500);
-  }
-});
 </script>
-<div id="_dbg" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.85);color:#0f0;padding:20px 30px;border-radius:12px;font-size:20px;z-index:99999;font-family:monospace;pointer-events:none"></div>
 </body>
 </html>
