@@ -1130,8 +1130,8 @@ const PROCS=[
 // ── HELPERS ──
 const BG_M=['яну','фев','мар','апр','май','юни','юли','авг','сеп','окт','ное','дек'];
 const BG_D=['нед','пон','вт','ср','чет','пет','съб'];
-function fmtDate(d){return`${d.getDate()} ${BG_M[d.getMonth()]} ${d.getFullYear()}`;}
-function fmtFull(d){return`${BG_D[d.getDay()]}, ${fmtDate(d)}`;}
+function fmtDate(d){const dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=d.getFullYear();return`${dd}.${mm}.${yyyy}`;}
+function fmtFull(d){return fmtDate(d);}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 const F=()=>window._f;const DB=()=>window._db;const AU=()=>window._auth;
 
@@ -2882,7 +2882,7 @@ function saveNotifDate(){
   const dt = new Date(d + 'T' + time);
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
-  if(diff >= 0) info.textContent = '✅ ' + procName + ' — ' + new Date(d).toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG') + (window._lang==='en'?' at ':' в ') + time;
+  if(diff >= 0) info.textContent = '✅ ' + procName + ' — ' + fmtDate(new Date(d)) + (window._lang==='en'?' at ':' в ') + time;
   else info.textContent = '⚠️ Датата е в миналото';
   showToast(t('toastNotifSaved'));
   document.getElementById('notif-date').value = '';
@@ -2926,7 +2926,7 @@ function loadProfileStats(){
         if(lastBox&&lastName&&lastDate){
           lastName.textContent = (last.procIcon||'✦')+' '+(last.procName||'—');
           const d = last.createdAt?.toDate?.();
-          if(d) lastDate.textContent = d.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long',year:'numeric'});
+          if(d) lastDate.textContent = fmtDate(d);
           lastBox.style.display='block';
         }
       }
@@ -3134,7 +3134,7 @@ function loadNotifProcSelector(){
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#faf8f5;border-radius:10px;border:1px solid var(--goldlt)">
           <div style="flex:1;min-width:0">
             <div style="font-size:12px;font-weight:600;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.procName}</div>
-            <div style="font-size:10px;color:${color};margin-top:1px">${dt.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG')} ${n.time?(window._lang==='en'?'at ':' в ')+n.time:''} · ${diffTxt}</div>
+            <div style="font-size:10px;color:${color};margin-top:1px">${fmtDate(dt)} ${n.time?(window._lang==='en'?'at ':' в ')+n.time:''} · ${diffTxt}</div>
           </div>
           <button onclick="editNotif('${n.id}')" style="background:none;border:1px solid var(--goldlt);border-radius:6px;color:var(--gold);cursor:pointer;font-size:11px;padding:3px 7px;white-space:nowrap">✏️</button>
           <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:2px">✕</button>
@@ -3247,7 +3247,7 @@ function checkReminders(){
               <span style="font-size:20px">🔔</span>
               <div style="flex:1">
                 <div style="font-size:12px;font-weight:700;color:var(--ink1)">${n.procName}</div>
-                <div style="font-size:11px;color:${color}">${nd.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG')} ${n.time?(window._lang==='en'?'at ':' в ')+n.time:''} · ${diffTxt}</div>
+                <div style="font-size:11px;color:${color}">${fmtDate(nd)} ${n.time?(window._lang==='en'?'at ':' в ')+n.time:''} · ${diffTxt}</div>
               </div>
             </div>`;
           }).join('')}
@@ -3271,7 +3271,7 @@ async function updateRoutineStreak(checked, today){
   const total = document.querySelectorAll('.routine-cb').length + 
                 document.querySelectorAll('.routine-cb-custom').length;
   const allChecked = checked.length >= total && total > 0;
-  const todayFmt = new Date().toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG', {day:'numeric', month:'long', year:'numeric'});
+  const todayFmt = fmtDate(new Date());
   
   if(allChecked){
     localStorage.setItem('gt_routine_last_date', today);
@@ -3317,7 +3317,7 @@ async function updateRoutineStreak(checked, today){
   } else {
     const lastDate = localStorage.getItem('gt_routine_last_date');
     if(lastDate && lastDate !== today){
-      const lastFmt = new Date(lastDate).toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG', {day:'numeric', month:'long'});
+      const lastFmt = fmtDate(new Date(lastDate));
       streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">Последно изпълнена: ${lastFmt}</span><br><span style="font-size:10px;color:var(--sage)">✨ Нов ден — маркирай рутината!</span>`;
     } else {
       streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">Маркирай стъпките за днес · ${todayFmt}</span>`;
@@ -3467,7 +3467,7 @@ function loadNotifsPage(){
       </div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:700;color:${color};margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.procName}</div>
-        <div style="font-size:11px;color:var(--ink2)">${dt.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'})} ${n.time?'· '+n.time:''} · ${diffTxt}</div>
+        <div style="font-size:11px;color:var(--ink2)">${fmtDate(dt)} ${n.time?'· '+n.time:''} · ${diffTxt}</div>
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
         <button onclick="editNotif('${n.id}')" style="background:none;border:1px solid var(--goldlt);border-radius:8px;color:var(--gold);cursor:pointer;font-size:14px;padding:4px 8px">✏️</button>
@@ -3610,7 +3610,7 @@ async function saveRoutine(type){
 function updateCareStreak(type, checked, today){
   const el = document.getElementById(type+'-streak');
   if(!el) return;
-  const todayFmt = new Date().toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long',year:'numeric'});
+  const todayFmt = fmtDate(new Date());
   const total = document.querySelectorAll('.routine-cb-'+type).length +
                 document.querySelectorAll('.routine-cb-'+type+'-custom').length;
   // Update progress bar
@@ -3619,7 +3619,7 @@ function updateCareStreak(type, checked, today){
   if(checked.length === 0){
     const last = localStorage.getItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_last');
     if(last && last !== today){
-      el.innerHTML = `<span style="color:var(--ink2)">${window._lang==='en'?'Last: ':'Последно: '}${new Date(last).toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'})}</span>`;
+      el.innerHTML = `<span style="color:var(--ink2)">${window._lang==='en'?'Last: ':'Последно: '}${fmtDate(new Date(last))}</span>`;
     } else {
       el.innerHTML = `<span style="color:var(--ink2)">Маркирай стъпките · ${todayFmt}</span>`;
     }
@@ -3808,7 +3808,7 @@ async function exportDiaryCSV(){
       .sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0))
       .map(d=>{
         const e = d.data();
-        const dt = e.createdAt?.toDate?.() ? e.createdAt.toDate().toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG') : '';
+        const dt = e.createdAt?.toDate?.() ? fmtDate(e.createdAt.toDate()) : '';
         const esc = v => '"'+(String(v||'').replace(/"/g,'""'))+'"';
         const pName = e.procName || window.PROCS?.find(x=>x.id===e.procId)?.name || e.procId || '';
         return [dt,pName,e.clinic,e.specialist,e.advice,e.feeling,e.products,e.price||'',e.rating||''].map(esc).join(',');
@@ -3975,7 +3975,7 @@ function calcNextDate(){
     const dt = new Date(lastDate);
     const minNext = new Date(dt); minNext.setDate(dt.getDate()+minDays);
     const maxNext = new Date(dt); maxNext.setDate(dt.getDate()+maxDays);
-    const fmt = d => d.toLocaleDateString(window._lang==='en'?'en-GB':'bg-BG',{day:'numeric',month:'long'});
+    const fmt = d => fmtDate(d);
     result.innerHTML = `🗓️ Следваща: <span style="color:var(--gold)">${fmt(minNext)} — ${fmt(maxNext)}</span>`;
     
     // Suggest adding reminder
