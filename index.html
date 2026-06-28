@@ -256,7 +256,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 /* SHEET */
 .overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(18,18,42,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .overlay.open{display:block}
-.sheet{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);max-height:94vh;background:var(--mist);border-radius:22px 22px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
+.sheet{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);max-height:88vh;background:var(--mist);border-radius:22px 22px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
 @keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
 .sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(26,26,46,.12);margin:10px auto 0}
 .sheet-hdr{padding:14px 18px 10px;display:flex;align-items:flex-start;gap:11px;position:sticky;top:0;background:var(--mist);z-index:10;border-bottom:1px solid rgba(184,150,106,.1)}
@@ -2131,12 +2131,6 @@ async function openSheet(id){
     ${lp.before?.length?acc(t('before'), `<div class="care-list">${mk(lp.before,'warn')}</div>`):''}
     ${lp.after?.length?acc(t('after'), `<div class="care-list">${mk(lp.after.filter(a=>!a[1].startsWith(notPrefix)),'do')}${mk(lp.after.filter(a=>a[1].startsWith(notPrefix)),'dont')}</div>`):''}
     ${clinicAdsHTML}${productAdsHTML}
-    <div style="margin:12px 18px 8px;padding:12px 14px;background:rgba(184,150,106,.06);border-radius:12px;border-left:3px solid var(--gold)">
-      <div style="font-size:10.5px;color:var(--ink2);line-height:1.6">
-        ⭐ <strong style="color:var(--gold)">${t('disclaimerTitle')}</strong> ${t('disclaimerBody')}
-      </div>
-    </div>
-
     ${window._user?`<div class="diary-section">
       <div class="diary-section-title">${window._lang==='en'?'My <em>diary</em>':'Моят <em>дневник</em>'}</div>
       <div id="de-entries-list">${diaryEntriesHTML}</div>
@@ -2167,7 +2161,13 @@ async function openSheet(id){
           <button class="save-btn" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
         </div>
       </div>
-    </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}`;
+    </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}
+    <div style="margin:12px 18px 8px;padding:12px 14px;background:rgba(184,150,106,.06);border-radius:12px;border-left:3px solid var(--gold)">
+      <div style="font-size:10.5px;color:var(--ink2);line-height:1.6">
+        ⭐ <strong style="color:var(--gold)">${t('disclaimerTitle')}</strong> ${t('disclaimerBody')}
+      </div>
+    </div>
+    `;
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
   // Scroll to top
