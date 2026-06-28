@@ -1907,7 +1907,7 @@ function renderCats(){
     return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
   }).join('');
 }
-function setCat(c){activeCat=c;renderCats();renderProcs();
+function setCat(c){activeCat=c;renderCats();renderProcs();}
 
 let _searchTimer=null;
 function debounceSearch(){
@@ -1964,7 +1964,7 @@ function clearSearch(){
   if(searchEl) searchEl.style.paddingRight='12px';
   filterProcs();
 }
-if(window._pendingLang){window._pendingLang=false;applyLang();}}
+if(window._pendingLang){window._pendingLang=false;applyLang();}
 function filterProcs(){
   searchTerm=document.getElementById('proc-search')?.value||'';
   const cb=document.getElementById('search-clear');
