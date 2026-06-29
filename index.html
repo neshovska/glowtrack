@@ -2346,6 +2346,7 @@ async function openSheet(id){
   }catch(e){}
 
   // ── FETCH DIARY (cached) ──
+  let entries=[];
   if(window._user){
     try{
       if(cacheInvalid(window._cache.diaryTs)){
@@ -2353,7 +2354,7 @@ async function openSheet(id){
         window._cache.diary=snap.docs;
         window._cache.diaryTs=Date.now();
       }
-      const entries=(window._cache.diary||[]).filter(d=>d.data().procId===id).sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
+      entries=(window._cache.diary||[]).filter(d=>d.data().procId===id).sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
       diaryEntriesHTML=entries.length?`<div class="diary-entries">${entries.map(d=>renderEntryCard(d)).join('')}</div>`:``;
     }catch(e){}
   }
