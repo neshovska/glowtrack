@@ -538,6 +538,8 @@ body.dark .dsort-btn{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:
 body.dark .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold)}
 #diary-sortable,#diary-tab-content,.diary-entry-row{touch-action:pan-y}
 .entry-photos-section{margin-top:8px}
+#de-reminder-section{background:var(--card)}
+body.dark #de-reminder-section{background:#12122a}
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -1412,6 +1414,7 @@ const T = {
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
+    addReminder: '🔔 Добави напомняне / резервация',
     sendBtn: 'Изпрати ✦',
     notifTypeReminder: 'Напомняне',
     notifTypeBooking: 'Резервация',
@@ -1638,6 +1641,7 @@ const T = {
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
+    addReminder: '🔔 Add reminder / booking',
     sendBtn: 'Send ✦',
     notifTypeReminder: 'Reminder',
     notifTypeBooking: 'Booking',
@@ -2288,6 +2292,7 @@ async function openSheet(id){
   const p=PROCS.find(x=>x.id===id);if(!p)return;
   const lp=procL(p);
   currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
+  _deReminderType='reminder';
   document.getElementById('sh-icon').innerHTML=procCircleIcon(lp.name, '#b8966a', 44).replace('border-radius:50%','border-radius:12px');
   document.getElementById('sh-icon').style.background='rgba(184,150,106,0.08)';
   const catLabel = (window._lang==='en' && CATS_EN[p.cat]) ? CATS_EN[p.cat] : (CATS_LIST.find(c=>c.id===p.cat)?.label||p.cat);
@@ -2415,6 +2420,29 @@ async function openSheet(id){
             📷 ${t('addPhotoAfter')||'Добави снимка След'}
             <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'after')">
           </label>
+        </div>
+        <div style="margin-bottom:12px;border:1.5px solid var(--roselt);border-radius:12px;overflow:hidden">
+          <div onclick="toggleDiaryReminder()" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;background:var(--goldlt)">
+            <span style="font-size:13px;font-weight:600;color:var(--ink)">🔔 ${t('addReminder')||'Добави напомняне / резервация'}</span>
+            <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s">⌄</span>
+          </div>
+          <div id="de-reminder-section" style="display:none;padding:12px 14px;border-top:1px solid var(--roselt)">
+            <div style="display:flex;gap:6px;margin-bottom:10px">
+              <button id="de-rtype-reminder" onclick="setDeReminderType('reminder')"
+                style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+                🔔 ${t('notifTypeReminder')||'Напомняне'}
+              </button>
+              <button id="de-rtype-booking" onclick="setDeReminderType('booking')"
+                style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+                ✅ ${t('notifTypeBooking')||'Резервация'}
+              </button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="date" id="de-reminder-date" class="form-input" style="flex:1;font-size:16px">
+              <input type="time" id="de-reminder-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
+            </div>
+            <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
+          </div>
         </div>
         <div class="diary-actions">
           <button class="save-btn" style="width:100%" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
@@ -2659,6 +2687,39 @@ function startEditEntry(eid,procId){
     });
   }
 }
+
+let _deReminderType = 'reminder';
+
+function toggleDiaryReminder(){
+  const sec = document.getElementById('de-reminder-section');
+  const arr = document.getElementById('de-reminder-arrow');
+  if(!sec) return;
+  const isOpen = sec.style.display !== 'none';
+  sec.style.display = isOpen ? 'none' : 'block';
+  if(arr) arr.style.transform = isOpen ? '' : 'rotate(180deg)';
+  if(!isOpen){
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('de-reminder-date');
+    if(dateInput && !dateInput.value) dateInput.value = today;
+  }
+}
+
+function setDeReminderType(type){
+  _deReminderType = type;
+  const rBtn = document.getElementById('de-rtype-reminder');
+  const bBtn = document.getElementById('de-rtype-booking');
+  if(rBtn && bBtn){
+    if(type === 'reminder'){
+      rBtn.style.background='var(--gold)'; rBtn.style.color='#fff'; rBtn.style.borderColor='var(--gold)';
+      bBtn.style.background='var(--card)'; bBtn.style.color='var(--ink2)'; bBtn.style.borderColor='var(--roselt)';
+    } else {
+      bBtn.style.background='var(--gold)'; bBtn.style.color='#fff'; bBtn.style.borderColor='var(--gold)';
+      rBtn.style.background='var(--card)'; rBtn.style.color='var(--ink2)'; rBtn.style.borderColor='var(--roselt)';
+    }
+  }
+}
+
 async function saveDiaryEntry(procId){
   if(!window._user){showToast(t('toastNeedLogin')||'Влез в акаунта си');return;}
   const clinic=document.getElementById('de-clinic')?.value.trim()||'';
@@ -2689,6 +2750,36 @@ async function saveDiaryEntry(procId){
       createdAt:F().serverTimestamp()
     });
     showToast(t('toastSaved')||'✅ Запазено!');
+    // Save reminder/booking if date is filled
+    const deReminderDate = document.getElementById('de-reminder-date')?.value;
+    const deReminderTime = document.getElementById('de-reminder-time')?.value||'10:00';
+    const deReminderSec = document.getElementById('de-reminder-section');
+    if(deReminderDate && deReminderSec && deReminderSec.style.display!=='none'){
+      const p2 = PROCS.find(x=>x.id===procId)||{};
+      const saved2 = (_lsGet('gt_notifs')||[]);
+      saved2.push({
+        id:'n_'+Date.now(),
+        procId:procId,
+        procName:p2.name||procId,
+        date:deReminderDate,
+        time:deReminderTime,
+        type:_deReminderType||'reminder'
+      });
+      _lsSet('gt_notifs', saved2);
+      // Sync to Firestore
+      if(window._user){
+        try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:saved2},{merge:true}).catch(()=>{}); }catch(e){}
+      }
+      updateNotifBadge(saved2.filter(n=>{
+        const dt=new Date(n.date);
+        if(n.time){const[hh,mm]=n.time.split(':').map(Number);dt.setHours(hh,mm,0,0);}
+        return dt>=new Date();
+      }).length);
+      const typeLabel = _deReminderType==='booking'
+        ?(window._lang==='en'?'✅ Booking saved!':'✅ Резервацията е запазена!')
+        :(window._lang==='en'?'🔔 Reminder saved!':'🔔 Напомнянето е запазено!');
+      setTimeout(()=>showToast(typeLabel), 1000);
+    }
     pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
     window._cache.diary=null;window._cache.diaryTs=0;
     await openSheet(procId);
