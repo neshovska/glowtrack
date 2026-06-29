@@ -537,6 +537,7 @@ body.dark #page-diary [style*="position:sticky"]{background:var(--mist)!importan
 body.dark .dsort-btn{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:#a09890}
 body.dark .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold)}
 #diary-sortable,#diary-tab-content,.diary-entry-row{touch-action:pan-y}
+.entry-photos-section{margin-top:8px}
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -861,6 +862,16 @@ window.goPage=goPage;
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
           <input type="hidden" id="notif-proc">
           <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:220px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(26,26,46,.25);margin-top:4px"></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button id="notif-type-reminder" onclick="setNotifType('reminder')"
+            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+            🔔 <span data-t="notifTypeReminder">Напомняне</span>
+          </button>
+          <button id="notif-type-booking" onclick="setNotifType('booking')"
+            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+            📅 <span data-t="notifTypeBooking">Резервация</span>
+          </button>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
           <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:16px">
@@ -1401,6 +1412,8 @@ const T = {
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
+    notifTypeReminder: 'Напомняне',
+    notifTypeBooking: 'Резервация',
     sortDefault: '📅 По дата',
     sortName: '🔤 По процедура',
     sortCount: '🔢 По брой',
@@ -1624,6 +1637,8 @@ const T = {
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
+    notifTypeReminder: 'Reminder',
+    notifTypeBooking: 'Booking',
     sortDefault: '📅 By date',
     sortName: '🔤 By name',
     sortCount: '🔢 By count',
@@ -2444,7 +2459,17 @@ function renderEntryCard(docSnap, overrideProcId){
     ${d.rating>0?`<div class="entry-field"><span class="lbl">${t('ratingLabel')}</span>${'⭐'.repeat(d.rating)}${'☆'.repeat(5-d.rating)}</div>`:''}
     ${d.price>0?`<div class="entry-field"><span class="lbl">${t('priceLabel')}</span>${d.price} €</div>`:''}
     ${d.feeling?`<div class="entry-field"><span class="lbl">${t('feelingLabel')}</span>${d.feeling}</div>`:''}
-    ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" alt="Снимка от процедура" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
+    ${d.photosBefore&&d.photosBefore.length?`
+      <div class="entry-photos-section">
+        <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">📷 ${window._lang==='en'?'BEFORE':'ПРЕДИ'}</div>
+        <div class="entry-photos">${d.photosBefore.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')">`).join('')}</div>
+      </div>`:''}
+    ${d.photosAfter&&d.photosAfter.length?`
+      <div class="entry-photos-section">
+        <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">📷 ${window._lang==='en'?'AFTER':'СЛЕД'}</div>
+        <div class="entry-photos">${d.photosAfter.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')">`).join('')}</div>
+      </div>`:''}
+    ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
     ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">${t('productsLabel')}</span><span class="product-chip">${d.products}</span></div>`:''}
     </div>
     `;
@@ -3339,6 +3364,21 @@ window.addEventListener('load', () => {
 });
 
 // ── PROFILE EXTRAS ──
+let _notifType = 'reminder';
+function setNotifType(type){
+  _notifType = type;
+  const rBtn = document.getElementById('notif-type-reminder');
+  const bBtn = document.getElementById('notif-type-booking');
+  if(rBtn && bBtn){
+    if(type==='reminder'){
+      rBtn.style.background='var(--gold)'; rBtn.style.color='#fff'; rBtn.style.borderColor='var(--gold)';
+      bBtn.style.background='var(--card)'; bBtn.style.color='var(--ink2)'; bBtn.style.borderColor='var(--roselt)';
+    } else {
+      bBtn.style.background='var(--gold)'; bBtn.style.color='#fff'; bBtn.style.borderColor='var(--gold)';
+      rBtn.style.background='var(--card)'; rBtn.style.color='var(--ink2)'; rBtn.style.borderColor='var(--roselt)';
+    }
+  }
+}
 function saveNotifDate(){
   const d = document.getElementById('notif-date').value;
   const procId = document.getElementById('notif-proc')?.value;
@@ -3347,7 +3387,7 @@ function saveNotifDate(){
   if(!procId){showToast(t('toastSelectProc'));return;}
   const time = document.getElementById('notif-time')?.value || '10:00';
   const saved = _lsGet('gt_notifs')||[];
-  saved.push({id:'n_'+Date.now(), procId, procName, date:d, time});
+  saved.push({id:'n_'+Date.now(), procId, procName, date:d, time, type:_notifType||'reminder'});
   _lsSet('gt_notifs', saved);
   if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}).catch(()=>{}); }catch(e){} }
   const dt = new Date(d + 'T' + time);
