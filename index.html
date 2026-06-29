@@ -2383,7 +2383,11 @@ async function openSheet(id){
       <button onclick="toggleNewEntry()" id="new-entry-btn" style="width:100%;margin-top:10px;margin-bottom:0;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.1),rgba(212,169,106,.08));border:1.5px solid var(--gold);border-radius:14px;color:var(--gold);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;letter-spacing:.02em">
         ✦ ${t('newEntry')} ${fmtDate(new Date())}
       </button>
-      <div id="de-entries-list" style="margin-top:10px">${diaryEntriesHTML}</div>
+      ${entries.length?`
+      <button onclick="toggleProcHistory('${id}')" id="proc-history-btn" style="width:100%;margin-top:8px;padding:12px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;color:var(--ink2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">
+        📋 <span id="proc-history-lbl">${window._lang==='en'?'Show history ('+entries.length+' entries)':'Покажи история ('+entries.length+' записа)'}</span>
+      </button>
+      <div id="proc-history-list" style="display:none;margin-top:8px">${diaryEntriesHTML}</div>`:''}
       <div class="diary-form" id="new-entry-form" style="display:none;margin-top:10px">
         <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="" data-ph="clinicPh"></div>
         <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specialistPh"></div>
@@ -2618,6 +2622,11 @@ function startEditEntry(eid,procId){
   // Try cache first, fall back to Firebase
   const cachedDoc = (window._cache.diary||[]).find(d=>d.id===eid);
   const _doEdit = (d) => {
+    // Store original photos for merging on save
+    if(!window.eeOrigData) window.eeOrigData={};
+    window.eeOrigData[eid]={photosBefore:d.photosBefore||[],photosAfter:d.photosAfter||[]};
+    if(!window._eePhotos) window._eePhotos={};
+    window._eePhotos[eid]={before:[],after:[]};
     const card=document.getElementById('ec-'+eid);if(!card)return;
     // Ensure body is visible
     const bodyDiv=document.getElementById('body-'+eid);
@@ -2672,6 +2681,22 @@ function startEditEntry(eid,procId){
           ${[1,2,3,4,5].map(i=>`<span onclick="setEditRating('${eid}',${i})" style="font-size:24px;cursor:pointer;opacity:${(d.rating||0)>=i?'1':'.3'};transition:opacity .15s">⭐</span>`).join('')}
         </div>
         <input type="hidden" id="ee-rating-${eid}" value="${d.rating||0}">
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${window._lang==='en'?'📷 BEFORE':'📷 ПРЕДИ'}</div>
+        <div id="ee-prev-before-${eid}" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${(d.photosBefore||[]).map((ph,i)=>`<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','before',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">✕</button></div>`).join('')}</div>
+        <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+          📷 ${window._lang==='en'?'Add Before':'+ Преди'}
+          <input type="file" accept="image/*" multiple style="display:none" onchange="eeAddPhoto(event,'${eid}','before')">
+        </label>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${window._lang==='en'?'📷 AFTER':'📷 СЛЕД'}</div>
+        <div id="ee-prev-after-${eid}" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${(d.photosAfter||[]).map((ph,i)=>`<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','after',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">✕</button></div>`).join('')}</div>
+        <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+          📷 ${window._lang==='en'?'Add After':'+ След'}
+          <input type="file" accept="image/*" multiple style="display:none" onchange="eeAddPhoto(event,'${eid}','after')">
+        </label>
       </div>
       <div class="entry-actions">
         <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">💾 Запази</button>
@@ -2790,6 +2815,49 @@ async function saveDiaryEntry(procId){
   }
 }
 
+// Edit entry photo helpers
+window._eePhotos = {};
+window.eeOrigData = {}; // {eid: {before:[], after:[]}}
+
+function eeAddPhoto(e, eid, slot){
+  if(!window._eePhotos[eid]) window._eePhotos[eid]={before:[],after:[]};
+  const arr = window._eePhotos[eid][slot];
+  const MAX=3;
+  if(arr.length>=MAX){showToast(window._lang==='en'?'Max 3 photos':'Максимум 3 снимки');return;}
+  Array.from(e.target.files).slice(0,MAX-arr.length).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const MAX_PX=800;let w=img.width,h=img.height;
+        if(w>h){if(w>MAX_PX){h=Math.round(h*MAX_PX/w);w=MAX_PX;}}else{if(h>MAX_PX){w=Math.round(w*MAX_PX/h);h=MAX_PX;}}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        arr.push(canvas.toDataURL('image/jpeg',0.65));
+        eeRenderPhotos(eid,slot);
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function eeRemovePhoto(eid, slot, idx){
+  if(!window._eePhotos[eid]||!window._eePhotos[eid][slot]) return;
+  window._eePhotos[eid][slot].splice(idx,1);
+  eeRenderPhotos(eid,slot);
+}
+
+function eeRenderPhotos(eid, slot){
+  const el = document.getElementById('ee-prev-'+slot+'-'+eid);
+  if(!el) return;
+  const arr = (window._eePhotos[eid]||{})[slot]||[];
+  el.innerHTML = arr.map((ph,i)=>
+    `<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','${slot}',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">✕</button></div>`
+  ).join('');
+}
+
 async function saveEditEntry(eid,procId){
   try{
     await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
@@ -2801,6 +2869,8 @@ async function saveEditEntry(eid,procId){
       products:document.getElementById('ee-prod-'+eid)?.value.trim()||'',
       price:parseFloat(document.getElementById('ee-price-'+eid)?.value)||0,
       rating:parseInt(document.getElementById('ee-rating-'+eid)?.value)||0,
+      photosBefore:[...((window._eePhotos[eid]||{}).before||[]),...(eeOrigData[eid]?.photosBefore||[])].slice(0,3),
+      photosAfter:[...((window._eePhotos[eid]||{}).after||[]),...(eeOrigData[eid]?.photosAfter||[])].slice(0,3),
     });
     showToast(t('toastUpdated')); window._cache.diary=null; window._cache.diaryTs=0; await openSheet(procId);
   }catch(e){showToast(t('toastErrUpd'));}
@@ -4354,6 +4424,29 @@ async function saveRoutineEdit(eid, procId, type){
   }catch(e){showToast(t('toastErrUpd'));}
 }
 
+
+function toggleProcHistory(procId){
+  const list = document.getElementById('proc-history-list');
+  const btn = document.getElementById('proc-history-btn');
+  const lbl = document.getElementById('proc-history-lbl');
+  if(!list) return;
+  const isOpen = list.style.display !== 'none';
+  list.style.display = isOpen ? 'none' : 'block';
+  if(btn){
+    btn.style.borderColor = isOpen ? 'var(--roselt)' : 'var(--gold)';
+    btn.style.color = isOpen ? 'var(--ink2)' : 'var(--gold)';
+  }
+  if(lbl){
+    const count = list.querySelectorAll('.entry-card-row, [id^="ec-"]').length ||
+                  list.querySelectorAll('div[onclick]').length || '?';
+    const isBG = window._lang !== 'en';
+    if(isOpen){
+      lbl.textContent = isBG ? 'Покажи история' : 'Show history';
+    } else {
+      lbl.textContent = isBG ? 'Скрий история' : 'Hide history';
+    }
+  }
+}
 
 function toggleNewEntry(){
   const form = document.getElementById('new-entry-form');
