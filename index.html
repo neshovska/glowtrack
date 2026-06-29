@@ -2470,17 +2470,22 @@ async function openSheet(id){
       <div id="proc-history-list" style="display:none;margin-top:8px">${diaryEntriesHTML}</div>`:''}
 
     </div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:12.5px">'+t('loginToDiary')+'</div>'}
-    <div style="margin:12px 18px 0;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.08),rgba(212,169,106,.05));border:1.5px solid var(--gold);border-radius:14px">
-      <div style="font-size:10px;color:var(--ink2);line-height:1.5;text-align:center;opacity:0.85">
-        ⭐ <strong style="color:var(--gold);font-size:10px">${t('disclaimerTitle')}</strong><br>${t('disclaimerBody')}
-      </div>
-    </div>
     `;
   }catch(err){console.error('Sheet render error:',err);document.getElementById('sh-body').innerHTML='<div style="padding:20px;color:red">Error: '+err.message+'</div>';}
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
   // Scroll to top
   document.getElementById('sh-body').scrollTop=0;
+  // Add disclaimer as last element - always visible, outside diary section
+  const _existingDisc = document.getElementById('sh-disclaimer');
+  if(!_existingDisc){
+    const _disc = document.createElement('div');
+    _disc.id = 'sh-disclaimer';
+    _disc.style.cssText = 'margin:12px 18px 16px;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.08),rgba(212,169,106,.05));border:1.5px solid var(--gold);border-radius:14px';
+    _disc.innerHTML = '<div style="font-size:10px;color:var(--ink2);line-height:1.5;text-align:center;opacity:0.85">'+
+      '<strong style="color:var(--gold);font-size:10px">⭐ '+t('disclaimerTitle')+'</strong><br>'+t('disclaimerBody')+'</div>';
+    document.getElementById('sh-body').appendChild(_disc);
+  }
   updateFavBtn(id);
   // Set today in calculator
   const calcDate = document.getElementById('calc-last-date');
