@@ -2368,8 +2368,9 @@ async function openSheet(id){
       </div>
       <div class="acc-body ${open?'open':''}">${styled?goldCard(body):body}</div>
     </div>`;
+  try{
   document.getElementById('sh-body').innerHTML=`
-    ${acc(t('whatIs'), `<div class="info-text">${lp.what}</div>`, false, true)}
+    ${acc(t('whatIs'), `<div class="info-text">${lp.what||''}</div>`, false, true)}
     ${lp.devices?.length?acc(t('devices'), `<div class="device-tags">${lp.devices.map(d=>`<span class="device-tag">${d}</span>`).join('')}</div>`, false, true):''}
     ${lp.zones?acc(t('zones'), `<div class="info-text">${lp.zones}</div>`, false, true):''}
     ${lp.results?.length?acc(t('results'), `${lp.results.map(r=>`<div class="result-row"><div class="result-dot"></div><div class="result-txt">${r}</div></div>`).join('')}<div style="margin-top:8px;padding-top:7px;border-top:1px solid var(--goldlt);font-size:10.5px;color:var(--sage)">⏱️ ${lp.interval||''} · 💊 ${lp.sessions||''}</div>`, false, true):''}
@@ -2458,6 +2459,7 @@ async function openSheet(id){
       </div>
     </div>
     `;
+  }catch(err){console.error('Sheet render error:',err);document.getElementById('sh-body').innerHTML='<div style="padding:20px;color:red">Error: '+err.message+'</div>';}
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
   // Scroll to top
