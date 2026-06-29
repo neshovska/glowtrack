@@ -165,7 +165,7 @@ body.dark .suggestion-item:hover{background:#1a1a2e;border-color:rgba(212,169,10
 body.dark .skeleton{background:linear-gradient(90deg,#1e1e38 25%,#252545 50%,#1e1e38 75%);background-size:200% 100%}
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-height:100vh;color:var(--ink);overflow-x:hidden;-webkit-overflow-scrolling:touch}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-height:100vh;color:var(--ink);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 70% 50% at 15% 8%,rgba(155,142,196,.1),transparent 55%),radial-gradient(ellipse 50% 60% at 88% 92%,rgba(184,150,106,.08),transparent 50%),#f7f5f2}
 /* AUTH */
 .auth-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:linear-gradient(150deg,#12122a 0%,#1e1e38 50%,#2a1e32 100%);overflow-y:auto}
@@ -224,7 +224,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
 .logo span{color:var(--gold)}
 .page{display:none;animation:fadeIn .18s ease}
-.page.active{display:block;min-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page.active{display:block;min-height:100%;overflow-y:visible}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .page-hdr{padding:20px 18px 14px}
 .page-hdr-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--ink)}
@@ -1460,6 +1460,10 @@ const T = {
     products: 'Препоръчани продукти от специалиста',
     productsPh: 'напр. La Roche-Posay Toleriane · Anthelios SPF50+',
     photoBtn: '📷 Снимка',
+    photoBefore: '📷 ПРЕДИ ПРОЦЕДУРАТА',
+    photoAfter: '📷 СЛЕД ПРОЦЕДУРАТА',
+    addPhotoBefore: '+ Добави снимка Преди',
+    addPhotoAfter: '+ Добави снимка След',
     saveBtn: 'Запази',
     loginToDiary: 'Влез за да водиш личен дневник',
     aiChatBtn: 'Попитай AI за тази процедура',
@@ -1678,6 +1682,10 @@ const T = {
     products: 'Products recommended by specialist',
     productsPh: 'e.g. La Roche-Posay Toleriane · Anthelios SPF50+',
     photoBtn: '📷 Photo',
+    photoBefore: '📷 BEFORE PROCEDURE',
+    photoAfter: '📷 AFTER PROCEDURE',
+    addPhotoBefore: '+ Add photo Before',
+    addPhotoAfter: '+ Add photo After',
     saveBtn: 'Save',
     loginToDiary: 'Sign in to keep a personal diary',
     aiChatBtn: 'Ask AI about this procedure',
@@ -2261,7 +2269,7 @@ let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfte
 async function openSheet(id){
   const p=PROCS.find(x=>x.id===id);if(!p)return;
   const lp=procL(p);
-  currentProcId=id;pendingPhotos=[];
+  currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
   document.getElementById('sh-icon').innerHTML=procCircleIcon(lp.name, '#b8966a', 44).replace('border-radius:50%','border-radius:12px');
   document.getElementById('sh-icon').style.background='rgba(184,150,106,0.08)';
   const catLabel = (window._lang==='en' && CATS_EN[p.cat]) ? CATS_EN[p.cat] : (CATS_LIST.find(c=>c.id===p.cat)?.label||p.cat);
@@ -2374,20 +2382,20 @@ async function openSheet(id){
           </div>
         </div>
         <div class="photo-previews" id="de-previews"></div>
-        <div style="margin-bottom:8px">
-          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${t('photoBefore')||'📷 ПРЕДИ ПРОЦЕДУРАТА'}</div>
-          <div class="photo-previews" id="de-previews-before"></div>
-          <label class="photo-btn" style="width:100%;justify-content:center;margin-bottom:0">
-            ${t('addPhotoBefore')||'+ Добави снимка Преди'}
-            <input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event,'before')">
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${t('photoBefore')||'📷 ПРЕДИ'}</div>
+          <div class="photo-previews" id="de-previews-before" style="margin-bottom:6px"></div>
+          <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--gold)">
+            📷 ${t('addPhotoBefore')||'Добави снимка Преди'}
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'before')">
           </label>
         </div>
         <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${t('photoAfter')||'📷 СЛЕД ПРОЦЕДУРАТА'}</div>
-          <div class="photo-previews" id="de-previews-after"></div>
-          <label class="photo-btn" style="width:100%;justify-content:center;margin-bottom:0">
-            ${t('addPhotoAfter')||'+ Добави снимка След'}
-            <input class="photo-input" type="file" accept="image/*" multiple onchange="addPhotos(event,'after')">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${t('photoAfter')||'📷 СЛЕД'}</div>
+          <div class="photo-previews" id="de-previews-after" style="margin-bottom:6px"></div>
+          <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--gold)">
+            📷 ${t('addPhotoAfter')||'Добави снимка След'}
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'after')">
           </label>
         </div>
         <div class="diary-actions">
