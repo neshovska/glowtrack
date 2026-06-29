@@ -116,7 +116,7 @@ body.dark,.dark .bg{background:#12122a}
 body.dark .bg{background:radial-gradient(ellipse 70% 50% at 15% 8%,rgba(100,80,160,.15),transparent 55%),radial-gradient(ellipse 50% 60% at 88% 92%,rgba(184,150,106,.1),transparent 50%),#12122a}
 body.dark .topbar{background:#1a1a2e!important;border-bottom:1px solid rgba(212,169,106,.12)}
 body.dark .bnav{background:#1a1a2e!important;border-top:1px solid rgba(212,169,106,.12)}
-body.dark .sheet,.dark .sheet{background:#1a1a2e}
+body.dark .sheet,.dark .sheet{background:#1a1a2e;overflow-y:auto;-webkit-overflow-scrolling:touch}
 body.dark .proc-row{background:#1a1a2e;border-color:rgba(212,169,106,.15)}
 body.dark .auth-card{pointer-events:auto;background:rgba(30,30,56,.9)}
 body.dark .form-input,.dark input,.dark textarea,.dark select{background:#12122a!important;color:#f0ede8!important;border-color:rgba(212,169,106,.25)!important;color-scheme:dark}
@@ -265,7 +265,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .sheet-cat{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
 .sheet-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);line-height:1.2}
 .close-btn{width:28px;height:28px;border-radius:50%;background:rgba(26,26,46,.07);border:none;cursor:pointer;font-size:13px;color:var(--ink2);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.sheet-body{padding:0 18px 36px}
+.sheet-body{padding:0 18px 36px;overflow-y:visible}
 /* INFO */
 .info-section{margin-bottom:16px}
 .info-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
