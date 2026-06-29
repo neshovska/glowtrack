@@ -133,7 +133,7 @@ body.dark #ptr-indicator{background:#1e1e38;color:var(--gold)}
 body.dark .notif-card{background:#1a1a2e}
 
 body.dark .stat-box{background:#1a1a2e;border-color:rgba(212,169,106,.15)}
-body.dark .diary-group{background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;margin-bottom:10px;overflow:hidden}
+body.dark .diary-group{background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;margin-bottom:10px;overflow:hidden;touch-action:pan-y}
 body.dark .entry-card{background:#252545}
 body.dark .acc-body{background:transparent}
 body.dark .info-card{background:#1e1e38}
@@ -247,12 +247,12 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .subcat-group{display:flex;flex-direction:column;gap:6px}
 .subcat-header{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);padding:10px 4px 4px;border-bottom:1px solid var(--goldlt);margin-bottom:2px}
 .proc-row-subcat{font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500}
-.proc-row{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s}
+.proc-row{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);transition:transform .12s;overflow:hidden}
 .proc-row:active{transform:scale(.98)}
 .proc-row-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .proc-row-info{flex:1;min-width:0}
-.proc-row-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3}
-.proc-row-sub{font-size:11px;color:var(--ink2);margin-top:1px}
+.proc-row-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proc-row-sub{font-size:11px;color:var(--ink2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .proc-row-arrow{font-size:14px;color:#c5bdb4;flex-shrink:0}
 /* SHEET */
 .overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(18,18,42,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -339,7 +339,7 @@ textarea.form-input{resize:none}
 /* DIARY TAB */
 .diary-tab-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
 .diary-group{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);overflow:hidden;box-shadow:var(--shadow)}
-.diary-group-hdr{padding:11px 14px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.diary-group-hdr{padding:11px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;touch-action:pan-y}
 .diary-group-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .diary-group-info{flex:1;min-width:0}
 .diary-group-name{font-size:12.5px;font-weight:600;color:var(--ink)}
@@ -536,6 +536,7 @@ body.dark #page-diary [style*="position:sticky"]{background:var(--mist)!importan
 .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold);border-width:2px;font-weight:700}
 body.dark .dsort-btn{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:#a09890}
 body.dark .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold)}
+#diary-sortable,#diary-tab-content,.diary-entry-row{touch-action:pan-y}
 </style>
 <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#b8966a">
@@ -2631,6 +2632,46 @@ function startEditEntry(eid,procId){
     });
   }
 }
+async function saveDiaryEntry(procId){
+  if(!window._user){showToast(t('toastNeedLogin')||'Влез в акаунта си');return;}
+  const clinic=document.getElementById('de-clinic')?.value.trim()||'';
+  const specialist=document.getElementById('de-specialist')?.value.trim()||'';
+  const contact=document.getElementById('de-contact')?.value.trim()||'';
+  const advice=document.getElementById('de-advice')?.value.trim()||'';
+  const feeling=document.getElementById('de-feeling')?.value.trim()||'';
+  const products=document.getElementById('de-products')?.value.trim()||'';
+  const price=parseFloat(document.getElementById('de-price')?.value)||0;
+  const rating=parseInt(document.getElementById('de-rating')?.value)||0;
+  if(!clinic&&!specialist&&!advice&&!feeling&&!products&&!price&&!rating&&
+     !pendingPhotos.length&&!pendingPhotosBefore.length&&!pendingPhotosAfter.length){
+    showToast(t('toastAddObs')||'Добави поне едно наблюдение');return;
+  }
+  const btn=document.querySelector('.save-btn');
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    const p=PROCS.find(x=>x.id===procId)||{};
+    await F().addDoc(F().collection(DB(),'diary_entries'),{
+      userId:window._user.uid,
+      procId:procId,
+      procName:p.name||procId,
+      procIcon:p.icon||'',
+      clinic,specialist,contact,advice,feeling,products,price,rating,
+      photos:pendingPhotos,
+      photosBefore:pendingPhotosBefore,
+      photosAfter:pendingPhotosAfter,
+      createdAt:F().serverTimestamp()
+    });
+    showToast(t('toastSaved')||'✅ Запазено!');
+    pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
+    window._cache.diary=null;window._cache.diaryTs=0;
+    await openSheet(procId);
+  }catch(e){
+    console.error('Save error:',e);
+    showToast(t('toastErr')||'Грешка при запазване');
+    if(btn){btn.disabled=false;btn.textContent=t('saveBtn')||'Запази';}
+  }
+}
+
 async function saveEditEntry(eid,procId){
   try{
     await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
