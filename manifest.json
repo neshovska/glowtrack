@@ -1,26 +1,74 @@
 {
-  "name": "GlowTrack",
+  "name": "GlowTrack — Know Your Glow",
   "short_name": "GlowTrack",
-  "description": "Know your glow. Твоята енциклопедия за красота.",
+  "description": "Твоята лична енциклопедия за красота. Проследявай процедури, пази дневник, получавай напомняния.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
+  "background_color": "#f7f5f2",
+  "theme_color": "#b8966a",
   "lang": "bg",
+  "categories": [
+    "lifestyle",
+    "health",
+    "beauty"
+  ],
+  "screenshots": [
+    {
+      "src": "og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "GlowTrack — процедури и дневник"
+    }
+  ],
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Процедури",
+      "short_name": "Процедури",
+      "description": "Разгледай всички процедури",
+      "url": "/?page=procs",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Моят дневник",
+      "short_name": "Дневник",
+      "description": "Виж своите записи",
+      "url": "/?page=diary",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
