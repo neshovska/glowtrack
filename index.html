@@ -897,7 +897,7 @@ window.goPage=goPage;
           <button class="fb-type-btn" data-type="content" onclick="setFbType(this,'content')">📝 Съдържание</button>
         </div>
         <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." data-ph="suggestionPh" rows="3" style="font-size:16px"></textarea>
-        <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()">Изпрати ✦</button>
+        <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()" data-t="sendBtn">Изпрати ✦</button>
         </div>
       </div>
     </div>
@@ -906,7 +906,7 @@ window.goPage=goPage;
     <div id="admin-inbox-wrap" style="display:none">
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title">📬 Предложения <span class="inbox-badge" id="inbox-badge" style="display:none"></span></span>
+          <span class="pcs-title">📬 <span data-t="profileSuggest">Изпрати предложение</span> <span class="inbox-badge" id="inbox-badge" style="display:none"></span></span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -1412,6 +1412,7 @@ const T = {
     newPass: 'Нова парола (по желание)',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
+    sendBtn: 'Изпрати ✦',
     notifTypeReminder: 'Напомняне',
     notifTypeBooking: 'Резервация',
     sortDefault: '📅 По дата',
@@ -1637,6 +1638,7 @@ const T = {
     newPass: 'New password (optional)',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
+    sendBtn: 'Send ✦',
     notifTypeReminder: 'Reminder',
     notifTypeBooking: 'Booking',
     sortDefault: '📅 By date',
@@ -3706,7 +3708,10 @@ function filterNotifProcs(){
   dd.style.display = 'block';
 }
 function selectNotifProc(id, name){
-  document.getElementById('notif-proc-search').value = name;
+  const p = (window.PROCS||PROCS||[]).find(x=>x.id===id);
+  const lp = p ? procL(p) : null;
+  const displayName = lp ? lp.name : name;
+  document.getElementById('notif-proc-search').value = displayName;
   document.getElementById('notif-proc').value = id;
   document.getElementById('notif-proc-dropdown').style.display='none';
 }
