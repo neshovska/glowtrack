@@ -861,6 +861,10 @@ window.goPage=goPage;
         </div>
         <div class="acc-body">
         <div style="margin-top:8px;font-size:12px;color:var(--ink2)" data-t="notifHint">Задай процедура и дата за следващото си посещение.</div>
+        <div id="push-notif-toggle-wrap" style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
+          <div style="font-size:12px;color:var(--ink);line-height:1.4"><strong>Push известия</strong><br><span style="color:var(--ink2);font-size:11px" id="push-notif-status-text">Получавай напомняния дори когато приложението е затворено</span></div>
+          <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;padding:8px 14px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Включи</button>
+        </div>
         <div style="position:relative;margin-top:10px;overflow:visible">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
           <input type="hidden" id="notif-proc">
@@ -1143,12 +1147,42 @@ window.goPage=goPage;
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
 const auth=getAuth(fb);const db=getFirestore(fb);
 // Ensure auth persists across page reloads
 try{ auth.setPersistence && auth.setPersistence({type:'LOCAL'}); }catch(e){}
 window._auth=auth;window._db=db;
 window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
+
+// ── PUSH NOTIFICATIONS (Firebase Cloud Messaging) ──
+window._fcmVapidKey='TUK_TRYABVA_DA_E_TVOYAT_VAPID_KEY'; // Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
+window.pushNotifStatus=function(){
+  if(!('Notification' in window))return 'unsupported';
+  return Notification.permission; // 'default' | 'granted' | 'denied'
+};
+window.initPushNotifications=async function(){
+  try{
+    if(!('serviceWorker' in navigator)||!('Notification' in window)){showToast&&showToast('Известията не се поддържат на това устройство');return null;}
+    const supported=await fcmIsSupported().catch(()=>false);
+    if(!supported){showToast&&showToast('Известията не се поддържат в този браузър');return null;}
+    const registration=await navigator.serviceWorker.ready;
+    const permission=await Notification.requestPermission();
+    if(permission!=='granted'){showToast&&showToast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    const messaging=getMessaging(fb);
+    const token=await getToken(messaging,{vapidKey:window._fcmVapidKey,serviceWorkerRegistration:registration});
+    if(token&&window._user){
+      await setDoc(doc(db,'users',window._user.uid),{fcmToken:token,fcmTokenUpdatedAt:new Date().toISOString()},{merge:true});
+      showToast&&showToast('Известията са включени ✓');
+    }
+    if(!window._fcmForegroundBound){
+      onMessage(messaging,payload=>{showToast&&showToast(payload.notification?.title||'Ново известие от GlowTrack');});
+      window._fcmForegroundBound=true;
+    }
+    if(typeof updatePushToggleUI==='function')updatePushToggleUI();
+    return token;
+  }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка при включване на известията');return null;}
+};
 window.doLogin=async function(){const email=document.getElementById('login-email').value.trim();const pass=document.getElementById('login-pass').value;if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='...';try{await signInWithEmailAndPassword(auth,email,pass);}catch(e){window.showAuthError(t('wrongCredentials'));}finally{btn.disabled=false;btn.textContent='Влез';}};
 window.doRegister=async function(){const name=document.getElementById('reg-name').value.trim();const email=document.getElementById('reg-email').value.trim();const pass=document.getElementById('reg-pass').value;if(!name||!email||!pass){window.showAuthError(t('fillAllFields'));return;}if(pass.length<6){window.showAuthError('Паролата трябва да е поне 6 символа');return;}const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='...';try{const cred=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:serverTimestamp()});}catch(e){window.showAuthError(e.code==='auth/email-already-in-use'?t('emailExists'):t('registerError'));}finally{btn.disabled=false;btn.textContent='Създай акаунт';}};
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
@@ -1196,6 +1230,7 @@ onAuthStateChanged(auth,async user=>{
     if(typeof loadFavsList==='function')loadFavsList();
     if(typeof updateFavsStat==='function')updateFavsStat();
     if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();
+    if(typeof updatePushToggleUI==='function')updatePushToggleUI();
     try{const uSnap=await getDoc(doc(db,'users',user.uid));if(uSnap.exists()&&uSnap.data().notifs){const fbNotifs=uSnap.data().notifs;const localNotifs=_lsGet('gt_notifs')||[];const merged=[...localNotifs];fbNotifs.forEach(fn=>{if(!merged.find(ln=>ln.id===fn.id))merged.push(fn);});_lsSet('gt_notifs',merged);}}catch(e){}
     try{const uSnap2=await getDoc(doc(db,'users',user.uid));if(uSnap2.exists()&&uSnap2.data().favs){const fbFavs=uSnap2.data().favs;const localFavs=typeof getFavs==='function'?getFavs():[];const merged=[...new Set([...localFavs,...fbFavs])];if(merged.length!==localFavs.length&&typeof saveFavs==='function')saveFavs(merged);}}catch(e){}
     if(typeof loadHomeCare==='function')loadHomeCare();
@@ -4217,6 +4252,24 @@ function loadNotifsPage(){
   content.innerHTML = html || `<div class="empty-state"><div class="empty-ic">🔔</div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`;
 }
 
+function updatePushToggleUI(){
+  const btn=document.getElementById('push-notif-toggle-btn');
+  const txt=document.getElementById('push-notif-status-text');
+  if(!btn||!txt)return;
+  const status=typeof pushNotifStatus==='function'?pushNotifStatus():'default';
+  if(status==='granted'){
+    btn.textContent='✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.75';btn.style.cursor='default';
+    txt.textContent='Известията са активни на това устройство';
+  }else if(status==='denied'){
+    btn.textContent='Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';
+    txt.textContent='Разреши известията от настройките на браузъра';
+  }else if(status==='unsupported'){
+    btn.style.display='none';
+  }else{
+    btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';
+    txt.textContent='Получавай напомняния дори когато приложението е затворено';
+  }
+}
 function updateNotifBadge(count){
   const badge = document.getElementById('notif-badge');
   if(!badge) return;
