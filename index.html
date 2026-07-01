@@ -861,9 +861,9 @@ window.goPage=goPage;
         </div>
         <div class="acc-body">
         <div style="margin-top:8px;font-size:12px;color:var(--ink2)" data-t="notifHint">Задай процедура и дата за следващото си посещение.</div>
-        <div id="push-notif-toggle-wrap" style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
-          <div style="font-size:12px;color:var(--ink);line-height:1.4"><strong>Push известия</strong><br><span style="color:var(--ink2);font-size:11px" id="push-notif-status-text">Получавай напомняния дори когато приложението е затворено</span></div>
-          <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;padding:8px 14px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Включи</button>
+        <div id="push-notif-toggle-wrap" style="margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
+          <div style="min-width:0;flex:1 1 160px;font-size:12px;color:var(--ink);line-height:1.4"><strong>Push известия</strong><br><span style="color:var(--ink2);font-size:11px" id="push-notif-status-text">Получавай напомняния дори когато приложението е затворено</span></div>
+          <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;white-space:nowrap;padding:8px 14px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
         </div>
         <div style="position:relative;margin-top:10px;overflow:visible">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
@@ -1181,7 +1181,7 @@ window.initPushNotifications=async function(){
     }
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();
     return token;
-  }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка при включване на известията');return null;}
+  }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
 window.doLogin=async function(){const email=document.getElementById('login-email').value.trim();const pass=document.getElementById('login-pass').value;if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='...';try{await signInWithEmailAndPassword(auth,email,pass);}catch(e){window.showAuthError(t('wrongCredentials'));}finally{btn.disabled=false;btn.textContent='Влез';}};
 window.doRegister=async function(){const name=document.getElementById('reg-name').value.trim();const email=document.getElementById('reg-email').value.trim();const pass=document.getElementById('reg-pass').value;if(!name||!email||!pass){window.showAuthError(t('fillAllFields'));return;}if(pass.length<6){window.showAuthError('Паролата трябва да е поне 6 символа');return;}const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='...';try{const cred=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:serverTimestamp()});}catch(e){window.showAuthError(e.code==='auth/email-already-in-use'?t('emailExists'):t('registerError'));}finally{btn.disabled=false;btn.textContent='Създай акаунт';}};
@@ -4257,16 +4257,18 @@ function updatePushToggleUI(){
   const txt=document.getElementById('push-notif-status-text');
   if(!btn||!txt)return;
   const status=typeof pushNotifStatus==='function'?pushNotifStatus():'default';
+  btn.style.display='inline-block';
   if(status==='granted'){
-    btn.textContent='✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.75';btn.style.cursor='default';
+    btn.textContent='✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.85';btn.style.cursor='default';btn.style.color='#fff';
     txt.textContent='Известията са активни на това устройство';
   }else if(status==='denied'){
-    btn.textContent='Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';
-    txt.textContent='Разреши известията от настройките на браузъра';
+    btn.textContent='Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
+    txt.textContent='Разреши известията от настройките на браузъра/iOS';
   }else if(status==='unsupported'){
-    btn.style.display='none';
+    btn.textContent='Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
+    txt.textContent='Push известията не се поддържат на това устройство/браузър';
   }else{
-    btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';
+    btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
     txt.textContent='Получавай напомняния дори когато приложението е затворено';
   }
 }
