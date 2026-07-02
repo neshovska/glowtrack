@@ -1317,6 +1317,14 @@ async function saveProcRemind(procId,procName){
   if(window._user){ try{ await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(saved.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
   showToast(window._lang==='en'?'Reminder saved ✓':'Напомнянето е запазено ✓');
+  // Close the accordion menu after saving
+  const body = sel.closest('.acc-body');
+  if(body){
+    body.classList.remove('open');
+    const header = body.previousElementSibling;
+    const arrow = header && header.querySelector('.acc-arrow');
+    if(arrow) arrow.classList.remove('open');
+  }
 }
 function _lsGet(base){ try{return JSON.parse(localStorage.getItem(_lsKey(base))||'null');}catch(e){return null;} }
 function _lsSet(base,val){ try{localStorage.setItem(_lsKey(base),JSON.stringify(val));}catch(e){} }
