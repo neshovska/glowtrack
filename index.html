@@ -894,7 +894,7 @@ window.goPage=goPage;
             <strong style="font-size:12px;color:var(--ink)">Push известия</strong>
             <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
           </div>
-          <div id="push-notif-status-text" style="margin-top:6px;color:var(--ink2);font-size:10px;line-height:1.4">Получавай напомняния дори когато приложението е затворено</div>
+          <div id="push-notif-status-text" style="margin-top:6px;color:var(--ink2);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Получавай напомняния дори когато приложението е затворено</div>
         </div>
         <div style="position:relative;margin-top:10px;overflow:visible">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
@@ -5001,7 +5001,7 @@ function updatePushToggleUI(){
     txt.textContent='Разреши от настройки на браузъра';
   }else if(status==='unsupported'){
     btn.textContent='Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.innerHTML='Добави на начален екран (Share → Add to Home Screen), за да работят';
+    txt.innerHTML='Добави на начален екран, за да работят';
   }else{
     btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
     txt.textContent='Работят и при затворено приложение';
