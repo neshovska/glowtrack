@@ -409,6 +409,7 @@ textarea.form-input{resize:none}
 /* PROFILE CARDS */
 .profile-card-section{margin:12px 18px 0;background:#fff;border-radius:16px;padding:16px;border:1px solid var(--goldlt);box-shadow:0 2px 8px rgba(26,26,46,.04)}
 .pcs-title{font-size:13px;font-weight:700;color:var(--ink1);letter-spacing:.01em}
+.gold-emoji{filter:grayscale(1) sepia(1) saturate(6) brightness(.85) hue-rotate(-12deg);display:inline-block}
 .stat-box{flex:1;background:#faf8f5;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid var(--goldlt)}
 .stat-num{font-size:24px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif}
 .stat-lbl{font-size:10px;color:var(--ink2);margin-top:2px;font-weight:500}
@@ -737,7 +738,7 @@ window.goPage=goPage;
       <!-- ADMIN STATS ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
         <div class="acc-header" onclick="toggleAcc(this);loadAdminStats()" style="padding:0">
-          <span class="pcs-title">📊 Статистика</span>
+          <span class="pcs-title"><span class="gold-emoji">📊</span> Статистика</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -747,7 +748,7 @@ window.goPage=goPage;
       <!-- CLINICS ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title">🏥 Клиники (партньори)</span>
+          <span class="pcs-title"><span class="gold-emoji">🏥</span> Клиники (партньори)</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -773,7 +774,7 @@ window.goPage=goPage;
       <!-- PRODUCTS ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title">🧴 Продукти (реклами)</span>
+          <span class="pcs-title"><span class="gold-emoji">🧴</span> Продукти (реклами)</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -827,7 +828,7 @@ window.goPage=goPage;
       <!-- FAVORITES ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileFavs">❤️ Любими процедури</span>
+          <span class="pcs-title" data-t="profileFavs"><span class="gold-emoji">❤️</span> Любими процедури</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -840,7 +841,7 @@ window.goPage=goPage;
       <!-- ДОМАШНА ГРИЖА ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0 0 0 0">
-          <span class="pcs-title" data-t="profileCare">🌿 Домашна грижа</span>
+          <span class="pcs-title" data-t="profileCare"><span class="gold-emoji">🌿</span> Домашна грижа</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -888,17 +889,17 @@ window.goPage=goPage;
       <!-- NOTIFICATIONS ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileNotifs">🔔 Напомняния за процедури</span>
+          <span class="pcs-title" data-t="profileNotifs"><span class="gold-emoji">🔔</span> Напомняния за процедури</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
         <div style="margin-top:8px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="notifHint">Задай дата за следващо посещение</div>
-        <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <strong style="font-size:12px;color:var(--ink)">Push известия</strong>
-            <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+        <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2);display:flex;align-items:flex-start;gap:12px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
+            <strong style="font-size:11px;color:var(--ink);white-space:nowrap">Push известия</strong>
+            <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
           </div>
-          <div id="push-notif-status-text" style="margin-top:6px;color:var(--ink2);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Получавай напомняния дори когато приложението е затворено</div>
+          <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:1px">Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.</div>
         </div>
         <div style="position:relative;margin-top:10px;overflow:visible">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
@@ -948,7 +949,7 @@ window.goPage=goPage;
     <div id="admin-inbox-wrap" style="display:none">
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title">📬 <span data-t="profileSuggest">Изпрати предложение</span> <span class="inbox-badge" id="inbox-badge" style="display:none"></span></span>
+          <span class="pcs-title"><span class="gold-emoji">📬</span> <span data-t="profileSuggest">Изпрати предложение</span> <span class="inbox-badge" id="inbox-badge" style="display:none"></span></span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
@@ -3967,7 +3968,7 @@ function renderSkinTestCard(){
   } else {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="font-size:28px">🧬</div>
+        <div style="font-size:28px" class="gold-emoji">🧬</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?'Тест за типа кожа':'Skin type test'}</div>
           <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'7 въпроса · открий типа си и подходящите процедури':'7 questions · discover your type and suitable procedures'}</div>
@@ -4349,7 +4350,7 @@ function renderCycleTrackerCard(){
   } else {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="font-size:28px">🌙</div>
+        <div style="font-size:28px" class="gold-emoji">🌙</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?'Цикъл и кожа':'Cycle & skin'}</div>
           <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'Проследявай цикъла и връзката му с кожата':'Track your cycle and its link to your skin'}</div>
@@ -4999,16 +5000,16 @@ function updatePushToggleUI(){
   btn.style.display='inline-block';
   if(status==='granted'){
     btn.textContent='✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.85';btn.style.cursor='default';btn.style.color='#fff';
-    txt.textContent='Известията са активни';
+    txt.textContent='Известията са активни на това устройство. Ще получаваш напомняния дори когато приложението е затворено.';
   }else if(status==='denied'){
     btn.textContent='Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.textContent='Разреши от настройки на браузъра';
+    txt.textContent='Известията са блокирани от браузъра. Разреши ги от настройките на телефона, за да продължиш.';
   }else if(status==='unsupported'){
     btn.textContent='Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.innerHTML='Добави на начален екран, за да работят';
+    txt.innerHTML='Push известията не работят в обикновен браузър таб. Добави приложението на началния екран (Share → Add to Home Screen) и го отвори от там.';
   }else{
     btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
-    txt.textContent='Работят и при затворено приложение';
+    txt.textContent='Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.';
   }
 }
 function updateNotifBadge(count){
