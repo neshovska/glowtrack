@@ -3839,7 +3839,7 @@ function renderSkinQuizQuestions(){
       <div style="margin-bottom:18px">
         <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px">${qi+1}. ${isBGq?q.bg:q.en}</div>
         <div style="display:flex;flex-direction:column;gap:6px" id="skin-q-${q.key}">
-          ${q.opts.map(o=>`<button type="button" onclick="selectSkinAnswer('${q.key}',${JSON.stringify(o.v)},this)" data-val='${JSON.stringify(o.v)}' style="text-align:left;padding:10px 12px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink1);font-size:12.5px;cursor:pointer;font-family:inherit">${isBGq?o.bg:o.en}</button>`).join('')}
+          ${q.opts.map(o=>`<button type="button" onclick='selectSkinAnswer(${JSON.stringify(q.key)}, ${JSON.stringify(o.v)}, this)' data-val='${JSON.stringify(o.v)}' style="text-align:left;padding:10px 12px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink1);font-size:12.5px;cursor:pointer;font-family:inherit">${isBGq?o.bg:o.en}</button>`).join('')}
         </div>
       </div>`).join('')}
     <button id="skin-quiz-submit" onclick="computeSkinResult()" style="width:100%;padding:13px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.5" disabled>${isBGq?'Виж резултата':'See result'}</button>
