@@ -227,6 +227,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .page-hdr{padding:20px 18px 14px}
 .page-hdr-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--ink)}
+#page-profile .page-hdr-title{font-size:20px}
 .page-hdr-title em{font-style:italic;color:var(--gold)}
 .page-hdr-sub{font-size:12px;color:var(--ink2);margin-top:3px}
 /* SEARCH + CATS */
@@ -1536,7 +1537,7 @@ const T = {
     procsSearch: 'Търси процедура...',
     noResults: 'Няма намерени процедури',
     diaryTitle: 'Моят дневник',
-    diarySub: 'Лична история на процедурите ти',
+    diarySub: 'Красотата не е момент. Тя е история. Запази я.',
     clinicsTitle: 'Клиники',
     clinicsSub: 'Партньорски клиники',
     clinicsSearch: 'Търси клиника или процедура...',
@@ -1764,7 +1765,7 @@ const T = {
     procsSearch: 'Search procedures...',
     noResults: 'No procedures found',
     diaryTitle: 'My Diary',
-    diarySub: 'Your personal procedure history',
+    diarySub: 'Beauty isn\'t a moment. It\'s a history. Save it.',
     clinicsTitle: 'Clinics',
     clinicsSub: 'Partner clinics',
     clinicsSearch: 'Search clinic or procedure...',
@@ -1991,11 +1992,11 @@ function applyLang(){
     if(t1) t1.innerHTML = title;
     if(t2 && sub) t2.textContent = sub;
   };
-  setHdr('page-procs', t('procsTitle'), t('procsSub'));
-  setHdr('page-diary', 'My <em>diary</em>', t('diarySub'));
+  setHdr('page-procs', t('procsTitle')+' <span style="font-size:12px;color:var(--ink2);font-family:\'DM Sans\',sans-serif;font-weight:400;vertical-align:middle">· '+t('procsSub')+'</span>', '');
+  setHdr('page-diary', (window._lang==='en'?'My <em>diary</em>':'Моя <em>дневник</em>'), t('diarySub'));
   setHdr('page-clinics', '<em>'+t('clinicsTitle')+'</em>', t('clinicsSub'));
   setHdr('page-products', t('productsTitle'), t('productsSub'));
-  setHdr('page-profile', 'My <em>profile</em>', '');
+  setHdr('page-profile', '<em>profile</em>', '');
   // Notifs page title (not a standard hdr)
   const nt = document.getElementById('notifs-page-title');
   if(nt) nt.textContent = t('notifsTitle');
