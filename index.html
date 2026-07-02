@@ -410,7 +410,7 @@ textarea.form-input{resize:none}
 /* PROFILE CARDS */
 .profile-card-section{margin:12px 18px 0;background:#fff;border-radius:16px;padding:16px;border:1px solid var(--goldlt);box-shadow:0 2px 8px rgba(26,26,46,.04)}
 .pcs-title{font-size:13px;font-weight:700;color:var(--ink1);letter-spacing:.01em}
-.gold-emoji{filter:grayscale(1) sepia(1) saturate(6) brightness(.85) hue-rotate(-12deg);display:inline-block}
+.gold-emoji{filter:grayscale(1) sepia(.65) saturate(2.2) brightness(.95) hue-rotate(-4deg);display:inline-block}
 .stat-box{flex:1;background:#faf8f5;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid var(--goldlt)}
 .stat-num{font-size:24px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif}
 .stat-lbl{font-size:10px;color:var(--ink2);margin-top:2px;font-weight:500}
@@ -628,7 +628,7 @@ window.goPage=goPage;
 </div>
   <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1">☀️</button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none"></div></div>
   <div class="page active" id="page-procs">
-    <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub">Пълна енциклопедия — намери, научи, проследи</div></div>
+    <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap"><div class="search-box" style="position:relative"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onfocus="showSuggestions()" onblur="setTimeout(hideSuggestions,200)" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div></div>
     <div class="cats" id="cats-bar"></div>
     <div class="proc-list" id="proc-list"></div>
@@ -683,7 +683,7 @@ window.goPage=goPage;
 </div></div>
   </div>
   <div class="page" id="page-profile">
-    <div class="page-hdr"><div class="page-hdr-title">Моят <em>профил</em></div></div>
+    <div class="page-hdr" style="display:none"><div class="page-hdr-title"></div></div>
     <div class="profile-card">
   <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:80px;gap:10px;margin:0 auto 12px">
     <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">G</span><span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">L</span>
@@ -1996,7 +1996,7 @@ function applyLang(){
   setHdr('page-diary', (window._lang==='en'?'My <em>diary</em>':'Моя <em>дневник</em>'), t('diarySub'));
   setHdr('page-clinics', '<em>'+t('clinicsTitle')+'</em>', t('clinicsSub'));
   setHdr('page-products', t('productsTitle'), t('productsSub'));
-  setHdr('page-profile', '<em>profile</em>', '');
+  setHdr('page-profile', '', '');
   // Notifs page title (not a standard hdr)
   const nt = document.getElementById('notifs-page-title');
   if(nt) nt.textContent = t('notifsTitle');
