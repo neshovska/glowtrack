@@ -366,9 +366,7 @@ textarea.form-input{resize:none}
 .product-tab-desc{font-size:11.5px;color:var(--ink2);line-height:1.5;margin-top:2px}
 .product-tab-procs{font-size:10px;color:var(--sage);margin-top:4px}
 /* PROFILE */
-.profile-card{margin:0 18px 12px;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:18px;text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:-50px;left:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(184,150,106,.20),transparent 70%);pointer-events:none;z-index:0}
-.profile-card::after{content:'';position:absolute;bottom:-60px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(212,132,154,.16),transparent 70%);pointer-events:none;z-index:0}
+.profile-card{margin:0 18px 12px;background-color:var(--card);background-image:url('./profile-shadow-leaves.jpg');background-size:cover;background-position:center 30%;background-blend-mode:soft-light;border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:18px;text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .profile-card>*{position:relative;z-index:1}
 .profile-av{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d4a96a);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px}
 .profile-name{font-size:16px;font-weight:700;color:var(--ink)}
@@ -891,9 +889,12 @@ window.goPage=goPage;
         </div>
         <div class="acc-body">
         <div style="margin-top:8px;font-size:12px;color:var(--ink2)" data-t="notifHint">Задай процедура и дата за следващото си посещение.</div>
-        <div id="push-notif-toggle-wrap" style="margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
-          <div style="min-width:0;flex:1 1 160px;font-size:12px;color:var(--ink);line-height:1.4"><strong>Push известия</strong><br><span style="color:var(--ink2);font-size:11px" id="push-notif-status-text">Получавай напомняния дори когато приложението е затворено</span></div>
-          <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;white-space:nowrap;padding:8px 14px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+        <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <strong style="font-size:12px;color:var(--ink)">Push известия</strong>
+            <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+          </div>
+          <div id="push-notif-status-text" style="margin-top:6px;color:var(--ink2);font-size:11px;line-height:1.5">Получавай напомняния дори когато приложението е затворено</div>
         </div>
         <div style="position:relative;margin-top:10px;overflow:visible">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
