@@ -687,6 +687,8 @@ window.goPage=goPage;
   <div class="profile-email" id="prof-email">—</div>
   <button onclick="showEditProfile()" style="margin-top:10px;padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit" id="edit-profile-btn">✏️ <span data-t="editProfileBtn">Редактирай профила</span></button>
 </div>
+<!-- Skin test summary / launcher -->
+<div id="skin-test-card" style="margin-top:14px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);padding:16px"></div>
 <!-- Edit profile modal -->
 <div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
@@ -698,6 +700,17 @@ window.goPage=goPage;
       <button onclick="saveEditProfile()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" data-t="saveBtn2">Запази</button>
       <button onclick="document.getElementById('edit-profile-modal').style.display='none'" style="padding:10px 16px;background:none;border:1.5px solid var(--goldlt);border-radius:12px;font-size:13px;color:var(--ink2);cursor:pointer;font-family:inherit" data-t="cancelBtn">Откажи</button>
     </div>
+  </div>
+</div>
+
+<!-- Skin type quiz modal -->
+<div id="skin-quiz-modal" style="display:none;position:fixed;inset:0;z-index:600;background:var(--mist);overflow-y:auto" onclick="if(event.target===this)return;">
+  <div style="max-width:480px;margin:0 auto;padding:16px 16px 40px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 16px">
+      <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">🧬 <span id="skin-quiz-title">Тест за типа кожа</span></div>
+      <button onclick="closeSkinQuiz()" style="background:none;border:none;font-size:22px;color:var(--ink2);cursor:pointer;line-height:1;padding:4px">×</button>
+    </div>
+    <div id="skin-quiz-body"></div>
   </div>
 </div>
 
@@ -2106,6 +2119,8 @@ function goPage(name,btn){
           <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">${window._lang==='en'?'Sign in to see your profile':'Влез, за да видиш профила си'}</div>
           <button onclick="openAuthScreen()" style="margin-top:8px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button>
         </div>`;
+        const stc=document.getElementById('skin-test-card');
+        if(stc)stc.innerHTML='';
       } else loadProfileStats();
     }
   }catch(e){}
@@ -3758,8 +3773,177 @@ function saveNotifDate(){
   loadNotifProcSelector();
 }
 
+// ══ SKIN TYPE + PHOTOTYPE QUIZ ══
+const SKIN_QUIZ_Q = [
+  {key:'q1', axis:'type', bg:'Как изглежда кожата ти няколко часа след измиване?', en:'How does your skin look a few hours after washing?',
+    opts:[{v:'dry',bg:'Опъната, понякога се лющи',en:'Tight, sometimes flaky'},{v:'normal',bg:'Гладка и комфортна',en:'Smooth and comfortable'},{v:'combination',bg:'Лъскава само в Т-зоната (чело, нос, брадичка)',en:'Shiny only in the T-zone (forehead, nose, chin)'},{v:'oily',bg:'Лъскава по цялото лице',en:'Shiny all over'}]},
+  {key:'q2', axis:'type', bg:'Колко видими са порите ти?', en:'How visible are your pores?',
+    opts:[{v:'dry',bg:'Почти невидими',en:'Almost invisible'},{v:'normal',bg:'Леко видими',en:'Slightly visible'},{v:'combination',bg:'Видими само в Т-зоната',en:'Visible only in the T-zone'},{v:'oily',bg:'Видими и разширени по цялото лице',en:'Visible and enlarged all over'}]},
+  {key:'q3', axis:'type', bg:'Как изглежда кожата ти към обяд (без грим)?', en:'How does your skin look by midday (no makeup)?',
+    opts:[{v:'dry',bg:'Все още опъната или суха',en:'Still tight or dry'},{v:'normal',bg:'Все още свежа',en:'Still fresh'},{v:'combination',bg:'Лъска само в Т-зоната',en:'Shiny only in the T-zone'},{v:'oily',bg:'Лъска цялото лице',en:'Shiny all over'}]},
+  {key:'q4', axis:'sensitivity', bg:'Как реагира кожата ти на нови продукти или смяна на времето?', en:'How does your skin react to new products or weather changes?',
+    opts:[{v:0,bg:'Рядко реагира зле',en:'Rarely reacts badly'},{v:1,bg:'Понякога леко зачервяване/сърбеж',en:'Sometimes mild redness/itching'},{v:2,bg:'Често се зачервява, сърби или парва',en:'Often turns red, itches or stings'}]},
+  {key:'q5', axis:'photo', bg:'Естествен цвят на кожата (незасегната от слънце)?', en:'Natural skin tone (not sun-exposed)?',
+    opts:[{v:1,bg:'Много светла, почти бяла',en:'Very fair, almost white'},{v:2,bg:'Светла',en:'Fair'},{v:3,bg:'Светла до маслинена',en:'Fair to olive'},{v:4,bg:'Маслинена / светлокафява',en:'Olive / light brown'},{v:5,bg:'Кафява',en:'Brown'},{v:6,bg:'Тъмнокафява / черна',en:'Dark brown / black'}]},
+  {key:'q6', axis:'photo', bg:'Какво се случва след 30 мин на слънце без протекция?', en:'What happens after 30 min in the sun without protection?',
+    opts:[{v:1,bg:'Винаги изгарям, никога не почернявам',en:'Always burn, never tan'},{v:2,bg:'Обикновено изгарям, почернявам минимално',en:'Usually burn, tan minimally'},{v:3,bg:'Понякога леко изгарям, почернявам равномерно',en:'Sometimes mild burn, tan evenly'},{v:4,bg:'Рядко изгарям, почернявам лесно',en:'Rarely burn, tan easily'},{v:5,bg:'Много рядко изгарям, почернявам силно',en:'Very rarely burn, tan deeply'},{v:6,bg:'Никога не изгарям',en:'Never burn'}]},
+  {key:'q7', axis:'photo', bg:'Естествен цвят на косата (преди прошарване)?', en:'Natural hair colour (before greying)?',
+    opts:[{v:1,bg:'Червена / много светло руса',en:'Red / very light blonde'},{v:2,bg:'Руса',en:'Blonde'},{v:3,bg:'Кафява',en:'Brown'},{v:4,bg:'Тъмнокафява',en:'Dark brown'},{v:5,bg:'Черна',en:'Black'},{v:6,bg:'Черна, много гъста',en:'Black, very dark'}]},
+];
+const SKIN_TYPE_INFO = {
+  dry:{icon:'🏜️',bg:'Суха кожа',en:'Dry skin',descBg:'Произвежда по-малко себум, склонна е към опъване и лющене. Нуждае се от богати, хидратиращи текстури.',descEn:'Produces less sebum, prone to tightness and flaking. Needs rich, hydrating textures.'},
+  normal:{icon:'✨',bg:'Нормална кожа',en:'Normal skin',descBg:'Балансирана — нито мазна, нито суха. Поддържай баланса с лека рутина.',descEn:'Balanced — neither oily nor dry. Maintain it with a light routine.'},
+  combination:{icon:'🌗',bg:'Комбинирана кожа',en:'Combination skin',descBg:'Мазна Т-зона, но нормална до суха по бузите. Нуждае се от таргетирана грижа за различните зони.',descEn:'Oily T-zone, but normal to dry cheeks. Needs zone-targeted care.'},
+  oily:{icon:'💧',bg:'Мазна кожа',en:'Oily skin',descBg:'Произвежда повече себум, склонна е към лъскавина и разширени пори. Нуждае се от леки, себорегулиращи продукти.',descEn:'Produces more sebum, prone to shine and enlarged pores. Needs light, sebum-regulating products.'},
+  sensitive:{icon:'🌸',bg:'Чувствителна кожа',en:'Sensitive skin',descBg:'Реагира лесно на продукти и фактори на средата. Нуждае се от нежни, успокояващи формули без агресивни съставки.',descEn:'Reacts easily to products and environmental factors. Needs gentle, calming formulas without harsh ingredients.'},
+};
+const PHOTOTYPE_INFO = {
+  1:{bg:'Фототип I',en:'Phototype I',descBg:'Много светла кожа — винаги изгаря, никога не почернява. Изисква максимална слънцезащита.',descEn:'Very fair skin — always burns, never tans. Requires maximum sun protection.'},
+  2:{bg:'Фототип II',en:'Phototype II',descBg:'Светла кожа — обикновено изгаря, почернява минимално.',descEn:'Fair skin — usually burns, tans minimally.'},
+  3:{bg:'Фототип III',en:'Phototype III',descBg:'Светла до маслинена кожа — понякога леко изгаря, почернява равномерно.',descEn:'Fair to olive skin — sometimes mild burn, tans evenly.'},
+  4:{bg:'Фототип IV',en:'Phototype IV',descBg:'Маслинена кожа — рядко изгаря, почернява лесно.',descEn:'Olive skin — rarely burns, tans easily.'},
+  5:{bg:'Фототип V',en:'Phototype V',descBg:'Кафява кожа — много рядко изгаря, почернява силно.',descEn:'Brown skin — very rarely burns, tans deeply.'},
+  6:{bg:'Фототип VI',en:'Phototype VI',descBg:'Тъмнокафява/черна кожа — практически никога не изгаря.',descEn:'Dark brown/black skin — practically never burns.'},
+};
+const SKIN_TYPE_RECS = {
+  dry:['m8-hydration','hp-collagen','clean-hydra'],
+  normal:['clean-classic','led-therapy'],
+  combination:['clean-hydra','clean-classic','m8-pore'],
+  oily:['clean-medical','m8-clarity-facial','m8-clarity-peel'],
+  sensitive:['m8-calming','led-therapy'],
+};
+const PHOTOTYPE_RECS = {
+  1:['le-alex-face','le-alex-body'],2:['le-alex-face','le-alex-body'],
+  3:['le-diode-face','le-diode-body'],4:['le-diode-face','le-diode-body'],
+  5:['le-ndyag-face','le-ndyag-body'],6:['le-ndyag-face','le-ndyag-body'],
+};
+window._skinQuizAnswers = {};
+function openSkinQuiz(){
+  window._skinQuizAnswers = {};
+  document.getElementById('skin-quiz-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  renderSkinQuizQuestions();
+  document.getElementById('skin-quiz-modal').scrollTop=0;
+}
+function closeSkinQuiz(){
+  document.getElementById('skin-quiz-modal').style.display='none';
+  document.body.style.overflow='';
+}
+function renderSkinQuizQuestions(){
+  const isBGq = window._lang!=='en';
+  const body = document.getElementById('skin-quiz-body');
+  document.getElementById('skin-quiz-title').textContent = isBGq?'Тест за типа кожа':'Skin type test';
+  body.innerHTML = `
+    <div style="font-size:12.5px;color:var(--ink2);margin-bottom:16px">${isBGq?'Отговори на 7 кратки въпроса, за да разбереш типа на кожата си и подходящия фототип за лазерни процедури.':'Answer 7 short questions to find your skin type and suitable phototype for laser procedures.'}</div>
+    ${SKIN_QUIZ_Q.map((q,qi)=>`
+      <div style="margin-bottom:18px">
+        <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px">${qi+1}. ${isBGq?q.bg:q.en}</div>
+        <div style="display:flex;flex-direction:column;gap:6px" id="skin-q-${q.key}">
+          ${q.opts.map(o=>`<button type="button" onclick="selectSkinAnswer('${q.key}',${JSON.stringify(o.v)},this)" data-val='${JSON.stringify(o.v)}' style="text-align:left;padding:10px 12px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink1);font-size:12.5px;cursor:pointer;font-family:inherit">${isBGq?o.bg:o.en}</button>`).join('')}
+        </div>
+      </div>`).join('')}
+    <button id="skin-quiz-submit" onclick="computeSkinResult()" style="width:100%;padding:13px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.5" disabled>${isBGq?'Виж резултата':'See result'}</button>
+  `;
+}
+function selectSkinAnswer(qKey, val, btnEl){
+  window._skinQuizAnswers[qKey] = val;
+  const wrap = document.getElementById('skin-q-'+qKey);
+  if(wrap) wrap.querySelectorAll('button').forEach(b=>{
+    b.style.borderColor='var(--roselt)'; b.style.background='var(--card)'; b.style.color='var(--ink1)'; b.style.fontWeight='400';
+  });
+  btnEl.style.borderColor='var(--gold)'; btnEl.style.background='rgba(184,150,106,.1)'; btnEl.style.color='var(--gold)'; btnEl.style.fontWeight='700';
+  const answered = Object.keys(window._skinQuizAnswers).length;
+  const submitBtn = document.getElementById('skin-quiz-submit');
+  if(submitBtn){
+    submitBtn.disabled = answered < SKIN_QUIZ_Q.length;
+    submitBtn.style.opacity = answered < SKIN_QUIZ_Q.length ? '.5' : '1';
+  }
+}
+function computeSkinResult(){
+  const a = window._skinQuizAnswers;
+  if(Object.keys(a).length < SKIN_QUIZ_Q.length) return;
+  // Skin type: tally q1-q3
+  const tally = {dry:0,normal:0,combination:0,oily:0};
+  ['q1','q2','q3'].forEach(k=>{ if(tally[a[k]]!==undefined) tally[a[k]]++; });
+  let skinType = Object.keys(tally).reduce((best,k)=>tally[k]>tally[best]?k:best,'normal');
+  if(Number(a.q4)>=2) skinType='sensitive'; // strong sensitivity overrides base type
+  // Phototype: average q5-q7, rounded
+  const photoAvg = (Number(a.q5)+Number(a.q6)+Number(a.q7))/3;
+  const fototype = Math.min(6, Math.max(1, Math.round(photoAvg)));
+  saveSkinResult(skinType, fototype);
+  renderSkinResult(skinType, fototype);
+}
+async function saveSkinResult(skinType, fototype){
+  try{
+    const data = {skinType, fototype, skinTestDate:new Date().toISOString()};
+    localStorage.setItem(_lsKey('gt_skin_test'), JSON.stringify(data));
+    if(window._user){ await F().setDoc(F().doc(DB(),'users',window._user.uid), data, {merge:true}); }
+  }catch(e){}
+}
+function renderSkinResult(skinType, fototype){
+  const isBGq = window._lang!=='en';
+  const ti = SKIN_TYPE_INFO[skinType];
+  const pi = PHOTOTYPE_INFO[fototype];
+  const recIds = [...(SKIN_TYPE_RECS[skinType]||[]), ...(PHOTOTYPE_RECS[fototype]||[])];
+  const recProcs = recIds.map(id=>PROCS.find(p=>p.id===id)).filter(Boolean);
+  document.getElementById('skin-quiz-title').textContent = isBGq?'Твоят резултат':'Your result';
+  document.getElementById('skin-quiz-body').innerHTML = `
+    <div style="text-align:center;padding:20px 12px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);margin-bottom:14px">
+      <div style="font-size:38px;margin-bottom:8px">${ti.icon}</div>
+      <div style="font-size:19px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:6px">${isBGq?ti.bg:ti.en}</div>
+      <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">${isBGq?ti.descBg:ti.descEn}</div>
+    </div>
+    <div style="text-align:center;padding:16px 12px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);margin-bottom:18px">
+      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:6px">${isBGq?pi.bg:pi.en} <span style="color:var(--ink2);font-weight:400">(${['','I','II','III','IV','V','VI'][fototype]})</span></div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.5">${isBGq?pi.descBg:pi.descEn}</div>
+    </div>
+    ${recProcs.length?`
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">${isBGq?'✦ Препоръчани за теб':'✦ Recommended for you'}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+      ${recProcs.map(p=>{const lp=procL(p);return `<div onclick="closeSkinQuiz();openSheet('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
+        ${p.img?`<img src="${p.img}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0">`:procCircleIcon(lp.name,'#b8966a',38)}
+        <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lp.name}</div></div>
+        <div style="color:var(--gold);font-size:16px">›</div>
+      </div>`;}).join('')}
+    </div>`:''}
+    <button onclick="openSkinQuiz()" style="width:100%;padding:12px;background:none;border:1.5px solid var(--roselt);border-radius:12px;color:var(--ink2);font-size:13px;cursor:pointer;font-family:inherit">${isBGq?'↺ Направи теста отново':'↺ Retake test'}</button>
+  `;
+  renderSkinTestCard();
+}
+function renderSkinTestCard(){
+  const el = document.getElementById('skin-test-card');
+  if(!el) return;
+  const isBGq = window._lang!=='en';
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null'); }catch(e){}
+  if(saved && saved.skinType){
+    const ti = SKIN_TYPE_INFO[saved.skinType];
+    const pi = PHOTOTYPE_INFO[saved.fototype];
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:28px">${ti.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${isBGq?'Твоят тип кожа':'Your skin type'}</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?ti.bg:ti.en} · ${['','I','II','III','IV','V','VI'][saved.fototype]}</div>
+        </div>
+      </div>
+      <button onclick="openSkinQuiz()" style="width:100%;margin-top:12px;padding:9px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:10px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">↺ ${isBGq?'Направи теста отново':'Retake test'}</button>`;
+  } else {
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:28px">🧬</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?'Тест за типа кожа':'Skin type test'}</div>
+          <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'7 въпроса · открий типа си и подходящите процедури':'7 questions · discover your type and suitable procedures'}</div>
+        </div>
+      </div>
+      <button onclick="openSkinQuiz()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'🧬 Направи теста':'🧬 Take the test'}</button>`;
+  }
+}
+
 function loadProfileStats(){
   if(!window._user) return;
+  renderSkinTestCard();
   // Always hide admin panel first, show only if admin
   const ap = document.getElementById('admin-panel');
   if(ap) ap.style.display = window._isAdmin ? 'block' : 'none';
