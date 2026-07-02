@@ -1148,11 +1148,20 @@ import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-ap
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
+import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
-const auth=getAuth(fb);const db=getFirestore(fb);
+const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
 // Ensure auth persists across page reloads
 try{ auth.setPersistence && auth.setPersistence({type:'LOCAL'}); }catch(e){}
 window._auth=auth;window._db=db;
+// ── FIREBASE STORAGE: upload a compressed photo blob, return public URL ──
+window.uploadPhotoBlob=async function(blob){
+  if(!window._user)throw new Error('no-user');
+  const path=`diary-photos/${window._user.uid}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.jpg`;
+  const sref=storageRef(storage,path);
+  await uploadBytes(sref,blob,{contentType:'image/jpeg'});
+  return await getDownloadURL(sref);
+};
 window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 
 // ── PUSH NOTIFICATIONS (Firebase Cloud Messaging) ──
@@ -2324,11 +2333,11 @@ function renderProcs(){
 })();
 
 // ── SHEET ──
-let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
+let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
 async function openSheet(id){
   const p=PROCS.find(x=>x.id===id);if(!p)return;
   const lp=procL(p);
-  currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
+  currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
   _deReminderType='reminder';
   document.getElementById('sh-icon').innerHTML=procCircleIcon(lp.name, '#b8966a', 44).replace('border-radius:50%','border-radius:12px');
   document.getElementById('sh-icon').style.background='rgba(184,150,106,0.08)';
@@ -2633,6 +2642,7 @@ function closeSheet(e){
 function addPhotos(e, slot){
   const MAX = 3;
   const arr = slot==='before' ? pendingPhotosBefore : slot==='after' ? pendingPhotosAfter : pendingPhotos;
+  const blobArr = slot==='before' ? pendingPhotoBlobsBefore : slot==='after' ? pendingPhotoBlobsAfter : pendingPhotoBlobs;
   const files = Array.from(e.target.files);
   if(arr.length >= MAX){ showToast(window._lang==='en'?'Max 3 photos':'Максимум 3 снимки'); return; }
   const remaining = MAX - arr.length;
@@ -2647,10 +2657,13 @@ function addPhotos(e, slot){
         else{if(h>MAX_PX){w=Math.round(w*MAX_PX/h);h=MAX_PX;}}
         canvas.width=w; canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
-        if(dataUrl.length > 700000){ showToast(window._lang==='en'?'Photo too large':'Снимката е твърде голяма'); return; }
-        arr.push(dataUrl);
-        renderPreviews(slot);
+        canvas.toBlob(blob=>{
+          if(!blob){ showToast(window._lang==='en'?'Photo error':'Грешка със снимката'); return; }
+          const previewUrl = URL.createObjectURL(blob);
+          arr.push(previewUrl);
+          blobArr.push(blob);
+          renderPreviews(slot);
+        }, 'image/jpeg', 0.75);
       };
       img.src = ev.target.result;
     };
@@ -2670,9 +2683,9 @@ function renderPreviews(slot){
   }
 }
 function removePhoto(i, slot){
-  if(slot==='before'){ pendingPhotosBefore.splice(i,1); renderPreviews('before'); }
-  else if(slot==='after'){ pendingPhotosAfter.splice(i,1); renderPreviews('after'); }
-  else { pendingPhotos.splice(i,1); renderPreviews(); }
+  if(slot==='before'){ try{URL.revokeObjectURL(pendingPhotosBefore[i]);}catch(e){} pendingPhotosBefore.splice(i,1); pendingPhotoBlobsBefore.splice(i,1); renderPreviews('before'); }
+  else if(slot==='after'){ try{URL.revokeObjectURL(pendingPhotosAfter[i]);}catch(e){} pendingPhotosAfter.splice(i,1); pendingPhotoBlobsAfter.splice(i,1); renderPreviews('after'); }
+  else { try{URL.revokeObjectURL(pendingPhotos[i]);}catch(e){} pendingPhotos.splice(i,1); pendingPhotoBlobs.splice(i,1); renderPreviews(); }
 }
 
 function startEditEntry(eid,procId){
@@ -2820,15 +2833,25 @@ async function saveDiaryEntry(procId){
   if(btn){btn.disabled=true;btn.textContent='...';}
   try{
     const p=PROCS.find(x=>x.id===procId)||{};
+    let uploadedPhotos, uploadedBefore, uploadedAfter;
+    try{
+      uploadedPhotos = await Promise.all(pendingPhotoBlobs.map(b=>window.uploadPhotoBlob(b)));
+      uploadedBefore = await Promise.all(pendingPhotoBlobsBefore.map(b=>window.uploadPhotoBlob(b)));
+      uploadedAfter = await Promise.all(pendingPhotoBlobsAfter.map(b=>window.uploadPhotoBlob(b)));
+    }catch(upErr){
+      console.error('Photo upload error:',upErr);
+      showToast(window._lang==='en'?'Photo upload failed, saved without photos':'Качването на снимки се провали, запазено без снимки');
+      uploadedPhotos=[];uploadedBefore=[];uploadedAfter=[];
+    }
     await F().addDoc(F().collection(DB(),'diary_entries'),{
       userId:window._user.uid,
       procId:procId,
       procName:p.name||procId,
       procIcon:p.icon||'',
       clinic,specialist,contact,advice,feeling,products,price,rating,
-      photos:pendingPhotos,
-      photosBefore:pendingPhotosBefore,
-      photosAfter:pendingPhotosAfter,
+      photos:uploadedPhotos,
+      photosBefore:uploadedBefore,
+      photosAfter:uploadedAfter,
       createdAt:F().serverTimestamp()
     });
     showToast(t('toastSaved')||'✅ Запазено!');
@@ -2862,7 +2885,7 @@ async function saveDiaryEntry(procId){
         :(window._lang==='en'?'🔔 Reminder saved!':'🔔 Напомнянето е запазено!');
       setTimeout(()=>showToast(typeLabel), 1000);
     }
-    pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];
+    pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
     window._cache.diary=null;window._cache.diaryTs=0;
     await openSheet(procId);
   }catch(e){
@@ -2874,11 +2897,14 @@ async function saveDiaryEntry(procId){
 
 // Edit entry photo helpers
 window._eePhotos = {};
+window._eePhotoBlobs = {};
 window.eeOrigData = {}; // {eid: {before:[], after:[]}}
 
 function eeAddPhoto(e, eid, slot){
   if(!window._eePhotos[eid]) window._eePhotos[eid]={before:[],after:[]};
+  if(!window._eePhotoBlobs[eid]) window._eePhotoBlobs[eid]={before:[],after:[]};
   const arr = window._eePhotos[eid][slot];
+  const blobArr = window._eePhotoBlobs[eid][slot];
   const MAX=3;
   if(arr.length>=MAX){showToast(window._lang==='en'?'Max 3 photos':'Максимум 3 снимки');return;}
   Array.from(e.target.files).slice(0,MAX-arr.length).forEach(file=>{
@@ -2891,8 +2917,12 @@ function eeAddPhoto(e, eid, slot){
         if(w>h){if(w>MAX_PX){h=Math.round(h*MAX_PX/w);w=MAX_PX;}}else{if(h>MAX_PX){w=Math.round(w*MAX_PX/h);h=MAX_PX;}}
         canvas.width=w;canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        arr.push(canvas.toDataURL('image/jpeg',0.65));
-        eeRenderPhotos(eid,slot);
+        canvas.toBlob(blob=>{
+          if(!blob){showToast(window._lang==='en'?'Photo error':'Грешка със снимката');return;}
+          arr.push(URL.createObjectURL(blob));
+          blobArr.push(blob);
+          eeRenderPhotos(eid,slot);
+        },'image/jpeg',0.75);
       };
       img.src=ev.target.result;
     };
@@ -2902,7 +2932,9 @@ function eeAddPhoto(e, eid, slot){
 
 function eeRemovePhoto(eid, slot, idx){
   if(!window._eePhotos[eid]||!window._eePhotos[eid][slot]) return;
+  try{URL.revokeObjectURL(window._eePhotos[eid][slot][idx]);}catch(e){}
   window._eePhotos[eid][slot].splice(idx,1);
+  if(window._eePhotoBlobs[eid]&&window._eePhotoBlobs[eid][slot]) window._eePhotoBlobs[eid][slot].splice(idx,1);
   eeRenderPhotos(eid,slot);
 }
 
@@ -2917,6 +2949,16 @@ function eeRenderPhotos(eid, slot){
 
 async function saveEditEntry(eid,procId){
   try{
+    const newBefore = (window._eePhotoBlobs[eid]||{}).before||[];
+    const newAfter = (window._eePhotoBlobs[eid]||{}).after||[];
+    let uploadedBefore=[], uploadedAfter=[];
+    try{
+      uploadedBefore = await Promise.all(newBefore.map(b=>window.uploadPhotoBlob(b)));
+      uploadedAfter = await Promise.all(newAfter.map(b=>window.uploadPhotoBlob(b)));
+    }catch(upErr){
+      console.error('Photo upload error:',upErr);
+      showToast(window._lang==='en'?'Photo upload failed':'Качването на снимки се провали');
+    }
     await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
       clinic:document.getElementById('ee-clinic-'+eid)?.value.trim()||'',
       specialist:document.getElementById('ee-spec-'+eid)?.value.trim()||'',
@@ -2926,8 +2968,8 @@ async function saveEditEntry(eid,procId){
       products:document.getElementById('ee-prod-'+eid)?.value.trim()||'',
       price:parseFloat(document.getElementById('ee-price-'+eid)?.value)||0,
       rating:parseInt(document.getElementById('ee-rating-'+eid)?.value)||0,
-      photosBefore:[...((window._eePhotos[eid]||{}).before||[]),...(eeOrigData[eid]?.photosBefore||[])].slice(0,3),
-      photosAfter:[...((window._eePhotos[eid]||{}).after||[]),...(eeOrigData[eid]?.photosAfter||[])].slice(0,3),
+      photosBefore:[...uploadedBefore,...(eeOrigData[eid]?.photosBefore||[])].slice(0,3),
+      photosAfter:[...uploadedAfter,...(eeOrigData[eid]?.photosAfter||[])].slice(0,3),
     });
     showToast(t('toastUpdated')); window._cache.diary=null; window._cache.diaryTs=0; await openSheet(procId);
   }catch(e){showToast(t('toastErrUpd'));}
