@@ -888,13 +888,13 @@ window.goPage=goPage;
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
-        <div style="margin-top:8px;font-size:12px;color:var(--ink2)" data-t="notifHint">Задай процедура и дата за следващото си посещение.</div>
+        <div style="margin-top:8px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="notifHint">Задай дата за следващо посещение</div>
         <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2)">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
             <strong style="font-size:12px;color:var(--ink)">Push известия</strong>
             <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="flex-shrink:0;white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
           </div>
-          <div id="push-notif-status-text" style="margin-top:6px;color:var(--ink2);font-size:11px;line-height:1.5">Получавай напомняния дори когато приложението е затворено</div>
+          <div id="push-notif-status-text" style="margin-top:6px;color:var(--ink2);font-size:10px;line-height:1.4">Получавай напомняния дори когато приложението е затворено</div>
         </div>
         <div style="position:relative;margin-top:10px;overflow:visible">
           <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
@@ -1556,7 +1556,7 @@ const T = {
     sortName: '🔤 По процедура',
     sortCount: '🔢 По брой',
     diarySearch: 'Намери извършена процедура...',
-    notifHint: 'Задай процедура и дата за следващото си посещение.',
+    notifHint: 'Задай дата за следващо посещение',
     deleteProfileBtn: '🗑️ Изтрий профила',
     searchProcs: 'Търси процедура...',
     searchClinics: 'Търси клиника...',
@@ -1784,7 +1784,7 @@ const T = {
     sortName: '🔤 By name',
     sortCount: '🔢 By count',
     diarySearch: 'Find a completed procedure...',
-    notifHint: 'Set a procedure and date for your next visit.',
+    notifHint: 'Set a date for your next visit',
     deleteProfileBtn: '🗑️ Delete profile',
     searchProcs: 'Search procedure...',
     searchClinics: 'Search clinic...',
@@ -4995,16 +4995,16 @@ function updatePushToggleUI(){
   btn.style.display='inline-block';
   if(status==='granted'){
     btn.textContent='✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.85';btn.style.cursor='default';btn.style.color='#fff';
-    txt.textContent='Известията са активни на това устройство';
+    txt.textContent='Известията са активни';
   }else if(status==='denied'){
     btn.textContent='Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.textContent='Разреши известията от настройките на браузъра/iOS';
+    txt.textContent='Разреши от настройки на браузъра';
   }else if(status==='unsupported'){
     btn.textContent='Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.innerHTML='Push известията не се поддържат в обикновен браузър таб. На iPhone: добави приложението на началния екран (Share → Add to Home Screen) и го отвори от там иконата.';
+    txt.innerHTML='Добави на начален екран (Share → Add to Home Screen), за да работят';
   }else{
     btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
-    txt.textContent='Получавай напомняния дори когато приложението е затворено';
+    txt.textContent='Работят и при затворено приложение';
   }
 }
 function updateNotifBadge(count){
