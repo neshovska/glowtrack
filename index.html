@@ -4998,7 +4998,7 @@ function updatePushToggleUI(){
     txt.textContent='Разреши известията от настройките на браузъра/iOS';
   }else if(status==='unsupported'){
     btn.textContent='Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.textContent='Push известията не се поддържат на това устройство/браузър';
+    txt.innerHTML='Push известията не се поддържат в обикновен браузър таб. На iPhone: добави приложението на началния екран (Share → Add to Home Screen) и го отвори от там иконата.';
   }else{
     btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
     txt.textContent='Получавай напомняния дори когато приложението е затворено';
