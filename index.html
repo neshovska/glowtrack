@@ -1353,7 +1353,7 @@ onAuthStateChanged(auth,async user=>{
     if(window._isAdmin){document.getElementById('admin-panel').style.display='block';if(typeof loadAdminLists==='function'){loadAdminLists();loadAdminInbox();}document.querySelectorAll('.nb-soon').forEach(btn=>{btn.style.opacity='1';btn.style.cursor='pointer';});const nbtns=document.querySelectorAll('.nb-soon');if(nbtns[0]){nbtns[0].onclick=function(){goPage('clinics',this);};const ni0=nbtns[0].querySelector('.nl');if(ni0)ni0.textContent='Клиники';}if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};const ni1=nbtns[1].querySelector('.nl');if(ni1)ni1.textContent='Продукти';}}
     if(typeof loadClinicsTab==='function')loadClinicsTab();
     if(typeof loadProductsTab==='function')loadProductsTab();
-    if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding();
+    if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll.exists()?uSnapAll.data():null);
     const _lastPage=localStorage.getItem('gt_last_page');
     if(_lastPage&&_lastPage!=='procs'){try{const _pageMap={notifs:true,diary:true,profile:true,clinics:true,products:true};if(_pageMap[_lastPage]&&typeof goPage==='function')goPage(_lastPage,null);}catch(e){}}
     const _initNotifs=_lsGet('gt_notifs')||[];
@@ -5421,18 +5421,21 @@ function filterDiary(){
 }
 
 // ── ONBOARDING ──
-async function checkOnboarding(){
+async function checkOnboarding(userData){
   if(!window._user) return;
   // Check localStorage first (fast)
   if(localStorage.getItem('gt_onboarded_'+window._user.uid)) return;
-  // Check Firestore
-  try{
-    const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
-    if(snap.exists() && snap.data().onboarded) {
-      localStorage.setItem('gt_onboarded_'+window._user.uid,'1');
-      return;
-    }
-  }catch(e){}
+  // Use already-fetched Firestore data if available, otherwise fetch
+  const ud = userData ?? await (async()=>{
+    try{
+      const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+      return snap.exists()?snap.data():null;
+    }catch(e){return null;}
+  })();
+  if(ud?.onboarded){
+    localStorage.setItem('gt_onboarded_'+window._user.uid,'1');
+    return;
+  }
   const modal = document.getElementById('onboarding-modal');
   if(modal) modal.style.display = 'flex';
 }
