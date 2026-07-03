@@ -551,6 +551,16 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <meta name="mobile-web-app-capable" content="yes">
 <script>
 </script>
+<script src="https://browser.sentry-cdn.com/10.63.0/bundle.min.js" crossorigin="anonymous"></script>
+<script>
+  if(typeof Sentry !== 'undefined'){
+    Sentry.init({
+      dsn: "TUK_TRYABVA_DA_E_TVOYAT_SENTRY_DSN",
+      environment: "production",
+      tracesSampleRate: 0
+    });
+  }
+</script>
 </head>
 <body>
 <div class="bg"></div>
@@ -1175,12 +1185,23 @@ import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
-const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c"});
+import{getAnalytics,logEvent,isSupported as analyticsIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"TUK_TRYABVA_DA_E_TVOYAT_MEASUREMENT_ID"});
 const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
 // Ensure auth persists across page reloads
 try{ auth.setPersistence && auth.setPersistence({type:'LOCAL'}); }catch(e){}
 window._auth=auth;window._db=db;
 // ── FIREBASE STORAGE: upload a compressed photo blob, return public URL ──
+// ── FIREBASE ANALYTICS ──
+window._analytics=null;
+analyticsIsSupported().then(supported=>{
+  if(!supported)return;
+  try{ window._analytics=getAnalytics(fb); }catch(e){ console.error('Analytics init error:',e); }
+}).catch(()=>{});
+window.trackEvent=function(name,params){
+  try{ if(window._analytics) logEvent(window._analytics, name, params||{}); }catch(e){}
+};
+
 window.uploadPhotoBlob=async function(blob){
   if(!window._user)throw new Error('no-user');
   const path=`diary-photos/${window._user.uid}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.jpg`;
@@ -1209,6 +1230,7 @@ window.initPushNotifications=async function(){
     if(token&&window._user){
       await setDoc(doc(db,'users',window._user.uid),{fcmToken:token,fcmTokenUpdatedAt:new Date().toISOString()},{merge:true});
       showToast&&showToast('Известията са включени ✓');
+      if(typeof window.trackEvent==='function')window.trackEvent('push_enabled',{});
     }
     if(!window._fcmForegroundBound){
       onMessage(messaging,payload=>{showToast&&showToast(payload.notification?.title||'Ново известие от GlowTrack');});
@@ -1218,12 +1240,13 @@ window.initPushNotifications=async function(){
     return token;
   }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
-window.doLogin=async function(){const email=document.getElementById('login-email').value.trim();const pass=document.getElementById('login-pass').value;if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='...';try{await signInWithEmailAndPassword(auth,email,pass);}catch(e){window.showAuthError(t('wrongCredentials'));}finally{btn.disabled=false;btn.textContent='Влез';}};
-window.doRegister=async function(){const name=document.getElementById('reg-name').value.trim();const email=document.getElementById('reg-email').value.trim();const pass=document.getElementById('reg-pass').value;if(!name||!email||!pass){window.showAuthError(t('fillAllFields'));return;}if(pass.length<6){window.showAuthError('Паролата трябва да е поне 6 символа');return;}const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='...';try{const cred=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:serverTimestamp()});}catch(e){window.showAuthError(e.code==='auth/email-already-in-use'?t('emailExists'):t('registerError'));}finally{btn.disabled=false;btn.textContent='Създай акаунт';}};
+window.doLogin=async function(){const email=document.getElementById('login-email').value.trim();const pass=document.getElementById('login-pass').value;if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='...';try{await signInWithEmailAndPassword(auth,email,pass);if(typeof window.trackEvent==='function')window.trackEvent('login',{});}catch(e){window.showAuthError(t('wrongCredentials'));}finally{btn.disabled=false;btn.textContent='Влез';}};
+window.doRegister=async function(){const name=document.getElementById('reg-name').value.trim();const email=document.getElementById('reg-email').value.trim();const pass=document.getElementById('reg-pass').value;if(!name||!email||!pass){window.showAuthError(t('fillAllFields'));return;}if(pass.length<6){window.showAuthError('Паролата трябва да е поне 6 символа');return;}const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='...';try{const cred=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:serverTimestamp()});if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});}catch(e){window.showAuthError(e.code==='auth/email-already-in-use'?t('emailExists'):t('registerError'));}finally{btn.disabled=false;btn.textContent='Създай акаунт';}};
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
 onAuthStateChanged(auth,async user=>{
   if(user){
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
+    try{ if(typeof Sentry!=='undefined') Sentry.setUser({id:user.uid,email:user.email}); }catch(e){}
     // Invalidate cache on user change to ensure fresh data
     if(window._lastUserId && window._lastUserId !== user.uid){
       if(typeof invalidateCache === 'function') invalidateCache();
@@ -2145,6 +2168,7 @@ function showComingSoon(){
 
 function goPage(name,btn){
   try{hideSuggestions();}catch(e){}
+  if(typeof trackEvent==='function')trackEvent('page_view',{page_name:name});
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const pg=document.getElementById('page-'+name);
@@ -2465,6 +2489,7 @@ let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfte
 async function openSheet(id){
   const p=PROCS.find(x=>x.id===id);if(!p)return;
   const lp=procL(p);
+  if(typeof trackEvent==='function')trackEvent('procedure_view',{procedure_id:id,procedure_name:lp.name,category:p.cat});
   currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
   _deReminderType='reminder';
   if(lp.img){
@@ -3009,6 +3034,7 @@ async function saveDiaryEntry(procId){
       createdAt:F().serverTimestamp()
     });
     showToast(t('toastSaved')||'✅ Запазено!');
+    if(typeof trackEvent==='function')trackEvent('diary_entry_created',{procedure_id:procId,rating:rating});
     // Save reminder/booking if date is filled
     const deReminderDate = document.getElementById('de-reminder-date')?.value;
     const deReminderTime = document.getElementById('de-reminder-time')?.value||'10:00';
@@ -3927,6 +3953,7 @@ function computeSkinResult(){
   const photoAvg = (Number(a.q5)+Number(a.q6)+Number(a.q7))/3;
   const fototype = Math.min(6, Math.max(1, Math.round(photoAvg)));
   saveSkinResult(skinType, fototype);
+  if(typeof trackEvent==='function')trackEvent('skin_test_completed',{skin_type:skinType,fototype:fototype});
   renderSkinResult(skinType, fototype);
 }
 async function saveSkinResult(skinType, fototype){
@@ -4138,6 +4165,7 @@ async function onCycleDayTap(dateStr){
   data.cycleLength = _computeCycleLength(data.periods);
   window._cyclePendingStart = null;
   await _saveCycleData(data);
+  if(typeof trackEvent==='function')trackEvent('cycle_logged',{cycle_length:data.cycleLength});
   showToast(window._lang==='en'?'Period logged ✓':'Записано ✓');
   renderCycleTracker();
 }
