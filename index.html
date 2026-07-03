@@ -550,26 +550,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <meta name="theme-color" content="#b8966a">
   <meta name="mobile-web-app-capable" content="yes">
 <script>
-// Minimal goPage - loads first, always available
-function goPage(name,btn){
-  var pages=document.querySelectorAll('.page');
-  var btns=document.querySelectorAll('.nb');
-  for(var i=0;i<pages.length;i++) pages[i].classList.remove('active');
-  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
-  var pg=document.getElementById('page-'+name);
-  if(pg) pg.classList.add('active');
-  if(btn) btn.classList.add('active');
-  try{localStorage.setItem('gt_last_page',name);}catch(e){}
-  // Defer data loading
-  setTimeout(function(){
-    try{
-      if(name==='diary'&&typeof loadDiaryTab==='function')loadDiaryTab();
-      if(name==='notifs'&&typeof loadNotifsPage==='function')loadNotifsPage();
-      if(name==='profile'&&typeof loadProfileStats==='function')loadProfileStats();
-    }catch(e){}
-  },50);
-}
-window.goPage=goPage;
 </script>
 </head>
 <body>
@@ -1312,6 +1292,10 @@ onAuthStateChanged(auth,async user=>{
           if(!localSkin||!localSkin.skinType){
             localStorage.setItem(_lsKey('gt_skin_test'),JSON.stringify({skinType:ud.skinType,fototype:ud.fototype,skinTestDate:ud.skinTestDate}));
           }
+        }
+        // Restore diary sort order if missing locally
+        if(ud.diaryOrder&&!(_lsGet('gt_diary_order')||[]).length){
+          _lsSet('gt_diary_order', ud.diaryOrder);
         }
       }
     }catch(e){}
@@ -4059,6 +4043,9 @@ function _loadCycleData(){
     return d;
   }catch(e){ return {periods:[], symptoms:{}, cycleLength:28}; }
 }
+async function _syncDiaryOrder(order){
+  try{ if(window._user){ await F().setDoc(F().doc(DB(),'users',window._user.uid), {diaryOrder:order}, {merge:true}); } }catch(e){}
+}
 async function _saveCycleData(data){
   try{
     localStorage.setItem(_lsKey('gt_cycle'), JSON.stringify(data));
@@ -5237,6 +5224,7 @@ function diaryDrop(e){
     .map(el=>el.dataset.pid)
     .filter(pid=>pid!=='home-care-morning'&&pid!=='home-care-evening');
   _lsSet('gt_diary_order', newOrder);
+  if(typeof _syncDiaryOrder==='function')_syncDiaryOrder(newOrder);
   document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
 }
 
@@ -5266,6 +5254,7 @@ function moveDiaryGroup(pid, dir){
     .map(el=>el.dataset.pid)
     .filter(p=>!pinned.includes(p));
   _lsSet('gt_diary_order', newOrder);
+  if(typeof _syncDiaryOrder==='function')_syncDiaryOrder(newOrder);
   showToast(t('toastLineSaved'));
 }
 
