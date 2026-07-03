@@ -792,41 +792,43 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <!-- CLIENT PROFILE SECTIONS -->
     <div id="client-profile-sections">
 
-      <!-- STATS ACCORDION -->
+      <!-- NOTIFICATIONS ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileStats"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M4 20V10M12 20V4M20 20v-6"/></svg> Моята статистика</span>
+          <span class="pcs-title" data-t="profileNotifs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> Напомняния за процедури</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
-          <div style="display:flex;gap:10px;margin-top:10px">
-            <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px">🤍</span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="notifHint">Задай дата за следващо посещение</div>
+        <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2);display:flex;align-items:flex-start;gap:12px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
+            <strong id="push-notif-title-label" style="font-size:11px;color:var(--ink);white-space:nowrap">Push известия</strong>
+            <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
           </div>
-          <div style="display:flex;gap:10px;margin-top:10px">
-            <div class="stat-box"><div class="stat-num" id="stat-spend" style="font-size:16px">—</div><div class="stat-lbl" data-t="statSpend">Похарчени €</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-rating" style="font-size:16px">—</div><div class="stat-lbl" data-t="statRating">Средна оценка</div></div>
-          </div>
-          <button onclick="exportDiaryCSV()" style="width:100%;margin-top:10px;padding:8px;background:none;border:1.5px solid rgba(184,150,106,.3);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit">
-            📥 <span data-t="exportCSV">Експортирай дневника (CSV)</span>
+          <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:1px">Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.</div>
+        </div>
+        <div style="position:relative;margin-top:10px;overflow:visible">
+          <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
+          <input type="hidden" id="notif-proc">
+          <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:220px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(26,26,46,.25);margin-top:4px"></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button id="notif-type-reminder" onclick="setNotifType('reminder')"
+            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+            🔔 <span data-t="notifTypeReminder">Напомняне</span>
           </button>
-          <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none">
-            <span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span>
-          </div>
+          <button id="notif-type-booking" onclick="setNotifType('booking')"
+            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+            📅 <span data-t="notifTypeBooking">Резервация</span>
+          </button>
         </div>
-      </div>
-
-      <!-- FAVORITES ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
-          <span class="acc-arrow">⌄</span>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:16px">
+          <input type="time" id="notif-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
+          <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
         </div>
-        <div class="acc-body">
-          <div id="favs-list" style="margin-top:8px">
-            <div style="font-size:12px;color:var(--ink2)">Натисни 🤍 на процедура за да я запазиш</div>
-          </div>
+        <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
+        <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
         </div>
       </div>
 
@@ -878,43 +880,41 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         </div>
       </div>
 
-      <!-- NOTIFICATIONS ACCORDION -->
+      <!-- FAVORITES ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
         <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileNotifs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> Напомняния за процедури</span>
+          <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
           <span class="acc-arrow">⌄</span>
         </div>
         <div class="acc-body">
-        <div style="margin-top:8px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="notifHint">Задай дата за следващо посещение</div>
-        <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2);display:flex;align-items:flex-start;gap:12px">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
-            <strong id="push-notif-title-label" style="font-size:11px;color:var(--ink);white-space:nowrap">Push известия</strong>
-            <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+          <div id="favs-list" style="margin-top:8px">
+            <div style="font-size:12px;color:var(--ink2)">Натисни 🤍 на процедура за да я запазиш</div>
           </div>
-          <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:1px">Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.</div>
         </div>
-        <div style="position:relative;margin-top:10px;overflow:visible">
-          <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
-          <input type="hidden" id="notif-proc">
-          <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:220px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(26,26,46,.25);margin-top:4px"></div>
+      </div>
+
+      <!-- STATS ACCORDION -->
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileStats"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M4 20V10M12 20V4M20 20v-6"/></svg> Моята статистика</span>
+          <span class="acc-arrow">⌄</span>
         </div>
-        <div style="display:flex;gap:6px;margin-top:8px">
-          <button id="notif-type-reminder" onclick="setNotifType('reminder')"
-            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-            🔔 <span data-t="notifTypeReminder">Напомняне</span>
+        <div class="acc-body">
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px">🤍</span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-spend" style="font-size:16px">—</div><div class="stat-lbl" data-t="statSpend">Похарчени €</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-rating" style="font-size:16px">—</div><div class="stat-lbl" data-t="statRating">Средна оценка</div></div>
+          </div>
+          <button onclick="exportDiaryCSV()" style="width:100%;margin-top:10px;padding:8px;background:none;border:1.5px solid rgba(184,150,106,.3);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit">
+            📥 <span data-t="exportCSV">Експортирай дневника (CSV)</span>
           </button>
-          <button id="notif-type-booking" onclick="setNotifType('booking')"
-            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-            📅 <span data-t="notifTypeBooking">Резервация</span>
-          </button>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:16px">
-          <input type="time" id="notif-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
-          <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
-        </div>
-        <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
-        <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+          <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none">
+            <span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span>
+          </div>
         </div>
       </div>
 
