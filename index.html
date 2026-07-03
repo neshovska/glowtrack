@@ -1343,6 +1343,19 @@ onAuthStateChanged(auth,async user=>{
     document.getElementById('topbar-right').innerHTML =
       `<button onclick="openAuthScreen()" style="background:var(--gold);color:#fff;border:none;border-radius:50px;padding:6px 14px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in':'Влез'}</button>`;
     document.getElementById('topbar-right').style.display='block';
+    // Clear stale personal content left over from a previous logged-in session
+    // (fixes cards/admin panel showing old data after logout).
+    const _stc2=document.getElementById('skin-test-card'); if(_stc2)_stc2.innerHTML='';
+    const _ctc2=document.getElementById('cycle-tracker-card'); if(_ctc2)_ctc2.innerHTML='';
+    const _ap2=document.getElementById('admin-panel'); if(_ap2)_ap2.style.display='none';
+    const _pc2=document.querySelector('#page-profile .profile-card');
+    if(_pc2){
+      _pc2.innerHTML=`<div style="text-align:center;padding:24px 8px">
+        <div style="font-size:36px;margin-bottom:10px">🔐</div>
+        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">${window._lang==='en'?'Sign in to see your profile':'Влез, за да видиш профила си'}</div>
+        <button onclick="openAuthScreen()" style="margin-top:8px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button>
+      </div>`;
+    }
   }
 });
 window.openAuthScreen=function(){
