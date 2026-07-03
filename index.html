@@ -1186,7 +1186,7 @@ import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,delete
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
 import{getAnalytics,logEvent,isSupported as analyticsIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
-const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"TUK_TRYABVA_DA_E_TVOYAT_MEASUREMENT_ID"});
+const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"G-XZFJ8ZK6B9"});
 const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
 // Ensure auth persists across page reloads
 try{ auth.setPersistence && auth.setPersistence({type:'LOCAL'}); }catch(e){}
