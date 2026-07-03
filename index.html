@@ -1287,8 +1287,34 @@ onAuthStateChanged(auth,async user=>{
     if(typeof updateFavsStat==='function')updateFavsStat();
     if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();
-    try{const uSnap=await getDoc(doc(db,'users',user.uid));if(uSnap.exists()&&uSnap.data().notifs){const fbNotifs=uSnap.data().notifs;const localNotifs=_lsGet('gt_notifs')||[];const merged=[...localNotifs];fbNotifs.forEach(fn=>{if(!merged.find(ln=>ln.id===fn.id))merged.push(fn);});_lsSet('gt_notifs',merged);}}catch(e){}
-    try{const uSnap2=await getDoc(doc(db,'users',user.uid));if(uSnap2.exists()&&uSnap2.data().favs){const fbFavs=uSnap2.data().favs;const localFavs=typeof getFavs==='function'?getFavs():[];const merged=[...new Set([...localFavs,...fbFavs])];if(merged.length!==localFavs.length&&typeof saveFavs==='function')saveFavs(merged);}}catch(e){}
+    try{
+      const uSnapAll=await getDoc(doc(db,'users',user.uid));
+      if(uSnapAll.exists()){
+        const ud=uSnapAll.data();
+        // Restore reminders (merge)
+        if(ud.notifs){const fbNotifs=ud.notifs;const localNotifs=_lsGet('gt_notifs')||[];const merged=[...localNotifs];fbNotifs.forEach(fn=>{if(!merged.find(ln=>ln.id===fn.id))merged.push(fn);});_lsSet('gt_notifs',merged);}
+        // Restore favourites (merge)
+        if(ud.favs){const fbFavs=ud.favs;const localFavs=typeof getFavs==='function'?getFavs():[];const merged=[...new Set([...localFavs,...fbFavs])];if(merged.length!==localFavs.length&&typeof saveFavs==='function')saveFavs(merged);}
+        // Restore cycle tracker data (merge periods + symptoms) — fixes data "disappearing" after
+        // localStorage is cleared (e.g. re-adding the PWA to Home Screen) even though it's saved in the cloud.
+        if(ud.cycleData){
+          const fbCycle=ud.cycleData;
+          let localCycle=null;try{localCycle=JSON.parse(localStorage.getItem(_lsKey('gt_cycle'))||'null');}catch(e){}
+          const mergedPeriods=[...(localCycle?.periods||[])];
+          (fbCycle.periods||[]).forEach(fp=>{if(!mergedPeriods.find(lp=>lp.start===fp.start&&lp.end===fp.end))mergedPeriods.push(fp);});
+          const mergedSymptoms=Object.assign({},fbCycle.symptoms||{},localCycle?.symptoms||{});
+          const mergedCycle={periods:mergedPeriods,symptoms:mergedSymptoms,cycleLength:(localCycle&&localCycle.cycleLength)||fbCycle.cycleLength||28};
+          localStorage.setItem(_lsKey('gt_cycle'),JSON.stringify(mergedCycle));
+        }
+        // Restore skin type test result if missing locally
+        if(ud.skinType){
+          let localSkin=null;try{localSkin=JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null');}catch(e){}
+          if(!localSkin||!localSkin.skinType){
+            localStorage.setItem(_lsKey('gt_skin_test'),JSON.stringify({skinType:ud.skinType,fototype:ud.fototype,skinTestDate:ud.skinTestDate}));
+          }
+        }
+      }
+    }catch(e){}
     if(typeof loadHomeCare==='function')loadHomeCare();
     if(window._isAdmin){document.getElementById('admin-panel').style.display='block';if(typeof loadAdminLists==='function'){loadAdminLists();loadAdminInbox();}document.querySelectorAll('.nb-soon').forEach(btn=>{btn.style.opacity='1';btn.style.cursor='pointer';});const nbtns=document.querySelectorAll('.nb-soon');if(nbtns[0]){nbtns[0].onclick=function(){goPage('clinics',this);};const ni0=nbtns[0].querySelector('.nl');if(ni0)ni0.textContent='Клиники';}if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};const ni1=nbtns[1].querySelector('.nl');if(ni1)ni1.textContent='Продукти';}}
     if(typeof loadClinicsTab==='function')loadClinicsTab();
