@@ -13,7 +13,6 @@
 <meta property="og:description" content="80+ козметични процедури, личен дневник и напомняния за следваща сесия.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://glowtrack.eu/">
-  
 <meta property="og:image" content="https://glowtrack.eu/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="GlowTrack · Know your glow.">
@@ -524,6 +523,7 @@ body.dark .coming-soon-overlay .sheet-inner{background:#1a1a2e!important}
 body.dark input[type="search"]{background:#12122a!important;color:#f0ede8!important}
 .profile-card-section:has(.acc-body.open){overflow:visible!important}
 #page-profile{overflow:visible}
+body.dark #page-profile{box-shadow:inset 0 0 0 2000px rgba(18,18,42,.86)}
 
 .cat-btn svg { width:14px;height:14px;flex-shrink:0;transition:stroke .2s }
 .cat-btn.active svg { stroke:var(--gold) }
@@ -688,14 +688,14 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">W</span>
     </div>
   </div>
-  <div class="profile-name" id="prof-name" style="color:#1a1a2e">—</div>
+  <div class="profile-name" id="prof-name">—</div>
   <div class="profile-email" id="prof-email">—</div>
   <button onclick="showEditProfile()" style="margin-top:10px;padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit" id="edit-profile-btn">✏️ <span data-t="editProfileBtn">Редактирай профила</span></button>
 </div>
 <!-- Skin test summary / launcher -->
-<div id="skin-test-card" style="margin-top:14px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);padding:16px"></div>
+<div id="skin-test-card" style="margin:10px 18px 0;border:1.5px solid var(--goldlt);border-radius:16px;background:var(--card);padding:16px;box-shadow:0 2px 8px rgba(26,26,46,.04)"></div>
 <!-- Cycle tracker summary / launcher -->
-<div id="cycle-tracker-card" style="margin-top:14px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);padding:16px"></div>
+<div id="cycle-tracker-card" style="margin:10px 18px 0;border:1.5px solid var(--goldlt);border-radius:16px;background:var(--card);padding:16px;box-shadow:0 2px 8px rgba(26,26,46,.04)"></div>
 <!-- Edit profile modal -->
 <div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
@@ -5696,4 +5696,3 @@ document.addEventListener('keydown',e=>{
 </script>
 </body>
 </html>
-
