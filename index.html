@@ -1254,27 +1254,27 @@ onAuthStateChanged(auth,async user=>{
     }
     window._lastUserId = user.uid;
     const loginSplash=document.getElementById('splash');const loginLogo=document.getElementById('splash-logo');
+    // Hide the login screen and show the app IMMEDIATELY — do not gate this behind
+    // the splash animation delay. Waiting ~2s here left the login screen visible with
+    // an already re-enabled "Влез" button, which made people tap it a second time,
+    // thinking the first attempt hadn't worked.
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('show');
+    if(document.activeElement) document.activeElement.blur();
+    window.scrollTo({top:0,left:0,behavior:'instant'});
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    document.querySelector('meta[name="viewport"]').setAttribute('content',
+      'width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover');
+    setTimeout(()=>{
+      document.querySelector('meta[name="viewport"]').setAttribute('content',
+        'width=device-width, initial-scale=1.0, viewport-fit=cover');
+    }, 300);
+    // Splash overlay is now purely decorative — fades on top while the app underneath is already live.
     if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
     setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
-    setTimeout(()=>{
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('app').classList.add('show');
-      // Blur active element to prevent scroll to input
-      if(document.activeElement) document.activeElement.blur();
-      // Reset scroll and zoom after login
-      window.scrollTo({top:0,left:0,behavior:'instant'});
-      document.documentElement.scrollTop=0;
-      document.body.scrollTop=0;
-      // Reset any zoom
-      document.querySelector('meta[name="viewport"]').setAttribute('content',
-        'width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover');
-      setTimeout(()=>{
-        document.querySelector('meta[name="viewport"]').setAttribute('content',
-          'width=device-width, initial-scale=1.0, viewport-fit=cover');
-      }, 300);
-    },1800);
-    setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},2000);
+    setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
     document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
     document.getElementById('prof-email').textContent=user.email;
     document.getElementById('topbar-right').textContent='';
