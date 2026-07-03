@@ -411,7 +411,7 @@ textarea.form-input{resize:none}
 /* PROFILE CARDS */
 .profile-card-section{margin:12px 18px 0;background:#fff;border-radius:16px;padding:16px;border:1px solid var(--goldlt);box-shadow:0 2px 8px rgba(26,26,46,.04)}
 .pcs-title{font-size:13px;font-weight:700;color:var(--ink1);letter-spacing:.01em}
-.gold-emoji{filter:grayscale(1) sepia(.65) saturate(2.2) brightness(.95) hue-rotate(-4deg);display:inline-block}
+.gold-emoji{filter:grayscale(1) sepia(1) saturate(3) brightness(.92) hue-rotate(-6deg);display:inline-block}
 .stat-box{flex:1;background:#faf8f5;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid var(--goldlt)}
 .stat-num{font-size:24px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif}
 .stat-lbl{font-size:10px;color:var(--ink2);margin-top:2px;font-weight:500}
@@ -686,12 +686,16 @@ window.goPage=goPage;
   <div class="page" id="page-profile">
     <div class="page-hdr" style="display:none"><div class="page-hdr-title"></div></div>
     <div class="profile-card">
-  <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:80px;gap:8px;margin:0 auto 12px">
-    <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">G</span><span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">L</span>
-    <span style="width:18px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
+  <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:80px;margin:0 auto 12px">
+    <div style="width:76px;display:flex;justify-content:flex-end;align-items:center;gap:2px">
+      <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">G</span><span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">L</span>
+    </div>
+    <span style="width:14px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
     <div class="profile-av" id="profile-av-wrap" style="width:80px;height:80px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08);flex-shrink:0">?</div>
-    <span style="width:18px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
-    <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">W</span>
+    <span style="width:14px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
+    <div style="width:76px;display:flex;justify-content:flex-start;align-items:center">
+      <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">W</span>
+    </div>
   </div>
   <div class="profile-name" id="prof-name" style="color:#1a1a2e">—</div>
   <div class="profile-email" id="prof-email">—</div>
@@ -728,14 +732,15 @@ window.goPage=goPage;
 
 <!-- Cycle tracker modal -->
 <div id="cycle-tracker-modal" style="display:none;position:fixed;inset:0;z-index:600;background:var(--mist);overflow-y:auto" onclick="if(event.target===this)return;">
-  <div style="max-width:480px;margin:0 auto;padding:0 16px 40px">
-    <div style="position:sticky;top:0;z-index:5;background:var(--mist);display:flex;align-items:center;justify-content:space-between;padding:16px 0">
-      <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif"><span class="gold-emoji">✨</span> <span id="cycle-tracker-title">Месечен цикъл и твоята кожа</span></div>
-      <button onclick="closeCycleTracker()" style="background:var(--card);border:1px solid var(--roselt);border-radius:50%;width:32px;height:32px;font-size:18px;color:var(--ink2);cursor:pointer;line-height:1;flex-shrink:0">×</button>
+  <button onclick="closeCycleTracker()" style="position:fixed;top:16px;right:16px;z-index:700;background:var(--card);border:1px solid var(--roselt);border-radius:50%;width:36px;height:36px;font-size:20px;color:var(--ink2);cursor:pointer;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12)">×</button>
+  <div style="max-width:480px;margin:0 auto;padding:16px 16px 40px">
+    <div style="display:flex;align-items:center;justify-content:center;padding:0 40px 16px 0">
+      <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;text-align:center"><span class="gold-emoji">✨</span> <span id="cycle-tracker-title">Месечен цикъл и твоята кожа</span></div>
     </div>
     <div id="cycle-tracker-body"></div>
   </div>
 </div>
+
 
 
     <div id="admin-panel" style="display:none;margin-top:20px">
@@ -4221,12 +4226,14 @@ function renderCycleTracker(){
     const daysUntilNext = daysUntil(nextPeriod);
     const recProcs = (pi.recIds||[]).map(id=>PROCS.find(p=>p.id===id)).filter(Boolean);
     phaseHTML = `
-      <div style="text-align:center;padding:16px 14px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);margin:0 auto 14px;max-width:230px">
-        <div style="font-size:28px;margin-bottom:4px">${pi.icon}</div>
-        <div style="font-size:15px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:5px">${isBGq?pi.bg:pi.en}</div>
-        <div style="font-size:11px;color:var(--ink2);line-height:1.45;margin-bottom:5px">${isBGq?pi.tipBg:pi.tipEn}</div>
-        <div style="font-size:10.5px;color:var(--gold);font-weight:600">${isBGq?pi.avoidBg:pi.avoidEn}</div>
-        <div style="margin-top:8px;font-size:10px;color:var(--ink2)">${daysUntilNext>=0?(isBGq?`Следващ цикъл: след ${daysUntilNext} дни`:`Next period: in ${daysUntilNext} days`):(isBGq?'Следващият цикъл вероятно е закъснял':'Next period may be overdue')}</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #b8966a33;border-radius:14px;background:var(--card);margin-bottom:14px">
+        <div style="font-size:30px;flex-shrink:0">${pi.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">${isBGq?pi.bg:pi.en}</div>
+          <div style="font-size:10.5px;color:var(--ink2);line-height:1.4;margin-top:2px">${isBGq?pi.tipBg:pi.tipEn}</div>
+          <div style="font-size:10px;color:var(--gold);font-weight:600;margin-top:3px">${isBGq?pi.avoidBg:pi.avoidEn}</div>
+          <div style="margin-top:4px;font-size:9.5px;color:var(--ink2)">${daysUntilNext>=0?(isBGq?`Следващ цикъл: след ${daysUntilNext} дни`:`Next period: in ${daysUntilNext} days`):(isBGq?'Следващият цикъл вероятно е закъснял':'Next period may be overdue')}</div>
+        </div>
       </div>
       ${recProcs.length?`
       <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">${isBGq?'✦ Подходящо сега':'✦ Suitable right now'}</div>
