@@ -571,24 +571,16 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="auth-tagline">Know your glow.</div>
   <div class="auth-card">
     <div class="auth-error" id="auth-error"></div>
-    <div id="login-form">
-      <div class="auth-title">Добре дошъл</div>
-      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="login-email" placeholder="example@mail.com" autocomplete="email"></div>
-      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
-      <button class="auth-btn" id="login-btn" onclick="doLogin()">Влез</button>
-      <div class="auth-switch">Нямаш акаунт? <a onclick="showReg()">Регистрирай се</a></div>
+    <div id="unified-auth-form">
+      <div class="auth-title">Вход / Регистрация</div>
+      <div class="auth-field"><label class="auth-label">Име <span style="font-weight:400;opacity:.6">(само при първи вход)</span></label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
+      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
+      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+      <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Продължи</button>
       <div style="text-align:center;margin-top:12px">
         <a onclick="showForgotPassword()" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
         <button class="lang-btn" id="auth-lang-btn" onclick="toggleLang()" style="width:auto">EN / БГ</button>
       </div>
-    </div>
-    <div id="reg-form" style="display:none">
-      <div class="auth-title">Регистрация</div>
-      <div class="auth-field"><label class="auth-label">ИМЕ</label><input class="auth-input" type="text" id="reg-name" placeholder="Твоето име" autocomplete="name"></div>
-      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="reg-email" placeholder="example@mail.com" autocomplete="email"></div>
-      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="reg-pass" placeholder="Минимум 6 символа" autocomplete="new-password"></div>
-      <button class="auth-btn" id="reg-btn" onclick="doRegister()">Създай акаунт</button>
-      <div class="auth-switch">Вече имаш акаунт? <a onclick="showLogin()">Влез</a></div>
     </div>
   </div>
 </div>
@@ -1241,8 +1233,41 @@ window.initPushNotifications=async function(){
     return token;
   }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
-window.doLogin=async function(){const email=document.getElementById('login-email').value.trim();const pass=document.getElementById('login-pass').value;if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}const btn=document.getElementById('login-btn');btn.disabled=true;btn.textContent='...';try{await signInWithEmailAndPassword(auth,email,pass);if(typeof window.trackEvent==='function')window.trackEvent('login',{});}catch(e){window.showAuthError(t('wrongCredentials'));}finally{btn.disabled=false;btn.textContent='Влез';}};
-window.doRegister=async function(){const name=document.getElementById('reg-name').value.trim();const email=document.getElementById('reg-email').value.trim();const pass=document.getElementById('reg-pass').value;if(!name||!email||!pass){window.showAuthError(t('fillAllFields'));return;}if(pass.length<6){window.showAuthError('Паролата трябва да е поне 6 символа');return;}const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='...';try{const cred=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:serverTimestamp()});if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});}catch(e){window.showAuthError(e.code==='auth/email-already-in-use'?t('emailExists'):t('registerError'));}finally{btn.disabled=false;btn.textContent='Създай акаунт';}};
+window.doAuthUnified=async function(){
+  const name=document.getElementById('auth-name').value.trim();
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-pass').value;
+  if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}
+  if(pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
+  const btn=document.getElementById('auth-btn');btn.disabled=true;btn.textContent='...';
+  try{
+    // Try signing in first — covers the common case of a returning user.
+    await signInWithEmailAndPassword(auth,email,pass);
+    if(typeof window.trackEvent==='function')window.trackEvent('login',{});
+  }catch(e){
+    // No matching account (or Firebase's generic invalid-credential error) — try
+    // creating a new account with the same details instead, so the person never has
+    // to pick "login" vs "register" themselves.
+    try{
+      const cred=await createUserWithEmailAndPassword(auth,email,pass);
+      if(name)await updateProfile(cred.user,{displayName:name});
+      await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
+      if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
+    }catch(e2){
+      if(e2.code==='auth/email-already-in-use'){
+        window.showAuthError(t('wrongCredentials'));
+      }else if(e2.code==='auth/weak-password'){
+        window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
+      }else if(e2.code==='auth/invalid-email'){
+        window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+      }else{
+        window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
+      }
+    }
+  }finally{
+    btn.disabled=false;btn.textContent=window._lang==='en'?'Continue':'Продължи';
+  }
+};
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
@@ -2015,32 +2040,19 @@ function applyLang(){
   document.documentElement.lang = l === 'bg' ? 'bg' : 'en';
 
   // Auth
-  const lf = document.getElementById('login-form');
-  const rf = document.getElementById('reg-form');
-  if(lf){
-    lf.querySelector('.auth-title').textContent = t('welcome');
-    const labs = lf.querySelectorAll('.auth-label');
-    if(labs[0]) labs[0].textContent = t('email');
-    if(labs[1]) labs[1].textContent = t('password');
-    const lb = document.getElementById('login-btn');
-    if(lb) lb.textContent = t('loginBtn');
-    const sw = lf.querySelector('.auth-switch');
-    if(sw) sw.innerHTML = t('noAccount')+' <a onclick="showReg()">'+t('doReg')+'</a>';
-  }
-  if(rf){
-    rf.querySelector('.auth-title').textContent = t('register');
-    const labs = rf.querySelectorAll('.auth-label');
-    if(labs[0]) labs[0].textContent = t('name');
+  const uf = document.getElementById('unified-auth-form');
+  if(uf){
+    uf.querySelector('.auth-title').textContent = window._lang==='en'?'Sign in / Sign up':'Вход / Регистрация';
+    const labs = uf.querySelectorAll('.auth-label');
+    if(labs[0]) labs[0].firstChild.textContent = (window._lang==='en'?'Name ':'Име ');
     if(labs[1]) labs[1].textContent = t('email');
     if(labs[2]) labs[2].textContent = t('password');
-    const ni = document.getElementById('reg-name');
+    const ni = document.getElementById('auth-name');
     if(ni) ni.placeholder = t('namePh');
-    const pi = document.getElementById('reg-pass');
-    if(pi) pi.placeholder = t('passPh');
-    const rb = document.getElementById('reg-btn');
-    if(rb) rb.textContent = t('regBtn');
-    const sw = rf.querySelector('.auth-switch');
-    if(sw) sw.innerHTML = t('hasAccount')+' <a onclick="showLogin()">'+t('doLogin')+'</a>';
+    const pi = document.getElementById('auth-pass');
+    if(pi) pi.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
+    const ab = document.getElementById('auth-btn');
+    if(ab) ab.textContent = window._lang==='en'?'Continue':'Продължи';
   }
 
   // Nav labels
@@ -2149,8 +2161,7 @@ async function toggleLang(){
 // ── AUTH ──
 function showAuthError(m){const e=document.getElementById('auth-error');e.textContent=m;e.classList.add('show');}
 function clearAuthError(){document.getElementById('auth-error').classList.remove('show');}
-function showReg(){document.getElementById('login-form').style.display='none';document.getElementById('reg-form').style.display='block';clearAuthError();}
-function showLogin(){document.getElementById('reg-form').style.display='none';document.getElementById('login-form').style.display='block';clearAuthError();}
+
 
 // doLogin defined in module
 // doRegister defined in module
@@ -5694,7 +5705,10 @@ if('serviceWorker' in navigator && location.protocol === 'https:'){
 }
 
 document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){if(document.getElementById('reg-form').style.display!=='none')doRegister();else doLogin();}
+  if(e.key==='Enter'){
+    const authScreen=document.getElementById('auth-screen');
+    if(authScreen&&!authScreen.classList.contains('hidden'))doAuthUnified();
+  }
   if(e.key==='Escape'){
     const ov=document.getElementById('overlay');
     if(ov&&ov.classList.contains('open')){
