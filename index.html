@@ -1182,7 +1182,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
@@ -1190,7 +1190,7 @@ import{getAnalytics,logEvent,isSupported as analyticsIsSupported}from"https://ww
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"G-XZFJ8ZK6B9"});
 const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
 // Ensure auth persists across page reloads
-try{ auth.setPersistence && auth.setPersistence({type:'LOCAL'}); }catch(e){}
+try{ setPersistence(auth, browserLocalPersistence); }catch(e){}
 window._auth=auth;window._db=db;
 // ── FIREBASE STORAGE: upload a compressed photo blob, return public URL ──
 // ── FIREBASE ANALYTICS ──
@@ -1245,6 +1245,7 @@ window.doLogin=async function(){const email=document.getElementById('login-email
 window.doRegister=async function(){const name=document.getElementById('reg-name').value.trim();const email=document.getElementById('reg-email').value.trim();const pass=document.getElementById('reg-pass').value;if(!name||!email||!pass){window.showAuthError(t('fillAllFields'));return;}if(pass.length<6){window.showAuthError('Паролата трябва да е поне 6 символа');return;}const btn=document.getElementById('reg-btn');btn.disabled=true;btn.textContent='...';try{const cred=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(cred.user,{displayName:name});await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name,email,createdAt:serverTimestamp()});if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});}catch(e){window.showAuthError(e.code==='auth/email-already-in-use'?t('emailExists'):t('registerError'));}finally{btn.disabled=false;btn.textContent='Създай акаунт';}};
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
 onAuthStateChanged(auth,async user=>{
+  window._authReady=true;
   if(user){
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
     try{ if(typeof Sentry!=='undefined') Sentry.setUser({id:user.uid,email:user.email}); }catch(e){}
@@ -1356,6 +1357,14 @@ onAuthStateChanged(auth,async user=>{
         <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">${window._lang==='en'?'Sign in to see your profile':'Влез, за да видиш профила си'}</div>
         <button onclick="openAuthScreen()" style="margin-top:8px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button>
       </div>`;
+    }
+  }
+  // If the Profile tab tried to render before Firebase confirmed the auth state,
+  // finish that render now that we know for sure whether the person is logged in.
+  if(window._pendingProfileGoPage){
+    window._pendingProfileGoPage=false;
+    if(typeof goPage==='function' && document.getElementById('page-profile')?.classList.contains('active')){
+      goPage('profile');
     }
   }
 });
@@ -2193,7 +2202,17 @@ function goPage(name,btn){
     if(name==='diary')loadDiaryTab();
     if(name==='notifs')loadNotifsPage();
     if(name==='profile'){
-      if(!window._user){
+      if(!window._authReady){
+        // Firebase hasn't confirmed the auth state yet (e.g. slow connection). Show a
+        // neutral loading state instead of assuming "guest" — this avoids briefly showing
+        // the "please sign in" prompt to someone who is actually already logged in, which
+        // was causing a confusing login loop on slower networks.
+        const pc=document.querySelector('#page-profile .profile-card');
+        if(pc)pc.innerHTML=`<div style="text-align:center;padding:40px 8px;color:var(--ink2);font-size:13px">${window._lang==='en'?'Loading…':'Зареждане…'}</div>`;
+        const stc=document.getElementById('skin-test-card'); if(stc)stc.innerHTML='';
+        const ctc=document.getElementById('cycle-tracker-card'); if(ctc)ctc.innerHTML='';
+        window._pendingProfileGoPage=true;
+      } else if(!window._user){
         const pc=document.querySelector('#page-profile .profile-card');
         if(pc)pc.innerHTML=`<div style="text-align:center;padding:24px 8px">
           <div style="font-size:36px;margin-bottom:10px">🔐</div>
