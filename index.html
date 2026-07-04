@@ -1004,6 +1004,49 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="page-hdr-title" id="notifs-page-title">Напомняне</div>
       <div class="page-hdr-sub" id="notifs-page-sub">Предстоящи процедури</div>
     </div>
+    <!-- ADD REMINDER ACCORDION -->
+    <div style="padding:0 16px 0">
+      <div class="acc-section profile-card-section" style="border-radius:14px;border:1.5px solid rgba(184,150,106,.25);background:var(--card);margin-bottom:12px">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:12px 14px">
+          <span style="font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:7px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-t="addReminder">🔔 Добави напомняне / резервация</span>
+          </span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body" style="padding:0 14px 14px">
+          <div id="push-notif-toggle-wrap" style="margin-bottom:10px;padding:10px 12px;border-radius:12px;background:var(--mist);border:1px solid rgba(184,150,106,.2);display:flex;align-items:flex-start;gap:12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
+              <strong id="push-notif-title-label" style="font-size:11px;color:var(--ink);white-space:nowrap">Push известия</strong>
+              <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+            </div>
+            <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:1px">Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.</div>
+          </div>
+          <div style="position:relative;overflow:visible;margin-bottom:8px">
+            <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
+            <input type="hidden" id="notif-proc">
+            <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:220px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(26,26,46,.25);margin-top:4px"></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <button id="notif-type-reminder" onclick="setNotifType('reminder')"
+              style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+              🔔 <span data-t="notifTypeReminder">Напомняне</span>
+            </button>
+            <button id="notif-type-booking" onclick="setNotifType('booking')"
+              style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+              📅 <span data-t="notifTypeBooking">Резервация</span>
+            </button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:16px">
+            <input type="time" id="notif-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
+            <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
+          </div>
+          <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
+          <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+        </div>
+      </div>
+    </div>
     <div id="notifs-page-content" style="padding:0 16px"><div class="skeleton-wrap">
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row short"></div></div>
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row short"></div></div>
@@ -1135,46 +1178,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <!-- CLIENT PROFILE SECTIONS -->
     <div id="client-profile-sections">
-
-      <!-- NOTIFICATIONS ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileNotifs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> Напомняния за процедури</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-        <div style="margin-top:8px;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="notifHint">Задай дата за следващо посещение</div>
-        <div id="push-notif-toggle-wrap" style="margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(184,150,106,.2);display:flex;align-items:flex-start;gap:12px">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
-            <strong id="push-notif-title-label" style="font-size:11px;color:var(--ink);white-space:nowrap">Push известия</strong>
-            <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
-          </div>
-          <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:1px">Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.</div>
-        </div>
-        <div style="position:relative;margin-top:10px;overflow:visible">
-          <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
-          <input type="hidden" id="notif-proc">
-          <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:220px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(26,26,46,.25);margin-top:4px"></div>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:8px">
-          <button id="notif-type-reminder" onclick="setNotifType('reminder')"
-            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-            🔔 <span data-t="notifTypeReminder">Напомняне</span>
-          </button>
-          <button id="notif-type-booking" onclick="setNotifType('booking')"
-            style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-            📅 <span data-t="notifTypeBooking">Резервация</span>
-          </button>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:16px">
-          <input type="time" id="notif-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
-          <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
-        </div>
-        <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
-        <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
-        </div>
-      </div>
 
       <!-- ДОМАШНА ГРИЖА ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
@@ -2523,7 +2526,7 @@ function applyLang(){
   renderCats();
   renderProcs();
   // Re-render notifs (contain inline lang checks)
-  loadNotifsPage();
+  loadNotifsPage();if(typeof updatePushToggleUI==='function')updatePushToggleUI();if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();
   // Re-render favs empty state
   loadFavsList();
   // Clear suggestions (language changed)
@@ -2603,7 +2606,7 @@ function goPage(name,btn){
   try{localStorage.setItem('gt_last_page',name);}catch(e){}
   try{
     if(name==='diary')loadDiaryTab();
-    if(name==='notifs')loadNotifsPage();
+    if(name==='notifs'){loadNotifsPage();if(typeof updatePushToggleUI==='function')updatePushToggleUI();if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();}
     if(name==='profile'){
       if(!window._authReady){
         // Firebase hasn't confirmed the auth state yet (e.g. slow connection). Show a
@@ -5972,7 +5975,7 @@ function loadNotifsPage(){
   if(!notifs.length){
     content.innerHTML=`<div class="empty-state"><div class="empty-ic">🔔</div>
       <div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div>
-      <div class="empty-sub">${isBG?'Добави напомняне от таба Профил':'Add reminders from the Profile tab'}</div>
+      <div class="empty-sub">${isBG?'Натисни \'+ Добави\' по-горе':'Tap \'+ Add\' above'}</div>
     </div>`;
     return;
   }
