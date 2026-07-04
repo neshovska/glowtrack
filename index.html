@@ -534,7 +534,7 @@ body.dark .adv-chip{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:#
 body.dark .adv-chip.active{background:rgba(184,150,106,.15);color:var(--gold);border-color:var(--gold)}
 #adv-filter-bs{scrollbar-width:none}
 #adv-bs-body::-webkit-scrollbar{display:none}
-body.dark #adv-filter-bs{background:#0f0f1e}
+body.dark #adv-filter-bs{background:#12122a!important}
 .diary-group-entries.open{border-top:1px solid var(--roselt)}
 #diary-tab-content{padding:8px 16px 16px}
 .diary-entry-row{background:var(--card)}
@@ -635,9 +635,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <div class="cats" id="cats-bar"></div>
     <!-- Advanced Filter Overlay -->
-    <div id="adv-filter-overlay" onclick="closeAdvFilter()" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.45);z-index:200;backdrop-filter:blur(3px)"></div>
+    <div id="adv-filter-overlay" onclick="closeAdvFilter()" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.5);z-index:200"></div>
     <!-- Advanced Filter Bottomsheet -->
-    <div id="adv-filter-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(480px,100vw);background:var(--bg);border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;display:flex;flex-direction:column">
+    <div id="adv-filter-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(480px,100vw);background:#f7f5f2;border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;display:flex;flex-direction:column">
       <div style="width:38px;height:4px;background:var(--roselt);border-radius:2px;margin:10px auto 0;flex-shrink:0"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0">
         <span style="font-size:16px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Филтри</span>
@@ -828,7 +828,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         </div>
 
       </div>
-      <div style="padding:10px 14px 16px;background:var(--bg);border-top:1px solid var(--roselt);flex-shrink:0">
+      <div style="padding:10px 14px 16px;background:#f7f5f2;border-top:1px solid var(--roselt);flex-shrink:0">
         <button onclick="advApplyFilters()" style="width:100%;padding:13px;border-radius:13px;border:none;background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" id="adv-apply-btn">Покажи резултатите</button>
       </div>
     </div>
@@ -848,11 +848,26 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')"
           style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px">✕</button>
       </div>
-      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
-        <button onclick="sortDiary('default')" id="dsort-default" class="dsort-btn dsort-active" data-t="sortDefault">📅 По дата</button>
-        <button onclick="sortDiary('name')" id="dsort-name" class="dsort-btn" data-t="sortName">🔤 По процедура</button>
-        <button onclick="sortDiary('count')" id="dsort-count" class="dsort-btn" data-t="sortCount">🔢 По брой</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+        <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;flex:1" id="diary-sort-btns">
+          <button onclick="sortDiary('default')" id="dsort-default" class="dsort-btn dsort-active" data-t="sortDefault">📅 По дата</button>
+          <button onclick="sortDiary('name')" id="dsort-name" class="dsort-btn" data-t="sortName">🔤 По процедура</button>
+          <button onclick="sortDiary('count')" id="dsort-count" class="dsort-btn" data-t="sortCount">🔢 По брой</button>
+        </div>
+        <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0">
+          <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:6px 10px;background:var(--gold);border:none;cursor:pointer;font-size:13px;line-height:1" title="Списък">☰</button>
+          <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:6px 10px;background:var(--card);border:none;cursor:pointer;font-size:13px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
+        </div>
       </div>
+    </div>
+    <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <button onclick="diaryCalPrev()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">‹</button>
+        <span id="diary-cal-month-lbl" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink)"></span>
+        <button onclick="diaryCalNext()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">›</button>
+      </div>
+      <div id="diary-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px"></div>
+      <div id="diary-cal-detail" style="display:none"></div>
     </div>
     <div id="diary-tab-content"><div class="skeleton-wrap">
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
@@ -3515,6 +3530,188 @@ async function deleteEntry(eid,procId){
 }
 
 // ── DIARY TAB ──
+
+// ── DIARY CALENDAR VIEW ──
+let _diaryView='list';
+let _calYear=new Date().getFullYear();
+let _calMonth=new Date().getMonth();
+let _calSelected=null;
+
+function setDiaryView(v){
+  _diaryView=v;
+  const listView=document.getElementById('diary-tab-content');
+  const calView=document.getElementById('diary-cal-view');
+  const sortBtns=document.getElementById('diary-sort-btns');
+  const btnList=document.getElementById('diary-view-list');
+  const btnCal=document.getElementById('diary-view-cal');
+  const search=document.getElementById('diary-search');
+  if(v==='cal'){
+    if(listView) listView.style.display='none';
+    if(calView) calView.style.display='block';
+    if(sortBtns) sortBtns.style.display='none';
+    if(search) search.closest('div[style*="position:relative"]').style.display='none';
+    if(btnList){btnList.style.background='var(--card)';btnList.style.color='var(--ink2)';}
+    if(btnCal){btnCal.style.background='var(--gold)';btnCal.style.color='#fff';}
+    renderDiaryCal();
+  } else {
+    if(listView) listView.style.display='';
+    if(calView) calView.style.display='none';
+    if(sortBtns) sortBtns.style.display='';
+    if(search) search.closest('div[style*="position:relative"]').style.display='';
+    if(btnList){btnList.style.background='var(--gold)';btnList.style.color='#fff';}
+    if(btnCal){btnCal.style.background='var(--card)';btnCal.style.color='var(--ink2)';}
+    loadDiaryTab();
+  }
+}
+
+function diaryCalPrev(){
+  _calMonth--;
+  if(_calMonth<0){_calMonth=11;_calYear--;}
+  _calSelected=null;
+  renderDiaryCal();
+}
+function diaryCalNext(){
+  _calMonth++;
+  if(_calMonth>11){_calMonth=0;_calYear++;}
+  _calSelected=null;
+  renderDiaryCal();
+}
+
+async function renderDiaryCal(){
+  const lbl=document.getElementById('diary-cal-month-lbl');
+  const grid=document.getElementById('diary-cal-grid');
+  const detail=document.getElementById('diary-cal-detail');
+  if(!lbl||!grid) return;
+
+  const isBG=window._lang!=='en';
+  const monthNames=isBG
+    ?['Януари','Февруари','Март','Април','Май','Юни','Юли','Август','Септември','Октомври','Ноември','Декември']
+    :['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dayNames=isBG?['Пн','Вт','Ср','Чт','Пт','Сб','Нд']:['Mo','Tu','We','Th','Fr','Sa','Su'];
+
+  lbl.textContent=monthNames[_calMonth]+' '+_calYear;
+
+  // Load diary entries from cache
+  let docs=[];
+  if(window._user){
+    if(window._cache?.diary) docs=window._cache.diary;
+    else{
+      try{
+        const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
+        window._cache=window._cache||{};
+        window._cache.diary=snap.docs;
+        docs=snap.docs;
+      }catch(e){}
+    }
+  }
+
+  // Build map: dateStr -> entries
+  const entryMap={};
+  docs.forEach(d=>{
+    const data=d.data();
+    const ts=data.date||data.createdAt?.toDate?.()?.toISOString?.()?.slice(0,10)||null;
+    if(!ts) return;
+    const dateStr=ts.slice(0,10);
+    if(!entryMap[dateStr]) entryMap[dateStr]=[];
+    entryMap[dateStr].push({id:d.id,...data});
+  });
+
+  // Build calendar grid
+  const today=new Date();
+  const firstDay=new Date(_calYear,_calMonth,1);
+  let startDow=firstDay.getDay(); // 0=Sun
+  startDow=(startDow+6)%7; // convert to Mon=0
+  const daysInMonth=new Date(_calYear,_calMonth+1,0).getDate();
+  const daysInPrev=new Date(_calYear,_calMonth,0).getDate();
+
+  let html='';
+  dayNames.forEach(d=>{html+=`<div class="cal-weekday">${d}</div>`;});
+
+  // Previous month days
+  for(let i=0;i<startDow;i++){
+    const day=daysInPrev-startDow+i+1;
+    html+=`<div class="cal-day other-month">${day}</div>`;
+  }
+
+  // Current month days
+  for(let day=1;day<=daysInMonth;day++){
+    const dateStr=`${_calYear}-${String(_calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const hasEntry=!!entryMap[dateStr];
+    const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
+    const isSelected=_calSelected===dateStr;
+    const cls=['cal-day',hasEntry?'has-entry':'',isToday?'today':'',isSelected?'selected':''].filter(Boolean).join(' ');
+    html+=`<div class="${cls}" onclick="selectCalDay('${dateStr}')">${day}</div>`;
+  }
+
+  // Next month days
+  const totalCells=Math.ceil((startDow+daysInMonth)/7)*7;
+  for(let i=1;i<=totalCells-startDow-daysInMonth;i++){
+    html+=`<div class="cal-day other-month">${i}</div>`;
+  }
+
+  grid.innerHTML=html;
+
+  // Show detail if selected
+  if(_calSelected&&entryMap[_calSelected]){
+    showCalDetail(entryMap[_calSelected],_calSelected);
+  } else if(detail){
+    detail.style.display='none';
+  }
+}
+
+function selectCalDay(dateStr){
+  _calSelected=_calSelected===dateStr?null:dateStr;
+  renderDiaryCal();
+}
+
+function showCalDetail(entries,dateStr){
+  const detail=document.getElementById('diary-cal-detail');
+  if(!detail) return;
+  detail.style.display='block';
+
+  const isBG=window._lang!=='en';
+  const [y,m,d]=dateStr.split('-');
+  const dateObj=new Date(+y,+m-1,+d);
+  const formatted=isBG
+    ?`${+d} ${['ян.','фев.','март','апр.','май','юни','юли','авг.','сеп.','окт.','ноем.','дек.'][+m-1]} ${y}`
+    :`${+d} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${y}`;
+
+  let html=`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px">${formatted}</div>`;
+
+  entries.forEach(e=>{
+    const procName=e.procName||(e.procId?((window.PROCS||[]).find(p=>p.id===e.procId)?.name||e.procId):'');
+    const zone=e.zone||e.zones||'';
+    const note=e.note||e.notes||'';
+    const rating=e.rating||0;
+    const price=e.price||'';
+    const photos=e.photos||[];
+
+    const stars=rating?'★'.repeat(rating)+'☆'.repeat(5-rating):'';
+
+    // Photos
+    let photosHtml='';
+    if(photos.length){
+      photosHtml=`<div class="cal-entry-img-row">${photos.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy" alt="">`).join('')}</div>`;
+    }
+
+    html+=`<div class="cal-entry-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(184,150,106,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">✨</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${procName}</div>
+          ${zone?`<div style="font-size:11px;color:var(--ink2)">${zone}</div>`:''}
+        </div>
+        ${stars?`<div style="font-size:13px;color:var(--gold);letter-spacing:1px">${stars}</div>`:''}
+      </div>
+      ${note?`<div style="font-size:11px;color:var(--ink2);line-height:1.5;margin-bottom:4px">${note}</div>`:''}
+      ${price?`<div style="font-size:11px;color:var(--gold);font-weight:600">${price} лв.</div>`:''}
+      ${photosHtml}
+    </div>`;
+  });
+
+  detail.innerHTML=html;
+}
+
 async function loadDiaryTab(){
   const el=document.getElementById('diary-tab-content');
   if(!window._user){
