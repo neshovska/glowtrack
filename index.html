@@ -3644,12 +3644,17 @@ async function renderDiaryCal(){
       }catch(e){}
     }
   }
-  // Also load reminders for future dots
+  // Load reminders — from _lsGet (synced from Firestore on login)
   let notifDates={};
   try{
-    const saved=JSON.parse(localStorage.getItem('gt_notifs')||'[]');
-    saved.forEach(n=>{if(n.date) notifDates[n.date.slice(0,10)]=(notifDates[n.date.slice(0,10)]||[]); notifDates[n.date.slice(0,10)].push({procName:n.procName||n.proc||'Напомняне',isNotif:true});});
-  }catch(e){}
+    const saved=typeof _lsGet==='function'?(_lsGet('gt_notifs')||[]):JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+    saved.forEach(n=>{
+      if(!n.date) return;
+      const ds=n.date.slice(0,10);
+      if(!notifDates[ds]) notifDates[ds]=[];
+      notifDates[ds].push({procName:n.procName||n.procId||'Напомняне',isNotif:true,time:n.time||''});
+    });
+  }catch(e){console.warn('notifDates err',e);}
 
   // Build map: dateStr -> entries
   const entryMap={};
@@ -3688,12 +3693,9 @@ async function renderDiaryCal(){
     const dateStr=`${_calYear}-${String(_calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const hasEntry=!!entryMap[dateStr];
     const hasNotif=!!notifDates[dateStr];
-    const isPast=new Date(dateStr)<today;
     const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
     const isSelected=_calSelected===dateStr;
     const cls=['cal-day',hasEntry?'has-entry':'',hasNotif&&!hasEntry?'has-notif':'',isToday?'today':'',isSelected?'selected':''].filter(Boolean).join(' ');
-    const allEntries={...entryMap};
-    if(hasNotif&&!entryMap[dateStr]) allEntries[dateStr]=notifDates[dateStr];
     html+=`<div class="${cls}" onclick="selectCalDay('${dateStr}')">${day}</div>`;
   }
 
@@ -3706,10 +3708,12 @@ async function renderDiaryCal(){
   grid.innerHTML=html;
 
   // Show detail if selected
-  if(_calSelected&&entryMap[_calSelected]){
-    showCalDetail(entryMap[_calSelected],_calSelected);
+  const selectedEntries=[...(entryMap[_calSelected]||[]),...(notifDates[_calSelected]||[])];
+  if(_calSelected&&selectedEntries.length){
+    showCalDetail(selectedEntries,_calSelected);
   } else if(detail){
     detail.style.display='none';
+    detail.innerHTML='';
   }
 }
 
@@ -3747,6 +3751,20 @@ function showCalDetail(entries,dateStr){
   let html=`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding:0 2px">${formatted} · ${entries.length} ${isBG?(entries.length===1?'запис':'записа'):(entries.length===1?'entry':'entries')}</div>`;
 
   entries.forEach(e=>{
+    // Handle reminder-only entries
+    if(e.isNotif){
+      const isBG=window._lang!=='en';
+      html+=`<div class="cal-entry-card" style="border-left:3px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🔔</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--ink)">${e.procName}</div>
+            <div style="font-size:11px;color:var(--gold)">${isBG?'Напомняне':'Reminder'}${e.time?' · '+e.time:''}</div>
+          </div>
+        </div>
+      </div>`;
+      return;
+    }
     // Get proc name
     const proc=(window.PROCS||[]).find(p=>p.id===e.procId);
     const procL_data=proc?procL(proc):null;
