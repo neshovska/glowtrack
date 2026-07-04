@@ -2359,6 +2359,46 @@ function applyLang(){
   const sp=document.getElementById('proc-search');
   if(sp) sp.placeholder=t('searchProcs');
 
+
+  // Advanced filter panel translations
+  const isEN = window._lang === 'en';
+  const filterLbls = {
+    byProblem: isEN ? 'By concern' : 'По проблем',
+    byZone:    isEN ? 'By zone' : 'По зона',
+    byGoal:    isEN ? 'By desired effect' : 'По търсен ефект',
+    byTech:    isEN ? 'By technology' : 'По технология',
+  };
+  document.querySelectorAll('[data-flt-lbl]').forEach(el=>{
+    const key = el.getAttribute('data-flt-lbl');
+    if(filterLbls[key]) el.textContent = filterLbls[key];
+  });
+  const filterBtnLbl = document.getElementById('filter-btn-lbl');
+  if(filterBtnLbl) filterBtnLbl.textContent = isEN ? 'Filters' : 'Филтри';
+  // Filter section titles without data-flt-lbl (inline text)
+  const filterSectionTitles = {
+    'По възраст': 'By age', 'По пол': 'By gender',
+    'По повод': 'By occasion', 'Бременност / Кърмене': 'Pregnancy / Breastfeeding',
+    'По възстановяване': 'Recovery time', 'Продължителност на ефекта': 'Duration of effect',
+    'По болезненост': 'Discomfort level', 'По сезон': 'By season',
+    'По инвазивност': 'Invasiveness',
+  };
+  const bgTitles = Object.keys(filterSectionTitles);
+  document.querySelectorAll('#adv-bs-body .acc-name, #adv-bs-body [style*="font-size:13px"][style*="font-weight:600"]').forEach(el=>{
+    const txt = el.textContent.trim();
+    if(isEN && filterSectionTitles[txt]) el.textContent = filterSectionTitles[txt];
+    if(!isEN){
+      const enVal = Object.values(filterSectionTitles).indexOf(txt);
+      if(enVal>=0) el.textContent = bgTitles[enVal];
+    }
+  });
+  // Apply button
+  const applyBtn = document.getElementById('adv-apply-btn');
+  if(applyBtn && !applyBtn.textContent.includes('(')) applyBtn.textContent = isEN ? 'Show results' : 'Покажи резултатите';
+  // Reset link
+  document.querySelectorAll('#adv-filter-bs [onclick="advResetAll()"]').forEach(el=>{
+    el.textContent = isEN ? 'Clear all' : 'Изчисти всички';
+  });
+
   // Re-render procedures with new language
   renderCats();
   renderProcs();
@@ -3604,14 +3644,24 @@ async function renderDiaryCal(){
       }catch(e){}
     }
   }
+  // Also load reminders for future dots
+  let notifDates={};
+  try{
+    const saved=JSON.parse(localStorage.getItem('gt_notifs')||'[]');
+    saved.forEach(n=>{if(n.date) notifDates[n.date.slice(0,10)]=(notifDates[n.date.slice(0,10)]||[]); notifDates[n.date.slice(0,10)].push({procName:n.procName||n.proc||'Напомняне',isNotif:true});});
+  }catch(e){}
 
   // Build map: dateStr -> entries
   const entryMap={};
   docs.forEach(d=>{
     const data=d.data();
-    const ts=data.date||data.createdAt?.toDate?.()?.toISOString?.()?.slice(0,10)||null;
-    if(!ts) return;
-    const dateStr=ts.slice(0,10);
+    // Try multiple date fields
+    let dateStr=null;
+    if(data.date && typeof data.date==='string') dateStr=data.date.slice(0,10);
+    else if(data.date?.toDate) dateStr=data.date.toDate().toISOString().slice(0,10);
+    else if(data.createdAt?.toDate) dateStr=data.createdAt.toDate().toISOString().slice(0,10);
+    else if(data.createdAt && typeof data.createdAt==='string') dateStr=data.createdAt.slice(0,10);
+    if(!dateStr) return;
     if(!entryMap[dateStr]) entryMap[dateStr]=[];
     entryMap[dateStr].push({id:d.id,...data});
   });
@@ -3637,9 +3687,13 @@ async function renderDiaryCal(){
   for(let day=1;day<=daysInMonth;day++){
     const dateStr=`${_calYear}-${String(_calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const hasEntry=!!entryMap[dateStr];
+    const hasNotif=!!notifDates[dateStr];
+    const isPast=new Date(dateStr)<today;
     const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
     const isSelected=_calSelected===dateStr;
-    const cls=['cal-day',hasEntry?'has-entry':'',isToday?'today':'',isSelected?'selected':''].filter(Boolean).join(' ');
+    const cls=['cal-day',hasEntry?'has-entry':'',hasNotif&&!hasEntry?'has-notif':'',isToday?'today':'',isSelected?'selected':''].filter(Boolean).join(' ');
+    const allEntries={...entryMap};
+    if(hasNotif&&!entryMap[dateStr]) allEntries[dateStr]=notifDates[dateStr];
     html+=`<div class="${cls}" onclick="selectCalDay('${dateStr}')">${day}</div>`;
   }
 
@@ -3663,6 +3717,21 @@ function selectCalDay(dateStr){
   _calSelected=_calSelected===dateStr?null:dateStr;
   renderDiaryCal();
 }
+function _getAllCalEntries(){
+  // Returns merged map of diary entries + notif entries
+  const map={};
+  (window._cache?.diary||[]).forEach(d=>{
+    const data=d.data();
+    let ds=null;
+    if(data.date&&typeof data.date==='string') ds=data.date.slice(0,10);
+    else if(data.date?.toDate) ds=data.date.toDate().toISOString().slice(0,10);
+    else if(data.createdAt?.toDate) ds=data.createdAt.toDate().toISOString().slice(0,10);
+    if(!ds) return;
+    if(!map[ds]) map[ds]=[];
+    map[ds].push({id:d.id,...data});
+  });
+  return map;
+}
 
 function showCalDetail(entries,dateStr){
   const detail=document.getElementById('diary-cal-detail');
@@ -3671,40 +3740,57 @@ function showCalDetail(entries,dateStr){
 
   const isBG=window._lang!=='en';
   const [y,m,d]=dateStr.split('-');
-  const dateObj=new Date(+y,+m-1,+d);
-  const formatted=isBG
-    ?`${+d} ${['ян.','фев.','март','апр.','май','юни','юли','авг.','сеп.','окт.','ноем.','дек.'][+m-1]} ${y}`
-    :`${+d} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${y}`;
+  const mnBG=['ян.','фев.','март','апр.','май','юни','юли','авг.','сеп.','окт.','ноем.','дек.'];
+  const mnEN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const formatted=isBG?`${+d} ${mnBG[+m-1]} ${y}`:`${+d} ${mnEN[+m-1]} ${y}`;
 
-  let html=`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px">${formatted}</div>`;
+  let html=`<div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;padding:0 2px">${formatted} · ${entries.length} ${isBG?(entries.length===1?'запис':'записа'):(entries.length===1?'entry':'entries')}</div>`;
 
   entries.forEach(e=>{
-    const procName=e.procName||(e.procId?((window.PROCS||[]).find(p=>p.id===e.procId)?.name||e.procId):'');
-    const zone=e.zone||e.zones||'';
-    const note=e.note||e.notes||'';
-    const rating=e.rating||0;
-    const price=e.price||'';
-    const photos=e.photos||[];
+    // Get proc name
+    const proc=(window.PROCS||[]).find(p=>p.id===e.procId);
+    const procL_data=proc?procL(proc):null;
+    const procName=procL_data?.name||e.procName||e.procId||'—';
+    const procImg=proc?.img||null;
 
+    const zone=e.zone||e.zones||'';
+    const advice=e.advice||e.note||'';
+    const rating=e.rating||0;
+    const price=e.price||0;
+    const clinic=e.clinic||'';
+    const specialist=e.specialist||'';
+    const photosBefore=e.photosBefore||[];
+    const photosAfter=e.photosAfter||[];
+    const photos=e.photos||[];
     const stars=rating?'★'.repeat(rating)+'☆'.repeat(5-rating):'';
 
-    // Photos
+    const imgEl=procImg
+      ?`<img src="${procImg}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0" loading="lazy">`
+      :`<div style="width:40px;height:40px;border-radius:50%;background:rgba(184,150,106,.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✨</div>`;
+
     let photosHtml='';
-    if(photos.length){
-      photosHtml=`<div class="cal-entry-img-row">${photos.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy" alt="">`).join('')}</div>`;
+    if(photosBefore.length){
+      photosHtml+=`<div style="margin-top:8px"><div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${isBG?'ПРЕДИ':'BEFORE'}</div><div class="cal-entry-img-row">${photosBefore.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')" style="cursor:pointer">`).join('')}</div></div>`;
+    }
+    if(photosAfter.length){
+      photosHtml+=`<div style="margin-top:8px"><div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${isBG?'СЛЕД':'AFTER'}</div><div class="cal-entry-img-row">${photosAfter.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')" style="cursor:pointer">`).join('')}</div></div>`;
+    }
+    if(photos.length&&!photosBefore.length&&!photosAfter.length){
+      photosHtml+=`<div class="cal-entry-img-row" style="margin-top:8px">${photos.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')" style="cursor:pointer">`).join('')}</div>`;
     }
 
     html+=`<div class="cal-entry-card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-        <div style="width:36px;height:36px;border-radius:50%;background:rgba(184,150,106,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">✨</div>
+        ${imgEl}
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${procName}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${procName}</div>
           ${zone?`<div style="font-size:11px;color:var(--ink2)">${zone}</div>`:''}
+          ${(clinic||specialist)?`<div style="font-size:10px;color:var(--ink2)">${[clinic,specialist].filter(Boolean).join(' · ')}</div>`:''}
         </div>
-        ${stars?`<div style="font-size:13px;color:var(--gold);letter-spacing:1px">${stars}</div>`:''}
+        ${stars?`<div style="font-size:12px;color:var(--gold);letter-spacing:1px;flex-shrink:0">${stars}</div>`:''}
       </div>
-      ${note?`<div style="font-size:11px;color:var(--ink2);line-height:1.5;margin-bottom:4px">${note}</div>`:''}
-      ${price?`<div style="font-size:11px;color:var(--gold);font-weight:600">${price} лв.</div>`:''}
+      ${advice?`<div style="font-size:11px;color:var(--ink2);line-height:1.5;margin-bottom:4px;padding:6px 8px;background:rgba(184,150,106,.06);border-radius:8px">${advice}</div>`:''}
+      ${price>0?`<div style="font-size:11px;color:var(--gold);font-weight:600;margin-top:2px">${price} €</div>`:''}
       ${photosHtml}
     </div>`;
   });
