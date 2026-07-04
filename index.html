@@ -348,6 +348,52 @@ textarea.form-input{resize:none}
 .diary-group-count{font-size:10px;font-weight:700;color:var(--gold);background:var(--goldlt);border-radius:10px;padding:2px 8px;flex-shrink:0}
 .diary-group-entries{border-top:1px solid var(--roselt);padding:8px;display:none}
 .diary-group-entries.open{display:block}
+/* ══ DIARY CALENDAR ══ */
+#diary-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
+.dc-weekday{font-size:10px;font-weight:700;color:var(--ink2);text-align:center;padding:4px 0;letter-spacing:.04em;text-transform:uppercase}
+.dc-day{position:relative;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;transition:background .15s;user-select:none}
+.dc-day:hover{background:var(--roselt)}
+.dc-day.dc-other{opacity:.35}
+.dc-day.dc-today{background:var(--roselt)!important;border:2px solid var(--gold)}
+.dc-day.dc-today .dc-num{color:var(--gold)!important;font-weight:700}
+.dc-day.dc-sel{background:var(--gold)!important}
+.dc-day.dc-sel .dc-num{color:#fff!important;font-weight:700}
+.dc-day.dc-sel .dc-dots span{background:#fff!important;opacity:.8}
+.dc-num{font-size:13px;font-weight:500;color:var(--ink2);line-height:1;margin-bottom:2px}
+.dc-day.dc-has .dc-num{font-weight:700;color:var(--ink)}
+.dc-dots{display:flex;gap:2px;align-items:center;justify-content:center;height:7px}
+.dc-dots span{display:block;width:5px;height:5px;border-radius:50%;flex-shrink:0}
+/* Entry cards */
+.dc-card{border-radius:12px;padding:11px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px;border-left:3px solid var(--gold);background:rgba(184,150,106,.07)}
+.dc-icon{width:36px;height:36px;border-radius:50%;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc-icon svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:1.8}
+.dc-tag{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.dc-name{font-size:13px;font-weight:700;color:var(--ink)}
+.dc-sub{font-size:11px;color:var(--ink2);margin-top:1px}
+.dc-del{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--roselt);font-size:20px;padding:0 2px;line-height:1;flex-shrink:0}
+.dc-del:hover{color:#e85d5d}
+/* Add form */
+.dc-form{background:var(--roselt);border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid rgba(184,150,106,.2)}
+.dc-form input{width:100%;padding:9px 11px;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:10px;font-size:13px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;margin-top:4px}
+.dc-form input:focus{border-color:var(--gold)}
+.dc-flbl{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--gold);text-transform:uppercase;display:block;margin-top:8px}
+.dc-colors{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.dc-col{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0;transition:transform .15s}
+.dc-col.dc-col-sel{border-color:var(--ink);transform:scale(1.18)}
+/* Legend */
+.dc-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:10px 12px;background:var(--roselt);border-radius:10px}
+.dc-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink2)}
+.dc-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* Detail header */
+.dc-detail-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-top:4px}
+.dc-detail-date{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
+.dc-add-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:10px;border:1.5px solid var(--gold);background:var(--card);font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.cal-entry-img-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-top:8px}
+.cal-entry-img-row::-webkit-scrollbar{display:none}
+.cal-entry-img{width:80px;height:80px;border-radius:10px;object-fit:cover;flex-shrink:0}
+body.dark .dc-card{background:rgba(184,150,106,.08)}
+body.dark .dc-form{background:rgba(255,255,255,.04)}
+body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,150,106,.25)}
 /* CLINICS & PRODUCTS */
 .clinics-list{padding:0 18px;display:flex;flex-direction:column;gap:10px}
 .clinic-card{background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:14px;box-shadow:var(--shadow)}
@@ -3705,10 +3751,10 @@ async function renderDiaryCal(){
   const daysInPrev=new Date(_calYear,_calMonth,0).getDate();
 
   let html='';
-  dayNames.forEach(d=>{html+=`<div class="cal-weekday">${d}</div>`;});
+  dayNames.forEach(d=>{html+=`<div class="dc-weekday">${d}</div>`;});
 
   for(let i=0;i<startDow;i++){
-    html+=`<div class="cal-day other-month"><span class="day-num">${daysInPrev-startDow+i+1}</span><div class="cal-dots"></div></div>`;
+    html+=`<div class="dc-day dc-other"><span class="dc-num">${daysInPrev-startDow+i+1}</span><div class="dc-dots"></div></div>`;
   }
 
   for(let day=1;day<=daysInMonth;day++){
@@ -3718,14 +3764,14 @@ async function renderDiaryCal(){
     const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
     const isSelected=_calSelected===ds;
     const colors=[...new Set(allForDay.map(e=>e.color||'#b8966a'))].slice(0,3);
-    const dots=colors.map(c=>`<span class="cal-dot" style="background:${c}"></span>`).join('');
-    const cls=['cal-day',hasAny?'has-any':'',isToday?'today':'',isSelected?'selected':''].filter(Boolean).join(' ');
-    html+=`<div class="${cls}" onclick="selectCalDay('${ds}')"><span class="day-num">${day}</span><div class="cal-dots">${dots}</div></div>`;
+    const dots=colors.map(c=>`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${c};flex-shrink:0"></span>`).join('');
+    const cls=['dc-day',hasAny?'dc-has':'',isToday?'dc-today':'',isSelected?'dc-sel':''].filter(Boolean).join(' ');
+    html+=`<div class="${cls}" onclick="selectCalDay('${ds}')"><span class="dc-num">${day}</span><div class="dc-dots">${dots}</div></div>`;
   }
 
   const totalCells=Math.ceil((startDow+daysInMonth)/7)*7;
   for(let i=1;i<=totalCells-startDow-daysInMonth;i++){
-    html+=`<div class="cal-day other-month"><span class="day-num">${i}</span><div class="cal-dots"></div></div>`;
+    html+=`<div class="dc-day dc-other"><span class="dc-num">${i}</span><div class="dc-dots"></div></div>`;
   }
   grid.innerHTML=html;
 
@@ -3759,8 +3805,8 @@ function hideCalAddForm(){
   if(no) no.value='';
 }
 function calSelectColor(el){
-  document.querySelectorAll('.cal-color-opt').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
+  document.querySelectorAll('.dc-col').forEach(c=>c.classList.remove('dc-col-sel'));
+  el.classList.add('dc-col-sel');el.textContent='✓';
   _calSelColor=el.getAttribute('data-color');
 }
 async function saveCalEvent(){
@@ -3807,40 +3853,40 @@ function showCalDetailV2(entries,dateStr){
   const SVG_CYCLE='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
   const SVG_CUSTOM='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
 
-  let html=`<div class="cal-detail-header">
-    <div class="cal-detail-date">${formatted}${entries.length?` · ${entries.length} ${isBG?(entries.length===1?'запис':'записа'):'entries'}`:''}</div>
-    <button class="cal-add-btn" onclick="showCalAddForm()">
+  let html=`<div class="dc-detail-hdr">
+    <div class="dc-detail-date">${formatted}${entries.length?` · ${entries.length} ${isBG?(entries.length===1?'запис':'записа'):'entries'}`:''}</div>
+    <button class="dc-add-btn" onclick="showCalAddForm()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      ${isBG?'Добави':'Add'}
+      ${isBG?'+ Добави':'+ Add'}
     </button>
   </div>
-  <div class="cal-add-form" id="cal-add-form-el" style="display:none">
+  <div class="dc-form" id="cal-add-form-el" style="display:none">
     <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:12px">${isBG?'Ново събитие':'New event'}</div>
     <div style="margin-bottom:10px">
-      <label class="cal-form-label">${isBG?'Заглавие':'Title'}</label>
-      <input class="cal-form-input" id="cal-evt-title" placeholder="${isBG?'напр. Дермапен, SPF крем...':'e.g. Dermapen, SPF cream...'}">
+      <label class="dc-flbl">${isBG?'Заглавие':'Title'}</label>
+      <input style="width:100%;padding:9px 11px;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:10px;font-size:13px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;margin-top:4px" id="cal-evt-title" placeholder="${isBG?'напр. Дермапен, SPF крем...':'e.g. Dermapen, SPF cream...'}">
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
       <div style="flex:1">
-        <label class="cal-form-label">${isBG?'Час':'Time'}</label>
-        <input class="cal-form-input" id="cal-evt-time" type="time" value="10:00">
+        <label class="dc-flbl">${isBG?'Час':'Time'}</label>
+        <input style="width:100%;padding:9px 11px;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:10px;font-size:13px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;margin-top:4px" id="cal-evt-time" type="time" value="10:00">
       </div>
       <div style="flex:1">
-        <label class="cal-form-label">${isBG?'Бележка':'Note'}</label>
-        <input class="cal-form-input" id="cal-evt-note" placeholder="${isBG?'незадължително':'optional'}">
+        <label class="dc-flbl">${isBG?'Бележка':'Note'}</label>
+        <input style="width:100%;padding:9px 11px;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:10px;font-size:13px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;margin-top:4px" id="cal-evt-note" placeholder="${isBG?'незадължително':'optional'}">
       </div>
     </div>
     <div style="margin-bottom:12px">
-      <label class="cal-form-label">${isBG?'Цвят':'Color'}</label>
-      <div class="cal-color-picker">
-        <div class="cal-color-opt sel" data-color="#b8966a" style="background:#b8966a" onclick="calSelectColor(this)">✓</div>
-        <div class="cal-color-opt" data-color="#6a8fb8" style="background:#6a8fb8" onclick="calSelectColor(this)"></div>
-        <div class="cal-color-opt" data-color="#e8a0a0" style="background:#e8a0a0" onclick="calSelectColor(this)"></div>
-        <div class="cal-color-opt" data-color="#7ab87a" style="background:#7ab87a" onclick="calSelectColor(this)"></div>
-        <div class="cal-color-opt" data-color="#9b7ab8" style="background:#9b7ab8" onclick="calSelectColor(this)"></div>
-        <div class="cal-color-opt" data-color="#e8c87a" style="background:#e8c87a" onclick="calSelectColor(this)"></div>
-        <div class="cal-color-opt" data-color="#7ab8b8" style="background:#7ab8b8" onclick="calSelectColor(this)"></div>
-        <div class="cal-color-opt" data-color="#e89a6a" style="background:#e89a6a" onclick="calSelectColor(this)"></div>
+      <label class="dc-flbl">${isBG?'Цвят':'Color'}</label>
+      <div class="dc-colors">
+        <div class="dc-col dc-col-sel" data-color="#b8966a" style="background:#b8966a" onclick="calSelectColor(this)">✓</div>
+        <div class="dc-col" data-color="#6a8fb8" style="background:#6a8fb8" onclick="calSelectColor(this)"></div>
+        <div class="dc-col" data-color="#e8a0a0" style="background:#e8a0a0" onclick="calSelectColor(this)"></div>
+        <div class="dc-col" data-color="#7ab87a" style="background:#7ab87a" onclick="calSelectColor(this)"></div>
+        <div class="dc-col" data-color="#9b7ab8" style="background:#9b7ab8" onclick="calSelectColor(this)"></div>
+        <div class="dc-col" data-color="#e8c87a" style="background:#e8c87a" onclick="calSelectColor(this)"></div>
+        <div class="dc-col" data-color="#7ab8b8" style="background:#7ab8b8" onclick="calSelectColor(this)"></div>
+        <div class="dc-col" data-color="#e89a6a" style="background:#e89a6a" onclick="calSelectColor(this)"></div>
       </div>
     </div>
     <div style="display:flex;gap:8px">
@@ -3856,35 +3902,35 @@ function showCalDetailV2(entries,dateStr){
   entries.forEach(e=>{
     const col=e.color||'#b8966a';
     if(e.isNotif){
-      html+=`<div class="cal-entry-v2" style="background:${col}10;border-left-color:${col}">
-        <div class="cal-entry-icon" style="background:${col}18;color:${col}">${SVG_NOTIF}</div>
+      html+=`<div class="dc-card" style="background:${col}12;border-left-color:${col}">
+        <div class="dc-icon" style="background:${col}18">${SVG_NOTIF.replace('stroke="currentColor"','stroke="'+col+'"')}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:${col};text-transform:uppercase;margin-bottom:2px">${isBG?'Напомняне':'Reminder'}</div>
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${e.procName}</div>
-          ${e.time?`<div style="font-size:11px;color:var(--ink2)">${e.time}</div>`:''}
+          <div class="dc-tag" style="color:${col}">${isBG?'Напомняне':'Reminder'}</div>
+          <div class="dc-name">${e.procName}</div>
+          ${e.time?`<div class="dc-sub">${e.time}</div>`:''}
         </div>
       </div>`;
       return;
     }
     if(e.isCycle){
-      html+=`<div class="cal-entry-v2" style="background:${col}10;border-left-color:${col}">
-        <div class="cal-entry-icon" style="background:${col}18;color:${col}">${SVG_CYCLE}</div>
+      html+=`<div class="dc-card" style="background:${col}12;border-left-color:${col}">
+        <div class="dc-icon" style="background:${col}18">${SVG_CYCLE.replace('stroke="currentColor"','stroke="'+col+'"')}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:${col};text-transform:uppercase;margin-bottom:2px">${isBG?'Цикъл':'Cycle'}</div>
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${e.name}</div>
+          <div class="dc-tag" style="color:${col}">${isBG?'Цикъл':'Cycle'}</div>
+          <div class="dc-name">${e.name}</div>
         </div>
       </div>`;
       return;
     }
     if(e.isCustom){
-      html+=`<div class="cal-entry-v2" style="background:${col}10;border-left-color:${col}">
-        <div class="cal-entry-icon" style="background:${col}18;color:${col}">${SVG_CUSTOM}</div>
+      html+=`<div class="dc-card" style="background:${col}12;border-left-color:${col}">
+        <div class="dc-icon" style="background:${col}18">${SVG_CUSTOM.replace('stroke="currentColor"','stroke="'+col+'"')}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:${col};text-transform:uppercase;margin-bottom:2px">${isBG?'Събитие':'Event'}</div>
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${e.title||e.name}</div>
-          ${e.time||e.note?`<div style="font-size:11px;color:var(--ink2)">${[e.time,e.note].filter(Boolean).join(' · ')}</div>`:''}
+          <div class="dc-tag" style="color:${col}">${isBG?'Събитие':'Event'}</div>
+          <div class="dc-name">${e.title||e.name}</div>
+          ${e.time||e.note?`<div class="dc-sub">${[e.time,e.note].filter(Boolean).join(' · ')}</div>`:''}
         </div>
-        <button class="cal-entry-delete" onclick="deleteCalEvent('${e.id}')">×</button>
+        <button class="dc-del" onclick="deleteCalEvent('${e.id}')">×</button>
       </div>`;
       return;
     }
@@ -3902,25 +3948,25 @@ function showCalDetailV2(entries,dateStr){
     if(photosBefore.length) photosHtml+=`<div style="margin-top:8px"><div style="font-size:9px;font-weight:700;color:var(--gold);margin-bottom:4px">${isBG?'ПРЕДИ':'BEFORE'}</div><div class="cal-entry-img-row">${photosBefore.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy">`).join('')}</div></div>`;
     if(photosAfter.length) photosHtml+=`<div style="margin-top:8px"><div style="font-size:9px;font-weight:700;color:var(--gold);margin-bottom:4px">${isBG?'СЛЕД':'AFTER'}</div><div class="cal-entry-img-row">${photosAfter.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy">`).join('')}</div></div>`;
     if(photos.length&&!photosBefore.length&&!photosAfter.length) photosHtml+=`<div class="cal-entry-img-row" style="margin-top:8px">${photos.map(ph=>`<img class="cal-entry-img" src="${ph}" loading="lazy">`).join('')}</div>`;
-    html+=`<div class="cal-entry-v2" style="background:${col}10;border-left-color:${col}">
-      <div class="cal-entry-icon" style="background:${col}18;color:${col}">${SVG_PROC}</div>
+    html+=`<div class="dc-card" style="background:${col}12;border-left-color:${col}">
+      <div class="dc-icon" style="background:${col}18">${SVG_PROC.replace('stroke="currentColor"','stroke="'+col+'"')}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:${col};text-transform:uppercase;margin-bottom:2px">${isBG?'Процедура':'Procedure'}</div>
-        <div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${procName}</div>
-        ${zone?`<div style="font-size:11px;color:var(--ink2)">${zone}</div>`:''}
+        <div class="dc-tag" style="color:${col}">${isBG?'Процедура':'Procedure'}</div>
+        <div class="dc-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${procName}</div>
+        ${zone?`<div class="dc-sub">${zone}</div>`:''}
         ${stars?`<div style="font-size:12px;color:${col};margin-top:2px">${stars}</div>`:''}
-        ${price>0?`<div style="font-size:11px;color:${col};font-weight:600">${price} €</div>`:''}
+        ${price>0?`<div style="font-size:11px;color:${col};font-weight:600;margin-top:2px">${price} €</div>`:''}
         ${photosHtml}
       </div>
     </div>`;
   });
 
   // Legend
-  html+=`<div class="cal-legend">
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#b8966a"></div>${isBG?'Процедура':'Procedure'}</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#6a8fb8"></div>${isBG?'Напомняне':'Reminder'}</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e8a0a0"></div>${isBG?'Цикъл':'Cycle'}</div>
-    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#9b7ab8"></div>${isBG?'Лично събитие':'Custom event'}</div>
+  html+=`<div class="dc-legend">
+    <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#b8966a"></div>${isBG?'Процедура':'Procedure'}</div>
+    <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#6a8fb8"></div>${isBG?'Напомняне':'Reminder'}</div>
+    <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#e8a0a0"></div>${isBG?'Цикъл':'Cycle'}</div>
+    <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#9b7ab8"></div>${isBG?'Лично събитие':'Custom event'}</div>
   </div>`;
 
   detail.innerHTML=html;
