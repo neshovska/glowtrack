@@ -945,8 +945,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
-        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:6px 10px;background:var(--gold);border:none;cursor:pointer;font-size:13px;line-height:1" title="Списък">☰</button>
-        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:6px 10px;background:var(--card);border:none;cursor:pointer;font-size:13px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
+        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:8px 12px;background:var(--gold);border:none;cursor:pointer;font-size:15px;line-height:1;color:#fff" title="Списък">☰</button>
+        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:8px 14px;background:var(--card);border:none;cursor:pointer;font-size:15px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
       </div>
     </div>
     <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
@@ -2090,6 +2090,10 @@ const T = {
     profileNotifs: '🔔 Напомняния за процедури',
     profileSuggest: '💬 Изпрати предложение',
     // Pull to refresh / offline
+    dstProcs: 'Процедури',
+    dstEntries: 'Записа',
+    dstSpent: 'Инвестирано',
+    yearAll: 'Всички',
     pullRefresh: '↓ Издърпай за обновяване',
     pullRelease: '↑ Отпусни за обновяване',
     refreshed: '🔄 Обновено!',
@@ -2317,6 +2321,10 @@ const T = {
     soonToast: '🔒 Coming soon',
     langSaved: '🌐 Language: English',
     // Missing keys — added
+    dstProcs: 'Procedures',
+    dstEntries: 'Entries',
+    dstSpent: 'Invested',
+    yearAll: 'All',
     confirmDelete: 'Delete this entry?',
     editEntry: '✏️ Edit entry',
     emptyDiary: 'Diary is empty',
@@ -4264,36 +4272,28 @@ async function loadDiaryTab(){
       const cntLbl=isBG?(cnt===1?'запис':'записа'):(cnt===1?'entry':'entries');
 
       // Last entry preview
-      const lastStars=lastE.rating?'★'.repeat(lastE.rating)+'☆'.repeat(5-lastE.rating):'';
-      const lastZone=lastE.zone||lastE.zones||'';
-      const lastClinic=[lastE.clinic,lastE.specialist].filter(Boolean).join(' · ');
-      const lastNote=lastE.advice||lastE.feeling||'';
-      const lastPrice=lastE.price>0?lastE.price+'€':'';
-      const lastPhotos=[...(lastE.photosBefore||[]),...(lastE.photosAfter||[]),...(lastE.photos||[])].filter(s=>s&&s.startsWith('http')).slice(0,3);
-
-      const previewPhotosHtml=lastPhotos.length
-        ?`<div class="dv2-preview-photos">${lastPhotos.map(src=>`<img class="dv2-preview-photo" src="${src}" loading="lazy" onerror="this.parentElement.style.display='none'">`).join('')}</div>`:'';
-
-      // History rows (all entries except first)
-      const histRows=g.entries.slice(1).map(d=>{
-        const dd=d.data(),eid=d.id;
-        const dt=dd.createdAt?.toDate?dd.createdAt.toDate():new Date();
-        const histPhotos=[...(dd.photosBefore||[]),(dd.photosAfter||[]),...(dd.photos||[])].slice(0,2);
-        const histStars=dd.rating?'★'.repeat(dd.rating):'';
+      // All entries as rows — each clickable, with edit+delete
+      const allRows = g.entries.map(d => {
+        const dd = d.data(), eid = d.id;
+        const dt = dd.createdAt?.toDate ? dd.createdAt.toDate() : new Date();
+        const rowStars = dd.rating ? '★'.repeat(dd.rating) : '';
+        const rowZone = dd.zone || dd.zones || dd.clinic || '';
+        const rowPrice = dd.price ? dd.price + '€' : '';
+        const rowPhotos = [...(dd.photosBefore||[]), ...(dd.photosAfter||[]), ...(dd.photos||[])].filter(s=>s&&s.startsWith('http')).slice(0, 2);
         return `<div class="dv2-hist-item" onclick="toggleDiaryEntryDetail('ded-${eid}')">
           <span class="dv2-hist-date">${fmtDate(dt)}</span>
-          <span class="dv2-hist-zone">${dd.zone||dd.zones||dd.clinic||''}</span>
-          <span class="dv2-hist-stars">${histStars}</span>
-          <span class="dv2-hist-price">${dd.price?dd.price+'€':''}</span>
-          ${histPhotos.length?`<div class="dv2-hist-photos">${histPhotos.map(src=>`<img class="dv2-hist-photo" src="${src}" loading="lazy">`).join('')}</div>`:''}
+          <span class="dv2-hist-zone">${rowZone}</span>
+          <span class="dv2-hist-stars">${rowStars}</span>
+          <span class="dv2-hist-price">${rowPrice}</span>
+          ${rowPhotos.length ? `<div class="dv2-hist-photos">${rowPhotos.map(src => `<img class="dv2-hist-photo" src="${src}" loading="lazy">`).join('')}</div>` : ''}
         </div>
         <div class="dv2-entry-detail" id="ded-${eid}">
-          ${buildEntryBody(dd,eid,pid,isBG)}
+          ${buildEntryBody(dd, eid, pid, isBG)}
         </div>`;
       }).join('');
 
-      const newEntryBtn=isRoutine?''
-        :`<div style="padding:8px 12px"><button class="mini-btn" style="width:100%;text-align:center" onclick="openSheet('${pid}')">+ ${isBG?'Нов запис':'New entry'}</button></div>`;
+      const newEntryBtn = isRoutine ? ''
+        : `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();openSheet('${pid}')">+ ${isBG ? 'Нов запис' : 'New entry'}</button></div>`;
 
       return `<div class="dv2-group" draggable="${!isPinned}" data-pid="${pid}"
         ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)"
@@ -4302,33 +4302,14 @@ async function loadDiaryTab(){
           ${iconEl}
           <div class="dv2-info">
             <div class="dv2-name">${name}</div>
-            <div class="dv2-meta">${isBG?'Последно':'Last'}: ${lastDate}</div>
+            <div class="dv2-meta">${isBG ? 'Последно' : 'Last'}: ${lastDate}</div>
           </div>
           <span class="dv2-count">${cnt}×</span>
           <span class="dv2-chev" id="dvg-${pid}">⌄</span>
         </div>
-        <div class="dv2-preview">
-          <div class="dv2-preview-row">
-            <span class="dv2-preview-date">${lastDate}</span>
-            <span class="dv2-preview-stars">${lastStars}</span>
-          </div>
-          ${lastZone||lastClinic?`<div class="dv2-preview-row"><span class="dv2-preview-zone">${[lastZone,lastClinic].filter(Boolean).join(' · ')}</span><span class="dv2-preview-price">${lastPrice}</span></div>`:''}
-          ${lastNote?`<div class="dv2-preview-note">"${lastNote.slice(0,80)}${lastNote.length>80?'…':''}"</div>`:''}
-          ${previewPhotosHtml}
-          <div style="margin-top:8px;display:flex;gap:6px">
-            <button onclick="event.stopPropagation();startEditEntry('${g.entries[0].id}','${pid}')" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;font-size:11px;color:var(--gold);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              ${isBG?'Редактирай':'Edit'}
-            </button>
-            ${!isRoutine?`<button onclick="event.stopPropagation();openSheet('${pid}')" style="padding:5px 10px;border-radius:8px;border:none;background:var(--gold);font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600">+ ${isBG?'Нов запис':'New entry'}</button>`:''}
-          </div>
-        </div>
         <div class="dv2-history" id="dvc-${pid}">
-          ${histRows}
-          ${cnt>1?`<div class="dv2-see-all" onclick="event.stopPropagation();toggleDiaryHistory('dvc-${pid}',this,'${cnt-1}')">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
-            ${isBG?'Скрий историята':'Hide history'}
-          </div>`:''}
+          ${allRows}
+          ${newEntryBtn}
         </div>
       </div>`;
     }).join('');
