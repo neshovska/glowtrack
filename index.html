@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GlowTrack">
 <meta name="theme-color" content="#1a1a2e">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="description" content="GlowTrack — твоята лична beauty енциклопедия. 80+ козметични процедури, личен дневник, напомняния и домашна грижа.">
 <meta property="og:title" content="GlowTrack · Know your glow.">
 <meta property="og:description" content="80+ козметични процедури, личен дневник и напомняния за следваща сесия.">
@@ -1055,45 +1058,50 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="page-hdr-title" id="notifs-page-title">Напомняне</div>
       <div class="page-hdr-sub" id="notifs-page-sub">Предстоящи процедури</div>
     </div>
-    <!-- ADD REMINDER ACCORDION -->
-    <div style="padding:0 16px 0">
-      <div class="acc-section profile-card-section" style="border-radius:14px;border:1.5px solid rgba(184,150,106,.25);background:var(--card);margin-bottom:12px">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:12px 14px">
-          <span style="font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:7px">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span data-t="addReminder">🔔 Добави напомняне / резервация</span>
-          </span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body" style="padding:0 14px 14px">
-          <div id="push-notif-toggle-wrap" style="margin-bottom:10px;padding:10px 12px;border-radius:12px;background:var(--mist);border:1px solid rgba(184,150,106,.2);display:flex;align-items:flex-start;gap:12px">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0">
-              <strong id="push-notif-title-label" style="font-size:11px;color:var(--ink);white-space:nowrap">Push известия</strong>
-              <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 11px;border-radius:50px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+    <!-- ADD REMINDER ACCORDION — dark premium card -->
+    <div style="padding:0 16px 12px">
+      <div id="add-notif-acc" style="border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(26,26,46,.22)">
+        <!-- Header -->
+        <div onclick="toggleNotifForm()" style="background:linear-gradient(135deg,#12122a 0%,#1e1e38 60%,#2a1e32 100%);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:50%;background:rgba(184,150,106,.18);border:1.5px solid rgba(184,150,106,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
-            <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:1px">Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.</div>
+            <div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#f0ede8;letter-spacing:.02em" data-t="addReminder">Добави напомняне</div>
+              <div style="font-size:10px;color:rgba(184,150,106,.7);letter-spacing:.08em;margin-top:1px">НАПОМНЯНЕ · РЕЗЕРВАЦИЯ</div>
+            </div>
           </div>
-          <div style="position:relative;overflow:visible;margin-bottom:8px">
-            <input type="text" id="notif-proc-search" class="form-input" placeholder="🔍 Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
+          <svg id="add-notif-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(184,150,106,.7)" stroke-width="2" style="transition:transform .25s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <!-- Body (closed by default) -->
+        <div id="add-notif-body" style="display:none;background:linear-gradient(180deg,#1a1a30 0%,#14142a 100%);padding:16px 18px 18px">
+          <div id="push-notif-toggle-wrap" style="margin-bottom:14px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(184,150,106,.18);display:flex;align-items:flex-start;gap:12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">
+              <strong id="push-notif-title-label" style="font-size:10px;color:rgba(240,237,232,.7);white-space:nowrap;letter-spacing:.06em">PUSH</strong>
+              <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 10px;border-radius:50px;border:1.5px solid #b8966a;background:#b8966a;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
+            </div>
+            <div id="push-notif-status-text" style="flex:1;min-width:0;color:rgba(240,237,232,.5);font-size:9.5px;line-height:1.5;padding-top:2px">Позволи известия за навременни напомняния. На iPhone добави на началния екран.</div>
+          </div>
+          <div style="position:relative;overflow:visible;margin-bottom:10px">
+            <input type="text" id="notif-proc-search" placeholder="🔍 Процедура..." data-ph="searchProcs" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f0ede8;outline:none;box-sizing:border-box" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
             <input type="hidden" id="notif-proc">
-            <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:220px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(26,26,46,.25);margin-top:4px"></div>
+            <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1e1e38;border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-top:4px"></div>
           </div>
-          <div style="display:flex;gap:6px;margin-bottom:8px">
-            <button id="notif-type-reminder" onclick="setNotifType('reminder')"
-              style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button id="notif-type-reminder" onclick="setNotifType('reminder')" style="flex:1;padding:9px;border-radius:11px;border:1.5px solid #b8966a;background:#b8966a;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
               🔔 <span data-t="notifTypeReminder">Напомняне</span>
             </button>
-            <button id="notif-type-booking" onclick="setNotifType('booking')"
-              style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+            <button id="notif-type-booking" onclick="setNotifType('booking')" style="flex:1;padding:9px;border-radius:11px;border:1.5px solid rgba(184,150,106,.3);background:rgba(255,255,255,.05);color:rgba(240,237,232,.6);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
               📅 <span data-t="notifTypeBooking">Резервация</span>
             </button>
           </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:16px">
-            <input type="time" id="notif-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
-            <button class="admin-btn" style="padding:8px 14px;font-size:12px" onclick="saveNotifDate()">💾</button>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+            <input type="date" id="notif-date" style="flex:1;padding:10px 12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f0ede8;outline:none;color-scheme:dark">
+            <input type="time" id="notif-time" value="10:00" style="width:100px;padding:10px 12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f0ede8;outline:none;color-scheme:dark">
+            <button onclick="saveNotifDate()" style="padding:10px 16px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:11px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">💾</button>
           </div>
-          <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--sage)"></div>
+          <div id="notif-info" style="margin-top:8px;font-size:11px;color:#b8966a"></div>
           <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
         </div>
       </div>
@@ -3524,7 +3532,7 @@ function startEditEntry(eid,procId){
       <div class="form-row"><label class="form-lbl">Специалист</label><input class="form-input" id="ee-spec-${eid}" value="${d.specialist||''}"></div>
       <div class="form-row"><label class="form-lbl">Контакти</label><input class="form-input" id="ee-contact-${eid}" value="${d.contact||''}"></div>
       <div class="form-row"><label class="form-lbl">Препоръки от специалиста</label><textarea class="form-input" id="ee-advice-${eid}" rows="3">${d.advice||''}</textarea></div>
-      <div class="form-row"><label class="form-lbl">Лично усещане</label><textarea class="form-input" id="ee-feel-${eid}" rows="2">${d.feeling||''}</textarea></div>
+      <div class="form-row"><label class="form-lbl">Лично усещане</label><textarea class="form-input" id="ee-feel2-${eid}" rows="2">${d.feeling||''}</textarea></div>
       <div class="form-row"><label class="form-lbl">Препоръчани продукти</label><input class="form-input" id="ee-prod-${eid}" value="${d.products||''}"></div>
       <div class="form-row">
         <label class="form-lbl">${t('priceLabel')} (€)</label>
@@ -4158,6 +4166,14 @@ function toggleDiaryGroup(chevId,bodyId){
 function toggleDiaryEntryDetail(id){
   const el=document.getElementById(id);
   if(el) el.classList.toggle('open');
+}
+function toggleNotifForm(){
+  const body = document.getElementById('add-notif-body');
+  const chev = document.getElementById('add-notif-chev');
+  if(!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
 }
 function toggleCarePanel(type){
   const panel = document.getElementById(type+'-panel');
@@ -6701,7 +6717,19 @@ if(!navigator.onLine) showToast(t('offline'), 4000);
 // or in a subdirectory (e.g. GitHub Pages project page /glowtrack/)
 if('serviceWorker' in navigator && location.protocol === 'https:'){
   try{
-    navigator.serviceWorker.register('./sw.js').catch((err)=>{console.error('SW register failed:',err);});
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      // Force update check on every load
+      reg.update();
+      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;
+        if(nw) nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed'&&navigator.serviceWorker.controller){
+            nw.postMessage({type:'SKIP_WAITING'});
+          }
+        });
+      });
+    }).catch((err)=>{console.error('SW register failed:',err);});
   }catch(e){}
 }
 
