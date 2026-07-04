@@ -528,6 +528,13 @@ body.dark #page-profile{box-shadow:inset 0 0 0 2000px rgba(18,18,42,.86)}
 .cat-btn svg { width:14px;height:14px;flex-shrink:0;transition:stroke .2s }
 .cat-btn.active svg { stroke:var(--gold) }
 body.dark .cat-btn svg { stroke:currentColor }
+.adv-chip{padding:5px 12px;border-radius:14px;border:1.5px solid var(--roselt);background:var(--card);font-size:11px;color:var(--ink2);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-block}
+.adv-chip.active{background:rgba(184,150,106,.12);color:var(--gold);border-color:var(--gold);font-weight:600}
+body.dark .adv-chip{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:#f0ede8}
+body.dark .adv-chip.active{background:rgba(184,150,106,.15);color:var(--gold);border-color:var(--gold)}
+#adv-filter-bs{scrollbar-width:none}
+#adv-bs-body::-webkit-scrollbar{display:none}
+body.dark #adv-filter-bs{background:#0f0f1e}
 .diary-group-entries.open{border-top:1px solid var(--roselt)}
 #diary-tab-content{padding:8px 16px 16px}
 .diary-entry-row{background:var(--card)}
@@ -613,8 +620,218 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1">☀️</button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none;position:absolute;left:14px;top:50%;transform:translateY(-50%)"></div></div>
   <div class="page active" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
-    <div class="search-wrap"><div class="search-box" style="position:relative"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onfocus="showSuggestions()" onblur="setTimeout(hideSuggestions,200)" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div></div>
+    <div class="search-wrap">
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="search-box" style="position:relative;flex:1"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onfocus="showSuggestions()" onblur="setTimeout(hideSuggestions,200)" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div>
+        <button id="adv-filter-btn" onclick="openAdvFilter()" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--gold);background:var(--card);font-size:12px;font-weight:600;color:var(--gold);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0;position:relative">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          <span id="filter-btn-lbl">Филтри</span>
+          <span id="adv-filter-badge" style="display:none;position:absolute;top:-6px;right:-6px;background:var(--gold);color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:1px 5px">0</span>
+        </button>
+      </div>
+      <div id="adv-active-pills" style="display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:6px 0 2px;min-height:28px;align-items:center">
+        <span style="font-size:10px;color:var(--ink2)" id="adv-no-filters-lbl">Няма активни филтри</span>
+      </div>
+    </div>
     <div class="cats" id="cats-bar"></div>
+    <!-- Advanced Filter Overlay -->
+    <div id="adv-filter-overlay" onclick="closeAdvFilter()" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.45);z-index:200;backdrop-filter:blur(3px)"></div>
+    <!-- Advanced Filter Bottomsheet -->
+    <div id="adv-filter-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(480px,100vw);background:var(--bg);border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;display:flex;flex-direction:column">
+      <div style="width:38px;height:4px;background:var(--roselt);border-radius:2px;margin:10px auto 0;flex-shrink:0"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0">
+        <span style="font-size:16px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Филтри</span>
+        <span onclick="advResetAll()" style="font-size:11px;color:var(--gold);cursor:pointer;font-weight:500">Изчисти всички</span>
+      </div>
+      <div id="adv-bs-body" style="overflow-y:auto;padding:0 14px 8px;flex:1">
+
+        <!-- 1. По проблем -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-prob')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-flt-lbl="byProblem">По проблем</div><div style="font-size:10px;color:var(--ink2)">Бръчки, акне, пигментации…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-prob-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-prob-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-prob" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'prob')">Бръчки</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Фини линии</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Акне</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Постакне</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Пигментации</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Мелазма</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Слънчеви петна</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Разширени пори</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Мазна кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Суха кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Отпусната кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Загуба на обем</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Дехидратация</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Белези</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Чувствителна кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Розацея</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Купероза</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Разширени капиляри</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Тъмни кръгове</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Целулит</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Стрии</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Локални мазнини</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Отпуснато тяло</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Косопад</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Хиперхидроза</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Разширени вени</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Неравна текстура</span>
+          </div>
+        </div>
+
+        <!-- 2. По зона -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-zone')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-flt-lbl="byZone">По зона</div><div style="font-size:10px;color:var(--ink2)">Лице, тяло, скалп…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-zone-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-zone-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-zone" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'zone')">Лице</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Чело</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Очи</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Бузи</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Нос</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Устни</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Брадичка</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Челюст</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Слепоочия</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Шия</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Деколте</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Ръце</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Подмишници</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Корем</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Ханш</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Гръб</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Седалище</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Бедра</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Крака</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Стъпала</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Скалп</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Интимна зона</span>
+          </div>
+        </div>
+
+        <!-- 3. По търсен ефект -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-goal')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-flt-lbl="byGoal">По търсен ефект</div><div style="font-size:10px;color:var(--ink2)">Лифтинг, хидратация, сияние…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-goal-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-goal-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-goal" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'goal')">Незабавен резултат</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Дълготраен ефект</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Превантивен</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Поддържащ</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Подмладяване</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Хидратация</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Лифтинг</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Биостимулация</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Стимулиране на колаген</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Стягане</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Контуриране</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Изсветляване</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Почистване</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Редукция на мазнини</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Сияние</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Лечение</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Превенция</span>
+          </div>
+        </div>
+
+        <!-- 4. По технология -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-tech')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-flt-lbl="byTech">По технология</div><div style="font-size:10px;color:var(--ink2)">CO₂, RF, PRP, Botox…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-tech-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-tech-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-tech" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'tech')">CO₂ Laser</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Er:YAG</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Nd:YAG</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">IPL</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">RF</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">HIFU</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">LED</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Ultrasound</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Cryotherapy</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Microneedling</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Dermapen</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">PRP</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">PRF</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Exosomes</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Polynucleotides</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Skinboosters</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Хиалуронова к-на</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Ботулинов токсин</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Биостимулатори</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Chemical Peel</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Електропорация</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Plasma</span>
+          </div>
+        </div>
+
+        <!-- 5. По възраст -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-age')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По възраст</div><div style="font-size:10px;color:var(--ink2)">20+, 30+, 40+, 50+…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-age-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-age-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-age" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'age')">18–25 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">25–35 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">35–45 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">45–55 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">55+ години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">Млада кожа</span><span class="adv-chip" onclick="advToggleChip(this,'age')">Anti-age</span><span class="adv-chip" onclick="advToggleChip(this,'age')">Превантивна грижа</span>
+          </div>
+        </div>
+
+        <!-- 6. По пол -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-gender')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M12 12v8M8 16h8"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По пол</div><div style="font-size:10px;color:var(--ink2)">За жени, мъже, унисекс</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-gender-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-gender-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-gender" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'gender')">За жени</span><span class="adv-chip" onclick="advToggleChip(this,'gender')">За мъже</span><span class="adv-chip" onclick="advToggleChip(this,'gender')">Унисекс</span>
+          </div>
+        </div>
+
+        <!-- 7. По повод -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-occ')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По повод</div><div style="font-size:10px;color:var(--ink2)">Сватба, събитие, отпуска…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-occ-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-occ-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-occ" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди събитие</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди сватба</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди отпуска</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди лято</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Есен / Зима курс</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Нова година</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Подарък процедура</span>
+          </div>
+        </div>
+
+        <!-- 8. Бременност / кърмене -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-preg')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V12a6 6 0 0 1-6 6v2h8v2H8v-2a8 8 0 0 0 8-8V9.5A4 4 0 0 1 12 2z"/><circle cx="12" cy="6" r="2"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Бременност / Кърмене</div><div style="font-size:10px;color:var(--ink2)">Безопасни процедури</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-preg-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-preg-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-preg" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'preg')">Подходяща при бременност</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">Подходяща при кърмене</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">След бременност</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">Постпартум грижа</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">Без хормонални ефекти</span>
+          </div>
+        </div>
+
+        <!-- 9. По възстановяване -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-rec')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По възстановяване</div><div style="font-size:10px;color:var(--ink2)">Без downtime до 7+ дни</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-rec-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-rec-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-rec" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'rec')">Без downtime</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">До 24 часа</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">2–3 дни</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">До 7 дни</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">Над 7 дни</span>
+          </div>
+        </div>
+
+        <!-- 10. Продължителност на ефекта -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-dur')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Продължителност на ефекта</div><div style="font-size:10px;color:var(--ink2)">До 1 месец — над 2 години</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-dur-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-dur-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-dur" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'dur')">До 1 месец</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">До 3 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">3–6 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">6–12 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">12–24 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">Над 2 години</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">Перманентен</span>
+          </div>
+        </div>
+
+        <!-- 11. По болезненост -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-pain')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По болезненост</div><div style="font-size:10px;color:var(--ink2)">Безболезнена до интензивна</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-pain-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-pain-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-pain" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'pain')">Безболезнена</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">Лека</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">Умерена</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">Интензивна</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">С анестезия</span>
+          </div>
+        </div>
+
+        <!-- 12. По сезон -->
+        <div style="border-bottom:1px solid var(--roselt)">
+          <div onclick="advToggleAcc('adv-sea')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По сезон</div><div style="font-size:10px;color:var(--ink2)">Целогодишно, лято, зима…</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-sea-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-sea-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-sea" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'sea')">Целогодишно</span><span class="adv-chip" onclick="advToggleChip(this,'sea')">Есен / Зима</span><span class="adv-chip" onclick="advToggleChip(this,'sea')">Подходяща за лято</span><span class="adv-chip" onclick="advToggleChip(this,'sea')">Изисква избягване на слънце</span>
+          </div>
+        </div>
+
+        <!-- 13. По инвазивност -->
+        <div>
+          <div onclick="advToggleAcc('adv-inv')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 2px;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--ink)">По инвазивност</div><div style="font-size:10px;color:var(--ink2)">Неинвазивна до хирургична</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px"><span id="adv-inv-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-inv-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div id="adv-inv" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
+            <span class="adv-chip" onclick="advToggleChip(this,'inv')">Неинвазивна</span><span class="adv-chip" onclick="advToggleChip(this,'inv')">Минимално инвазивна</span><span class="adv-chip" onclick="advToggleChip(this,'inv')">Инжекционна</span><span class="adv-chip" onclick="advToggleChip(this,'inv')">Хирургична</span>
+          </div>
+        </div>
+
+      </div>
+      <div style="padding:10px 14px 16px;background:var(--bg);border-top:1px solid var(--roselt);flex-shrink:0">
+        <button onclick="advApplyFilters()" style="width:100%;padding:13px;border-radius:13px;border:none;background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" id="adv-apply-btn">Покажи резултатите</button>
+      </div>
+    </div>
     <div class="proc-list" id="proc-list"></div>
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
   </div>
@@ -2450,6 +2667,90 @@ function clearSearch(){
   filterProcs();
 }
 if(window._pendingLang){window._pendingLang=false;applyLang();}
+
+// ── ADVANCED FILTER PANEL ──
+const ADV_GROUPS=['prob','zone','goal','tech','age','gender','occ','preg','rec','dur','pain','sea','inv'];
+function openAdvFilter(){
+  document.getElementById('adv-filter-bs').style.transform='translateX(-50%) translateY(0)';
+  document.getElementById('adv-filter-overlay').style.display='block';
+}
+function closeAdvFilter(){
+  document.getElementById('adv-filter-bs').style.transform='translateX(-50%) translateY(100%)';
+  document.getElementById('adv-filter-overlay').style.display='none';
+}
+function advToggleAcc(id){
+  const body=document.getElementById(id);
+  const isOpen=body.style.display==='flex';
+  body.style.display=isOpen?'none':'flex';
+  const chevId=id.replace('adv-','adv-').replace(id,id+'-chev');
+  // find chevron by replacing body id
+  const parts=id.split('-');
+  const grp=parts[parts.length-1];
+  const chev=document.getElementById('adv-'+grp+'-chev');
+  if(chev) chev.style.transform=isOpen?'':'rotate(180deg)';
+}
+function advToggleChip(el,group){
+  el.classList.toggle('active');
+  advUpdateCount(group);
+}
+function advUpdateCount(group){
+  const body=document.getElementById('adv-'+group);
+  if(!body) return;
+  const active=body.querySelectorAll('.adv-chip.active').length;
+  const badge=document.getElementById('adv-'+group+'-cnt');
+  if(badge){badge.textContent=active;badge.style.display=active>0?'block':'none';}
+}
+function advApplyFilters(){
+  closeAdvFilter();
+  advUpdatePills();
+  advUpdateTotalBadge();
+  renderProcs();
+}
+function advUpdateTotalBadge(){
+  const total=document.querySelectorAll('#adv-bs-body .adv-chip.active').length;
+  const badge=document.getElementById('adv-filter-badge');
+  if(badge){badge.textContent=total;badge.style.display=total>0?'block':'none';}
+  const btn=document.getElementById('adv-apply-btn');
+  if(btn) btn.textContent=total>0?'Покажи резултатите ('+total+' филтъра)':'Покажи резултатите';
+}
+function advUpdatePills(){
+  const pillsEl=document.getElementById('adv-active-pills');
+  if(!pillsEl) return;
+  const allActive=document.querySelectorAll('#adv-bs-body .adv-chip.active');
+  if(allActive.length===0){
+    pillsEl.innerHTML='<span style="font-size:10px;color:var(--ink2)">Няма активни филтри</span>';
+    return;
+  }
+  let html='';
+  allActive.forEach(chip=>{
+    const txt=chip.textContent;
+    html+=`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;background:rgba(184,150,106,.12);border:1px solid rgba(184,150,106,.3);font-size:10px;color:var(--gold);font-weight:600;white-space:nowrap;flex-shrink:0">${txt}<span onclick="advRemovePill(this,'${txt}')" style="cursor:pointer;font-size:12px;line-height:1">×</span></span>`;
+  });
+  pillsEl.innerHTML=html;
+}
+function advRemovePill(x,label){
+  document.querySelectorAll('#adv-bs-body .adv-chip').forEach(c=>{if(c.textContent===label)c.classList.remove('active');});
+  ADV_GROUPS.forEach(g=>advUpdateCount(g));
+  advUpdateTotalBadge();
+  x.parentElement.remove();
+  const pillsEl=document.getElementById('adv-active-pills');
+  if(pillsEl&&!pillsEl.querySelector('span[style*="border-radius:12px"]')){
+    pillsEl.innerHTML='<span style="font-size:10px;color:var(--ink2)">Няма активни филтри</span>';
+  }
+  renderProcs();
+}
+function advResetAll(){
+  document.querySelectorAll('#adv-bs-body .adv-chip.active').forEach(c=>c.classList.remove('active'));
+  ADV_GROUPS.forEach(g=>advUpdateCount(g));
+  advUpdateTotalBadge();
+  const pillsEl=document.getElementById('adv-active-pills');
+  if(pillsEl) pillsEl.innerHTML='<span style="font-size:10px;color:var(--ink2)">Няма активни филтри</span>';
+  renderProcs();
+}
+function getAdvActiveLabels(){
+  return Array.from(document.querySelectorAll('#adv-bs-body .adv-chip.active')).map(c=>c.textContent.toLowerCase());
+}
+
 function filterProcs(){
   searchTerm=document.getElementById('proc-search')?.value||'';
   const cb=document.getElementById('search-clear');
@@ -2461,13 +2762,15 @@ function filterProcs(){
 function renderProcs(){
   const s=searchTerm.toLowerCase().trim();
   const sWords = s ? s.split(/\s+/).filter(Boolean) : [];
+  const advLabels=typeof getAdvActiveLabels==='function'?getAdvActiveLabels():[];
   const filtered=PROCS.filter(p=>{
     const catOk=activeCat==='all'||p.cat===activeCat;
-    if(!s) return catOk;
     const en=PROCS_EN[p.id]||{};
     const hay=(p.name+' '+p.sub+' '+(p.subcat||'')+' '+(p.what||'')+' '+(p.zones||'')
-      +' '+(en.name||'')+' '+(en.sub||'')+' '+(en.subcat||'')).toLowerCase();
-    return catOk && sWords.every(w=>hay.includes(w));
+      +' '+(Array.isArray(p.results)?p.results.join(' '):'')+' '+(Array.isArray(p.contra)?p.contra.join(' '):'')+' '+(en.name||'')+' '+(en.sub||'')+' '+(en.subcat||'')+' '+(en.zones||'')).toLowerCase();
+    const advOk=advLabels.length===0||advLabels.some(lbl=>hay.includes(lbl));
+    if(!s) return catOk&&advOk;
+    return catOk&&advOk&&sWords.every(w=>hay.includes(w));
   });
   document.getElementById('no-results').style.display=filtered.length?'none':'block';
 
