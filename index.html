@@ -348,6 +348,58 @@ textarea.form-input{resize:none}
 .diary-group-count{font-size:10px;font-weight:700;color:var(--gold);background:var(--goldlt);border-radius:10px;padding:2px 8px;flex-shrink:0}
 .diary-group-entries{border-top:1px solid var(--roselt);padding:8px;display:none}
 .diary-group-entries.open{display:block}
+/* ══ DIARY V2 ══ */
+.dv2-stats{display:flex;gap:8px;margin-bottom:10px}
+.dv2-stat{flex:1;background:var(--card);border-radius:10px;padding:8px 10px;text-align:center;border:1px solid rgba(184,150,106,.12)}
+.dv2-stat-num{font-size:16px;font-weight:700;color:var(--gold);font-family:'Cormorant Garamond',serif;line-height:1}
+.dv2-stat-lbl{font-size:9px;color:var(--ink2);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+.dv2-year-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:8px}
+.dv2-year-row::-webkit-scrollbar{display:none}
+.dv2-year-chip{padding:4px 12px;border-radius:16px;border:1.5px solid rgba(184,150,106,.25);background:var(--card);font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;cursor:pointer;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.dv2-year-chip.active{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
+.dv2-group{background:var(--card);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 6px rgba(26,26,46,.06);border:1px solid rgba(184,150,106,.1)}
+.dv2-group-hdr{padding:11px 12px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.dv2-icon{width:44px;height:44px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(184,150,106,.1)}
+.dv2-icon img{width:100%;height:100%;object-fit:cover}
+.dv2-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.6}
+.dv2-info{flex:1;min-width:0}
+.dv2-name{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv2-meta{font-size:10px;color:var(--ink2);margin-top:2px}
+.dv2-count{font-size:10px;font-weight:700;color:#fff;background:var(--gold);border-radius:8px;padding:2px 7px;flex-shrink:0}
+.dv2-chev{color:var(--ink2);font-size:13px;transition:transform .2s;flex-shrink:0;margin-left:4px}
+.dv2-chev.open{transform:rotate(180deg)}
+/* Preview — last entry always visible */
+.dv2-preview{padding:0 12px 11px;border-top:1px solid rgba(184,150,106,.1);background:rgba(184,150,106,.03)}
+.dv2-preview-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.dv2-preview-date{font-size:10px;color:var(--gold);font-weight:600}
+.dv2-preview-stars{font-size:11px;color:var(--gold);letter-spacing:1px}
+.dv2-preview-zone{font-size:11px;color:var(--ink2)}
+.dv2-preview-price{font-size:11px;color:var(--gold);font-weight:600}
+.dv2-preview-note{font-size:11px;color:var(--ink2);line-height:1.45;margin-top:4px;font-style:italic}
+.dv2-preview-photos{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none}
+.dv2-preview-photos::-webkit-scrollbar{display:none}
+.dv2-preview-photo{width:68px;height:68px;border-radius:10px;object-fit:cover;flex-shrink:0;border:1px solid rgba(184,150,106,.15)}
+/* History rows */
+.dv2-history{display:none;border-top:1px solid rgba(184,150,106,.1)}
+.dv2-history.open{display:block}
+.dv2-hist-item{padding:9px 12px;border-bottom:1px solid rgba(184,150,106,.06);display:flex;align-items:center;gap:8px;cursor:pointer}
+.dv2-hist-item:hover{background:rgba(184,150,106,.04)}
+.dv2-hist-item:last-child{border-bottom:none}
+.dv2-hist-date{font-size:11px;font-weight:600;color:var(--ink2);width:70px;flex-shrink:0}
+.dv2-hist-zone{font-size:11px;color:var(--ink2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dv2-hist-stars{font-size:10px;color:var(--gold);flex-shrink:0}
+.dv2-hist-price{font-size:10px;color:var(--gold);font-weight:600;flex-shrink:0}
+.dv2-hist-photos{display:flex;gap:3px;flex-shrink:0}
+.dv2-hist-photo{width:30px;height:30px;border-radius:6px;object-fit:cover;border:1px solid rgba(184,150,106,.15)}
+/* See all toggle */
+.dv2-see-all{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;font-size:11px;color:var(--gold);font-weight:600;cursor:pointer;border-top:1px solid rgba(184,150,106,.08);background:rgba(184,150,106,.03)}
+/* Entry detail overlay */
+.dv2-entry-detail{padding:10px 12px 14px;border-top:1px solid rgba(184,150,106,.1);background:var(--card);display:none}
+.dv2-entry-detail.open{display:block}
+body.dark .dv2-group{background:#1a1a2e;border-color:rgba(212,169,106,.15)}
+body.dark .dv2-stat{background:#1a1a2e}
+body.dark .dv2-preview{background:rgba(184,150,106,.04)}
+body.dark .dv2-year-chip{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:#f0ede8}
 /* ══ DIARY CALENDAR ══ */
 #diary-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
 .dc-weekday{font-size:10px;font-weight:700;color:var(--ink2);text-align:center;padding:4px 0;letter-spacing:.04em;text-transform:uppercase}
@@ -894,12 +946,18 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')"
           style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px">✕</button>
       </div>
+      <!-- Stats row -->
+      <div class="dv2-stats" id="diary-stats-row" style="display:none">
+        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-procs">0</div><div class="dv2-stat-lbl" data-t="dstProcs">Процедури</div></div>
+        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-entries">0</div><div class="dv2-stat-lbl" data-t="dstEntries">Записа</div></div>
+        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-spent">0€</div><div class="dv2-stat-lbl" data-t="dstSpent">Инвестирано</div></div>
+      </div>
+      <!-- Year filter -->
+      <div class="dv2-year-row" id="diary-year-row" style="display:none">
+        <div class="dv2-year-chip active" onclick="filterDiaryYear('all',this)" data-t="yearAll">Всички</div>
+      </div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-        <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;flex:1" id="diary-sort-btns">
-          <button onclick="sortDiary('default')" id="dsort-default" class="dsort-btn dsort-active" data-t="sortDefault">📅 По дата</button>
-          <button onclick="sortDiary('name')" id="dsort-name" class="dsort-btn" data-t="sortName">🔤 По процедура</button>
-          <button onclick="sortDiary('count')" id="dsort-count" class="dsort-btn" data-t="sortCount">🔢 По брой</button>
-        </div>
+        <div style="flex:1" id="diary-sort-btns"></div>
         <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0">
           <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:6px 10px;background:var(--gold);border:none;cursor:pointer;font-size:13px;line-height:1" title="Списък">☰</button>
           <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:6px 10px;background:var(--card);border:none;cursor:pointer;font-size:13px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
@@ -3973,6 +4031,51 @@ function showCalDetailV2(entries,dateStr){
 }
 
 
+function buildEntryBody(dd,eid,pid,isBG){
+  let b='';
+  if(dd.clinic||dd.specialist) b+=`<div style="font-size:12px;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:var(--gold)">${isBG?'Κлиника':'Clinic'}</span><br>${[dd.clinic,dd.specialist].filter(Boolean).join(' · ')}</div>`;
+  if(dd.advice) b+=`<div style="font-size:12px;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:var(--gold)">${isBG?'Препоръки':'Advice'}</span><br>${dd.advice}</div>`;
+  if(dd.feeling) b+=`<div style="font-size:12px;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:var(--gold)">${isBG?'Усещане':'Notes'}</span><br>${dd.feeling}</div>`;
+  if(dd.products) b+=`<div style="font-size:12px;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:var(--gold)">${isBG?'Продукти':'Products'}</span><br>${dd.products}</div>`;
+  if(dd.price) b+=`<div style="font-size:12px;margin-bottom:4px;color:var(--gold);font-weight:600">${dd.price}€${dd.rating?' · '+'★'.repeat(dd.rating):''}</div>`;
+  const allPhotos=[...(dd.photosBefore||[]),...(dd.photosAfter||[]),...(dd.photos||[])];
+  if(allPhotos.length) b+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${allPhotos.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div>`;
+  if(!b) b=`<div style="font-size:12px;color:var(--ink2)">${isBG?'Няма детайли':'No details'}</div>`;
+  b+=`<div style="display:flex;gap:6px;margin-top:10px">
+    <button onclick="startEditEntry('${eid}','${pid}')" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;font-size:11px;color:var(--gold);cursor:pointer;font-family:inherit">${isBG?'✏️ Редактирай':'✏️ Edit'}</button>
+    <button onclick="deleteEntry('${eid}','${pid}')" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid #e85d5d;background:transparent;font-size:11px;color:#e85d5d;cursor:pointer;font-family:inherit">${isBG?'✕ Изтрий':'✕ Delete'}</button>
+  </div>`;
+  return b;
+}
+function toggleDiaryGroup(chevId,bodyId){
+  const chev=document.getElementById(chevId);
+  const body=document.getElementById(bodyId);
+  if(!chev||!body) return;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chev.classList.toggle('open',!isOpen);
+}
+function toggleDiaryEntryDetail(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+function toggleDiaryHistory(bodyId,btn,cnt){
+  const body=document.getElementById(bodyId);
+  if(!body) return;
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  const isBG=window._lang!=='en';
+  btn.innerHTML=isOpen
+    ?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg> ${isBG?`Виж историята (${cnt} записа)`:`See history (${cnt} entries)`}`
+    :`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg> ${isBG?'Скрий историята':'Hide history'}`;
+}
+let _diaryYearFilter='all';
+function filterDiaryYear(year,el){
+  _diaryYearFilter=year;
+  document.querySelectorAll('.dv2-year-chip').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  loadDiaryTab();
+}
 async function loadDiaryTab(){
   const el=document.getElementById('diary-tab-content');
   if(!window._user){
@@ -4020,6 +4123,37 @@ async function loadDiaryTab(){
       return bt-at;
     });
 
+    // ── Stats ──
+    const totalEntries=docs.length;
+    const totalProcs=sorted.length;
+    const totalSpent=docs.reduce((s,d)=>s+(parseFloat(d.data().price)||0),0);
+    const statsRow=document.getElementById('diary-stats-row');
+    const yearRow=document.getElementById('diary-year-row');
+    if(statsRow){
+      statsRow.style.display='flex';
+      document.getElementById('dst-procs').textContent=totalProcs;
+      document.getElementById('dst-entries').textContent=totalEntries;
+      document.getElementById('dst-spent').textContent=(totalSpent>0?totalSpent.toFixed(0)+'€':'—');
+    }
+    // Build year filter
+    if(yearRow){
+      yearRow.style.display='flex';
+      const years=[...new Set(docs.map(d=>{
+        const dt=d.data().createdAt?.toDate?.();
+        return dt?dt.getFullYear():null;
+      }).filter(Boolean))].sort((a,b)=>b-a);
+      const existingChips=yearRow.querySelectorAll('[data-year]');
+      existingChips.forEach(c=>c.remove());
+      years.forEach(y=>{
+        const chip=document.createElement('div');
+        chip.className='dv2-year-chip';
+        chip.textContent=y;
+        chip.setAttribute('data-year',y);
+        chip.onclick=function(){filterDiaryYear(y,this);};
+        yearRow.appendChild(chip);
+      });
+    }
+
     const isBG=window._lang!=='en';
     const html=sorted.map(([pid,g])=>{
       const p=(window.PROCS||PROCS||[]).find(x=>x.id===pid);
@@ -4027,98 +4161,87 @@ async function loadDiaryTab(){
       const isRoutine=PINNED.includes(pid);
       const isPinned=isRoutine;
 
-      // Name
       const name=pid==='home-care-morning'?(isBG?'Домашна грижа · Сутрешна':'Home Care · Morning')
                :pid==='home-care-evening'?(isBG?'Домашна грижа · Вечерна':'Home Care · Evening')
                :(_dlp?.name||g.name||pid);
 
-      // Icon area
-      const bg=pid==='home-care-morning'?'linear-gradient(135deg,#fdf6e8,#f5ede0)'
-              :pid==='home-care-evening'?'linear-gradient(135deg,#1a1a2e,#2d2d4e)':'';
-      const icon=pid==='home-care-morning'?'☀️':pid==='home-care-evening'?'🌙':'';
       const iconEl=isRoutine
-        ?`<div style="width:44px;height:44px;border-radius:12px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${icon}</div>`
+        ?`<div class="dv2-icon" style="background:${pid==='home-care-morning'?'linear-gradient(135deg,#fdf6e8,#f5ede0)':'linear-gradient(135deg,#1a1a2e,#2d2d4e)'}"><span style="font-size:22px">${pid==='home-care-morning'?'☀️':'🌙'}</span></div>`
         :(p&&p.img
-          ?`<img onclick="event.stopPropagation();openSheet('${pid}')" src="${p.img}" loading="lazy" style="width:44px;height:44px;border-radius:50%;object-fit:cover;cursor:pointer;flex-shrink:0" alt="">`
-          :`<div onclick="event.stopPropagation();openSheet('${pid}')" style="cursor:pointer;flex-shrink:0">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`);
+          ?`<div class="dv2-icon"><img src="${p.img}" loading="lazy" alt="" onclick="event.stopPropagation();openSheet('${pid}')" style="cursor:pointer"></div>`
+          :`<div class="dv2-icon" onclick="event.stopPropagation();openSheet('${pid}')" style="cursor:pointer">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`);
 
-      // Reorder btns
-      const reorder=isPinned?'<div style="width:20px"></div>'
-        :`<div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0" onclick="event.stopPropagation()">
-          <button onclick="moveDiaryGroup('${pid}',-1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:10px;line-height:1;padding:2px">▲</button>
-          <button onclick="moveDiaryGroup('${pid}',1)" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:10px;line-height:1;padding:2px">▼</button>
-        </div>`;
-
+      const lastE=g.entries[0].data();
       const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
       const cnt=g.entries.length;
       const cntLbl=isBG?(cnt===1?'запис':'записа'):(cnt===1?'entry':'entries');
 
-      // Entry rows
-      const entryRows=g.entries.map(d=>{
+      // Last entry preview
+      const lastStars=lastE.rating?'★'.repeat(lastE.rating)+'☆'.repeat(5-lastE.rating):'';
+      const lastZone=lastE.zone||lastE.zones||'';
+      const lastClinic=[lastE.clinic,lastE.specialist].filter(Boolean).join(' · ');
+      const lastNote=lastE.advice||lastE.feeling||'';
+      const lastPrice=lastE.price>0?lastE.price+'€':'';
+      const lastPhotos=[...(lastE.photosBefore||[]),(lastE.photosAfter||[]),...(lastE.photos||[])].slice(0,3);
+
+      const previewPhotosHtml=lastPhotos.length
+        ?`<div class="dv2-preview-photos">${lastPhotos.map(src=>`<img class="dv2-preview-photo" src="${src}" loading="lazy">`).join('')}</div>`:'';
+
+      // History rows (all entries except first)
+      const histRows=g.entries.slice(1).map(d=>{
         const dd=d.data(),eid=d.id;
         const dt=dd.createdAt?.toDate?dd.createdAt.toDate():new Date();
-        const dateStr=fmtDate(dt);
-
-        // Entry body content
-        let bodyContent='';
-        if(!d.isRoutine&&(dd.clinic||dd.specialist)){
-          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">🏥 ${isBG?'Клиника / Специалист':'Clinic / Specialist'}</strong><br>${[dd.clinic,dd.specialist].filter(Boolean).join(' · ')}${dd.contact?' · '+dd.contact:''}</div>`;
-        }
-        if(dd.advice){
-          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">👩‍⚕️ ${isBG?'Препоръки':'Advice'}</strong><br>${dd.advice}</div>`;
-        }
-        if(dd.feeling){
-          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">💬 ${isBG?'Лично усещане':'Personal notes'}</strong><br>${dd.feeling}</div>`;
-        }
-        if(dd.products){
-          bodyContent+=`<div style="font-size:12px;margin-bottom:6px"><strong style="color:var(--gold);font-size:10px">🧴 ${isBG?'Продукти':'Products'}</strong><br>${dd.products}</div>`;
-        }
-        if(dd.price){
-          bodyContent+=`<div style="font-size:12px;margin-bottom:4px">💰 ${dd.price}€${dd.rating?'  ⭐'.repeat(dd.rating):''}</div>`;
-        }
-        if(dd.photosBefore&&dd.photosBefore.length){
-          bodyContent+=`<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${isBG?'📷 ПРЕДИ':'📷 BEFORE'}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${dd.photosBefore.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div></div>`;
-        }
-        if(dd.photosAfter&&dd.photosAfter.length){
-          bodyContent+=`<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${isBG?'📷 СЛЕД':'📷 AFTER'}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${dd.photosAfter.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div></div>`;
-        }
-        if(dd.photos&&dd.photos.length){
-          bodyContent+=`<div style="margin-top:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${dd.photos.map(src=>`<img src="${src}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)">`).join('')}</div></div>`;
-        }
-        if(!bodyContent) bodyContent=`<div style="font-size:12px;color:var(--ink2)">${isBG?'Няма детайли':'No details'}</div>`;
-
-        return `<div class="diary-entry-row" id="ec-${eid}">
-          <div onclick="toggleEntryCard('ec-${eid}')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;gap:8px">
-            <span style="font-size:13px;font-weight:600;color:var(--ink)">📅 ${dateStr}</span>
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-              <button onclick="event.stopPropagation();startEditEntry('${eid}','${pid}')" style="background:none;border:1.5px solid var(--gold);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--gold)">✏️</button>
-              <button onclick="event.stopPropagation();deleteEntry('${eid}','${pid}')" style="background:none;border:1.5px solid #e85d5d;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;color:#e85d5d;display:flex;align-items:center;justify-content:center">✕</button>
-              <span id="arr-${eid}" style="font-size:12px;color:var(--ink2);transition:transform .2s">⌄</span>
-            </div>
-          </div>
-          <div id="body-${eid}" style="display:none;padding:6px 14px 12px;border-top:1px solid var(--roselt)">${bodyContent}</div>
+        const histPhotos=[...(dd.photosBefore||[]),(dd.photosAfter||[]),...(dd.photos||[])].slice(0,2);
+        const histStars=dd.rating?'★'.repeat(dd.rating):'';
+        return `<div class="dv2-hist-item" onclick="toggleDiaryEntryDetail('ded-${eid}')">
+          <span class="dv2-hist-date">${fmtDate(dt)}</span>
+          <span class="dv2-hist-zone">${dd.zone||dd.zones||dd.clinic||''}</span>
+          <span class="dv2-hist-stars">${histStars}</span>
+          <span class="dv2-hist-price">${dd.price?dd.price+'€':''}</span>
+          ${histPhotos.length?`<div class="dv2-hist-photos">${histPhotos.map(src=>`<img class="dv2-hist-photo" src="${src}" loading="lazy">`).join('')}</div>`:''}
+        </div>
+        <div class="dv2-entry-detail" id="ded-${eid}">
+          ${buildEntryBody(dd,eid,pid,isBG)}
         </div>`;
-      }).join('<div style="height:1px;background:var(--roselt);margin:0 14px"></div>');
+      }).join('');
 
       const newEntryBtn=isRoutine?''
-        :`<div style="padding:8px"><button class="mini-btn" style="width:100%;text-align:center" onclick="openSheet('${pid}')">+ ${isBG?'Нов запис':'New entry'}</button></div>`;
+        :`<div style="padding:8px 12px"><button class="mini-btn" style="width:100%;text-align:center" onclick="openSheet('${pid}')">+ ${isBG?'Нов запис':'New entry'}</button></div>`;
 
-      return `<div class="diary-group" draggable="${!isPinned}" data-pid="${pid}"
+      return `<div class="dv2-group" draggable="${!isPinned}" data-pid="${pid}"
         ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)"
         ondrop="diaryDrop(event)" ondragend="diaryDragEnd(event)">
-        <div class="diary-group-hdr" onclick="toggleGroup('dg-${pid}')">
-          ${reorder}
+        <div class="dv2-group-hdr" onclick="toggleDiaryGroup('dvg-${pid}','dvc-${pid}')">
           ${iconEl}
-          <div style="flex:1;min-width:0;padding:0 6px">
-            <div style="font-size:14px;font-weight:600;color:${isRoutine?'var(--ink)':'var(--gold)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}${!isRoutine?' ›':''}</div>
-            <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBG?'Последно':'Last'}: ${lastDate}</div>
+          <div class="dv2-info">
+            <div class="dv2-name">${name}</div>
+            <div class="dv2-meta">${isBG?'Последно':'Last'}: ${lastDate}</div>
           </div>
-          <span style="font-size:11px;color:var(--ink2);background:var(--goldlt);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0">${cnt} ${cntLbl}</span>
-          <span id="arr-dg-${pid}" style="font-size:13px;color:var(--ink2);transition:transform .2s;margin-left:4px;flex-shrink:0">⌄</span>
+          <span class="dv2-count">${cnt}×</span>
+          <span class="dv2-chev" id="dvg-${pid}">⌄</span>
         </div>
-        <div class="diary-group-entries" id="dg-${pid}">
-          ${entryRows}
-          ${newEntryBtn}
+        <div class="dv2-preview">
+          <div class="dv2-preview-row">
+            <span class="dv2-preview-date">${lastDate}</span>
+            <span class="dv2-preview-stars">${lastStars}</span>
+          </div>
+          ${lastZone||lastClinic?`<div class="dv2-preview-row"><span class="dv2-preview-zone">${[lastZone,lastClinic].filter(Boolean).join(' · ')}</span><span class="dv2-preview-price">${lastPrice}</span></div>`:''}
+          ${lastNote?`<div class="dv2-preview-note">"${lastNote.slice(0,80)}${lastNote.length>80?'…':''}"</div>`:''}
+          ${previewPhotosHtml}
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <button onclick="event.stopPropagation();startEditEntry('${g.entries[0].id}','${pid}')" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;font-size:11px;color:var(--gold);cursor:pointer;font-family:inherit">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              ${isBG?'Редактирай':'Edit'}
+            </button>
+            ${!isRoutine?`<button onclick="event.stopPropagation();openSheet('${pid}')" style="flex:1;padding:6px;border-radius:8px;border:none;background:var(--gold);font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600">+ ${isBG?'Нов запис':'New entry'}</button>`:''}
+          </div>
+        </div>
+        <div class="dv2-history" id="dvc-${pid}">
+          ${histRows}
+          ${cnt>1?`<div class="dv2-see-all" onclick="event.stopPropagation();toggleDiaryHistory('dvc-${pid}',this,'${cnt-1}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+            ${isBG?'Скрий историята':'Hide history'}
+          </div>`:''}
         </div>
       </div>`;
     }).join('');
