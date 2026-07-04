@@ -934,7 +934,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
   </div>
   <div class="page" id="page-diary">
-    <div class="page-hdr"><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Лична история на процедурите ти</div></div>
+    <div class="page-hdr"><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
     <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--ink2);z-index:1">🔍</span>
@@ -4182,10 +4182,10 @@ async function loadDiaryTab(){
       const lastClinic=[lastE.clinic,lastE.specialist].filter(Boolean).join(' · ');
       const lastNote=lastE.advice||lastE.feeling||'';
       const lastPrice=lastE.price>0?lastE.price+'€':'';
-      const lastPhotos=[...(lastE.photosBefore||[]),(lastE.photosAfter||[]),...(lastE.photos||[])].slice(0,3);
+      const lastPhotos=[...(lastE.photosBefore||[]),...(lastE.photosAfter||[]),...(lastE.photos||[])].filter(s=>s&&s.startsWith('http')).slice(0,3);
 
       const previewPhotosHtml=lastPhotos.length
-        ?`<div class="dv2-preview-photos">${lastPhotos.map(src=>`<img class="dv2-preview-photo" src="${src}" loading="lazy">`).join('')}</div>`:'';
+        ?`<div class="dv2-preview-photos">${lastPhotos.map(src=>`<img class="dv2-preview-photo" src="${src}" loading="lazy" onerror="this.parentElement.style.display='none'">`).join('')}</div>`:'';
 
       // History rows (all entries except first)
       const histRows=g.entries.slice(1).map(d=>{
@@ -4229,11 +4229,11 @@ async function loadDiaryTab(){
           ${lastNote?`<div class="dv2-preview-note">"${lastNote.slice(0,80)}${lastNote.length>80?'…':''}"</div>`:''}
           ${previewPhotosHtml}
           <div style="margin-top:8px;display:flex;gap:6px">
-            <button onclick="event.stopPropagation();startEditEntry('${g.entries[0].id}','${pid}')" style="flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;font-size:11px;color:var(--gold);cursor:pointer;font-family:inherit">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <button onclick="event.stopPropagation();startEditEntry('${g.entries[0].id}','${pid}')" style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;font-size:11px;color:var(--gold);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               ${isBG?'Редактирай':'Edit'}
             </button>
-            ${!isRoutine?`<button onclick="event.stopPropagation();openSheet('${pid}')" style="flex:1;padding:6px;border-radius:8px;border:none;background:var(--gold);font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600">+ ${isBG?'Нов запис':'New entry'}</button>`:''}
+            ${!isRoutine?`<button onclick="event.stopPropagation();openSheet('${pid}')" style="padding:5px 10px;border-radius:8px;border:none;background:var(--gold);font-size:11px;color:#fff;cursor:pointer;font-family:inherit;font-weight:600">+ ${isBG?'Нов запис':'New entry'}</button>`:''}
           </div>
         </div>
         <div class="dv2-history" id="dvc-${pid}">
