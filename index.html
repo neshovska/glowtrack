@@ -934,7 +934,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
   </div>
   <div class="page" id="page-diary">
-    <div class="page-hdr"><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
+    <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
+      <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
+        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:6px 10px;background:var(--gold);border:none;cursor:pointer;font-size:13px;line-height:1" title="Списък">☰</button>
+        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:6px 10px;background:var(--card);border:none;cursor:pointer;font-size:13px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
+      </div>
+    </div>
     <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--ink2);z-index:1">🔍</span>
@@ -956,13 +962,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="dv2-year-row" id="diary-year-row" style="display:none">
         <div class="dv2-year-chip active" onclick="filterDiaryYear('all',this)" data-t="yearAll">Всички</div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-        <div style="flex:1" id="diary-sort-btns"></div>
-        <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0">
-          <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:6px 10px;background:var(--gold);border:none;cursor:pointer;font-size:13px;line-height:1" title="Списък">☰</button>
-          <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:6px 10px;background:var(--card);border:none;cursor:pointer;font-size:13px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
-        </div>
-      </div>
+      <div id="diary-sort-btns" style="display:none"></div>
     </div>
     <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
