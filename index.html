@@ -981,6 +981,57 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div id="diary-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px"></div>
       <div id="diary-cal-detail" style="display:none"></div>
     </div>
+    <!-- HOME CARE ACCORDIONS (pinned top of diary) -->
+    <div id="diary-homecare-section" style="padding:0 16px 8px;display:none">
+      <!-- СУТРЕШНА ГРИЖА -->
+      <div class="acc-section profile-card-section" id="morning-acc" style="border-radius:14px;border:1.5px solid rgba(184,150,106,.25);background:var(--card);margin-bottom:8px">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:11px 14px">
+          <span style="font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:6px">☀️ <span data-t="morningCare">Сутрешна грижа</span></span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body" style="padding:0 14px 14px">
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px" id="morning-list">
+            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span>🫧 Почистване</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span>💧 Тонер</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-serum"> <span>✨ Серум</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-moisturize"> <span>🧴 Хидратация</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-spf"> <span>☀️ SPF</span></label>
+          </div>
+          <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
+            <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
+          </div>
+          <button onclick="saveRoutine('morning')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600" data-t="saveRoutineMorning">Запази ☀️</button>
+          <div class="routine-progress"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
+          <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
+        </div>
+      </div>
+      <!-- ВЕЧЕРНА ГРИЖА -->
+      <div class="acc-section profile-card-section" id="evening-acc" style="border-radius:14px;border:1.5px solid rgba(184,150,106,.25);background:var(--card);margin-bottom:8px">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:11px 14px">
+          <span style="font-size:13px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:6px">🌙 <span data-t="eveningCare">Вечерна грижа</span></span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body" style="padding:0 14px 14px">
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px" id="evening-list">
+            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span>🫧 Почистване</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span>💧 Тонер/Есенция</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-serum"> <span>✨ Серум/Ампула</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-eye"> <span>👁️ Крем за очи</span></label>
+            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-moisturize"> <span>🧴 Нощен крем</span></label>
+          </div>
+          <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
+            <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
+          </div>
+          <button onclick="saveRoutine('evening')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600" data-t="saveRoutineEvening">Запази 🌙</button>
+          <div class="routine-progress"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
+          <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
+        </div>
+      </div>
+    </div>
     <div id="diary-tab-content"><div class="skeleton-wrap">
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div>
@@ -1178,54 +1229,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <!-- CLIENT PROFILE SECTIONS -->
     <div id="client-profile-sections">
-
-      <!-- ДОМАШНА ГРИЖА ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0 0 0 0">
-          <span class="pcs-title" data-t="profileCare"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M11 20A7 7 0 0 1 4 13c0-4 4-8 8-8s8 4 8 8-4 7-8 7z"/><path d="M4 13c4 0 8-4 8-8"/></svg> Домашна грижа</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <!-- Сутрешна грижа -->
-          <div style="margin-top:10px">
-            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px" data-t="morningCare">☀️ Сутрешна грижа</div>
-            <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
-              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span>🫧 Почистване</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span>💧 Тонер</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-serum"> <span>✨ Серум</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-moisturize"> <span>🧴 Хидратация</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-spf"> <span>☀️ SPF</span></label>
-            </div>
-            <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
-              <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
-            </div>
-            <button onclick="saveRoutine('morning')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600" data-t="saveRoutineMorning">Запази ☀️</button>
-            <div class="routine-progress"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
-          <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
-          </div>
-          <!-- Вечерна грижа -->
-          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--goldlt)">
-            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px" data-t="eveningCare">🌙 Вечерна грижа</div>
-            <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
-              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span>🫧 Почистване</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span>💧 Тонер/Есенция</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-serum"> <span>✨ Серум/Ампула</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-eye"> <span>👁️ Крем за очи</span></label>
-              <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-moisturize"> <span>🧴 Нощен крем</span></label>
-            </div>
-            <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
-              <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
-            </div>
-            <button onclick="saveRoutine('evening')" style="width:100%;margin-top:8px;padding:9px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600" data-t="saveRoutineEvening">Запази 🌙</button>
-            <div class="routine-progress"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
-          <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:2px"></div>
-          </div>
-        </div>
-      </div>
 
       <!-- FAVORITES ACCORDION -->
       <div class="acc-section profile-card-section" style="border-bottom:none">
@@ -1697,6 +1700,7 @@ onAuthStateChanged(auth,async user=>{
       }
     }catch(e){}
     if(typeof loadHomeCare==='function')loadHomeCare();
+    const _hcs=document.getElementById('diary-homecare-section');if(_hcs)_hcs.style.display='block';
     if(window._isAdmin){document.getElementById('admin-panel').style.display='block';if(typeof loadAdminLists==='function'){loadAdminLists();loadAdminInbox();}document.querySelectorAll('.nb-soon').forEach(btn=>{btn.style.opacity='1';btn.style.cursor='pointer';});const nbtns=document.querySelectorAll('.nb-soon');if(nbtns[0]){nbtns[0].onclick=function(){goPage('clinics',this);};const ni0=nbtns[0].querySelector('.nl');if(ni0)ni0.textContent='Клиники';}if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};const ni1=nbtns[1].querySelector('.nl');if(ni1)ni1.textContent='Продукти';}}
     if(typeof loadClinicsTab==='function')loadClinicsTab();
     if(typeof loadProductsTab==='function')loadProductsTab();
@@ -4157,6 +4161,18 @@ function toggleDiaryEntryDetail(id){
   const el=document.getElementById(id);
   if(el) el.classList.toggle('open');
 }
+function toggleRoutineAcc(accId){
+  const acc = document.getElementById(accId);
+  if(!acc) return;
+  const body = acc.querySelector('.acc-body');
+  const arrow = acc.querySelector('.acc-arrow');
+  if(!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if(arrow) arrow.classList.toggle('open', !isOpen);
+  // scroll into view
+  if(!isOpen) setTimeout(()=>acc.scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
+}
 function toggleDiaryHistory(bodyId,btn,cnt){
   const body=document.getElementById(bodyId);
   if(!body) return;
@@ -4177,6 +4193,7 @@ function filterDiaryYear(year,el){
 async function loadDiaryTab(){
   const el=document.getElementById('diary-tab-content');
   if(!window._user){
+    const _hcsg=document.getElementById('diary-homecare-section');if(_hcsg)_hcsg.style.display='none';
     el.innerHTML=`<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">${window._lang==='en'?'Sign in':'Влез в акаунта си'}</div><div class="empty-sub">${window._lang==='en'?'To see your personal diary':'За да виждаш личния си дневник'}</div><button onclick="openAuthScreen()" style="margin-top:14px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button></div>`;
     return;
   }
@@ -4295,7 +4312,10 @@ async function loadDiaryTab(){
         </div>`;
       }).join('');
 
-      const newEntryBtn = isRoutine ? ''
+      const routineIcon = pid==='home-care-morning' ? '☀️' : '🌙';
+      const routineAccId = pid==='home-care-morning' ? 'morning-acc' : 'evening-acc';
+      const newEntryBtn = isRoutine
+        ? `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();toggleRoutineAcc('${routineAccId}')">${routineIcon} ${isBG ? 'Запиши грижата' : 'Log care'}</button></div>`
         : `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();openSheet('${pid}')">+ ${isBG ? 'Нов запис' : 'New entry'}</button></div>`;
 
       return `<div class="dv2-group" draggable="${!isPinned}" data-pid="${pid}"
