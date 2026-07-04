@@ -239,10 +239,16 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .search-input:focus{border-color:var(--gold)}
 .search-input.has-value{padding-right:32px}
 .search-input::placeholder{color:#bbb4a8}
-.cats{padding:0 18px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-.cats::-webkit-scrollbar{display:none}
+.cats{padding:0 18px 4px;display:flex;flex-direction:column;gap:5px}
+.cats-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.cats-row::-webkit-scrollbar{display:none}
 .cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .cat-btn.active{background:var(--card);color:var(--gold);border-color:var(--gold);border-width:2px;font-weight:700}
+.cat-btn.fav-cat{border-color:rgba(184,150,106,.55);color:var(--gold)}
+.cat-btn.fav-cat.active{background:linear-gradient(135deg,rgba(184,150,106,.13),rgba(212,169,106,.07));border-width:2px}
+.cat-add-btn{flex-shrink:0;padding:5px 10px;border-radius:20px;border:1.5px dashed rgba(184,150,106,.45);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.proc-fav-star{font-size:19px;cursor:pointer;padding:4px;line-height:1;transition:transform .15s}
+.proc-fav-star:active{transform:scale(1.3)}
 /* PROC LIST */
 .proc-list{padding:0 18px;display:flex;flex-direction:column;gap:8px}
 .subcat-group{display:flex;flex-direction:column;gap:6px}
@@ -564,6 +570,8 @@ body.dark #notif-proc-dropdown{background:#1a1a2e;border-color:rgba(212,169,106,
 
 body.dark .cat-btn{background:#1a1a2e;border-color:rgba(212,169,106,.25);color:#f0ede8}
 body.dark .cat-btn.active{background:#1a1a2e;color:var(--gold);border-color:var(--gold);border-width:2px;font-weight:700}
+body.dark .cat-btn.fav-cat{border-color:rgba(184,150,106,.5);color:var(--gold)}
+body.dark .cat-add-btn{border-color:rgba(184,150,106,.35);color:#a09080}
 
 body.dark #search-suggestions{background:#12122a!important;border-color:rgba(212,169,106,.4)!important}
 
@@ -678,9 +686,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="auth-error" id="auth-error"></div>
     <div id="unified-auth-form">
       <div class="auth-title">Вход / Регистрация</div>
-      <div class="auth-field"><label class="auth-label">Име <span style="font-weight:400;opacity:.6">(само при първи вход)</span></label><input class="auth-input" type="text" id="auth-name" name="name" placeholder="Твоето име" autocomplete="name"></div>
-      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" name="email" placeholder="example@mail.com" autocomplete="email"></div>
-      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" name="password" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+      <div class="auth-field"><label class="auth-label">Име <span style="font-weight:400;opacity:.6">(само при първи вход)</span></label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
+      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
+      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
       <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Продължи</button>
       <div style="text-align:center;margin-top:12px">
         <a onclick="showForgotPassword()" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
@@ -1224,7 +1232,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         </div>
         <div class="acc-body">
           <div id="favs-list" style="margin-top:8px">
-            <div style="font-size:12px;color:var(--ink2)">Натисни 🤍 на процедура за да я запазиш</div>
+            <div style="font-size:12px;color:var(--ink2)">Натисни ★ на процедура за да я запазиш</div>
           </div>
         </div>
       </div>
@@ -1238,7 +1246,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div class="acc-body">
           <div style="display:flex;gap:10px;margin-top:10px">
             <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px">🤍</span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px;color:var(--gold)">★</span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
           </div>
           <div style="display:flex;gap:10px;margin-top:10px">
@@ -1465,7 +1473,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <path d="M4 9V17H16V9" stroke="#b8966a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 </button>
-        <button id="fav-btn" onclick="toggleFav()" style="background:none;border:none;font-size:22px;cursor:pointer;padding:4px;line-height:1">🤍</button>
+        <button id="fav-btn" onclick="toggleFav()" style="background:none;border:none;font-size:22px;cursor:pointer;padding:4px;line-height:1;color:var(--gold)">☆</button>
         <button class="close-btn" onclick="closeSheet()">✕</button>
       </div>
     </div>
@@ -1653,10 +1661,8 @@ onAuthStateChanged(auth,async user=>{
     if(typeof updateFavsStat==='function')updateFavsStat();
     if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();
-    // Single Firestore read — covers user data + lang in one network call.
-    let uSnapAll=null;
     try{
-      uSnapAll=await getDoc(doc(db,'users',user.uid));
+      const uSnapAll=await getDoc(doc(db,'users',user.uid));
       if(uSnapAll.exists()){
         const ud=uSnapAll.data();
         // Restore reminders (merge)
@@ -1685,21 +1691,18 @@ onAuthStateChanged(auth,async user=>{
         if(ud.diaryOrder&&!(_lsGet('gt_diary_order')||[]).length){
           _lsSet('gt_diary_order', ud.diaryOrder);
         }
-        // Apply language from Firestore — no second network call needed
-        if(ud.lang){window._lang=ud.lang;localStorage.setItem('gt_lang',window._lang);}
       }
     }catch(e){}
-    // Apply language (uses localStorage fallback if Firestore read failed)
-    if(typeof applyLang==='function')applyLang();else window._pendingLang=true;
     if(typeof loadHomeCare==='function')loadHomeCare();
     if(window._isAdmin){document.getElementById('admin-panel').style.display='block';if(typeof loadAdminLists==='function'){loadAdminLists();loadAdminInbox();}document.querySelectorAll('.nb-soon').forEach(btn=>{btn.style.opacity='1';btn.style.cursor='pointer';});const nbtns=document.querySelectorAll('.nb-soon');if(nbtns[0]){nbtns[0].onclick=function(){goPage('clinics',this);};const ni0=nbtns[0].querySelector('.nl');if(ni0)ni0.textContent='Клиники';}if(nbtns[1]){nbtns[1].onclick=function(){goPage('products',this);};const ni1=nbtns[1].querySelector('.nl');if(ni1)ni1.textContent='Продукти';}}
     if(typeof loadClinicsTab==='function')loadClinicsTab();
     if(typeof loadProductsTab==='function')loadProductsTab();
-    if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll&&uSnapAll.exists()?uSnapAll.data():null);
+    if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll.exists()?uSnapAll.data():null);
     const _lastPage=localStorage.getItem('gt_last_page');
     if(_lastPage&&_lastPage!=='procs'){try{const _pageMap={notifs:true,diary:true,profile:true,clinics:true,products:true};if(_pageMap[_lastPage]&&typeof goPage==='function')goPage(_lastPage,null);}catch(e){}}
     const _initNotifs=_lsGet('gt_notifs')||[];
     if(typeof updateNotifBadge==='function')updateNotifBadge(_initNotifs.filter(n=>new Date(n.date)>=new Date()).length);
+    getDoc(doc(db,'users',user.uid)).then(d=>{if(d.exists()&&d.data().lang){window._lang=d.data().lang;localStorage.setItem('gt_lang',window._lang);}if(typeof applyLang==='function')applyLang();else window._pendingLang=true;}).catch(()=>{if(typeof applyLang==='function')applyLang();else window._pendingLang=true;});
   }else{
     window._user=null;
     window._lastUserId=null;
@@ -2082,7 +2085,7 @@ const T = {
     statRating: 'Средна оценка',
     statLastProc: 'Последна процедура',
     profileStats: '📊 Моята статистика',
-    profileFavs: '❤️ Любими процедури',
+    profileFavs: '★ Любими процедури',
     profileCare: '🌿 Домашна грижа',
     profileNotifs: '🔔 Напомняния за процедури',
     profileSuggest: '💬 Изпрати предложение',
@@ -2097,7 +2100,7 @@ const T = {
     toastUpdated: '✅ Обновено!',
     toastDeleted: 'Записът е изтрит',
     toastCopied: '✅ Линкът е копиран!',
-    toastFavAdd: '❤️ Добавено в Любими!',
+    toastFavAdd: '★ Добавено в Любими!',
     toastFavRem: 'Премахнато от Любими',
     toastNeedLogin: 'Влез за да запазиш',
     toastAddObs: 'Добави поне едно наблюдение',
@@ -2323,7 +2326,7 @@ const T = {
     online: '✅ Connection restored',
     priceLabel: '💰 Price',
     profileCare: '🌿 Home care',
-    profileFavs: '❤️ Favourite procedures',
+    profileFavs: '★ Favourite procedures',
     profileNotifs: '🔔 Procedure reminders',
     profileStats: '📊 My statistics',
     profileSuggest: '💬 Send suggestion',
@@ -2349,7 +2352,7 @@ const T = {
     toastErrSave: 'Error saving',
     toastErrSend: 'Error sending',
     toastErrUpd: 'Error updating',
-    toastFavAdd: '❤️ Added to Favourites!',
+    toastFavAdd: '★ Added to Favourites!',
     toastFavRem: 'Removed from Favourites',
     toastFbLogin: 'Sign in to send',
     toastFbSent: '✅ Suggestion sent!',
@@ -2767,13 +2770,92 @@ const CATS_EN = {
   hw: 'Hardware',
 };
 
+// ── FAVOURITE CATEGORIES ──
+function getFavCats(){ try{return JSON.parse(localStorage.getItem('gt_fav_cats')||'[]');}catch(e){return[];} }
+function saveFavCats(arr){ localStorage.setItem('gt_fav_cats',JSON.stringify(arr)); }
+
 function renderCats(){
-  document.getElementById('cats-bar').innerHTML=CATS_LIST.map(c=>{
+  const favCatIds = getFavCats();
+  const favCats = CATS_LIST.filter(c=>c.id!=='all' && favCatIds.includes(c.id));
+  const bar = document.getElementById('cats-bar');
+
+  // Row 1: Всички + favourite categories + add button
+  const row1Items = [CATS_LIST[0], ...favCats];
+  const row1 = row1Items.map(c=>{
     const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-    return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
+    const isFavCat = favCatIds.includes(c.id);
+    const starHtml = isFavCat ? `<span style="color:var(--gold);font-size:10px">★</span>` : '';
+    return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${starHtml}${lbl}</button>`;
   }).join('');
+  const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
+
+  // Row 2: remaining categories (only if there are fav cats chosen, else show all in row1)
+  let row2Html = '';
+  if(favCats.length > 0){
+    const otherCats = CATS_LIST.filter(c=>c.id!=='all' && !favCatIds.includes(c.id));
+    if(otherCats.length){
+      row2Html = `<div class="cats-row" id="cats-row2">${otherCats.map(c=>{
+        const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
+        return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
+      }).join('')}</div>`;
+    }
+  } else {
+    // No fav cats — show all in row 1 (classic behaviour)
+    const allBtns = CATS_LIST.slice(1).map(c=>{
+      const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
+      return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
+    }).join('');
+    bar.innerHTML = `<div class="cats-row">${row1}${allBtns}${addBtn}</div>`;
+    return;
+  }
+
+  bar.innerHTML = `<div class="cats-row">${row1}${addBtn}</div>${row2Html}`;
 }
 function setCat(c){activeCat=c;renderCats();renderProcs();}
+
+// ── FAV CATS MODAL ──
+function openFavCatsModal(){
+  const current = getFavCats();
+  const modal = document.createElement('div');
+  modal.id = 'fav-cats-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center';
+  const cats = CATS_LIST.filter(c=>c.id!=='all');
+  modal.innerHTML=`
+    <div onclick="closeFavCatsModal()" style="position:absolute;inset:0;background:rgba(26,26,46,.5);backdrop-filter:blur(4px)"></div>
+    <div style="position:relative;background:var(--card);border-radius:22px 22px 0 0;padding:20px 20px 32px;width:min(480px,100vw);box-shadow:0 -8px 32px rgba(26,26,46,.18)">
+      <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:4px">${window._lang==='en'?'Favourite categories':'Любими категории'}</div>
+      <div style="font-size:12px;color:var(--ink2);margin-bottom:16px">${window._lang==='en'?'Selected categories appear at the top with a ★':'Избраните категории излизат първи с ★'}</div>
+      <div id="fav-cats-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+        ${cats.map(c=>{
+          const lbl=(window._lang==='en'&&CATS_EN[c.id])?CATS_EN[c.id]:c.label;
+          const sel=current.includes(c.id);
+          return `<button id="fcc-${c.id}" onclick="toggleFavCat('${c.id}')" style="padding:8px 14px;border-radius:20px;border:${sel?'2px solid var(--gold)':'1.5px solid var(--roselt)'};background:${sel?'linear-gradient(135deg,rgba(184,150,106,.15),rgba(212,169,106,.08))':'var(--card)'};cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:${sel?'700':'500'};color:${sel?'var(--gold)':'var(--ink2)'};display:inline-flex;align-items:center;gap:6px;transition:all .15s">
+            ${sel?'<span style="color:var(--gold);font-size:11px">★</span>':'<span style="color:var(--ink2);font-size:11px">☆</span>'}${c.icon} ${lbl}
+          </button>`;
+        }).join('')}
+      </div>
+      <button onclick="closeFavCatsModal()" style="width:100%;padding:13px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Done ✦':'Готово ✦'}</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+function toggleFavCat(id){
+  let current=getFavCats();
+  const btn=document.getElementById('fcc-'+id);
+  if(current.includes(id)){
+    current=current.filter(c=>c!==id);
+    if(btn){btn.style.border='1.5px solid var(--roselt)';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.style.fontWeight='500';btn.querySelector('span').textContent='☆';btn.querySelector('span').style.color='var(--ink2)';}
+  } else {
+    current.push(id);
+    if(btn){btn.style.border='2px solid var(--gold)';btn.style.background='linear-gradient(135deg,rgba(184,150,106,.15),rgba(212,169,106,.08))';btn.style.color='var(--gold)';btn.style.fontWeight='700';btn.querySelector('span').textContent='★';btn.querySelector('span').style.color='var(--gold)';}
+  }
+  saveFavCats(current);
+  renderCats();
+}
+function closeFavCatsModal(){
+  const m=document.getElementById('fav-cats-modal');
+  if(m)m.remove();
+}
 
 let _searchTimer=null;
 function debounceSearch(){
@@ -2950,7 +3032,7 @@ function renderProcs(){
         <div class="proc-row-subcat">${lp.subcat||p.subcat}</div>
       </div>
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:4px">
-        <span class="proc-fav-btn" data-id="${p.id}" onclick="event.stopPropagation();toggleFavFromList('${p.id}',this)" style="font-size:20px;cursor:pointer;padding:4px;line-height:1">${isFav?'❤️':'🤍'}</span>
+        <span class="proc-fav-star" data-id="${p.id}" onclick="event.stopPropagation();toggleFavFromList('${p.id}',this)" style="color:var(--gold)">${isFav?'★':'☆'}</span>
         <div class="proc-row-arrow" style="flex-shrink:0">›</div>
       </div>
     </div>`;
@@ -5508,12 +5590,12 @@ function toggleFav(){
   const isFav = favs.includes(id);
   if(isFav){
     saveFavs(favs.filter(f=>f!==id));
-    document.getElementById('fav-btn').textContent='🤍';
+    document.getElementById('fav-btn').textContent='☆';
     showToast(t('toastFavRem'));
   } else {
     favs.push(id);
     saveFavs(favs);
-    document.getElementById('fav-btn').textContent='❤️';
+    document.getElementById('fav-btn').textContent='★';
     showToast(t('toastFavAdd'));
   }
   loadFavsList();
@@ -5523,7 +5605,7 @@ function toggleFav(){
 function updateFavBtn(procId){
   const btn = document.getElementById('fav-btn');
   if(!btn) return;
-  btn.textContent = getFavs().includes(procId) ? '❤️' : '🤍';
+  btn.textContent = getFavs().includes(procId) ? '★' : '☆';
 }
 
 function loadFavsList(){
@@ -5545,7 +5627,7 @@ function loadFavsList(){
         '<div class="proc-row-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+lp.sub+'</div>'+
       '</div>'+
       '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:4px">'+
-        '<span onclick="event.stopPropagation();removeFavFromList(\''+id+'\');" style="font-size:20px;cursor:pointer;padding:4px;line-height:1">❤️</span>'+
+        '<span onclick="event.stopPropagation();removeFavFromList(\''+id+'\');" style="font-size:20px;cursor:pointer;padding:4px;line-height:1;color:var(--gold)">★</span>'+
         '<div class="proc-row-arrow" style="flex-shrink:0">›</div>'+
       '</div>'+
     '</div>';
@@ -5618,12 +5700,12 @@ function toggleFavFromList(procId, btn){
   const isFav = favs.includes(procId);
   if(isFav){
     saveFavs(favs.filter(f=>f!==procId));
-    btn.textContent='🤍';
+    btn.textContent='☆';
     showToast(t('toastFavRem'));
   } else {
     favs.push(procId);
     saveFavs(favs);
-    btn.textContent='❤️';
+    btn.textContent='★';
     btn.classList.remove('heart-pop');
     void btn.offsetWidth;
     btn.classList.add('heart-pop');
@@ -5803,9 +5885,9 @@ function removeFavFromList(procId){
   saveFavs(favs);
   loadFavsList();
   updateFavsStat();
-  // Update heart in proc list if visible
-  const btn = document.querySelector(`.proc-fav-btn[data-id="${procId}"]`);
-  if(btn) btn.textContent = '🤍';
+  // Update star in proc list if visible
+  const btn = document.querySelector(`.proc-fav-star[data-id="${procId}"]`);
+  if(btn) btn.textContent = '☆';
   showToast(t('toastFavRem'));
 }
 
@@ -6616,6 +6698,8 @@ document.addEventListener('keydown',e=>{
     if(ob&&ob.style.display==='flex') finishOnboarding();
     const ep=document.getElementById('edit-profile-modal');
     if(ep&&ep.style.display==='flex') ep.style.display='none';
+    const fc=document.getElementById('fav-cats-modal');
+    if(fc)fc.remove();
   }
 });
 </script>
