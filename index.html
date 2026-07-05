@@ -3828,6 +3828,18 @@ let _calYear=new Date().getFullYear();
 let _calMonth=new Date().getMonth();
 let _calSelected=null;
 
+function _syncDiaryBtns(){
+  const bl=document.getElementById('diary-view-list');
+  const bc=document.getElementById('diary-view-cal');
+  if(!bl||!bc) return;
+  if(_diaryView==='cal'){
+    bl.classList.remove('active');
+    bc.classList.add('active');
+  } else {
+    bl.classList.add('active');
+    bc.classList.remove('active');
+  }
+}
 function setDiaryView(v){
   _diaryView=v;
   const listView=document.getElementById('diary-tab-content');
@@ -3841,16 +3853,18 @@ function setDiaryView(v){
     if(listView) listView.style.display='none';
     if(calView) calView.style.display='block';
     if(sortBtns) sortBtns.style.display='none';
-    if(search) search.closest('div[style*="position:relative"]').style.display='none';
+    if(search){const sw=search.closest('div[style*="position:relative"]');if(sw)sw.style.display='none';}
     if(btnList){btnList.classList.remove('active');}
     if(btnCal){btnCal.classList.add('active');}
     if(hcs) hcs.style.display='none';
     renderDiaryCal();
+    _syncDiaryBtns();
     // If a specific date was requested (e.g. from notif click), select it
     if(window._pendingCalDate){
       const pd = window._pendingCalDate;
       window._pendingCalDate = null;
       setTimeout(()=>{
+        if(_diaryView!=='cal') return;
         _calSelected = pd;
         renderDiaryCal();
         const det = document.getElementById('diary-cal-detail');
@@ -3861,17 +3875,18 @@ function setDiaryView(v){
       const _td = new Date();
       const _tds = `${_td.getFullYear()}-${String(_td.getMonth()+1).padStart(2,'0')}-${String(_td.getDate()).padStart(2,'0')}`;
       if(!_calSelected) _calSelected = _tds;
-      setTimeout(()=>{ renderDiaryCal(); }, 100);
+      setTimeout(()=>{ if(_diaryView==='cal') renderDiaryCal(); }, 100);
     }
   } else {
     if(listView) listView.style.display='';
     if(calView) calView.style.display='none';
     if(sortBtns) sortBtns.style.display='';
-    if(search) search.closest('div[style*="position:relative"]').style.display='';
+    if(search){const sw=search.closest('div[style*="position:relative"]');if(sw)sw.style.display='';}
     if(btnList){btnList.classList.add('active');}
     if(btnCal){btnCal.classList.remove('active');}
     if(hcs&&window._user) hcs.style.display='block';
     loadDiaryTab();
+    _syncDiaryBtns();
   }
 }
 
@@ -4008,16 +4023,17 @@ async function renderDiaryCal(){
     detail.style.display='none';
     detail.innerHTML='';
   }
+  if(_diaryView==='list'){
+    const cv=document.getElementById('diary-cal-view');
+    if(cv) cv.style.display='none';
+  }
+  _syncDiaryBtns();
 }
 
 function selectCalDay(ds){
   _calSelected=_calSelected===ds?null:ds;
   renderDiaryCal();
-  // Ensure calendar button stays gold while in cal view
-  const btnCal=document.getElementById('diary-view-cal');
-  const btnList=document.getElementById('diary-view-list');
-  if(btnCal){btnCal.classList.add('active');}
-  if(btnList){btnList.classList.remove('active');}
+  // Do NOT touch button classes here — setDiaryView owns that
   // Show homecare buttons when deselecting (calendar detail closes)
   if(!_calSelected){
     const hcs=document.getElementById('diary-homecare-section');
