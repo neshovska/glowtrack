@@ -1106,7 +1106,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div style="position:relative;overflow:visible;margin-bottom:10px">
             <input type="text" id="notif-proc-search" placeholder="🔍 Процедура..." data-ph="searchProcs" class="form-input" style="width:100%;font-size:14px;box-sizing:border-box" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
             <input type="hidden" id="notif-proc">
-            <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1e1e38;border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-top:4px"></div>
+            <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:var(--shadow);margin-top:4px"></div>
           </div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <button id="notif-type-reminder" onclick="setNotifType('reminder')" style="flex:1;padding:9px;border-radius:11px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
@@ -5911,10 +5911,10 @@ function filterNotifProcs(){
     const lp = procL(p);
     const safeName = lp.name.replace(/'/g,"&#39;");
     return '<div onmousedown="selectNotifProc(\''+p.id+'\',\''+safeName+'\')' +
-      '" style="padding:9px 12px;cursor:pointer;font-size:13px;color:#f0ede8;border-bottom:1px solid rgba(184,150,106,.15);display:flex;align-items:center;gap:10px">' +
+      '" style="padding:9px 12px;cursor:pointer;font-size:13px;color:var(--ink);border-bottom:1px solid var(--roselt);display:flex;align-items:center;gap:10px">' +
       procCircleIcon(lp.name,'#b8966a',28) +
-      '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0ede8">'+lp.name+'</span></div>';
-  }).join('') || '<div style="padding:10px;font-size:12px;color:rgba(240,237,232,.5)">'+noResults+'</div>';
+      '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)">'+lp.name+'</span></div>';
+  }).join('') || '<div style="padding:10px;font-size:12px;color:var(--ink2)">'+noResults+'</div>';
   dd.style.display = (filtered.length || q) ? 'block' : 'none';
 }
 
