@@ -993,7 +993,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="dv2-year-row" id="diary-year-row" style="display:none">
         <div class="dv2-year-chip active" onclick="filterDiaryYear('all',this)" data-t="yearAll">Всички</div>
       </div>
-      <div id="diary-sort-btns" style="display:none"></div>
+      <!-- Sort buttons — static HTML, never re-rendered -->
+      <div id="diary-sort-btns" style="display:none;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
+        <button id="dsort-default" class="dsort-btn dsort-active" onclick="sortDiary('default')" data-t-sort="По дата">По дата</button>
+        <button id="dsort-name" class="dsort-btn" onclick="sortDiary('name')" data-t-sort="По азбука">По азбука</button>
+        <button id="dsort-count" class="dsort-btn" onclick="sortDiary('count')" data-t-sort="По брой">По брой</button>
+        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t-sort="Ръчно">Ръчно</button>
+      </div>
     </div>
     <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -4431,13 +4437,9 @@ async function loadDiaryTab(){
     // Show diary list header + render sort buttons
     const _dlh3=document.getElementById('diary-list-header');
     if(_dlh3) _dlh3.style.display='';
+    // Sort buttons are static HTML — just show them
     const _sbe=document.getElementById('diary-sort-btns');
-    if(_sbe){
-      const _bg=window._lang!=='en';
-      _sbe.style.cssText='display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none';
-      _sbe.innerHTML=[['default',_bg?'По дата':'By date'],['name',_bg?'По азбука':'A–Z'],['count',_bg?'По брой':'By count'],['manual',_bg?'Ръчно':'Manual']].map(([m,l])=>`<button id="dsort-${m}" class="dsort-btn${_diarySortMode===m?' dsort-active':''}" onclick="sortDiary('${m}')">${l}</button>`).join('');
-    }
-    // sortDiary applies sort AFTER DOM is ready
+    if(_sbe) _sbe.style.display='flex';
     const statsRow=document.getElementById('diary-stats-row');
     const yearRow=document.getElementById('diary-year-row');
     if(statsRow){
@@ -4581,7 +4583,7 @@ let _diarySortMode = 'default';
 function sortDiary(mode){
   _diarySortMode = mode;
   // Update active button
-  document.querySelectorAll('.dsort-btn').forEach(b=>b.classList.remove('dsort-active'));
+  document.querySelectorAll('#diary-sort-btns .dsort-btn').forEach(b=>b.classList.remove('dsort-active'));
   const btn = document.getElementById('dsort-'+mode);
   if(btn) btn.classList.add('dsort-active');
   
