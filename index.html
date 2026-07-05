@@ -998,7 +998,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button id="dsort-default" class="dsort-btn dsort-active" onclick="sortDiary('default')" data-t-sort="По дата">По дата</button>
         <button id="dsort-name" class="dsort-btn" onclick="sortDiary('name')" data-t-sort="По азбука">По азбука</button>
         <button id="dsort-count" class="dsort-btn" onclick="sortDiary('count')" data-t-sort="По брой">По брой</button>
-        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t-sort="Ръчно">Ръчно</button>
+        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t-sort="Ръчно">↕ Ръчно</button>
       </div>
     </div>
     <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
@@ -4523,7 +4523,8 @@ async function loadDiaryTab(){
         ? `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();toggleCarePanel('${_careType}')">${routineIcon} ${isBG ? 'Запиши грижата' : 'Log care'}</button></div>`
         : `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();openSheet('${pid}')">+ ${isBG ? 'Нов запис' : 'New entry'}</button></div>`;
 
-      return `<div class="dv2-group" draggable="${!isPinned}" data-pid="${pid}"
+      const _lastTs = g.entries[0].data().createdAt?.toMillis?.() || 0;
+      return `<div class="dv2-group" draggable="${!isPinned}" data-pid="${pid}" data-last-ts="${_lastTs}"
         ondragstart="diaryDragStart(event)" ondragover="diaryDragOver(event)"
         ondrop="diaryDrop(event)" ondragend="diaryDragEnd(event)">
         <div class="dv2-group-hdr" onclick="toggleDiaryGroup('dvg-${pid}','dvc-${pid}')">
@@ -4610,18 +4611,61 @@ function sortDiary(mode){
       const cb = parseInt(b.querySelector('.dv2-count')?.textContent)||0;
       return cb-ca;
     }
-    // default: by last date (original order preserved via DOM)
+    // default: by last date DESC
+    if(mode==='default'){
+      const da = parseInt(a.dataset.lastTs)||0;
+      const db = parseInt(b.dataset.lastTs)||0;
+      return db - da;
+    }
     return 0;
   });
   
   // Re-append: rest first (sorted), then put pinned at TOP
-  rest.forEach(g=>container.appendChild(g));
-  // Insert pinned groups at the beginning (they stay at top)
-  for(let i=pinned.length-1;i>=0;i--){
-    container.insertBefore(pinned[i], container.firstChild);
+  if(mode!=='manual'){
+    rest.forEach(g=>container.appendChild(g));
+    for(let i=pinned.length-1;i>=0;i--){
+      container.insertBefore(pinned[i], container.firstChild);
+    }
+  }
+  // Show/hide manual move buttons
+  container.querySelectorAll('.dv2-move-btns').forEach(el=>el.remove());
+  if(mode==='manual'){
+    container.querySelectorAll('.dv2-group[draggable="true"]').forEach(g=>{
+      const pid=g.dataset.pid;
+      const wrap=document.createElement('div');
+      wrap.className='dv2-move-btns';
+      wrap.style.cssText='display:flex;gap:6px;padding:0 12px 8px;justify-content:flex-end';
+      wrap.innerHTML=`<button onclick="moveDiaryGroupUp('${pid}')" style="padding:4px 12px;border-radius:8px;border:1.5px solid var(--roselt);background:var(--card);font-size:14px;cursor:pointer;color:var(--ink2)">↑</button><button onclick="moveDiaryGroupDown('${pid}')" style="padding:4px 12px;border-radius:8px;border:1.5px solid var(--roselt);background:var(--card);font-size:14px;cursor:pointer;color:var(--ink2)">↓</button>`;
+      g.appendChild(wrap);
+    });
   }
 }
 
+function moveDiaryGroupUp(pid){
+  const container=document.getElementById('diary-sortable');
+  if(!container) return;
+  const groups=Array.from(container.querySelectorAll('.dv2-group[draggable="true"]'));
+  const idx=groups.findIndex(g=>g.dataset.pid===pid);
+  if(idx<=0) return;
+  container.insertBefore(groups[idx], groups[idx-1]);
+  saveDiaryOrder();
+}
+function moveDiaryGroupDown(pid){
+  const container=document.getElementById('diary-sortable');
+  if(!container) return;
+  const groups=Array.from(container.querySelectorAll('.dv2-group[draggable="true"]'));
+  const idx=groups.findIndex(g=>g.dataset.pid===pid);
+  if(idx<0||idx>=groups.length-1) return;
+  container.insertBefore(groups[idx+1], groups[idx]);
+  saveDiaryOrder();
+}
+function saveDiaryOrder(){
+  const container=document.getElementById('diary-sortable');
+  if(!container) return;
+  const newOrder=Array.from(container.querySelectorAll('.dv2-group')).map(g=>g.dataset.pid);
+  if(typeof _lsSet==='function') _lsSet('gt_diary_order', newOrder);
+  if(window._user){ try{F().setDoc(F().doc(DB(),'users',window._user.uid),{diaryOrder:newOrder},{merge:true}).catch(()=>{});}catch(e){} }
+}
 function filterDiaryGroups(q){
   const clear = document.getElementById('diary-search-clear');
   if(clear) clear.style.display = q ? 'block' : 'none';
