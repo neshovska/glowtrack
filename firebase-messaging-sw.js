@@ -1,48 +1,49 @@
 // firebase-messaging-sw.js
-// GlowTrack — Service Worker за push нотификации (Firebase Cloud Messaging)
+// Трябва да е на корена на домейна (до index.html)
+// Версия: 1.0 — GlowTrack FCM background notifications
 
-importScripts('https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.13.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
-// Използвай същия firebaseConfig като в index.html (проект: after-care-treatment)
 firebase.initializeApp({
-  apiKey: "TUK_TRYABVA_DA_E_TVOYAT_API_KEY",
+  apiKey: "AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",
   authDomain: "after-care-treatment.firebaseapp.com",
   projectId: "after-care-treatment",
-  storageBucket: "after-care-treatment.appspot.com",
-  messagingSenderId: "TUK_TRYABVA_DA_E_TVOYAT_SENDER_ID",
-  appId: "TUK_TRYABVA_DA_E_TVOYAT_APP_ID"
+  storageBucket: "after-care-treatment.firebasestorage.app",
+  messagingSenderId: "771928458805",
+  appId: "1:771928458805:web:770106c907426147d1137c",
+  measurementId: "G-XZFJ8ZK6B9"
 });
 
 const messaging = firebase.messaging();
 
-// Обработва съобщения, когато таб/апп е на заден план или затворен
-messaging.onBackgroundMessage((payload) => {
+// Background message handler — показва notification когато app-ът е затворен/на заден план
+messaging.onBackgroundMessage(payload => {
   console.log('[firebase-messaging-sw.js] Background message:', payload);
-
-  const notificationTitle = payload.notification?.title || 'GlowTrack';
-  const notificationOptions = {
-    body: payload.notification?.body || '',
-    icon: '/glowtrack/icon-192.png',
-    badge: '/glowtrack/icon-192.png',
-    data: payload.data || {}
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  const { title, body, icon } = payload.notification || {};
+  self.registration.showNotification(title || 'GlowTrack', {
+    body: body || '',
+    icon: icon || '/icon-192.png',
+    badge: '/favicon-32.png',
+    data: payload.data || {},
+    tag: 'glowtrack-notif',
+    renotify: true,
+    requireInteraction: false,
+  });
 });
 
-// При клик върху нотификацията — отваря/фокусира приложението
-self.addEventListener('notificationclick', (event) => {
+// При клик на notification — отваря app-а
+self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
       for (const client of clientList) {
-        if (client.url.includes('/glowtrack/') && 'focus' in client) {
+        if (client.url.includes('glowtrack') && 'focus' in client) {
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/glowtrack/');
+        return clients.openWindow('https://glowtrack.eu/');
       }
     })
   );
