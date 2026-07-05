@@ -962,8 +962,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
-        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:8px 12px;background:var(--gold);border:none;cursor:pointer;font-size:15px;line-height:1;color:#fff" title="Списък">☰</button>
-        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:8px 14px;background:var(--card);border:none;cursor:pointer;font-size:15px;line-height:1;border-left:1.5px solid var(--roselt)" title="Календар">📅</button>
+        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:8px 12px;background:var(--gold);border:none;cursor:pointer;font-size:15px;line-height:1;color:#fff;border-radius:8px 0 0 8px" title="Списък">☰</button>
+        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:8px 14px;background:var(--card);border:none;cursor:pointer;font-size:15px;line-height:1;border-left:1.5px solid var(--roselt);color:var(--ink2);border-radius:0 8px 8px 0" title="Календар">📅</button>
       </div>
     </div>
     <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
@@ -3836,17 +3836,29 @@ function setDiaryView(v){
     if(calView) calView.style.display='block';
     if(sortBtns) sortBtns.style.display='none';
     if(search) search.closest('div[style*="position:relative"]').style.display='none';
-    if(btnList){btnList.style.background='var(--card)';btnList.style.color='var(--ink2)';}
-    if(btnCal){btnCal.style.background='var(--gold)';btnCal.style.color='#fff';}
+    if(btnList){btnList.style.background='var(--card)';btnList.style.color='var(--ink2)';btnList.style.borderRadius='8px 0 0 8px';}
+    if(btnCal){btnCal.style.background='var(--gold)';btnCal.style.color='#fff';btnCal.style.borderRadius='0 8px 8px 0';}
     if(hcs) hcs.style.display='none';
     renderDiaryCal();
+    // If a specific date was requested (e.g. from notif click), select it
+    if(window._pendingCalDate){
+      const pd = window._pendingCalDate;
+      window._pendingCalDate = null;
+      setTimeout(()=>{
+        _calSelected = pd;
+        renderDiaryCal();
+        // Scroll to detail
+        const det = document.getElementById('diary-cal-detail');
+        if(det) setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'start'}), 200);
+      }, 150);
+    }
   } else {
     if(listView) listView.style.display='';
     if(calView) calView.style.display='none';
     if(sortBtns) sortBtns.style.display='';
     if(search) search.closest('div[style*="position:relative"]').style.display='';
-    if(btnList){btnList.style.background='var(--gold)';btnList.style.color='#fff';}
-    if(btnCal){btnCal.style.background='var(--card)';btnCal.style.color='var(--ink2)';}
+    if(btnList){btnList.style.background='var(--gold)';btnList.style.color='#fff';btnList.style.borderRadius='8px 0 0 8px';}
+    if(btnCal){btnCal.style.background='var(--card)';btnCal.style.color='var(--ink2)';btnCal.style.borderRadius='0 8px 8px 0';}
     if(hcs&&window._user) hcs.style.display='block';
     loadDiaryTab();
   }
@@ -6152,7 +6164,8 @@ function loadNotifsPage(){
         <div style="font-size:11px;color:var(--ink2);margin-top:2px">${fmtDate(dtExact)}${n.time?' · '+n.time:''}</div>
         <div style="font-size:10px;font-weight:600;color:${isPast?'#c5bdb4':isBooking?'var(--gold)':'var(--sage)'};margin-top:2px">${typeLabel} · ${diffTxt}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
+      <div style="display:flex;gap:6px;flex-shrink:0;align-items:center">
+        <button onclick="openCalForDate('${n.date}')" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="${isBG?'Виж в календар':'View in calendar'}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
         <button onclick="editNotif('${n.id}')" style="background:none;border:1.5px solid var(--gold);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--gold)">✏️</button>
         <button onclick="deleteNotifFromPage('${n.id}')" style="background:none;border:1.5px solid #e85d5d;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:13px;color:#e85d5d;display:flex;align-items:center;justify-content:center">✕</button>
       </div>
@@ -6161,16 +6174,38 @@ function loadNotifsPage(){
 
   let html = '';
 
-  // Section 1: Reminders 🔔
+  // Section 1: Reminders 🔔 — collapsible
   if(reminders.length){
-    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:16px 0 8px;display:flex;align-items:center;gap:6px">🔔 ${isBG?'Напомняния':'Reminders'}</div>`;
-    html += reminders.map(n=>renderCard(n,false)).join('');
+    html += `<div style="margin-top:8px">
+      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:11px 14px;cursor:pointer">
+        <div style="font-size:22px;flex-shrink:0">🔔</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Напомняния':'Reminders'}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:1px">${reminders.length} ${isBG?(reminders.length===1?'напомняне':'напомняния'):(reminders.length===1?'reminder':'reminders')}</div>
+        </div>
+        <svg id="ns-reminders-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="ns-reminders" style="display:none;margin-top:6px;display:flex;flex-direction:column;gap:6px">
+        ${reminders.map(n=>renderCard(n,false)).join('')}
+      </div>
+    </div>`;
   }
 
-  // Section 2: Bookings ✅
+  // Section 2: Bookings ✅ — collapsible
   if(bookings.length){
-    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px;display:flex;align-items:center;gap:6px">✅ ${isBG?'Запазени часове':'Bookings'}</div>`;
-    html += bookings.map(n=>renderCard(n,false)).join('');
+    html += `<div style="margin-top:8px">
+      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid rgba(184,150,106,.4);border-radius:14px;padding:11px 14px;cursor:pointer">
+        <div style="font-size:22px;flex-shrink:0">✅</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--gold)">${isBG?'Запазени часове':'Bookings'}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:1px">${bookings.length} ${isBG?(bookings.length===1?'резервация':'резервации'):(bookings.length===1?'booking':'bookings')}</div>
+        </div>
+        <svg id="ns-bookings-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="ns-bookings" style="display:none;margin-top:6px;display:flex;flex-direction:column;gap:6px">
+        ${bookings.map(n=>renderCard(n,false)).join('')}
+      </div>
+    </div>`;
   }
 
   // Section 3: Past — collapsible card like a notif card
@@ -6194,6 +6229,24 @@ function loadNotifsPage(){
   content.innerHTML = html || `<div class="empty-state"><div class="empty-ic">🔔</div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`;
 }
 
+function openCalForDate(dateStr){
+  // Navigate to diary tab, switch to calendar view, select the date
+  window._pendingCalDate = dateStr;
+  if(typeof goPage==='function') goPage('diary', null);
+  setTimeout(()=>{
+    if(typeof setDiaryView==='function') setDiaryView('cal');
+  }, 300);
+}
+function toggleNotifSection(id){
+  const body = document.getElementById(id);
+  const chev = document.getElementById(id+'-chev');
+  if(!body) return;
+  const open = body.style.display === 'flex';
+  body.style.display = open ? 'none' : 'flex';
+  body.style.flexDirection = 'column';
+  body.style.gap = '6px';
+  if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+}
 function togglePastNotifs(){
   const body = document.getElementById('past-notifs-body');
   const chev = document.getElementById('past-notifs-chev');
