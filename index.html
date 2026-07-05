@@ -751,7 +751,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="search-box" style="position:relative;flex:1"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onfocus="showSuggestions()" onblur="setTimeout(hideSuggestions,200)" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div>
+        <div class="search-box" style="position:relative;flex:1"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onchange="filterProcs()" onkeyup="debounceSearch()" onfocus="hideSuggestions()" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div>
         <button id="adv-filter-btn" onclick="openAdvFilter()" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--gold);background:var(--card);font-size:12px;font-weight:600;color:var(--gold);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0;position:relative">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
           <span id="filter-btn-lbl">Филтри</span>
@@ -2929,37 +2929,16 @@ function closeFavCatsModal(){
 
 let _searchTimer=null;
 function debounceSearch(){
+  // Call immediately for responsiveness + debounce for safety
+  try{ filterProcs(); }catch(e){}
   clearTimeout(_searchTimer);
   _searchTimer=setTimeout(()=>{
-    try{ filterProcs(); }catch(e){ console.error('filterProcs error:',e.message); }
-    try{ showSuggestions(); }catch(e){ console.error('showSuggestions error:',e.message); }
-  }, 150);
+    try{ filterProcs(); }catch(e){}
+  }, 300);
 }
 function showSuggestions(){
-  const q = document.getElementById('proc-search')?.value.trim().toLowerCase();
-  const box = document.getElementById('search-suggestions');
-  if(!box) return;
-  if(!q || q.length < 2){ box.style.display='none'; return; }
-  const matches = (window.PROCS||[]).filter(p=>{
-    try{
-      const lp = procL(p);
-      return (lp.name+' '+(lp.sub||'')).toLowerCase().includes(q);
-    }catch(e){ return false; }
-  }).slice(0,5);
-  if(!matches.length){ box.style.display='none'; return; }
-  try{
-    box.innerHTML = matches.map(p=>{
-      const lp = procL(p);
-      return `<div class="suggestion-item" onmousedown="selectSuggestion('${p.id}')">
-        ${procCircleIcon(lp.name, '#b8966a', 32)}
-        <div style="flex:1;min-width:0">
-          <div class="suggestion-name">${lp.name}</div>
-          <div class="suggestion-sub">${lp.sub||''}</div>
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){ console.error('suggestions HTML error:',e.message); box.style.display='none'; return; }
-  box.style.display = 'block';
+  // Dropdown suggestions disabled — search filters inline list directly
+  hideSuggestions();
 }
 function hideSuggestions(){
   const box = document.getElementById('search-suggestions');
