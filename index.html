@@ -1102,7 +1102,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button onclick="saveNotifDate()" style="padding:10px 16px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:11px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">💾</button>
           </div>
           <div id="notif-info" style="margin-top:8px;font-size:11px;color:#b8966a"></div>
-          <div id="notif-list" style="margin-top:10px;display:flex;flex-direction:column;gap:6px"></div>
+          <!-- past notifs appear in main content below, not here -->
         </div>
       </div>
     </div>
@@ -1825,7 +1825,7 @@ function _lsRem(base){ try{localStorage.removeItem(_lsKey(base));}catch(e){} }
 
 const CATS_LIST=[
   {id:'all',label:'Всички',icon:'◈'},
-  {id:'face',label:'Лице',icon:'◉'},
+  {id:'face',label:'Лице',icon:'◇'},
   {id:'body',label:'Тяло',icon:'○'},
   {id:'hair',label:'Коса',icon:'◇'},
   {id:'hw',label:'Апаратни',icon:'◎'},
@@ -3962,6 +3962,13 @@ async function renderDiaryCal(){
 function selectCalDay(ds){
   _calSelected=_calSelected===ds?null:ds;
   renderDiaryCal();
+  // Show homecare buttons when deselecting (calendar detail closes)
+  if(!_calSelected){
+    const hcs=document.getElementById('diary-homecare-section');
+    if(hcs&&window._user) hcs.style.display='block';
+    const detail=document.getElementById('diary-cal-detail');
+    if(detail){detail.style.display='none';detail.innerHTML='';}
+  }
 }
 
 let _calSelColor='#b8966a';
@@ -4000,6 +4007,45 @@ async function saveCalEvent(){
   hideCalAddForm();
   renderDiaryCal();
 }
+async function editCalEvent(evId){
+  const saved=typeof _lsGet==='function'?(_lsGet('gt_cal_events')||[]):[];
+  const ev=saved.find(e=>e.id===evId);
+  if(!ev) return;
+  const isBG=window._lang!=='en';
+  // Show form pre-filled
+  const f=document.getElementById('cal-add-form-el');
+  if(f) f.style.display='block';
+  const ti=document.getElementById('cal-evt-title');
+  const tm=document.getElementById('cal-evt-time');
+  const no=document.getElementById('cal-evt-note');
+  if(ti) ti.value=ev.title||'';
+  if(tm) tm.value=ev.time||'10:00';
+  if(no) no.value=ev.note||'';
+  // Set color
+  _calSelColor=ev.color||'#b8966a';
+  document.querySelectorAll('.dc-col').forEach(c=>{
+    c.classList.remove('dc-col-sel');c.textContent='';
+    if(c.getAttribute('data-color')===_calSelColor){c.classList.add('dc-col-sel');c.textContent='✓';}
+  });
+  // Replace save button to update instead of add
+  const saveBtn=f.querySelector('button[onclick="saveCalEvent()"]');
+  if(saveBtn){
+    saveBtn.onclick=async function(){
+      const title=ti?.value.trim();
+      if(!title) return;
+      const updated=saved.map(e=>e.id===evId?{...e,title,time:tm?.value||'',note:no?.value.trim()||'',color:_calSelColor}:e);
+      if(typeof _lsSet==='function') _lsSet('gt_cal_events',updated);
+      if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:updated},{merge:true});}catch(e){} }
+      saveBtn.onclick=saveCalEvent; // restore
+      hideCalAddForm();
+      renderDiaryCal();
+    };
+  }
+}
+function deleteDiaryEntry(eid){
+  // Wrapper for calendar view — procId optional
+  if(typeof deleteEntry==='function') deleteEntry(eid,'');
+}
 async function deleteCalEvent(evId){
   let saved=typeof _lsGet==='function'?(_lsGet('gt_cal_events')||[]):[];
   saved=saved.filter(e=>e.id!==evId);
@@ -4015,6 +4061,9 @@ function showCalDetailV2(entries,dateStr){
   const detail=document.getElementById('diary-cal-detail');
   if(!detail) return;
   detail.style.display='block';
+  // Hide home care panels when calendar detail is open
+  const hcs=document.getElementById('diary-homecare-section');
+  if(hcs) hcs.style.display='none';
 
   const isBG=window._lang!=='en';
   const [y,m,d]=dateStr.split('-');
@@ -4083,6 +4132,10 @@ function showCalDetailV2(entries,dateStr){
           <div class="dc-name">${e.procName}</div>
           ${e.time?`<div class="dc-sub">${e.time}</div>`:''}
         </div>
+        <div style="display:flex;gap:2px;flex-shrink:0">
+          <button onclick="editNotif('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gold);display:flex;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button onclick="deleteNotifFromPage('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:#e85d5d;display:flex;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+        </div>
       </div>`;
       return;
     }
@@ -4104,7 +4157,8 @@ function showCalDetailV2(entries,dateStr){
           <div class="dc-name">${e.title||e.name}</div>
           ${e.time||e.note?`<div class="dc-sub">${[e.time,e.note].filter(Boolean).join(' · ')}</div>`:''}
         </div>
-        <button class="dc-del" onclick="deleteCalEvent('${e.id}')">×</button>
+        <button onclick="editCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gold);display:flex;align-items:center" title="Редактирай"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button onclick="deleteCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:#e85d5d;display:flex;align-items:center" title="Изтрий"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
       </div>`;
       return;
     }
@@ -4131,6 +4185,14 @@ function showCalDetailV2(entries,dateStr){
         ${stars?`<div style="font-size:12px;color:${col};margin-top:2px">${stars}</div>`:''}
         ${price>0?`<div style="font-size:11px;color:${col};font-weight:600;margin-top:2px">${price} €</div>`:''}
         ${photosHtml}
+      </div>
+      <div style="display:flex;gap:2px;flex-shrink:0;align-self:flex-start;margin-top:2px">
+        <button onclick="startEditEntry('${e.id}','${e.procId}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gold);display:flex;align-items:center" title="Редактирай">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button onclick="deleteDiaryEntry('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:#e85d5d;display:flex;align-items:center" title="Изтрий">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </div>
     </div>`;
   });
@@ -5712,26 +5774,7 @@ function loadNotifProcSelector(){
   if(!sel || !window.PROCS) return;
   sel.innerHTML = '<option value="">🪷 Избери процедура...</option>' +
     window.PROCS.map(p=>{const lp=procL(p);return`<option value="${p.id}">${p.icon} ${lp.name}</option>`;}).join('');
-  // Load saved
-  const saved = _lsGet('gt_notifs')||[];
-  const nl = document.getElementById('notif-list');
-  if(nl) nl.innerHTML = saved.length ? `
-    <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
-      ${saved.map(n=>{
-        const dt = new Date(n.date);
-        const diff = daysUntil(dt);
-        const diffTxt = diff > 0 ? 'След '+diff+' дни' : diff === 0 ? '🔔 Днес' : '⚠️ Минало';
-        const color = diff < 0 ? '#e85d5d' : diff === 0 ? '#b8966a' : 'var(--ink2)';
-        return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#faf8f5;border-radius:10px;border:1px solid var(--goldlt)">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.procName}</div>
-            <div style="font-size:10px;color:${color};margin-top:1px">${fmtDate(dt)} ${n.time?(window._lang==='en'?'at ':' в ')+n.time:''} · ${diffTxt}</div>
-          </div>
-          <button onclick="editNotif('${n.id}')" style="background:none;border:1px solid var(--goldlt);border-radius:6px;color:var(--gold);cursor:pointer;font-size:11px;padding:3px 7px;white-space:nowrap">✏️</button>
-          <button onclick="deleteNotif('${n.id}')" style="background:none;border:none;color:#c5bdb4;cursor:pointer;font-size:14px;padding:2px">✕</button>
-        </div>`;
-      }).join('')}
-    </div>` : '';
+  // Saved notifs are shown in the main page content (loadNotifsPage), not here
 }
 
 function deleteNotif(id){
@@ -5788,11 +5831,11 @@ function filterNotifProcs(){
   dd.innerHTML = filtered.slice(0,15).map(p=>{
     const lp = procL(p);
     const safeName = lp.name.replace(/'/g,"&#39;");
-    return '<div onclick="selectNotifProc(\''+p.id+'\',\''+safeName+'\')' +
-      '" style="padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--roselt);display:flex;align-items:center;gap:10px">' +
+    return '<div onmousedown="selectNotifProc(\''+p.id+'\',\''+safeName+'\')' +
+      '" style="padding:9px 12px;cursor:pointer;font-size:13px;color:#f0ede8;border-bottom:1px solid rgba(184,150,106,.15);display:flex;align-items:center;gap:10px">' +
       procCircleIcon(lp.name,'#b8966a',28) +
-      '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+lp.name+'</span></div>';
-  }).join('') || '<div style="padding:10px;font-size:12px;color:var(--ink2)">'+noResults+'</div>';
+      '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0ede8">'+lp.name+'</span></div>';
+  }).join('') || '<div style="padding:10px;font-size:12px;color:rgba(240,237,232,.5)">'+noResults+'</div>';
   dd.style.display = (filtered.length || q) ? 'block' : 'none';
 }
 
