@@ -4352,9 +4352,9 @@ async function loadDiaryTab(){
       }).join('');
 
       const routineIcon = pid==='home-care-morning' ? '☀️' : '🌙';
-      const routineAccId = pid==='home-care-morning' ? 'morning-acc' : 'evening-acc';
+      const _careType = pid==='home-care-morning' ? 'morning' : 'evening';
       const newEntryBtn = isRoutine
-        ? `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();toggleCarePanel('${pid===\'home-care-morning\'?\'morning\':\'evening\'}')">${routineIcon} ${isBG ? 'Запиши грижата' : 'Log care'}</button></div>`
+        ? `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();toggleCarePanel('${_careType}')">${routineIcon} ${isBG ? 'Запиши грижата' : 'Log care'}</button></div>`
         : `<div style="padding:10px 12px 4px"><button class="mini-btn" style="width:100%;text-align:center;font-size:12px;font-weight:700" onclick="event.stopPropagation();openSheet('${pid}')">+ ${isBG ? 'Нов запис' : 'New entry'}</button></div>`;
 
       return `<div class="dv2-group" draggable="${!isPinned}" data-pid="${pid}"
