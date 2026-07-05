@@ -972,7 +972,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center" title="Календар"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
       </div>
     </div>
-    <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
+    <div id="diary-list-header" style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
       <div style="position:relative;margin-bottom:8px">
         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--ink2);z-index:1">🔍</span>
         <input type="text" id="diary-search" class="search-input"
@@ -3857,8 +3857,8 @@ function setDiaryView(v){
   if(v==='cal'){
     if(listView) listView.style.display='none';
     if(calView) calView.style.display='block';
-    if(sortBtns) sortBtns.style.display='none';
-    if(search){const sw=search.closest('div[style*="position:relative"]');if(sw)sw.style.display='none';}
+    const _dlh=document.getElementById('diary-list-header');
+    if(_dlh) _dlh.style.display='none';
     if(btnList){btnList.classList.remove('active');}
     if(btnCal){btnCal.classList.add('active');}
     if(hcs) hcs.style.display='none';
@@ -3885,14 +3885,8 @@ function setDiaryView(v){
   } else {
     if(listView) listView.style.display='';
     if(calView) calView.style.display='none';
-    if(sortBtns) sortBtns.style.display='';
-    if(search){
-      // Search input wrapper — make sure it's visible
-      let sw=search.closest('div[style*="position:relative"]');
-      if(!sw) sw=search.parentElement;
-      if(sw) sw.style.display='';
-      search.style.display='';
-    }
+    const _dlh2=document.getElementById('diary-list-header');
+    if(_dlh2) _dlh2.style.display='';
     if(btnList){btnList.classList.add('active');}
     if(btnCal){btnCal.classList.remove('active');}
     if(hcs&&window._user) hcs.style.display='block';
@@ -4434,15 +4428,17 @@ async function loadDiaryTab(){
     const totalEntries=docs.length;
     const totalProcs=sorted.length;
     const totalSpent=docs.reduce((s,d)=>s+(parseFloat(d.data().price)||0),0);
+    // Show diary list header + render sort buttons
+    const _dlh3=document.getElementById('diary-list-header');
+    if(_dlh3) _dlh3.style.display='';
+    const _sbe=document.getElementById('diary-sort-btns');
+    if(_sbe){
+      const _bg=window._lang!=='en';
+      _sbe.style.cssText='display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none';
+      _sbe.innerHTML=[['default',_bg?'По дата':'By date'],['name',_bg?'По азбука':'A–Z'],['count',_bg?'По брой':'By count'],['manual',_bg?'Ръчно':'Manual']].map(([m,l])=>`<button id="dsort-${m}" class="dsort-btn${_diarySortMode===m?' dsort-active':''}" onclick="sortDiary('${m}')">${l}</button>`).join('');
+    }
     const statsRow=document.getElementById('diary-stats-row');
     const yearRow=document.getElementById('diary-year-row');
-    // Ensure search bar is visible
-    const _diarySearchEl = document.getElementById('diary-search');
-    if(_diarySearchEl){
-      let _sw = _diarySearchEl.closest('div[style*="position:relative"]');
-      if(!_sw) _sw = _diarySearchEl.parentElement;
-      if(_sw) _sw.style.display='';
-    }
     if(statsRow){
       statsRow.style.display='flex';
       document.getElementById('dst-procs').textContent=totalProcs;
