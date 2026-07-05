@@ -3886,7 +3886,13 @@ function setDiaryView(v){
     if(listView) listView.style.display='';
     if(calView) calView.style.display='none';
     if(sortBtns) sortBtns.style.display='';
-    if(search){const sw=search.closest('div[style*="position:relative"]');if(sw)sw.style.display='';}
+    if(search){
+      // Search input wrapper — make sure it's visible
+      let sw=search.closest('div[style*="position:relative"]');
+      if(!sw) sw=search.parentElement;
+      if(sw) sw.style.display='';
+      search.style.display='';
+    }
     if(btnList){btnList.classList.add('active');}
     if(btnCal){btnCal.classList.remove('active');}
     if(hcs&&window._user) hcs.style.display='block';
@@ -4430,12 +4436,40 @@ async function loadDiaryTab(){
     const totalSpent=docs.reduce((s,d)=>s+(parseFloat(d.data().price)||0),0);
     const statsRow=document.getElementById('diary-stats-row');
     const yearRow=document.getElementById('diary-year-row');
+    // Ensure search bar is visible
+    const _diarySearchEl = document.getElementById('diary-search');
+    if(_diarySearchEl){
+      let _sw = _diarySearchEl.closest('div[style*="position:relative"]');
+      if(!_sw) _sw = _diarySearchEl.parentElement;
+      if(_sw) _sw.style.display='';
+    }
     if(statsRow){
       statsRow.style.display='flex';
       document.getElementById('dst-procs').textContent=totalProcs;
       document.getElementById('dst-entries').textContent=totalEntries;
       document.getElementById('dst-spent').textContent=(totalSpent>0?totalSpent.toFixed(0)+'€':'—');
     }
+    // Build sort buttons
+    const sortBtnsEl = document.getElementById('diary-sort-btns');
+    if(sortBtnsEl && !sortBtnsEl.innerHTML.trim()){
+      const isBGsort = window._lang!=='en';
+      sortBtnsEl.style.display='flex';
+      sortBtnsEl.style.gap='6px';
+      sortBtnsEl.style.overflowX='auto';
+      sortBtnsEl.style.paddingBottom='4px';
+      sortBtnsEl.style.scrollbarWidth='none';
+      sortBtnsEl.innerHTML=[
+        ['default', isBGsort?'По дата':'By date'],
+        ['name',    isBGsort?'По азбука':'A–Z'],
+        ['count',   isBGsort?'По брой':'By count'],
+        ['manual',  isBGsort?'Ръчно':'Manual'],
+      ].map(([mode,label])=>
+        `<button id="dsort-${mode}" class="dsort-btn${_diarySortMode===mode?' dsort-active':''}" onclick="sortDiary('${mode}')">${label}</button>`
+      ).join('');
+    } else if(sortBtnsEl){
+      sortBtnsEl.style.display='flex';
+    }
+
     // Build year filter
     if(yearRow){
       yearRow.style.display='flex';
