@@ -4391,6 +4391,11 @@ async function loadDiaryTab(){
   }
   // Show skeleton while loading
   el.innerHTML=`<div class="skeleton-wrap"><div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div><div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div><div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div></div>`;
+  // Show search/sort header immediately (before async data load)
+  const _dlhEarly=document.getElementById('diary-list-header');
+  if(_dlhEarly) _dlhEarly.style.display='';
+  const _sbeEarly=document.getElementById('diary-sort-btns');
+  if(_sbeEarly) _sbeEarly.style.display='flex';
   try{
     if(cacheInvalid(window._cache.diaryTs)){
       const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
@@ -4601,17 +4606,20 @@ function sortDiary(mode){
       return na.localeCompare(nb,'bg');
     }
     if(mode==='count'){
-      const ca = parseInt(a.querySelector('[style*="goldlt"]')?.textContent)||0;
-      const cb = parseInt(b.querySelector('[style*="goldlt"]')?.textContent)||0;
+      const ca = parseInt(a.querySelector('.dv2-count')?.textContent)||0;
+      const cb = parseInt(b.querySelector('.dv2-count')?.textContent)||0;
       return cb-ca;
     }
     // default: by last date (original order preserved via DOM)
     return 0;
   });
   
-  // Re-append in sorted order
-  pinned.forEach(g=>container.appendChild(g));
+  // Re-append: rest first (sorted), then put pinned at TOP
   rest.forEach(g=>container.appendChild(g));
+  // Insert pinned groups at the beginning (they stay at top)
+  for(let i=pinned.length-1;i>=0;i--){
+    container.insertBefore(pinned[i], container.firstChild);
+  }
 }
 
 function filterDiaryGroups(q){
