@@ -740,7 +740,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="banner-multi" style="display:none"></div>
   </div>
 </div>
-  <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1">☀️</button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none;position:absolute;left:14px;top:50%;transform:translateY(-50%)"></div></div>
+  <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none;position:absolute;left:14px;top:50%;transform:translateY(-50%)"></div></div>
   <div class="page active" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
@@ -1142,7 +1142,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="profile-name" id="prof-name">—</div>
   <div class="profile-email" id="prof-email">—</div>
-  <button onclick="showEditProfile()" style="margin-top:10px;padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit" id="edit-profile-btn">✏️ <span data-t="editProfileBtn">Редактирай профила</span></button>
+  <button onclick="showEditProfile()" style="margin-top:10px;padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit" id="edit-profile-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span data-t="editProfileBtn">Редактирай профила</span></button>
 </div>
 <!-- Skin test summary / launcher -->
 <div id="skin-test-card" style="margin:10px 18px 0;border:1.5px solid var(--goldlt);border-radius:16px;background:var(--card);padding:16px;box-shadow:0 2px 8px rgba(26,26,46,.04)"></div>
@@ -1151,7 +1151,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 <!-- Edit profile modal -->
 <div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
-    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">✏️ Редактирай профила</div>
+    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
     <div class="form-row"><label class="form-lbl" data-t="newName">Ново име</label><input class="form-input" id="ep-name" placeholder="Твоето име"></div>
     <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="newPass">Нова парола (по желание)</label><input class="form-input" type="password" id="ep-pass" placeholder="Минимум 6 символа"></div>
     <div id="ep-error" style="font-size:11px;color:#e85d5d;margin-top:6px;display:none"></div>
@@ -1282,7 +1282,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <div class="stat-box"><div class="stat-num" id="stat-rating" style="font-size:16px">—</div><div class="stat-lbl" data-t="statRating">Средна оценка</div></div>
           </div>
           <button onclick="exportDiaryCSV()" style="width:100%;margin-top:10px;padding:8px;background:none;border:1.5px solid rgba(184,150,106,.3);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit">
-            📥 <span data-t="exportCSV">Експортирай дневника (CSV)</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span data-t="exportCSV">Експортирай дневника (CSV)</span>
           </button>
           <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none">
             <span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span>
@@ -1402,7 +1402,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div style="position:relative;background:var(--card);border-radius:24px 24px 0 0;padding:20px 0 32px;width:100%;box-shadow:0 -8px 32px rgba(26,26,46,.15)">
     <div style="width:36px;height:4px;background:#e8e4de;border-radius:2px;margin:0 auto 20px"></div>
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)" id="cs-title">🔒 Очаквайте скоро</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)" id="cs-title">Очаквайте скоро</div>
     </div>
     <div style="display:flex;gap:12px;padding:0 18px">
       <div style="flex:1;background:#faf8f5;border-radius:16px;padding:20px 14px;text-align:center;border:1px solid var(--goldlt)">
@@ -2190,7 +2190,7 @@ const T = {
     aiFollowUp: ['Разкажи повече','Каква е цената?','Как да се подготвя?'],
     aiSystem: 'Ти си AI асистент на GlowTrack — приложение за естетични процедури. Отговаряй на БЪЛГАРСКИ. Бъди топъл, конкретен, информативен. Не препоръчваш конкретни клиники или лекари.',
     // Toast
-    soonToast: '🔒 Очаквайте скоро',
+    soonToast: 'Очаквайте скоро',
     langSaved: '🌐 Език: Български',
   },
   en: {
@@ -4007,6 +4007,11 @@ async function renderDiaryCal(){
 function selectCalDay(ds){
   _calSelected=_calSelected===ds?null:ds;
   renderDiaryCal();
+  // Ensure calendar button stays gold while in cal view
+  const btnCal=document.getElementById('diary-view-cal');
+  const btnList=document.getElementById('diary-view-list');
+  if(btnCal){btnCal.style.background='var(--gold)';btnCal.style.color='#fff';}
+  if(btnList){btnList.style.background='var(--card)';btnList.style.color='var(--ink2)';}
   // Show homecare buttons when deselecting (calendar detail closes)
   if(!_calSelected){
     const hcs=document.getElementById('diary-homecare-section');
@@ -4125,7 +4130,7 @@ function showCalDetailV2(entries,dateStr){
     <div class="dc-detail-date">${formatted}${entries.length?` · ${entries.length} ${isBG?(entries.length===1?'запис':'записа'):'entries'}`:''}</div>
     <button class="dc-add-btn" onclick="showCalAddForm()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      ${isBG?'+ Добави':'+ Add'}
+      ${isBG?'Добави':'Add'}
     </button>
   </div>
   <div class="dc-form" id="cal-add-form-el" style="display:none">
@@ -5612,7 +5617,7 @@ function loadProfileStats(){
       const rated = realDocs.filter(d=>d.data().rating>0);
       const avgRating = rated.length ? (rated.reduce((s,d)=>s+(d.data().rating||0),0)/rated.length) : 0;
       const ratingEl = document.getElementById('stat-rating');
-      if(ratingEl) ratingEl.textContent = avgRating>0 ? '⭐ '+avgRating.toFixed(1) : '—';
+      if(ratingEl) ratingEl.textContent = avgRating>0 ? '★ '+avgRating.toFixed(1) : '—';
       // Last procedure
       const sorted = docs.filter(d=>d.data().createdAt&&!d.data().procId?.startsWith('home-care'))
         .sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
@@ -6182,7 +6187,7 @@ function loadNotifsPage(){
   // Section 1: Reminders 🔔 — collapsible
   if(reminders.length){
     html += `<div style="margin-top:8px">
-      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:11px 14px;cursor:pointer">
+      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
         <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Напомняния':'Reminders'}</div>
@@ -6199,7 +6204,7 @@ function loadNotifsPage(){
   // Section 2: Bookings ✅ — collapsible
   if(bookings.length){
     html += `<div style="margin-top:8px">
-      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid rgba(184,150,106,.4);border-radius:14px;padding:11px 14px;cursor:pointer">
+      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
         <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--gold)">${isBG?'Запазени часове':'Bookings'}</div>
@@ -6217,7 +6222,7 @@ function loadNotifsPage(){
   if(past.length){
     const pastCards = past.map(n=>renderCard(n,true)).join('');
     html += `<div id="past-notifs-card" style="margin-top:16px">
-      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
+      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--card);border:2.5px solid rgba(184,150,106,.4);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
         <div style="font-size:24px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Минали събития':'Past events'}</div>
