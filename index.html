@@ -1770,16 +1770,12 @@ onAuthStateChanged(auth,async user=>{
   }
   // If the Profile tab tried to render before Firebase confirmed the auth state,
   // finish that render now that we know for sure whether the person is logged in.
-  if(window._pendingProfileGoPage){
+  // After any auth state change, if profile page is active — refresh it
+  if(document.getElementById('page-profile')?.classList.contains('active')){
+    if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
+  } else if(window._pendingProfileGoPage){
     window._pendingProfileGoPage=false;
-    if(typeof goPage==='function' && document.getElementById('page-profile')?.classList.contains('active')){
-      goPage('profile');
-    }
-  }
-  // Also: if already on profile page after login (e.g. user just logged in),
-  // reload profile content immediately
-  if(window._user && document.getElementById('page-profile')?.classList.contains('active')){
-    if(typeof loadProfileStats==='function') setTimeout(loadProfileStats, 100);
+    if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
   }
 });
 window.openAuthScreen=function(){
