@@ -1776,6 +1776,11 @@ onAuthStateChanged(auth,async user=>{
       goPage('profile');
     }
   }
+  // Also: if already on profile page after login (e.g. user just logged in),
+  // reload profile content immediately
+  if(window._user && document.getElementById('page-profile')?.classList.contains('active')){
+    if(typeof loadProfileStats==='function') setTimeout(loadProfileStats, 100);
+  }
 });
 window.openAuthScreen=function(){
   document.getElementById('auth-screen').classList.remove('hidden');
