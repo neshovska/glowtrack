@@ -4604,14 +4604,14 @@ function sortDiary(mode){
   const container = document.getElementById('diary-sortable');
   if(!container) return;
   
-  const groups = Array.from(container.querySelectorAll('.diary-group'));
+  const groups = Array.from(container.querySelectorAll('.dv2-group'));
   const pinned = groups.filter(g=>['home-care-morning','home-care-evening'].includes(g.dataset.pid));
   const rest = groups.filter(g=>!['home-care-morning','home-care-evening'].includes(g.dataset.pid));
   
   rest.sort((a,b)=>{
     if(mode==='name'){
-      const na = a.querySelector('.diary-group-hdr div div')?.textContent||'';
-      const nb = b.querySelector('.diary-group-hdr div div')?.textContent||'';
+      const na = a.querySelector('.dv2-name')?.textContent||'';
+      const nb = b.querySelector('.dv2-name')?.textContent||'';
       return na.localeCompare(nb,'bg');
     }
     if(mode==='count'){
@@ -4631,14 +4631,11 @@ function sortDiary(mode){
 function filterDiaryGroups(q){
   const clear = document.getElementById('diary-search-clear');
   if(clear) clear.style.display = q ? 'block' : 'none';
-  const groups = document.querySelectorAll('#diary-sortable .diary-group');
-  const ql = q.toLowerCase().trim();
+  const groups = document.querySelectorAll('#diary-sortable .dv2-group');
+  const ql = (q||'').toLowerCase().trim();
   groups.forEach(g => {
-    if(!ql){
-      g.style.display = '';
-      return;
-    }
-    const name = g.querySelector('.diary-group-hdr')?.textContent?.toLowerCase()||'';
+    if(!ql){ g.style.display=''; return; }
+    const name = (g.querySelector('.dv2-name')?.textContent||g.querySelector('.dv2-group-hdr')?.textContent||'').toLowerCase();
     g.style.display = name.includes(ql) ? '' : 'none';
   });
 }
@@ -6513,7 +6510,7 @@ function diaryDragStart(e){
 function diaryDragOver(e){
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
-  document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
+  document.querySelectorAll('.dv2-group').forEach(el=>el.classList.remove('drag-over'));
   const target = e.currentTarget;
   if(target !== _dragSrc && target.draggable==='true') target.classList.add('drag-over');
 }
@@ -6524,23 +6521,23 @@ function diaryDrop(e){
   if(!target || target === _dragSrc || target.draggable!=='true') return;
   const list = document.getElementById('diary-sortable');
   if(!list) return;
-  const items = Array.from(list.querySelectorAll('.diary-group'));
+  const items = Array.from(list.querySelectorAll('.dv2-group'));
   const srcIdx = items.indexOf(_dragSrc);
   const tgtIdx = items.indexOf(target);
   if(srcIdx < tgtIdx) target.after(_dragSrc);
   else target.before(_dragSrc);
   // Save order
-  const newOrder = Array.from(list.querySelectorAll('.diary-group[data-pid]'))
+  const newOrder = Array.from(list.querySelectorAll('.dv2-group[data-pid]'))
     .map(el=>el.dataset.pid)
     .filter(pid=>pid!=='home-care-morning'&&pid!=='home-care-evening');
   _lsSet('gt_diary_order', newOrder);
   if(typeof _syncDiaryOrder==='function')_syncDiaryOrder(newOrder);
-  document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
+  document.querySelectorAll('.dv2-group').forEach(el=>el.classList.remove('drag-over'));
 }
 
 function diaryDragEnd(e){
   e.currentTarget.classList.remove('dragging');
-  document.querySelectorAll('.diary-group').forEach(el=>el.classList.remove('drag-over'));
+  document.querySelectorAll('.dv2-group').forEach(el=>el.classList.remove('drag-over'));
   _dragSrc = null;
 }
 
@@ -6549,7 +6546,7 @@ function diaryDragEnd(e){
 function moveDiaryGroup(pid, dir){
   const list = document.getElementById('diary-sortable');
   if(!list) return;
-  const items = Array.from(list.querySelectorAll('.diary-group[data-pid]'));
+  const items = Array.from(list.querySelectorAll('.dv2-group[data-pid]'));
   const pinned = ['home-care-morning','home-care-evening'];
   const movable = items.filter(el=>!pinned.includes(el.dataset.pid));
   const idx = movable.findIndex(el=>el.dataset.pid===pid);
@@ -6560,7 +6557,7 @@ function moveDiaryGroup(pid, dir){
   if(dir === -1) target.before(movable[idx]);
   else target.after(movable[idx]);
   // Save order
-  const newOrder = Array.from(list.querySelectorAll('.diary-group[data-pid]'))
+  const newOrder = Array.from(list.querySelectorAll('.dv2-group[data-pid]'))
     .map(el=>el.dataset.pid)
     .filter(p=>!pinned.includes(p));
   _lsSet('gt_diary_order', newOrder);
@@ -6649,9 +6646,9 @@ function deleteNotifFromPage(id){
 function filterDiary(){
   const q = (document.getElementById('diary-search')?.value||'').toLowerCase();
   const dateFilter = document.getElementById('diary-date-filter')?.value;
-  const groups = document.querySelectorAll('.diary-group');
+  const groups = document.querySelectorAll('.dv2-group');
   groups.forEach(g=>{
-    const name = g.querySelector('.diary-group-name')?.textContent.toLowerCase()||'';
+    const name = g.querySelector('.dv2-name')?.textContent.toLowerCase()||'';
     const matchQ = !q || name.includes(q);
     const matchD = !dateFilter || g.dataset.lastDate?.startsWith(dateFilter);
     g.style.display = (matchQ && matchD) ? '' : 'none';
