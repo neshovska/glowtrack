@@ -730,7 +730,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div style="position:relative;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-radius:24px;padding:24px;margin:0 24px;box-shadow:0 20px 60px rgba(26,26,46,.25);border:1px solid rgba(184,150,106,.3);max-width:340px;width:100%">
     <!-- Single reminder -->
     <div id="banner-single" style="text-align:center">
-      <div style="font-size:36px;margin-bottom:10px">🔔</div>
+      <div style="font-size:36px;margin-bottom:10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Предстояща процедура</div>
       <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px;font-family:'Cormorant Garamond',serif" id="banner-title"></div>
       <div style="font-size:13px;color:var(--ink2);margin-bottom:20px" id="banner-sub"></div>
@@ -1003,12 +1003,12 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <button onclick="toggleCarePanel('morning')" id="morning-btn"
           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(184,150,106,.35);background:var(--card);font-family:inherit;font-size:13px;font-weight:700;color:var(--gold);cursor:pointer">
-          ☀️ <span data-t="morningCare">Сутрешна грижа</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> <span data-t="morningCare">Сутрешна грижа</span>
           <svg id="morning-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <button onclick="toggleCarePanel('evening')" id="evening-btn"
           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(184,150,106,.35);background:var(--card);font-family:inherit;font-size:13px;font-weight:700;color:var(--gold);cursor:pointer">
-          🌙 <span data-t="eveningCare">Вечерна грижа</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> <span data-t="eveningCare">Вечерна грижа</span>
           <svg id="evening-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
@@ -1026,7 +1026,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
           <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
         </div>
-        <button onclick="saveRoutine('morning')" style="width:100%;margin-top:10px;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning">Запази ☀️</button>
+        <button onclick="saveRoutine('morning')" style="width:100%;margin-top:10px;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning">Запази</button>
         <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
         <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
       </div>
@@ -1044,7 +1044,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
           <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
         </div>
-        <button onclick="saveRoutine('evening')" style="width:100%;margin-top:10px;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening">Запази 🌙</button>
+        <button onclick="saveRoutine('evening')" style="width:100%;margin-top:10px;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening">Запази</button>
         <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
         <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
       </div>
@@ -1274,7 +1274,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div class="acc-body">
           <div style="display:flex;gap:10px;margin-top:10px">
             <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="font-size:18px;color:var(--gold)">★</span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="color:var(--gold)"><svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
           </div>
           <div style="display:flex;gap:10px;margin-top:10px">
@@ -1390,7 +1390,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <nav class="bnav" role="navigation" aria-label="Главна навигация">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
-    <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px">🔔</span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
+    <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
     <button class="nb nb-soon" onclick="showComingSoonSheet()" style="opacity:.4;cursor:default"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
@@ -1440,13 +1440,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <button onclick="nextOnboarding(2)" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Напред →</button>
     </div>
     <div class="ob-step" style="display:none;text-align:center">
-      <div style="font-size:48px;margin-bottom:12px">🧸</div>
+      <div style="margin-bottom:12px"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><circle cx="12" cy="13" r="7"/><circle cx="5" cy="7" r="2.5"/><circle cx="19" cy="7" r="2.5"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M9 16s1 1.5 3 1.5 3-1.5 3-1.5"/></svg></div>
       <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:8px">Води дневник</div>
       <div style="font-size:13px;color:var(--ink2);line-height:1.6">Записвай всяка процедура, домашната грижа и следи напредъка си.</div>
       <button onclick="nextOnboarding(3)" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Напред →</button>
     </div>
     <div class="ob-step" style="display:none;text-align:center">
-      <div style="font-size:48px;margin-bottom:12px">🔔</div>
+      <div style="font-size:48px;margin-bottom:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
       <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:8px">Напомняния</div>
       <div style="font-size:13px;color:var(--ink2);line-height:1.6">Задай дата за следваща процедура и не пропускай нито една сесия.</div>
       <button onclick="finishOnboarding()" style="width:100%;margin-top:20px;padding:12px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">✦ Започни</button>
@@ -1756,7 +1756,7 @@ onAuthStateChanged(auth,async user=>{
     const _pc2=document.querySelector('#page-profile .profile-card');
     if(_pc2){
       _pc2.innerHTML=`<div style="text-align:center;padding:24px 8px">
-        <div style="font-size:36px;margin-bottom:10px">🔐</div>
+        <div style="margin-bottom:10px"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">${window._lang==='en'?'Sign in to see your profile':'Влез, за да видиш профила си'}</div>
         <button onclick="openAuthScreen()" style="margin-top:8px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button>
       </div>`;
@@ -1993,8 +1993,8 @@ const T = {
     notifLast: 'Последно',
     morningCare: '☀️ Сутрешна грижа',
     eveningCare: '🌙 Вечерна грижа',
-    saveRoutineMorning: 'Запази ☀️',
-    saveRoutineEvening: 'Запази 🌙',
+    saveRoutineMorning: 'Запази',
+    saveRoutineEvening: 'Запази',
     eveningCare: '🌙 Вечерна грижа',
     addStep: '+ Добави стъпка...',
     notifsSub: 'Предстоящи процедури',
@@ -2226,8 +2226,8 @@ const T = {
     notifLast: 'Last',
     morningCare: '☀️ Morning care',
     eveningCare: '🌙 Evening care',
-    saveRoutineMorning: 'Save ☀️',
-    saveRoutineEvening: 'Save 🌙',
+    saveRoutineMorning: 'Save',
+    saveRoutineEvening: 'Save',
     eveningCare: '🌙 Evening care',
     addStep: '+ Add step...',
     notifsSub: 'Upcoming procedures',
@@ -2651,7 +2651,7 @@ function goPage(name,btn){
       } else if(!window._user){
         const pc=document.querySelector('#page-profile .profile-card');
         if(pc)pc.innerHTML=`<div style="text-align:center;padding:24px 8px">
-          <div style="font-size:36px;margin-bottom:10px">🔐</div>
+          <div style="margin-bottom:10px"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">${window._lang==='en'?'Sign in to see your profile':'Влез, за да видиш профила си'}</div>
           <button onclick="openAuthScreen()" style="margin-top:8px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button>
         </div>`;
@@ -3847,10 +3847,15 @@ function setDiaryView(v){
       setTimeout(()=>{
         _calSelected = pd;
         renderDiaryCal();
-        // Scroll to detail
         const det = document.getElementById('diary-cal-detail');
         if(det) setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'start'}), 200);
       }, 150);
+    } else {
+      // Auto-select today to show entries immediately
+      const _td = new Date();
+      const _tds = `${_td.getFullYear()}-${String(_td.getMonth()+1).padStart(2,'0')}-${String(_td.getDate()).padStart(2,'0')}`;
+      if(!_calSelected) _calSelected = _tds;
+      setTimeout(()=>{ renderDiaryCal(); }, 100);
     }
   } else {
     if(listView) listView.style.display='';
@@ -5932,7 +5937,7 @@ function checkReminders(){
             const diffTxt = diff === 0 ? 'Днес' : diff === 1 ? 'Утре' : 'След '+diff+' дни';
             const color = diff === 0 ? '#b8966a' : 'var(--ink2)';
             return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#faf8f5;border-radius:12px;border:1px solid rgba(184,150,106,.2)">
-              <span style="font-size:20px">🔔</span>
+              <span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
               <div style="flex:1">
                 <div style="font-size:12px;font-weight:700;color:var(--ink1)">${n.procName}</div>
                 <div style="font-size:11px;color:${color}">${fmtDate(nd)} ${n.time?(window._lang==='en'?'at ':' в ')+n.time:''} · ${diffTxt}</div>
@@ -5963,7 +5968,7 @@ async function updateRoutineStreak(checked, today){
   
   if(allChecked){
     localStorage.setItem('gt_routine_last_date', today);
-    streak.innerHTML = `<span style="color:var(--gold);font-weight:700">🌟 Пълна рутина!</span><br><span style="font-size:10px;color:var(--ink2)">Изпълнена на ${todayFmt}</span>`;
+    streak.innerHTML = `<span style="color:var(--gold);font-weight:700">✦ Пълна рутина!</span><br><span style="font-size:10px;color:var(--ink2)">Изпълнена на ${todayFmt}</span>`;
     
     // Auto-save to diary if not already saved today and user is logged in
     if(window._user){
@@ -6123,7 +6128,7 @@ function loadNotifsPage(){
   updateNotifBadge(reminders.length + bookings.length);
 
   if(!notifs.length){
-    content.innerHTML=`<div class="empty-state"><div class="empty-ic">🔔</div>
+    content.innerHTML=`<div class="empty-state"><div class="empty-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
       <div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div>
       <div class="empty-sub">${isBG?'Натисни \'+ Добави\' по-горе':'Tap \'+ Add\' above'}</div>
     </div>`;
@@ -6142,7 +6147,7 @@ function loadNotifsPage(){
       (isBG?'Минало':'Past');
 
     // Icon: ✅ for booking, 🔔 for reminder
-    const icon = isBooking ? '✅' : '🔔';
+    const icon = isBooking ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 
     // Proc name translated
     const procName = (()=>{
@@ -6178,7 +6183,7 @@ function loadNotifsPage(){
   if(reminders.length){
     html += `<div style="margin-top:8px">
       <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:11px 14px;cursor:pointer">
-        <div style="font-size:22px;flex-shrink:0">🔔</div>
+        <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Напомняния':'Reminders'}</div>
           <div style="font-size:11px;color:var(--ink2);margin-top:1px">${reminders.length} ${isBG?(reminders.length===1?'напомняне':'напомняния'):(reminders.length===1?'reminder':'reminders')}</div>
@@ -6195,7 +6200,7 @@ function loadNotifsPage(){
   if(bookings.length){
     html += `<div style="margin-top:8px">
       <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid rgba(184,150,106,.4);border-radius:14px;padding:11px 14px;cursor:pointer">
-        <div style="font-size:22px;flex-shrink:0">✅</div>
+        <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--gold)">${isBG?'Запазени часове':'Bookings'}</div>
           <div style="font-size:11px;color:var(--ink2);margin-top:1px">${bookings.length} ${isBG?(bookings.length===1?'резервация':'резервации'):(bookings.length===1?'booking':'bookings')}</div>
@@ -6213,20 +6218,20 @@ function loadNotifsPage(){
     const pastCards = past.map(n=>renderCard(n,true)).join('');
     html += `<div id="past-notifs-card" style="margin-top:16px">
       <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
-        <div style="font-size:24px;flex-shrink:0">⏰</div>
+        <div style="font-size:24px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Минали събития':'Past events'}</div>
           <div style="font-size:11px;color:var(--ink2);margin-top:2px">${past.length} ${isBG?(past.length===1?'събитие':'събитие'):'event'}${past.length!==1&&isBG?'':past.length!==1?'s':''}</div>
         </div>
         <svg id="past-notifs-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
-      <div id="past-notifs-body" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:8px">
+      <div id="past-notifs-body" style="display:none;margin-top:8px;flex-direction:column;gap:8px">
         ${pastCards}
       </div>
     </div>`;
   }
 
-  content.innerHTML = html || `<div class="empty-state"><div class="empty-ic">🔔</div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`;
+  content.innerHTML = html || `<div class="empty-state"><div class="empty-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`;
 }
 
 function openCalForDate(dateStr){
