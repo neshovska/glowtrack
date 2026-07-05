@@ -962,8 +962,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
-        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:8px 12px;background:var(--gold);border:none;cursor:pointer;font-size:15px;line-height:1;color:#fff;border-radius:8px 0 0 8px" title="Списък">☰</button>
-        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:8px 14px;background:var(--card);border:none;cursor:pointer;font-size:15px;line-height:1;border-left:1.5px solid var(--roselt);color:var(--ink2);border-radius:0 8px 8px 0" title="Календар">📅</button>
+        <button id="diary-view-list" onclick="setDiaryView('list')" style="padding:8px 13px;background:var(--gold);border:none;cursor:pointer;line-height:1;color:#fff;border-radius:8px 0 0 8px;display:flex;align-items:center;justify-content:center" title="Списък"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <button id="diary-view-cal" onclick="setDiaryView('cal')" style="padding:8px 13px;background:var(--card);border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);color:var(--ink2);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center" title="Календар"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
       </div>
     </div>
     <div style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
@@ -1389,10 +1389,10 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
   </div>
   <nav class="bnav" role="navigation" aria-label="Главна навигация">
-    <button class="nb active" onclick="goPage('procs',this)"><span class="ni">🪷</span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
+    <button class="nb active" onclick="goPage('procs',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 22V12"/><path d="M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/><path d="M12 12C12 12 8 8 5 10s1 8 7 10"/><path d="M12 12C12 12 16 8 19 10s-1 8-7 10"/></svg></span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
     <button class="nb nb-soon" onclick="showComingSoonSheet()" style="opacity:.4;cursor:default"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
-    <button class="nb" onclick="goPage('diary',this)"><span class="ni">🧸</span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
+    <button class="nb" onclick="goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
   </nav>
 </div>
@@ -2030,7 +2030,7 @@ const T = {
     sortCount: '🔢 По брой',
     diarySearch: 'Намери извършена процедура...',
     notifHint: 'Задай дата за следващо посещение',
-    deleteProfileBtn: '🗑️ Изтрий профила',
+    deleteProfileBtn: 'Изтрий профила',
     searchProcs: 'Търси процедура...',
     searchClinics: 'Търси клиника...',
     searchProducts: 'Търси продукт...',
@@ -2057,7 +2057,7 @@ const T = {
     aiQuestionPh: 'Задай въпрос...',
     emailPh2: 'Твоят имейл',
     exportCSV: 'Експортирай дневника (CSV)',
-    deleteBtn: '🗑️ Изтрий профила',
+    deleteBtn: 'Изтрий профила',
     // Sheet
     whatIs: 'Какво представлява',
     devices: 'Апарати / Марки',
@@ -2117,7 +2117,7 @@ const T = {
     statSpend: 'Похарчени €',
     statRating: 'Средна оценка',
     statLastProc: 'Последна процедура',
-    profileStats: '📊 Моята статистика',
+    profileStats: 'Моята статистика',
     profileFavs: '★ Любими процедури',
     profileCare: '🌿 Домашна грижа',
     profileNotifs: '🔔 Напомняния за процедури',
@@ -2262,7 +2262,7 @@ const T = {
     sortCount: '🔢 By count',
     diarySearch: 'Find a completed procedure...',
     notifHint: 'Set a date for your next visit',
-    deleteProfileBtn: '🗑️ Delete profile',
+    deleteProfileBtn: 'Delete profile',
     searchProcs: 'Search procedure...',
     searchClinics: 'Search clinic...',
     searchProducts: 'Search product...',
@@ -2289,7 +2289,7 @@ const T = {
     aiQuestionPh: 'Ask a question...',
     emailPh2: 'Your email',
     exportCSV: 'Export diary (CSV)',
-    deleteBtn: '🗑️ Delete profile',
+    deleteBtn: 'Delete profile',
     whatIs: 'What it is',
     devices: 'Devices / Brands',
     zones: 'Treatment zones',
@@ -2369,7 +2369,7 @@ const T = {
     profileCare: '🌿 Home care',
     profileFavs: '★ Favourite procedures',
     profileNotifs: '🔔 Procedure reminders',
-    profileStats: '📊 My statistics',
+    profileStats: 'My statistics',
     profileSuggest: '💬 Send suggestion',
     pullRefresh: '↓ Pull to refresh',
     pullRelease: '↑ Release to refresh',
@@ -5199,28 +5199,28 @@ function renderSkinTestCard(){
           <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'7 въпроса · открий типа си и подходящите процедури':'7 questions · discover your type and suitable procedures'}</div>
         </div>
       </div>
-      <button onclick="openSkinQuiz()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'🧬 Направи теста':'🧬 Take the test'}</button>`;
+      <button onclick="openSkinQuiz()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Направи теста':'Take the test'}</button>`;
   }
 }
 
 // ══ CYCLE TRACKER ══
 const CYCLE_PHASE_INFO = {
-  menstrual: {icon:'🩸', bg:'Менструална фаза', en:'Menstrual phase',
+  menstrual: {svgIcon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--gold)" stroke="none"><path d="M12 2C6 8 3 12 3 15.5a9 9 0 0 0 18 0C21 12 18 8 12 2z" opacity=".7"/></svg>', icon:'🩸', bg:'Менструална фаза', en:'Menstrual phase',
     tipBg:'Кожата е по-чувствителна и по-склонна към зачервяване. Синини след инжекции зарастват по-бавно.',
     tipEn:'Skin is more sensitive and prone to redness. Bruising after injectables heals more slowly.',
     avoidBg:'Избягвай: филъри, ботокс, агресивни пилинги', avoidEn:'Avoid: fillers, botox, aggressive peels',
     recIds:['clean-hydra','m8-calming','led-therapy']},
-  follicular: {icon:'🌱', bg:'Фоликуларна фаза', en:'Follicular phase',
+  follicular: {svgIcon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M17 8C8 10 5.9 16.17 3.82 22M9.5 6.5C9.5 6.5 11 4 16 4c0 5-3 9-7.5 9.5"/></svg>', icon:'🌱', bg:'Фоликуларна фаза', en:'Follicular phase',
     tipBg:'Естроген расте, кожата е в най-добрата си форма — идеален прозорец за по-силни процедури.',
     tipEn:'Estrogen rises, skin is at its best — ideal window for stronger treatments.',
     avoidBg:'Добро време за: лазерна епилация, пилинги, микронийдлинг', avoidEn:'Good time for: laser hair removal, peels, microneedling',
     recIds:['m8-reset-peel','m8-age-peel','le-alex-face','morpheus8-face']},
-  ovulation: {icon:'✨', bg:'Овулация', en:'Ovulation',
+  ovulation: {svgIcon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--gold)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', icon:'✨', bg:'Овулация', en:'Ovulation',
     tipBg:'Пик на колаген и сияние. Кожата понася процедури добре.',
     tipEn:'Peak collagen and glow. Skin tolerates treatments well.',
     avoidBg:'Добро време за: скинбустери, леки процедури', avoidEn:'Good time for: skin boosters, light treatments',
     recIds:['sb-profhilo','sb-rejuran','hp-hydroglow']},
-  luteal: {icon:'🌙', bg:'Лутеална фаза', en:'Luteal phase',
+  luteal: {svgIcon:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>', icon:'🌙', bg:'Лутеална фаза', en:'Luteal phase',
     tipBg:'Прогестеронът расте, себумът се увеличава — по-склонна към обриви кожа.',
     tipEn:'Progesterone rises, sebum increases — skin more prone to breakouts.',
     avoidBg:'Добро време за: себорегулиращи и почистващи процедури', avoidEn:'Good time for: sebum-regulating and cleansing treatments',
@@ -5571,13 +5571,15 @@ function renderCycleTrackerCard(){
     const pi = phase ? CYCLE_PHASE_INFO[phase] : null;
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:28px" class="gold-emoji">${pi?pi.icon:'✨'}</div>
+        <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0">
+          ${pi && pi.svgIcon ? pi.svgIcon : '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'}
+        </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${isBGq?'Текуща фаза':'Current phase'}</div>
           <div style="font-size:14px;font-weight:700;color:var(--ink)">${pi?(isBGq?pi.bg:pi.en):'—'}</div>
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'✨ Виж календара':'✨ View calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
   } else {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -5587,7 +5589,7 @@ function renderCycleTrackerCard(){
           <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'Проследявай цикъла и връзката му с кожата':'Track your cycle and its link to your skin'}</div>
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'✨ Настрой календара':'✨ Set up calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Настрой календара':'Set up calendar'}</button>`;
   }
 }
 
@@ -6187,7 +6189,7 @@ function loadNotifsPage(){
   // Section 1: Reminders 🔔 — collapsible
   if(reminders.length){
     html += `<div style="margin-top:8px">
-      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
+      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--goldlt);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
         <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Напомняния':'Reminders'}</div>
@@ -6204,7 +6206,7 @@ function loadNotifsPage(){
   // Section 2: Bookings ✅ — collapsible
   if(bookings.length){
     html += `<div style="margin-top:8px">
-      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--card);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
+      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--goldlt);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
         <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--gold)">${isBG?'Запазени часове':'Bookings'}</div>
@@ -6222,7 +6224,7 @@ function loadNotifsPage(){
   if(past.length){
     const pastCards = past.map(n=>renderCard(n,true)).join('');
     html += `<div id="past-notifs-card" style="margin-top:16px">
-      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--card);border:2.5px solid rgba(184,150,106,.4);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
+      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--goldlt);border:2.5px solid rgba(184,150,106,.4);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
         <div style="font-size:24px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Минали събития':'Past events'}</div>
