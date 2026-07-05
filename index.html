@@ -107,6 +107,18 @@
   --sage:#8fa89a;--lilac:#9b8ec4;--lilaclt:#f0edf9;
   --card:#fff;--blur:blur(20px);--r:14px;--rs:10px;--red:#d95f5f;
   --shadow:0 2px 12px rgba(26,26,46,.07);
+  --notif-bg1:#12122a;--notif-bg2:#1e1e38;--notif-bg3:#2a1e32;
+  --notif-body-bg:linear-gradient(180deg,#1a1a30 0%,#14142a 100%);
+  --notif-wrap-bg:rgba(255,255,255,.04);
+  --notif-input-bg:rgba(255,255,255,.06);
+  --notif-text:#f0ede8;
+}
+body:not(.dark) {
+  --notif-bg1:#1e1b2e;--notif-bg2:#2a2640;--notif-bg3:#221d30;
+  --notif-body-bg:linear-gradient(180deg,#2a2640 0%,#1e1b2e 100%);
+  --notif-wrap-bg:rgba(0,0,0,.08);
+  --notif-input-bg:rgba(0,0,0,.06);
+  --notif-text:#f0ede8;
 }
 body.dark{
   --ink:#f0ede8;--ink2:#a09890;--mist:#12122a;
@@ -1062,7 +1074,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div style="padding:0 16px 12px">
       <div id="add-notif-acc" style="border-radius:18px;overflow:hidden;box-shadow:0 4px 24px rgba(26,26,46,.22)">
         <!-- Header -->
-        <div onclick="toggleNotifForm()" style="background:linear-gradient(135deg,#12122a 0%,#1e1e38 60%,#2a1e32 100%);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
+        <div onclick="toggleNotifForm()" style="background:linear-gradient(135deg,var(--notif-bg1,#12122a) 0%,var(--notif-bg2,#1e1e38) 60%,var(--notif-bg3,#2a1e32) 100%);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
           <div style="display:flex;align-items:center;gap:10px">
             <div style="width:34px;height:34px;border-radius:50%;background:rgba(184,150,106,.18);border:1.5px solid rgba(184,150,106,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1075,8 +1087,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <svg id="add-notif-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(184,150,106,.7)" stroke-width="2" style="transition:transform .25s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <!-- Body (closed by default) -->
-        <div id="add-notif-body" style="display:none;background:linear-gradient(180deg,#1a1a30 0%,#14142a 100%);padding:16px 18px 18px">
-          <div id="push-notif-toggle-wrap" style="margin-bottom:14px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(184,150,106,.18);display:flex;align-items:flex-start;gap:12px">
+        <div id="add-notif-body" style="display:none;background:var(--notif-body-bg,linear-gradient(180deg,#1a1a30 0%,#14142a 100%));padding:16px 18px 18px">
+          <div id="push-notif-toggle-wrap" style="margin-bottom:14px;padding:10px 14px;border-radius:12px;background:var(--notif-wrap-bg,rgba(255,255,255,.04));border:1px solid rgba(184,150,106,.18);display:flex;align-items:flex-start;gap:12px">
             <div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">
               <strong id="push-notif-title-label" style="font-size:10px;color:rgba(240,237,232,.7);white-space:nowrap;letter-spacing:.06em">PUSH</strong>
               <button id="push-notif-toggle-btn" onclick="initPushNotifications()" style="white-space:nowrap;padding:5px 10px;border-radius:50px;border:1.5px solid #b8966a;background:#b8966a;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">Включи</button>
@@ -1084,7 +1096,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <div id="push-notif-status-text" style="flex:1;min-width:0;color:rgba(240,237,232,.5);font-size:9.5px;line-height:1.5;padding-top:2px">Позволи известия за навременни напомняния. На iPhone добави на началния екран.</div>
           </div>
           <div style="position:relative;overflow:visible;margin-bottom:10px">
-            <input type="text" id="notif-proc-search" placeholder="🔍 Процедура..." data-ph="searchProcs" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f0ede8;outline:none;box-sizing:border-box" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
+            <input type="text" id="notif-proc-search" placeholder="🔍 Процедура..." data-ph="searchProcs" style="width:100%;padding:10px 14px;background:var(--notif-input-bg,rgba(255,255,255,.06));border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--notif-text,#f0ede8);outline:none;box-sizing:border-box" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
             <input type="hidden" id="notif-proc">
             <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#1e1e38;border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-top:4px"></div>
           </div>
@@ -1097,8 +1109,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             </button>
           </div>
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
-            <input type="date" id="notif-date" style="flex:1;padding:10px 12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f0ede8;outline:none;color-scheme:dark">
-            <input type="time" id="notif-time" value="10:00" style="width:100px;padding:10px 12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:#f0ede8;outline:none;color-scheme:dark">
+            <input type="date" id="notif-date" style="flex:1;padding:10px 12px;background:var(--notif-input-bg,rgba(255,255,255,.06));border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--notif-text,#f0ede8);outline:none;color-scheme:dark">
+            <input type="time" id="notif-time" value="10:00" style="width:100px;padding:10px 12px;background:var(--notif-input-bg,rgba(255,255,255,.06));border:1.5px solid rgba(184,150,106,.25);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--notif-text,#f0ede8);outline:none;color-scheme:dark">
             <button onclick="saveNotifDate()" style="padding:10px 16px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:11px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">💾</button>
           </div>
           <div id="notif-info" style="margin-top:8px;font-size:11px;color:#b8966a"></div>
@@ -2812,8 +2824,11 @@ function renderCats(){
   const row1 = row1Items.map(c=>{
     const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
     const isFavCat = favCatIds.includes(c.id);
-    const starHtml = isFavCat ? `<span style="color:var(--gold);font-size:10px">★</span>` : '';
-    return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${starHtml}${lbl}</button>`;
+    const isActive = c.id===activeCat;
+    const circleIcon = isActive
+      ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.5"/></svg>'
+      : '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="var(--gold)" stroke-width="1.5"/></svg>';
+    return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${isActive?'active':''}" onclick="setCat('${c.id}')">${circleIcon}${lbl}</button>`;
   }).join('');
   const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
 
@@ -2824,14 +2839,22 @@ function renderCats(){
     if(otherCats.length){
       row2Html = `<div class="cats-row" id="cats-row2">${otherCats.map(c=>{
         const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-        return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
+        const isAct = c.id===activeCat;
+        const circ = isAct
+          ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.5"/></svg>'
+          : '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="var(--gold)" stroke-width="1.5"/></svg>';
+        return `<button class="cat-btn ${isAct?'active':''}" onclick="setCat('${c.id}')">${circ}${lbl}</button>`;
       }).join('')}</div>`;
     }
   } else {
     // No fav cats — show all in row 1 (classic behaviour)
     const allBtns = CATS_LIST.slice(1).map(c=>{
       const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-      return `<button class="cat-btn ${c.id===activeCat?'active':''}" onclick="setCat('${c.id}')">${c.icon} ${lbl}</button>`;
+      const isAct2 = c.id===activeCat;
+      const circ2 = isAct2
+        ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.5"/></svg>'
+        : '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="var(--gold)" stroke-width="1.5"/></svg>';
+      return `<button class="cat-btn ${isAct2?'active':''}" onclick="setCat('${c.id}')">${circ2}${lbl}</button>`;
     }).join('');
     bar.innerHTML = `<div class="cats-row">${row1}${allBtns}${addBtn}</div>`;
     return;
@@ -3805,6 +3828,7 @@ function setDiaryView(v){
   const btnList=document.getElementById('diary-view-list');
   const btnCal=document.getElementById('diary-view-cal');
   const search=document.getElementById('diary-search');
+  const hcs=document.getElementById('diary-homecare-section');
   if(v==='cal'){
     if(listView) listView.style.display='none';
     if(calView) calView.style.display='block';
@@ -3812,6 +3836,7 @@ function setDiaryView(v){
     if(search) search.closest('div[style*="position:relative"]').style.display='none';
     if(btnList){btnList.style.background='var(--card)';btnList.style.color='var(--ink2)';}
     if(btnCal){btnCal.style.background='var(--gold)';btnCal.style.color='#fff';}
+    if(hcs) hcs.style.display='none';
     renderDiaryCal();
   } else {
     if(listView) listView.style.display='';
@@ -3820,6 +3845,7 @@ function setDiaryView(v){
     if(search) search.closest('div[style*="position:relative"]').style.display='';
     if(btnList){btnList.style.background='var(--gold)';btnList.style.color='#fff';}
     if(btnCal){btnCal.style.background='var(--card)';btnCal.style.color='var(--ink2)';}
+    if(hcs&&window._user) hcs.style.display='block';
     loadDiaryTab();
   }
 }
@@ -6145,15 +6171,38 @@ function loadNotifsPage(){
     html += bookings.map(n=>renderCard(n,false)).join('');
   }
 
-  // Section 3: Past
+  // Section 3: Past — collapsible card like a notif card
   if(past.length){
-    html += `<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c5bdb4;margin:16px 0 8px">⏰ ${isBG?'Минали':'Past'}</div>`;
-    html += past.map(n=>renderCard(n,true)).join('');
+    const pastCards = past.map(n=>renderCard(n,true)).join('');
+    html += `<div id="past-notifs-card" style="margin-top:16px">
+      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
+        <div style="font-size:24px;flex-shrink:0">⏰</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Минали събития':'Past events'}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${past.length} ${isBG?(past.length===1?'събитие':'събитие'):'event'}${past.length!==1&&isBG?'':past.length!==1?'s':''}</div>
+        </div>
+        <svg id="past-notifs-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="past-notifs-body" style="display:none;margin-top:8px;display:flex;flex-direction:column;gap:8px">
+        ${pastCards}
+      </div>
+    </div>`;
   }
 
   content.innerHTML = html || `<div class="empty-state"><div class="empty-ic">🔔</div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`;
 }
 
+function togglePastNotifs(){
+  const body = document.getElementById('past-notifs-body');
+  const chev = document.getElementById('past-notifs-chev');
+  const card = document.getElementById('past-notifs-card');
+  if(!body) return;
+  const open = body.style.display !== 'none' && body.style.display !== '';
+  body.style.display = open ? 'none' : 'flex';
+  body.style.flexDirection = 'column';
+  body.style.gap = '8px';
+  if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+}
 function updatePushToggleUI(){
   const btn=document.getElementById('push-notif-toggle-btn');
   const txt=document.getElementById('push-notif-status-text');
