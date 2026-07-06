@@ -753,7 +753,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </div>
   <div class="topbar"><div class="topbar-inner" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 8px">
   <!-- LEFT: Profile button -->
-  <button id="topbar-profile-btn" onclick="goPage('profile',document.querySelector('.nb[onclick*=profile]'))" style="display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;min-width:80px">
+  <button id="topbar-profile-btn" onclick="openProfileSheet()" style="display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;min-width:80px">
     <div id="topbar-avatar" style="width:26px;height:26px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">?</div>
     <span style="font-size:11px;font-weight:700;color:var(--gold)" data-t="profileBtn">Профил</span>
   </button>
@@ -6564,6 +6564,54 @@ function togglePastNotifs(){
   body.style.gap = '8px';
   if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
 }
+function openProfileSheet(){
+  const sheet = document.getElementById('topbar-profile-sheet');
+  if(!sheet) return;
+  // Fill data
+  const psName = document.getElementById('ps-name');
+  const psEmail = document.getElementById('ps-email');
+  const psAvatar = document.getElementById('ps-avatar');
+  const psGuest = document.getElementById('ps-guest');
+  const psMy = sheet.querySelector('[data-t="profileStats"]')?.closest('div[onclick]')?.parentElement?.parentElement;
+  if(window._user){
+    const dn = window._user.displayName||window._user.email||'';
+    const ini = dn.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+    if(psName) psName.textContent = window._user.displayName||window._user.email.split('@')[0];
+    if(psEmail) psEmail.textContent = window._user.email;
+    if(psAvatar) psAvatar.textContent = ini;
+    if(psGuest) psGuest.style.display='none';
+    // Show menu items
+    sheet.querySelectorAll('[style*="border-bottom:1px solid var(--goldlt)"]').forEach(el=>el.style.display='flex');
+    sheet.querySelector('[style*="border-top:1px solid var(--roselt)"]')?.style.setProperty('display','block');
+  } else {
+    if(psName) psName.textContent='';
+    if(psEmail) psEmail.textContent='';
+    if(psAvatar) psAvatar.textContent='?';
+    if(psGuest) psGuest.style.display='block';
+    // Hide logged-in items
+    sheet.querySelectorAll('[style*="border-bottom:1px solid var(--goldlt)"]').forEach(el=>el.style.display='none');
+    sheet.querySelector('[style*="border-top:1px solid var(--roselt)"]')?.style.setProperty('display','none');
+  }
+  sheet.style.display='block';
+}
+function closeProfileSheet(){
+  const sheet=document.getElementById('topbar-profile-sheet');
+  if(sheet) sheet.style.display='none';
+}
+function openAccSection(accId){
+  // Navigate to profile tab and open specific accordion
+  goPage('profile', document.querySelector('.nb[onclick*=profile]'));
+  setTimeout(()=>{
+    const acc=document.getElementById(accId);
+    if(acc){
+      const body=acc.querySelector('.acc-body');
+      const arrow=acc.querySelector('.acc-arrow');
+      if(body){body.classList.add('open');}
+      if(arrow){arrow.classList.add('open');}
+      acc.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  }, 300);
+}
 function updatePushToggleUI(){
   const btn=document.getElementById('push-notif-toggle-btn');
   const txt=document.getElementById('push-notif-status-text');
@@ -7219,5 +7267,54 @@ document.addEventListener('keydown',e=>{
   }
 });
 </script>
+<!-- TOPBAR PROFILE SHEET -->
+<div id="topbar-profile-sheet" style="display:none;position:fixed;inset:0;z-index:500">
+  <div onclick="closeProfileSheet()" style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(3px)"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px 40px;max-width:480px;margin:0 auto">
+    <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto 18px"></div>
+    <!-- Profile info -->
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--roselt)">
+      <div id="ps-avatar" style="width:54px;height:54px;border-radius:50%;background:var(--goldlt);border:2px solid rgba(184,150,106,.3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0">?</div>
+      <div style="flex:1;min-width:0">
+        <div id="ps-name" style="font-size:15px;font-weight:700;color:var(--ink)">—</div>
+        <div id="ps-email" style="font-size:11px;color:var(--ink2);margin-top:2px">—</div>
+        <button onclick="closeProfileSheet();showEditProfile()" style="margin-top:6px;padding:4px 12px;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:10px;font-weight:600;color:var(--gold);background:none;cursor:pointer;font-family:inherit">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span data-t="editProfileBtn">Редактирай профила</span>
+        </button>
+      </div>
+    </div>
+    <!-- Menu items -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Моето</div>
+    <div onclick="closeProfileSheet();openAccSection('profile-stats-acc')" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-t="profileStats">Моята статистика</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Процедури, харчове, прогрес</div></div>
+    </div>
+    <div onclick="closeProfileSheet();openAccSection('profile-favs-acc')" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-t="profileFavs">★ Любими процедури</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Запазени за бърз достъп</div></div>
+    </div>
+    <div onclick="closeProfileSheet();openAccSection('profile-suggest-acc')" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-t="profileSuggest">Изпрати предложение</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Помогни ни да подобрим GlowTrack</div></div>
+    </div>
+    <!-- Actions -->
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--roselt)">
+      <div onclick="closeProfileSheet();doLogout()" style="text-align:center;padding:10px 0;font-size:13px;font-weight:600;color:#e85d5d;cursor:pointer" data-t="logoutBtn">Изход</div>
+      <div onclick="closeProfileSheet();deleteAccount()" style="text-align:center;padding:6px 0;font-size:11px;color:#c5bdb4;cursor:pointer" data-t="deleteProfileBtn">Изтрий профила</div>
+    </div>
+    <!-- Guest state -->
+    <div id="ps-guest" style="display:none;text-align:center;padding:16px 0">
+      <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px">Влез в акаунта си</div>
+      <button onclick="closeProfileSheet();openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" data-t="signInBtn">Влез / Регистрирай се</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
