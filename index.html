@@ -3997,7 +3997,17 @@ async function renderDiaryCal(){
   // Load cycle days
   let cycleDates={};
   try{
-    const cyc=typeof _lsGet==='function'?(_lsGet('gt_cycle')||{}):JSON.parse(localStorage.getItem('gt_cycle')||'{}');
+    // Try user-specific key first, then fallback to Firestore-synced data
+    let cyc={};
+    try{
+      cyc=(_lsGet('gt_cycle')||{});
+      // If empty, try reading directly with user key
+      if((!cyc.periods||!cyc.periods.length) && window._user){
+        const _uk='gt_cycle_'+window._user.uid;
+        const _raw=localStorage.getItem(_uk);
+        if(_raw) cyc=JSON.parse(_raw)||{};
+      }
+    }catch(e){ cyc={}; }
     // Support both old format (periodDays) and new format (periods:[{start,end}])
     const cycLen = cyc.cycleLength||28;
     if(cyc.periods&&Array.isArray(cyc.periods)){
