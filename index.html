@@ -3989,7 +3989,8 @@ async function renderDiaryCal(){
       if(!n.date) return;
       const ds=n.date.slice(0,10);
       if(!notifDates[ds]) notifDates[ds]=[];
-      notifDates[ds].push({isNotif:true,procName:n.procName||n.procId||'Напомняне',time:n.time||'',color:'#6a8fb8'});
+      const _nColor = n.isCycleReminder ? '#f0a0c0' : (n.type==='booking' ? '#6ab89a' : '#6a8fb8');
+      notifDates[ds].push({isNotif:true,isCycleReminder:n.isCycleReminder||false,procName:n.procName||n.procId||'Напомняне',id:n.id||'',time:n.time||'',color:_nColor});
     });
   }catch(e){}
 
@@ -4083,7 +4084,20 @@ async function renderDiaryCal(){
     const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
     const isSelected=_calSelected===ds;
     const colors=[...new Set(allForDay.map(e=>e.color||'#b8966a'))].slice(0,3);
-    const dots=colors.map(c=>`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${c};flex-shrink:0"></span>`).join('');
+    const dots=allForDay.reduce((acc,e)=>{
+      const col=e.color||'#b8966a';
+      if(acc.seen.has(col)) return acc;
+      acc.seen.add(col);
+      if(acc.arr.length>=3) return acc;
+      // Hollow dot for future cycle reminders, filled for all others
+      const hollow = e.isCycleReminder;
+      if(hollow){
+        acc.arr.push(`<span style="display:block;width:6px;height:6px;border-radius:50%;background:transparent;border:1.5px solid ${col};flex-shrink:0;box-sizing:border-box"></span>`);
+      } else {
+        acc.arr.push(`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0"></span>`);
+      }
+      return acc;
+    },{seen:new Set(),arr:[]}).arr.join('');
     const cls=['dc-day',hasAny?'dc-has':'',isToday?'dc-today':'',isSelected?'dc-sel':''].filter(Boolean).join(' ');
     html+=`<div class="${cls}" onclick="selectCalDay('${ds}')"><span class="dc-num">${day}</span><div class="dc-dots">${dots}</div></div>`;
   }
