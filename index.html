@@ -5857,7 +5857,7 @@ function loadFavsList(){
     if(!p) return '';
     const lp = procL(p);
     return '<div class="proc-row" onclick="openSheet(\''+id+'\')">'+
-      procCircleIcon(lp.name,'#b8966a',42)+
+      (p.img ? '<img src="'+p.img+'" loading="lazy" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="">' : procCircleIcon(lp.name,'#b8966a',42))+
       '<div class="proc-row-info" style="flex:1;min-width:0;overflow:hidden">'+
         '<div class="proc-row-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+lp.name+'</div>'+
         '<div class="proc-row-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+lp.sub+'</div>'+
