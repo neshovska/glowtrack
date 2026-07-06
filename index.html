@@ -5504,6 +5504,30 @@ async function onCycleDayTap(dateStr){
   window._cyclePendingStart = null;
   await _saveCycleData(data);
   if(typeof trackEvent==='function')trackEvent('cycle_logged',{cycle_length:data.cycleLength});
+  // Auto-add reminder for next expected period
+  try{
+    const _cycLen = data.cycleLength||28;
+    const _lastStart = new Date(start+'T12:00:00');
+    const _nextStart = new Date(_lastStart);
+    _nextStart.setDate(_nextStart.getDate()+_cycLen);
+    const _nextDs = _nextStart.toISOString().slice(0,10);
+    const _isBGc = window._lang!=='en';
+    const _notifId = 'cycle_'+_nextDs;
+    const _saved = typeof _lsGet==='function'?(_lsGet('gt_notifs')||[]):[];
+    // Remove old cycle reminders and add new one
+    const _filtered = _saved.filter(n=>!n.id.startsWith('cycle_'));
+    _filtered.push({
+      id:_notifId,
+      procId:'cycle',
+      procName:_isBGc?'Предстоящ менструален цикъл':'Upcoming menstrual cycle',
+      date:_nextDs,
+      time:'09:00',
+      type:'reminder',
+      isCycleReminder:true
+    });
+    if(typeof _lsSet==='function') _lsSet('gt_notifs',_filtered);
+    if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_filtered},{merge:true});}catch(e){} }
+  }catch(e){}
   showToast(window._lang==='en'?'Period logged ✓':'Записано ✓');
   renderCycleTracker();
 }
