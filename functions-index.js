@@ -31,21 +31,20 @@ function getSofiaOffsetHours(date) {
       hour: '2-digit', hour12: false,
     }).formatToParts(date).find(p => p.type === 'hour')?.value || '0'
   );
-  // Handle midnight wraparound
   let diff = sofiaHour - utcHour;
   if (diff < -12) diff += 24;
   if (diff > 12)  diff -= 24;
   return diff; // +2 зимно / +3 лятно
 }
 
-// Пуска се всеки час — проверява чии напомняния са в следващите 60 минути
+// Пуска се на всеки 30 минути — проверява напомняния в следващите 30 минути
 exports.sendScheduledReminders = functions.pubsub
-  .schedule('0 * * * *')
+  .schedule('*/30 * * * *')
   .timeZone('Europe/Sofia')
   .onRun(async () => {
 
     const now = new Date();
-    const windowEnd = new Date(now.getTime() + 60 * 60 * 1000);
+    const windowEnd = new Date(now.getTime() + 30 * 60 * 1000); // +30 минути
 
     const { dateStr: startDateStr, timeStr: startTimeStr } = toSofiaTime(now);
     const { dateStr: endDateStr,   timeStr: endTimeStr   } = toSofiaTime(windowEnd);
@@ -68,7 +67,7 @@ exports.sendScheduledReminders = functions.pubsub
         if (!notif.date || !notif.time) continue;
 
         // Намираме UTC offset за тази дата в Sofia (DST автоматично)
-        const refDate = new Date(notif.date + 'T12:00:00Z'); // обед UTC за offset
+        const refDate = new Date(notif.date + 'T12:00:00Z');
         const offsetHours = getSofiaOffsetHours(refDate);
 
         // Sofia local → UTC
@@ -76,7 +75,7 @@ exports.sendScheduledReminders = functions.pubsub
         const notifUtc = new Date(notif.date + 'T00:00:00Z');
         notifUtc.setUTCHours(hh - offsetHours, mm, 0, 0);
 
-        // Попада ли в следващия час?
+        // Попада ли в следващите 30 минути?
         if (notifUtc < now || notifUtc >= windowEnd) continue;
 
         const isBooking = notif.type === 'booking';
@@ -105,7 +104,7 @@ exports.sendScheduledReminders = functions.pubsub
         });
 
         sentUpdates.push({ userId: userDoc.id, notifId: notif.id });
-        console.log(`Push: ${userDoc.id} — ${notif.procName} на ${notif.date} в ${notif.time} Sofia (UTC+${offsetHours})`);
+        console.log(`Push: ${userDoc.id} — ${notif.procName} на ${notif.date} в ${notif.time} (UTC+${offsetHours})`);
       }
     }
 
@@ -121,7 +120,7 @@ exports.sendScheduledReminders = functions.pubsub
         await userRef.update({ notifs: updated });
       }
     } else {
-      console.log('Няма напомняния за следващия час.');
+      console.log('Няма напомняния за следващите 30 минути.');
     }
 
     return null;
