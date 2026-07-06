@@ -3997,15 +3997,43 @@ async function renderDiaryCal(){
   let cycleDates={};
   try{
     const cyc=typeof _lsGet==='function'?(_lsGet('gt_cycle')||{}):JSON.parse(localStorage.getItem('gt_cycle')||'{}');
-    if(cyc.periodDays&&Array.isArray(cyc.periodDays)){
+    // Support both old format (periodDays) and new format (periods:[{start,end}])
+    const cycLen = cyc.cycleLength||28;
+    if(cyc.periods&&Array.isArray(cyc.periods)){
+      cyc.periods.forEach(period=>{
+        if(!period.start) return;
+        // Fill all days from start to end (or start only if no end)
+        const startD = new Date(period.start+'T12:00:00');
+        const endD = period.end ? new Date(period.end+'T12:00:00') : startD;
+        for(let d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)){
+          const ds=d.toISOString().slice(0,10);
+          cycleDates[ds]=[{isCycle:true,name:isBG?'Менструален цикъл':'Menstrual cycle',color:'#e8a0a0'}];
+        }
+        // Estimate ovulation (~14 days before next period = cycLen-14 days after start)
+        const ovD=new Date(startD);
+        ovD.setDate(ovD.getDate()+cycLen-14);
+        const ovDs=ovD.toISOString().slice(0,10);
+        if(!cycleDates[ovDs]) cycleDates[ovDs]=[];
+        cycleDates[ovDs].push({isCycle:true,isOvulation:true,name:isBG?'Овулация':'Ovulation',color:'#9b7ab8'});
+      });
+    } else if(cyc.periodDays&&Array.isArray(cyc.periodDays)){
+      // Legacy format
       cyc.periodDays.forEach(ds=>{
         cycleDates[ds]=[{isCycle:true,name:isBG?'Менструален цикъл':'Menstrual cycle',color:'#e8a0a0'}];
       });
+      if(cyc.ovulationDay){
+        const ds=cyc.ovulationDay;
+        if(!cycleDates[ds]) cycleDates[ds]=[];
+        cycleDates[ds].push({isCycle:true,isOvulation:true,name:isBG?'Овулация':'Ovulation',color:'#9b7ab8'});
+      }
     }
-    if(cyc.ovulationDay){
-      const ds=cyc.ovulationDay;
-      if(!cycleDates[ds]) cycleDates[ds]=[];
-      cycleDates[ds].push({isCycle:true,isOvulation:true,name:isBG?'Овулация':'Ovulation',color:'#9b7ab8'});
+    // Show symptoms from cyc.symptoms
+    if(cyc.symptoms){
+      Object.entries(cyc.symptoms).forEach(([ds,syms])=>{
+        if(!syms||!syms.length) return;
+        if(!cycleDates[ds]) cycleDates[ds]=[];
+        cycleDates[ds].push({isCycle:true,isSymptom:true,name:isBG?'Симптоми: '+syms.join(', '):'Symptoms: '+syms.join(', '),color:'#c4a0d0'});
+      });
     }
   }catch(e){}
 
