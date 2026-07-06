@@ -3964,7 +3964,43 @@ function diaryCalNext(){
   renderDiaryCal();
 }
 
+function _ensureCycleReminder(){
+  // Creates/updates cycle reminder from existing cycle data if missing
+  try{
+    let cyc = _lsGet('gt_cycle')||{};
+    if((!cyc.periods||!cyc.periods.length) && window._user){
+      try{ const raw=localStorage.getItem('gt_cycle_'+window._user.uid); if(raw) cyc=JSON.parse(raw)||{}; }catch(e){}
+    }
+    if(!cyc.periods||!cyc.periods.length) return;
+    const cycLen = cyc.cycleLength||28;
+    // Get most recent period
+    const sorted = [...cyc.periods].sort((a,b)=>b.start.localeCompare(a.start));
+    const lastStart = sorted[0].start;
+    const nextD = new Date(lastStart+'T12:00:00');
+    nextD.setDate(nextD.getDate()+cycLen);
+    const nextDs = nextD.toISOString().slice(0,10);
+    // Check if reminder already exists for this date
+    const saved = _lsGet('gt_notifs')||[];
+    const hasReminder = saved.some(n=>n.isCycleReminder && n.date===nextDs);
+    if(hasReminder) return;
+    // Add it
+    const isBGc = window._lang!=='en';
+    const filtered = saved.filter(n=>!n.isCycleReminder);
+    filtered.push({
+      id:'cycle_'+nextDs,
+      procId:'cycle',
+      procName:isBGc?'Предстоящ менструален цикъл':'Upcoming menstrual cycle',
+      date:nextDs,
+      time:'09:00',
+      type:'reminder',
+      isCycleReminder:true
+    });
+    _lsSet('gt_notifs', filtered);
+    if(window._user){ try{F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:filtered},{merge:true}).catch(()=>{});}catch(e){} }
+  }catch(e){}
+}
 async function renderDiaryCal(){
+  _ensureCycleReminder();
   const lbl=document.getElementById('diary-cal-month-lbl');
   const grid=document.getElementById('diary-cal-grid');
   const detail=document.getElementById('diary-cal-detail');
