@@ -972,8 +972,14 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
-        <button id="diary-view-list" class="diary-view-btn active" onclick="setDiaryView('list')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-radius:8px 0 0 8px;display:flex;align-items:center;justify-content:center" title="Списък"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-        <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center" title="Календар"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+        <button id="diary-view-list" class="diary-view-btn active" onclick="setDiaryView('list')" style="padding:7px 14px;border:none;cursor:pointer;line-height:1;border-radius:20px 0 0 20px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600" title="Списък">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <span data-t="diaryViewList">Списък</span>
+        </button>
+        <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:7px 14px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 20px 20px 0;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600" title="Календар">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span data-t="diaryViewCal">Календар</span>
+        </button>
       </div>
     </div>
     <div id="diary-list-header" style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
@@ -2097,6 +2103,8 @@ const T = {
     sortName: '🔤 По процедура',
     sortCount: '🔢 По брой',
     diarySearch: 'Намери извършена процедура...',
+    diaryViewList: 'Списък',
+    diaryViewCal: 'Календар',
     notifHint: 'Задай дата за следващо посещение',
     deleteProfileBtn: 'Изтрий профила',
     searchProcs: 'Търси процедура...',
@@ -2329,6 +2337,8 @@ const T = {
     sortName: '🔤 By name',
     sortCount: '🔢 By count',
     diarySearch: 'Find a completed procedure...',
+    diaryViewList: 'List',
+    diaryViewCal: 'Calendar',
     notifHint: 'Set a date for your next visit',
     deleteProfileBtn: 'Delete profile',
     searchProcs: 'Search procedure...',
