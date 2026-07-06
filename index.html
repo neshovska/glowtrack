@@ -1432,8 +1432,6 @@ min-panel" style="display:none;margin-top:20px">
 </div>
 </div>
 
-
-
     <div id="ad
   <div class="page" id="page-privacy">
     <div class="page-hdr">
@@ -1500,7 +1498,6 @@ min-panel" style="display:none;margin-top:20px">
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
   </nav>
 </div>
-
 
 <!-- ONBOARDING MODAL -->
 <div id="onboarding-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(26,26,46,.6);backdrop-filter:blur(8px)">
@@ -1850,7 +1847,6 @@ window.openAuthScreen=function(){
 };
 </script>
 
-
 <script>
 
 // ── PER-USER localStorage helpers ──
@@ -1908,8 +1904,6 @@ async function saveProcRemind(procId,procName){
 function _lsGet(base){ try{return JSON.parse(localStorage.getItem(_lsKey(base))||'null');}catch(e){return null;} }
 function _lsSet(base,val){ try{localStorage.setItem(_lsKey(base),JSON.stringify(val));}catch(e){} }
 function _lsRem(base){ try{localStorage.removeItem(_lsKey(base));}catch(e){} }
-
-
 
 const CATS_LIST=[
   {id:'all',label:'Всички',icon:'◈'},
@@ -2018,7 +2012,6 @@ const PROCS=[
 {id:'derm-rosacea',cat:'cosm',subcat:"Кожни заболявания",icon:'🌹',bg:'#eeeaf8',fg:'#9b8ec4',img:'https://images.pexels.com/photos/5069584/pexels-photo-5069584.jpeg?cs=srgb&fm=jpg&w=800',name:"Розацея — Дерматологично лечение",sub:"Медикаментозно и лазерно лечение на хроничното заболяване",what:"Хронично заболяване с периоди на обостряния. Медикаменти + Nd:YAG/IPL + специална козметика.",devices:['Метронидазол, азелаинова киселина','Nd:YAG / IPL','Fotona Genesis'],zones:'Лице',results:['Намаляване на зачервяване','Контрол на пустулите'],contra:[],before:[['🩺',"Консултация за диагноза"]],after:[['🧴',"Нежни успокояващи продукти"],['☀️',"СТРИКТНА слънцезащита"],['🌡️',"Избягвай тригери (алкохол, лютиви храни, сауна)"]],interval:'Хронично — по план',sessions:'По преценка',reactions:{normal:['Зачервяване 24-48ч след лазер','Минимални реакции при медикаменти'],abnormal:['Обостряне на розацея','Алергична реакция','Хипер/хипопигментация']}},
 ];
 
-
 // ── HELPERS ──
 const BG_M=['яну','фев','мар','апр','май','юни','юли','авг','сеп','окт','ное','дек'];
 const BG_D=['нед','пон','вт','ср','чет','пет','съб'];
@@ -2026,7 +2019,6 @@ function fmtDate(d){const dd=String(d.getDate()).padStart(2,'0'),mm=String(d.get
 function fmtFull(d){return fmtDate(d);}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 const F=()=>window._f;const DB=()=>window._db;const AU=()=>window._auth;
-
 
 // ── i18n ──
 window._lang = localStorage.getItem('gt_lang') || 'bg';
@@ -2590,7 +2582,6 @@ function applyLang(){
   const sp=document.getElementById('proc-search');
   if(sp) sp.placeholder=t('searchProcs');
 
-
   // Advanced filter panel translations
   const isEN = window._lang === 'en';
   const filterLbls = {
@@ -2660,11 +2651,9 @@ async function toggleLang(){
   showToast(t('langSaved'));
 }
 
-
 // ── AUTH ──
 function showAuthError(m){const e=document.getElementById('auth-error');e.textContent=m;e.classList.add('show');}
 function clearAuthError(){document.getElementById('auth-error').classList.remove('show');}
-
 
 // doLogin defined in module
 // doRegister defined in module
@@ -2746,7 +2735,6 @@ function goPage(name,btn){
   }catch(e){}
 }
 window.goPage=goPage;
-
 
 // ── PROCEDURES ──
 window.PROCS=PROCS;
@@ -3329,7 +3317,7 @@ async function openSheet(id){
         return acc(`${clockSvg}${isBGr?'Напомни ми за процедурата':'Remind me about the procedure'}`, body, false, true);
       })()}
 
-      <!-- BUTTON 1: New entry -->
+      
       <button onclick="toggleNewEntry()" id="new-entry-btn" style="width:100%;margin-top:10px;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.1),rgba(212,169,106,.08));border:1.5px solid var(--gold);border-radius:14px;color:var(--gold);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;letter-spacing:.02em">
         ✦ ${t('newEntry')} ${fmtDate(new Date())}
       </button>
@@ -3395,7 +3383,7 @@ async function openSheet(id){
         </div>
       </div>
 
-      <!-- BUTTON 2: History (only if entries exist) -->
+      
       ${entries.length?`
       <button onclick="toggleProcHistory('${id}')" id="proc-history-btn" style="width:100%;margin-top:8px;padding:12px;background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;color:var(--ink2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">
         📋 <span id="proc-history-lbl">${window._lang==='en'?'Show history ('+entries.length+' entries)':'Покажи история ('+entries.length+' записа)'}</span>
@@ -4444,7 +4432,6 @@ function showCalDetailV2(entries,dateStr){
   detail.innerHTML=html;
 }
 
-
 function buildEntryBody(dd,eid,pid,isBG){
   let b='';
   if(dd.clinic||dd.specialist) b+=`<div style="font-size:12px;margin-bottom:6px"><span style="font-size:10px;font-weight:700;color:var(--gold)">${isBG?'Κлиника':'Clinic'}</span><br>${[dd.clinic,dd.specialist].filter(Boolean).join(' · ')}</div>`;
@@ -4705,7 +4692,6 @@ async function loadDiaryTab(){
   }
 }
 
-
 function openDiaryFab(){
   // Show procedure picker modal for quick entry
   const isBG = window._lang !== 'en';
@@ -4839,7 +4825,6 @@ function toggleGroup(id){
   const arr=document.getElementById('arr-'+id);
   if(arr)arr.style.transform=isOpen?'':'rotate(180deg)';
 }
-
 
 // ── CLINICS TAB ──
 let allClinics=[];
@@ -5014,7 +4999,6 @@ async function deleteAdminItem(col,id){
 function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('open');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
 
-
 // ── AI CHAT ──
 let _aiProcId=null,_aiProcName='',_aiHistory=[];
 const AI_SUGGESTIONS={
@@ -5138,7 +5122,6 @@ async function loadAdminInbox(){
   }catch(e){document.getElementById('admin-inbox-list').innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
 }
 
-
 // ── FORGOT PASSWORD ──
 function showForgotPassword(){
   document.getElementById('forgot-modal').style.display='flex';
@@ -5166,7 +5149,6 @@ async function sendPasswordReset(){
   }
 }
 
-
 // ── ACCORDION ──
 function toggleEntryCard(id){
   const body = document.getElementById('body-'+id.replace('ec-',''));
@@ -5190,7 +5172,6 @@ function toggleAcc(el){
   }
 }
 
-
 // ── PREMIUM ──
 function showPremiumMsg(){
   const msg = window._lang==='en'
@@ -5198,7 +5179,6 @@ function showPremiumMsg(){
     : '✦ AI Асистентът е Premium функция\nСкоро достъпно — очаквайте!';
   showToast(msg, 3000);
 }
-
 
 // ── SPLASH ──
 window.addEventListener('load', () => {
@@ -5862,7 +5842,6 @@ function renderCycleTrackerCard(){
   }
 }
 
-
 function loadProfileStats(){
   if(!window._user) return;
   renderSkinTestCard();
@@ -5959,7 +5938,6 @@ function loadProfileStats(){
   }
 }
 
-
 // ── CUSTOM ROUTINE ──
 function addCustomRoutine(){
   const inp = document.getElementById('custom-routine-input');
@@ -6008,7 +5986,6 @@ function deleteCustomRoutine(id){
   localStorage.setItem('gt_custom_routine', JSON.stringify(customs.filter(c=>c.id!==id)));
   renderCustomRoutine();
 }
-
 
 // ── FAVORITES ──
 function getFavs(){ return _lsGet('gt_favs')||[]; }
@@ -6068,7 +6045,6 @@ function loadFavsList(){
   }).join('');
 }
 
-
 function updateFavsStat(){
   const el = document.getElementById('stat-favs');
   const count = getFavs().length;
@@ -6106,7 +6082,6 @@ function deleteNotif(id){
   loadNotifsPage();
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
 }
-
 
 // ── FAV FROM LIST ──
 function toggleFavFromList(procId, btn){
@@ -6180,7 +6155,6 @@ document.addEventListener('click', e=>{
 
 // Update saveNotifDate to use text of search input
 
-
 // ── IN-APP REMINDERS ──
 function checkReminders(){
   const notifs = _lsGet('gt_notifs')||[];
@@ -6230,7 +6204,6 @@ function checkReminders(){
   const _allN = _lsGet('gt_notifs')||[];
   updateNotifBadge(_allN.filter(n=>new Date(n.date)>=new Date()).length);
 }
-
 
 // ── ROUTINE STREAK ──
 async function updateRoutineStreak(checked, today){
@@ -6294,7 +6267,6 @@ async function updateRoutineStreak(checked, today){
   }
 }
 
-
 function removeFavFromList(procId){
   const favs = getFavs().filter(f=>f!==procId);
   saveFavs(favs);
@@ -6305,7 +6277,6 @@ function removeFavFromList(procId){
   if(btn) btn.textContent = '☆';
   showToast(t('toastFavRem'));
 }
-
 
 // ── EDIT NOTIF ──
 function editNotif(id){
@@ -6379,7 +6350,6 @@ function selectEditNotifProc(id, name){
   document.getElementById('edit-notif-dropdown').style.display = 'none';
 }
 
-
 // ── NOTIFICATIONS PAGE ──
 function loadNotifsPage(){
   const content = document.getElementById('notifs-page-content');
@@ -6397,9 +6367,9 @@ function loadNotifsPage(){
   const sorted = [...notifs].sort((a,b)=>getNotifTime(a)-getNotifTime(b));
 
   // Split into 3 groups
-  const reminders = sorted.filter(n=>getNotifTime(n)>=now && n.type!=='booking');
-  const bookings  = sorted.filter(n=>getNotifTime(n)>=now && n.type==='booking');
-  const past      = sorted.filter(n=>getNotifTime(n)<now);
+  const reminders = sorted.filter(n=>getNotifTime(n)>=now && n.type!=='booking' && !n.isCycleReminder);
+  const bookings  = sorted.filter(n=>getNotifTime(n)>=now && n.type==='booking' && !n.isCycleReminder);
+  const past      = sorted.filter(n=>getNotifTime(n)<now && !n.isCycleReminder);
 
   updateNotifBadge(reminders.length + bookings.length);
 
@@ -6591,7 +6561,6 @@ function closeComingSoon(){
   if(el) el.style.display='none';
 }
 
-
 // ── ДОМАШНА ГРИЖА ──
 function loadHomeCare(){
   const today = new Date().toDateString();
@@ -6711,7 +6680,6 @@ function updateCareStreak(type, checked, today){
   }
 }
 
-
 // ── DIARY DRAG & DROP ──
 let _dragSrc = null;
 
@@ -6756,7 +6724,6 @@ function diaryDragEnd(e){
   _dragSrc = null;
 }
 
-
 // ── DIARY ORDER ──
 function moveDiaryGroup(pid, dir){
   const list = document.getElementById('diary-sortable');
@@ -6779,7 +6746,6 @@ function moveDiaryGroup(pid, dir){
   if(typeof _syncDiaryOrder==='function')_syncDiaryOrder(newOrder);
   showToast(t('toastLineSaved'));
 }
-
 
 // ── ROUTINE EDIT HELPERS ──
 function addEECustomStep(eid, type){
@@ -6810,7 +6776,6 @@ async function saveRoutineEdit(eid, procId, type){
     loadDiaryTab();
   }catch(e){showToast(t('toastErrUpd'));}
 }
-
 
 function toggleProcHistory(procId){
   const list = document.getElementById('proc-history-list');
@@ -6846,7 +6811,6 @@ function toggleNewEntry(){
   if(!isOpen) form.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-
 function deleteNotifFromPage(id){
   const saved = (_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
   _lsSet('gt_notifs', saved);
@@ -6855,7 +6819,6 @@ function deleteNotifFromPage(id){
   loadNotifsPage();
   showToast(t('toastNotifDel'));
 }
-
 
 // ── DIARY FILTER ──
 function filterDiary(){
@@ -7037,7 +7000,6 @@ async function loadAdminStats(){
   }catch(e){ statsEl.innerHTML = '<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>'; }
 }
 
-
 // ── SHARE PROCEDURE ──
 function shareProc(){
   const title = document.getElementById('sh-title')?.textContent || 'GlowTrack';
@@ -7113,7 +7075,6 @@ function suggestReminder(lastDate, minDays, maxDays){
 }
 
 // ── SAVE PRICE & RATING with diary entry ──
-
 
 // ── DARK MODE ──
 function toggleDarkMode(){
