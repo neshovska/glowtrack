@@ -3167,8 +3167,14 @@ function renderProcs(){
         renderCats();
         renderProcs();
       }
-      // Ensure proc page is active and scrolled to top
-      if(typeof goPage==='function') goPage('procs');
+      // Restore last visited page or default to procs
+      const _savedPage = localStorage.getItem('gt_last_page');
+      const _validPages = ['procs','diary','notifs','profile','soon'];
+      if(_savedPage && _validPages.includes(_savedPage) && typeof goPage==='function'){
+        goPage(_savedPage);
+      } else if(typeof goPage==='function'){
+        goPage('procs');
+      }
       setTimeout(()=>{ window.scrollTo(0,0); document.querySelector('.page.active')?.scrollTo(0,0); }, 100);
     }catch(e){console.error('Render error:',e);}
   };
