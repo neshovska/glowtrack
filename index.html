@@ -671,6 +671,10 @@ body.dark #adv-filter-bs{background:#12122a!important}
 body.dark .diary-entry-row{background:#1a1a2e}
 body.dark #diary-search{background:#12122a!important;color:#f0ede8!important}
 body.dark #page-diary [style*="position:sticky"]{background:var(--mist)!important}
+body.dark #soon-hero{background:#000!important}
+body.dark #soon-hero [style*="color:#1a1a2e"]{color:#f0ede8!important}
+body.dark #soon-hero [style*="color:rgba(26,26,46,.6)"]{color:rgba(240,237,232,.5)!important}
+body.dark #soon-hero [style*="color:rgba(26,26,46,.5)"]{color:rgba(212,169,106,.65)!important}
 
 .dsort-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--ink2);white-space:nowrap}
 .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold);border-width:2px;font-weight:700}
@@ -1409,35 +1413,82 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <nav class="bnav" role="navigation" aria-label="Главна навигация">
     <button class="nb active" onclick="goPage('procs',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 22V12"/><path d="M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/><path d="M12 12C12 12 8 8 5 10s1 8 7 10"/><path d="M12 12C12 12 16 8 19 10s-1 8-7 10"/></svg></span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
-    <button class="nb nb-soon" onclick="showComingSoonSheet()" style="opacity:.4;cursor:default"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="#c5bdb4" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="#c5bdb4" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="#c5bdb4" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
+    <button class="nb" onclick="goPage('soon',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="var(--gold)" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="var(--gold)" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
     <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
   </nav>
 </div>
-<!-- COMING SOON SHEET -->
-<div id="coming-soon-overlay" style="display:none;position:fixed;inset:0;z-index:250;align-items:flex-end">
-  <div style="position:absolute;inset:0;background:rgba(26,26,46,.4);backdrop-filter:blur(4px)" onclick="closeComingSoon()"></div>
-  <div style="position:relative;background:var(--card);border-radius:24px 24px 0 0;padding:20px 0 32px;width:100%;box-shadow:0 -8px 32px rgba(26,26,46,.15)">
-    <div style="width:36px;height:4px;background:#e8e4de;border-radius:2px;margin:0 auto 20px"></div>
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)" id="cs-title">Очаквайте скоро</div>
-    </div>
-    <div style="display:flex;gap:12px;padding:0 18px">
-      <div style="flex:1;background:#faf8f5;border-radius:16px;padding:20px 14px;text-align:center;border:1px solid var(--goldlt)">
-        <div style="font-size:32px;margin-bottom:8px">🏥</div>
-        <div style="font-size:13px;font-weight:700;color:var(--ink1);margin-bottom:4px" id="cs-clinics-lbl">Клиники</div>
-        <div style="font-size:11px;color:var(--ink2)" id="cs-clinics-sub">Партньорски клиники</div>
-        <div style="margin-top:10px;background:var(--gold);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;display:inline-block">Скоро</div>
+<!-- COMING SOON PAGE -->
+<div class="page" id="page-soon">
+  <div class="page-hdr">
+    <div class="page-hdr-title" id="soon-page-title">Очак<em style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic">вайте</em></div>
+    <div class="page-hdr-sub" style="text-transform:uppercase;letter-spacing:.07em;font-size:11px">Скоро в GlowTrack</div>
+  </div>
+  <div style="padding:0 16px 24px">
+    <!-- Hero -->
+    <div id="soon-hero" style="background:linear-gradient(135deg,#c9a87a,#e8c99a,#b8966a);border-radius:20px;padding:26px 22px;text-align:center;margin-bottom:16px">
+      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(26,26,46,.65)" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       </div>
-      <div style="flex:1;background:#faf8f5;border-radius:16px;padding:20px 14px;text-align:center;border:1px solid var(--goldlt)">
-        <div style="font-size:32px;margin-bottom:8px">🧴</div>
-        <div style="font-size:13px;font-weight:700;color:var(--ink1);margin-bottom:4px" id="cs-products-lbl">Продукти</div>
-        <div style="font-size:11px;color:var(--ink2)" id="cs-products-sub">Препоръчани продукти</div>
-        <div style="margin-top:10px;background:var(--gold);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;display:inline-block">Скоро</div>
-      </div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,26,46,.5);margin-bottom:6px">GLOWTRACK PARTNERS</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e;line-height:1.25;margin-bottom:10px">Твоят glow,<br>твоите партньори</div>
+      <div style="font-size:12px;color:rgba(26,26,46,.6);line-height:1.75">Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.</div>
     </div>
-    <div style="text-align:center;margin-top:18px">
-      <button onclick="closeComingSoon()" style="background:none;border:1px solid var(--goldlt);border-radius:20px;padding:8px 24px;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px">Затвори</button>
+    <!-- Клиники -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Клиники партньори</div>
+    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">Верифицирани клиники</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Намери клиника близо до теб, специализирана в процедурите които следиш</div>
+      </div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+    </div>
+    <!-- Брандове -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Козметични брандове</div>
+    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">Препоръчани продукти</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа</div>
+      </div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+    </div>
+    <!-- Промо -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Промоции и отстъпки</div>
+    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">Ексклузивни промо кодове</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Отстъпки от партньорски клиники и брандове, достъпни само за потребители на GlowTrack</div>
+      </div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+    </div>
+    <!-- Препоръки -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Персонализирани препоръки</div>
+    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:16px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
+      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink)">Базирано на твоята история</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Препоръки за следваща процедура, продукт или клиника според твоя дневник</div>
+      </div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+    </div>
+    <!-- CTA -->
+    <div style="background:var(--card);border-radius:16px;padding:18px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
+      <div style="flex:1;font-size:12px;color:var(--ink2);line-height:1.6">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">Искаш да станеш партньор?</div>
+        Клиники и брандове — свържете се с нас
+      </div>
+      <button onclick="window.location.href='mailto:info@glowtrack.eu'" style="flex-shrink:0;padding:8px 14px;background:var(--gold);color:#fff;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Пишете ни</button>
     </div>
   </div>
 </div>
@@ -2650,6 +2701,7 @@ function goPage(name,btn){
   try{localStorage.setItem('gt_last_page',name);}catch(e){}
   try{
     if(name==='diary')loadDiaryTab();
+    if(name==='soon') setTimeout(_syncDiaryBtns,0);
     if(name==='notifs'){loadNotifsPage();if(typeof updatePushToggleUI==='function')updatePushToggleUI();if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();}
     if(name==='profile'){
       if(!window._authReady){
