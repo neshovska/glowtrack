@@ -4513,7 +4513,7 @@ function filterDiaryYear(year,el){
 async function loadDiaryTab(){
   const el=document.getElementById('diary-tab-content');
   if(!window._user){
-    const _hcsg=document.getElementById('procs-homecare-section');if(_hcsg)_hcsg.style.display='none';
+    // homecare moved to procs tab
     el.innerHTML=`<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">${window._lang==='en'?'Sign in':'Влез в акаунта си'}</div><div class="empty-sub">${window._lang==='en'?'To see your personal diary':'За да виждаш личния си дневник'}</div><button onclick="openAuthScreen()" style="margin-top:14px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button></div>`;
     return;
   }
@@ -4575,7 +4575,7 @@ async function loadDiaryTab(){
     if(_sbe) _sbe.style.display='flex';
     const yearRow=document.getElementById('diary-year-row');
     if(statsRow){
-      document.getElementById('dst-spent').textContent=(totalSpent>0?totalSpent.toFixed(0)+'€':'—');
+      // stats row removed
     }
     // Sort buttons already rendered above — just apply current sort mode after DOM ready
 
