@@ -10,7 +10,6 @@
 <meta name="theme-color" content="#1a1a2e">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<meta name="version" content="202607062048">
 <meta http-equiv="Expires" content="0">
 <meta name="description" content="GlowTrack — твоята лична beauty енциклопедия. 80+ козметични процедури, личен дневник, напомняния и домашна грижа.">
 <meta property="og:title" content="GlowTrack · Know your glow.">
@@ -751,23 +750,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="banner-multi" style="display:none"></div>
   </div>
 </div>
-  <div class="topbar"><div class="topbar-inner" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 8px">
-  <!-- LEFT: Profile button -->
-  <button id="topbar-profile-btn" onclick="openProfileSheet()" style="display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;min-width:80px">
-    <div id="topbar-avatar" style="width:26px;height:26px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">?</div>
-    <span style="font-size:11px;font-weight:700;color:var(--gold)" data-t="profileBtn">Профил</span>
-  </button>
-  <!-- CENTER: Logo -->
-  <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
-    <div class="logo">Glow<span>Track</span></div>
-    <div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div>
-  </div>
-  <!-- RIGHT: Theme + Lang -->
-  <div style="display:flex;align-items:center;gap:6px">
-    <button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer;line-height:1;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
-    <button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button>
-  </div>
-</div><div id="topbar-right" style="display:none"></div></div>
+  <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none;position:absolute;left:14px;top:50%;transform:translateY(-50%)"></div></div>
   <div class="page active" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
@@ -982,7 +965,57 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button onclick="advApplyFilters()" style="width:100%;padding:13px;border-radius:13px;border:none;background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" id="adv-apply-btn">Покажи резултатите</button>
       </div>
     </div>
-    <div id="procs-homecare-section" style="padding:0 16px 8px">
+    <div class="proc-list" id="proc-list"></div>
+    <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
+  </div>
+  <div class="page" id="page-diary">
+    <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
+      <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
+        <button id="diary-view-list" class="diary-view-btn active" onclick="setDiaryView('list')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-radius:8px 0 0 8px;display:flex;align-items:center;justify-content:center" title="Списък"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center" title="Календар"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+      </div>
+    </div>
+    <div id="diary-list-header" style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
+      <div style="position:relative;margin-bottom:8px">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--ink2);z-index:1">🔍</span>
+        <input type="text" id="diary-search" class="search-input"
+          placeholder="Намери извършена процедура..."
+          data-ph="diarySearch"
+          oninput="filterDiaryGroups(this.value)"
+          style="font-size:16px;padding-left:36px;padding-right:36px;width:100%;box-sizing:border-box">
+        <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')"
+          style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px">✕</button>
+      </div>
+      <!-- Stats row -->
+      <div class="dv2-stats" id="diary-stats-row" style="display:none">
+        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-procs">0</div><div class="dv2-stat-lbl" data-t="dstProcs">Процедури</div></div>
+        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-entries">0</div><div class="dv2-stat-lbl" data-t="dstEntries">Записа</div></div>
+        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-spent">0€</div><div class="dv2-stat-lbl" data-t="dstSpent">Инвестирано</div></div>
+      </div>
+      <!-- Year filter -->
+      <div class="dv2-year-row" id="diary-year-row" style="display:none">
+        <div class="dv2-year-chip active" onclick="filterDiaryYear('all',this)" data-t="yearAll">Всички</div>
+      </div>
+      <!-- Sort buttons — static HTML, never re-rendered -->
+      <div id="diary-sort-btns" style="display:none;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
+        <button id="dsort-default" class="dsort-btn dsort-active" onclick="sortDiary('default')" data-t-sort="По дата">По дата</button>
+        <button id="dsort-name" class="dsort-btn" onclick="sortDiary('name')" data-t-sort="По азбука">По азбука</button>
+        <button id="dsort-count" class="dsort-btn" onclick="sortDiary('count')" data-t-sort="По брой">По брой</button>
+        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t-sort="Ръчно">↕ Ръчно</button>
+      </div>
+    </div>
+    <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <button onclick="diaryCalPrev()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">‹</button>
+        <span id="diary-cal-month-lbl" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink)"></span>
+        <button onclick="diaryCalNext()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">›</button>
+      </div>
+      <div id="diary-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px"></div>
+      <div id="diary-cal-detail" style="display:none"></div>
+    </div>
+    <!-- HOME CARE DROPDOWNS — inline panels below buttons -->
+    <div id="diary-homecare-section" style="padding:0 16px 0;display:none">
       <div style="display:flex;gap:8px;margin-bottom:8px">
         <button onclick="toggleCarePanel('morning')" id="morning-btn"
           style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(184,150,106,.35);background:var(--card);font-family:inherit;font-size:13px;font-weight:700;color:var(--gold);cursor:pointer">
@@ -1032,62 +1065,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
       </div>
     </div>
-    <div class="proc-list" id="proc-list"></div>
-    <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
-  </div>
-  <div class="page" id="page-diary">
-    <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
-      <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
-      <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
-        <button id="diary-view-list" class="diary-view-btn active" onclick="setDiaryView('list')" style="padding:7px 14px;border:none;cursor:pointer;line-height:1;border-radius:20px 0 0 20px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600" title="Списък">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          <span data-t="diaryViewList">Списък</span>
-        </button>
-        <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:7px 14px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 20px 20px 0;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600" title="Календар">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span data-t="diaryViewCal">Календар</span>
-        </button>
-      </div>
-    </div>
-    <div id="diary-list-header" style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
-      <!-- Stats row — compact, above search -->
-
-      <!-- Search — above sort -->
-      <div style="position:relative;margin-bottom:8px">
-        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;color:var(--ink2);z-index:1">🔍</span>
-        <input type="text" id="diary-search" class="search-input"
-          placeholder="Намери извършена процедура..."
-          data-ph="diarySearch"
-          oninput="filterDiaryGroups(this.value)"
-          onchange="filterDiaryGroups(this.value)" onkeyup="filterDiaryGroups(this.value)"
-          onfocus="hideSuggestions()" autocomplete="off"
-          style="font-size:16px;padding-left:36px;padding-right:36px;width:100%;box-sizing:border-box">
-        <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')"
-          style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px">✕</button>
-      </div>
-      <!-- Year row hidden -->
-      <div class="dv2-year-row" id="diary-year-row" style="display:none">
-        <div class="dv2-year-chip active" onclick="filterDiaryYear('all',this)" data-t="yearAll">Всички</div>
-      </div>
-      <!-- Sort buttons — Всички + sort on one row -->
-      <div id="diary-sort-btns" style="display:none;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
-        <button id="dsort-default" class="dsort-btn dsort-active" onclick="sortDiary('default')" data-t-sort="По дата">По дата</button>
-        <button id="dsort-name" class="dsort-btn" onclick="sortDiary('name')" data-t-sort="По азбука">По азбука</button>
-        <button id="dsort-count" class="dsort-btn" onclick="sortDiary('count')" data-t-sort="По брой">По брой</button>
-        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t-sort="Ръчно">↕ Ръчно</button>
-      </div>
-    </div>
-    <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <button onclick="diaryCalPrev()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">‹</button>
-        <span id="diary-cal-month-lbl" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink)"></span>
-        <button onclick="diaryCalNext()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">›</button>
-      </div>
-      <div id="diary-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px"></div>
-      <div id="diary-cal-detail" style="display:none"></div>
-    </div>
-    <!-- HOME CARE DROPDOWNS — inline panels below buttons -->
-    
     <div id="diary-tab-content"><div class="skeleton-wrap">
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div><div class="skeleton-item sk-row short"></div></div>
   <div class="sk-card"><div class="skeleton-item sk-row wide"></div><div class="skeleton-item sk-row medium"></div></div>
@@ -1166,50 +1143,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </div></div>
   </div>
   <div class="page" id="page-profile">
-    <div class="page-hdr">
-      <div class="page-hdr-title">Начало</div>
-      <div class="page-hdr-sub">Скоро тук ще намериш своето персонализирано табло</div>
-    </div>
-  </div>
-    <div style="padding:0 16px 24px">
-      <!-- Welcome card -->
-      <div id="home-welcome-card" style="background:linear-gradient(135deg,#c9a87a,#e8c99a,#b8966a);border-radius:20px;padding:22px 20px;margin-bottom:16px;text-align:center">
-        <div id="home-avatar-big" style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e">?</div>
-        <div id="home-name" style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#1a1a2e;margin-bottom:4px">Влез в акаунта си</div>
-        <div id="home-email" style="font-size:11px;color:rgba(26,26,46,.55)"></div>
-        <button id="home-auth-btn" onclick="openAuthScreen()" style="margin-top:12px;padding:8px 22px;background:rgba(26,26,46,.15);border:none;border-radius:20px;font-size:12px;font-weight:700;color:#1a1a2e;cursor:pointer;font-family:inherit">Влез / Регистрирай се</button>
-        <button id="home-edit-btn" onclick="openProfileSheet();setTimeout(()=>{closeProfileSheet();showEditProfile();},100)" style="display:none;margin-top:12px;padding:8px 22px;background:rgba(26,26,46,.15);border:none;border-radius:20px;font-size:12px;font-weight:700;color:#1a1a2e;cursor:pointer;font-family:inherit">✎ Редактирай профила</button>
-      </div>
-      <!-- Quick actions -->
-      <div id="home-actions" style="display:none">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Моето</div>
-        <div onclick="openStatsPanel()" style="background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 6px rgba(26,26,46,.06)">
-          <div style="width:40px;height:40px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Моята статистика</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Процедури, харчове, прогрес</div></div>
-          <div style="margin-left:auto;color:var(--ink2)">›</div>
-        </div>
-        <div onclick="openFavsPanel()" style="background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 6px rgba(26,26,46,.06)">
-          <div style="width:40px;height:40px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          </div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--ink)">★ Любими процедури</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Запазени за бърз достъп</div></div>
-          <div style="margin-left:auto;color:var(--ink2)">›</div>
-        </div>
-        <div onclick="openSuggestPanel()" style="background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;box-shadow:0 1px 6px rgba(26,26,46,.06)">
-          <div style="width:40px;height:40px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Изпрати предложение</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Помогни ни да подобрим GlowTrack</div></div>
-          <div style="margin-left:auto;color:var(--ink2)">›</div>
-        </div>
-        <div style="border-top:1px solid var(--roselt);padding-top:12px">
-          <div onclick="doLogout()" style="text-align:center;padding:10px;font-size:13px;font-weight:600;color:#e85d5d;cursor:pointer">Изход</div>
-          <div onclick="deleteAccount()" style="text-align:center;padding:6px;font-size:11px;color:#c5bdb4;cursor:pointer">Изтрий профила</div>
-        </div>
-      </div>
-    </div>
+    <div class="page-hdr" style="display:none"><div class="page-hdr-title"></div></div>
     <div class="profile-card">
   <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:80px;margin:0 auto 12px">
     <div style="width:76px;display:flex;justify-content:flex-end;align-items:center;gap:2px">
@@ -1338,13 +1272,60 @@ min-panel" style="display:none;margin-top:20px">
     <div id="client-profile-sections">
 
       <!-- FAVORITES ACCORDION -->
-      
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div id="favs-list" style="margin-top:8px">
+            <div style="font-size:12px;color:var(--ink2)">Натисни ★ на процедура за да я запазиш</div>
+          </div>
+        </div>
+      </div>
 
       <!-- STATS ACCORDION -->
-      
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileStats"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M4 20V10M12 20V4M20 20v-6"/></svg> Моята статистика</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="color:var(--gold)"><svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-spend" style="font-size:16px">—</div><div class="stat-lbl" data-t="statSpend">Похарчени €</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-rating" style="font-size:16px">—</div><div class="stat-lbl" data-t="statRating">Средна оценка</div></div>
+          </div>
+          <button onclick="exportDiaryCSV()" style="width:100%;margin-top:10px;padding:8px;background:none;border:1.5px solid rgba(184,150,106,.3);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span data-t="exportCSV">Експортирай дневника (CSV)</span>
+          </button>
+          <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none">
+            <span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span>
+          </div>
+        </div>
+      </div>
 
       <!-- FEEDBACK ACCORDION -->
-      
+      <div class="acc-section profile-card-section" id="client-feedback-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileSuggest"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Изпрати предложение</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+        <div style="font-size:11px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Идея, корекция или нова функция — споделяй!</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="fb-type-btn active" data-type="idea" onclick="setFbType(this,'idea')">💡 Идея</button>
+          <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
+          <button class="fb-type-btn" data-type="content" onclick="setFbType(this,'content')">📝 Съдържание</button>
+        </div>
+        <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." data-ph="suggestionPh" rows="3" style="font-size:16px"></textarea>
+        <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()" data-t="sendBtn">Изпрати ✦</button>
+        </div>
+      </div>
     </div>
 
     <!-- ADMIN INBOX - only visible to admin -->
@@ -1374,73 +1355,6 @@ min-panel" style="display:none;margin-top:20px">
   <div class="page-hdr">
     <div class="page-hdr-title" id="soon-page-title">Очак<em style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic">вайте</em></div>
     <div class="page-hdr-sub" style="text-transform:uppercase;letter-spacing:.07em;font-size:11px">Скоро в GlowTrack</div>
-  </div>
-  <div style="padding:0 16px 24px">
-    <!-- Hero -->
-    <div id="soon-hero" style="background:linear-gradient(135deg,#c9a87a,#e8c99a,#b8966a);border-radius:20px;padding:26px 22px;text-align:center;margin-bottom:16px">
-      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(26,26,46,.65)" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      </div>
-      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,26,46,.5);margin-bottom:6px">GLOWTRACK PARTNERS</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e;line-height:1.25;margin-bottom:10px">Твоят glow,<br>твоите партньори</div>
-      <div style="font-size:12px;color:rgba(26,26,46,.6);line-height:1.75">Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.</div>
-    </div>
-    <!-- Клиники -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Клиники партньори</div>
-    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
-      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/></svg>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Верифицирани клиники</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Намери клиника близо до теб, специализирана в процедурите които следиш</div>
-      </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
-    </div>
-    <!-- Брандове -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Козметични брандове</div>
-    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
-      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Препоръчани продукти</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа</div>
-      </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
-    </div>
-    <!-- Промо -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Промоции и отстъпки</div>
-    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
-      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Ексклузивни промо кодове</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Отстъпки от партньорски клиники и брандове, достъпни само за потребители на GlowTrack</div>
-      </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
-    </div>
-    <!-- Препоръки -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Персонализирани препоръки</div>
-    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:16px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
-      <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Базирано на твоята история</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Препоръки за следваща процедура, продукт или клиника според твоя дневник</div>
-      </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
-    </div>
-    <!-- CTA -->
-    <div style="background:var(--card);border-radius:16px;padding:18px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
-      <div style="flex:1;font-size:12px;color:var(--ink2);line-height:1.6">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">Искаш да станеш партньор?</div>
-        Клиники и брандове — свържете се с нас
-      </div>
-      <button onclick="window.location.href='mailto:info@glowtrack.eu'" style="flex-shrink:0;padding:8px 14px;background:var(--gold);color:#fff;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Пишете ни</button>
-    </div>
   </div>
   <div style="padding:0 16px 24px">
     <!-- Hero -->
@@ -1577,7 +1491,7 @@ min-panel" style="display:none;margin-top:20px">
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
     <button class="nb" onclick="goPage('soon',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="var(--gold)" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="var(--gold)" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
-    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Начало</span></button>
+    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
   </nav>
 </div>
 
@@ -1824,7 +1738,6 @@ onAuthStateChanged(auth,async user=>{
     // thinking the first attempt hadn't worked.
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.add('show');
-
     if(document.activeElement) document.activeElement.blur();
     window.scrollTo({top:0,left:0,behavior:'instant'});
     document.documentElement.scrollTop=0;
@@ -1840,16 +1753,14 @@ onAuthStateChanged(auth,async user=>{
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
     setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
     setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
-    // Update topbar avatar
-    const _tav=document.getElementById('topbar-avatar');
-    const _name=user.displayName||user.email.split('@')[0]||'';
-    const _parts=_name.trim().split(/\s+/);
-    const _ini=((_parts[0]?_parts[0][0]:'')+(_parts.length>1&&_parts[_parts.length-1]?_parts[_parts.length-1][0]:'')).toUpperCase()||'?';
-    const _iniUp=_ini;
-    if(_tav) _tav.textContent=_ini;
-
+    document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
+    document.getElementById('prof-email').textContent=user.email;
     document.getElementById('topbar-right').textContent='';
     document.getElementById('topbar-right').style.display='none';
+    const _name=user.displayName||user.email.split('@')[0]||'';
+    const _parts=_name.trim().split(/\s+/);
+    const _ini=(_parts[0]?_parts[0][0]:'')+((_parts.length>1&&_parts[_parts.length-1])?_parts[_parts.length-1][0]:'');
+    const _iniUp=_ini.toUpperCase();
     const _navSvg=document.getElementById('nav-avatar');const _profSvg=document.getElementById('profile-av-wrap');
     if(_navSvg)_navSvg.textContent=_iniUp;if(_profSvg)_profSvg.textContent=_iniUp;
     const _navBtn=document.getElementById('nav-profile-btn');
@@ -1897,7 +1808,7 @@ onAuthStateChanged(auth,async user=>{
     if(typeof applyLang==='function')applyLang();else window._pendingLang=true;
     if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll&&uSnapAll.exists()?uSnapAll.data():null);
     if(typeof loadHomeCare==='function')loadHomeCare();
-    const _hcs2=document.getElementById('procs-homecare-section');if(_hcs2)_hcs2.style.display='block';
+    const _hcs2=document.getElementById('diary-homecare-section');if(_hcs2)_hcs2.style.display='block';
   }else{
     window._user=null;
     window._lastUserId=null;
@@ -2135,9 +2046,8 @@ const T = {
     navDiary: 'Дневник',
     navClinics: 'Клиники',
     navProducts: 'Продукти',
-    navProfile: 'Начало',
+    navProfile: 'Профил',
     navSoon: 'Очаквайте',
-    profileBtn: 'Профил',
     navNotifs: 'Напомняне',
     notifsTitle: 'Напомняне',
     noReminders: 'Все още няма напомняния',
@@ -2187,8 +2097,6 @@ const T = {
     sortName: '🔤 По процедура',
     sortCount: '🔢 По брой',
     diarySearch: 'Намери извършена процедура...',
-    diaryViewList: 'Списък',
-    diaryViewCal: 'Календар',
     notifHint: 'Задай дата за следващо посещение',
     deleteProfileBtn: 'Изтрий профила',
     searchProcs: 'Търси процедура...',
@@ -2371,9 +2279,8 @@ const T = {
     navDiary: 'Diary',
     navClinics: 'Clinics',
     navProducts: 'Products',
-    navProfile: 'Home',
+    navProfile: 'Profile',
     navSoon: 'Coming soon',
-    profileBtn: 'Profile',
     navNotifs: 'Reminders',
     notifsTitle: 'Reminders',
     noReminders: 'No reminders yet',
@@ -2422,8 +2329,6 @@ const T = {
     sortName: '🔤 By name',
     sortCount: '🔢 By count',
     diarySearch: 'Find a completed procedure...',
-    diaryViewList: 'List',
-    diaryViewCal: 'Calendar',
     notifHint: 'Set a date for your next visit',
     deleteProfileBtn: 'Delete profile',
     searchProcs: 'Search procedure...',
@@ -3994,7 +3899,7 @@ function setDiaryView(v){
   const btnList=document.getElementById('diary-view-list');
   const btnCal=document.getElementById('diary-view-cal');
   const search=document.getElementById('diary-search');
-  const hcs=document.getElementById('procs-homecare-section');
+  const hcs=document.getElementById('diary-homecare-section');
   if(v==='cal'){
     if(listView) listView.style.display='none';
     if(calView) calView.style.display='block';
@@ -4049,43 +3954,7 @@ function diaryCalNext(){
   renderDiaryCal();
 }
 
-function _ensureCycleReminder(){
-  // Generates cycle reminders for next 12 months from existing period data
-  try{
-    let cyc = _lsGet('gt_cycle')||{};
-    if((!cyc.periods||!cyc.periods.length) && window._user){
-      try{ const raw=localStorage.getItem('gt_cycle_'+window._user.uid); if(raw) cyc=JSON.parse(raw)||{}; }catch(e){}
-    }
-    if(!cyc.periods||!cyc.periods.length) return;
-    const cycLen = cyc.cycleLength||28;
-    const sorted = [...cyc.periods].sort((a,b)=>b.start.localeCompare(a.start));
-    const lastStart = sorted[0].start;
-    const isBGc = window._lang!=='en';
-    const saved = _lsGet('gt_notifs')||[];
-    const nonCycle = saved.filter(n=>!n.isCycleReminder);
-    const newReminders = [];
-    // Generate reminders for next 12 cycles (~1 year)
-    for(let i=1; i<=12; i++){
-      const d = new Date(lastStart+'T12:00:00');
-      d.setDate(d.getDate() + cycLen * i);
-      const ds = d.toISOString().slice(0,10);
-      newReminders.push({
-        id:'cycle_'+ds,
-        procId:'cycle',
-        procName:isBGc?'Предстоящ менструален цикъл':'Upcoming menstrual cycle',
-        date:ds,
-        time:'09:00',
-        type:'reminder',
-        isCycleReminder:true
-      });
-    }
-    const updated = [...nonCycle, ...newReminders];
-    _lsSet('gt_notifs', updated);
-    if(window._user){ try{F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:updated},{merge:true}).catch(()=>{});}catch(e){} }
-  }catch(e){}
-}
 async function renderDiaryCal(){
-  _ensureCycleReminder();
   const lbl=document.getElementById('diary-cal-month-lbl');
   const grid=document.getElementById('diary-cal-grid');
   const detail=document.getElementById('diary-cal-detail');
@@ -4120,25 +3989,14 @@ async function renderDiaryCal(){
       if(!n.date) return;
       const ds=n.date.slice(0,10);
       if(!notifDates[ds]) notifDates[ds]=[];
-      const _nColor = n.isCycleReminder ? '#f0a0c0' : (n.type==='booking' ? '#6ab89a' : '#6a8fb8');
-      notifDates[ds].push({isNotif:true,isCycleReminder:n.isCycleReminder||false,procName:n.procName||n.procId||'Напомняне',id:n.id||'',time:n.time||'',color:_nColor});
+      notifDates[ds].push({isNotif:true,procName:n.procName||n.procId||'Напомняне',time:n.time||'',color:'#6a8fb8'});
     });
   }catch(e){}
 
   // Load cycle days
   let cycleDates={};
   try{
-    // Try user-specific key first, then fallback to Firestore-synced data
-    let cyc={};
-    try{
-      cyc=(_lsGet('gt_cycle')||{});
-      // If empty, try reading directly with user key
-      if((!cyc.periods||!cyc.periods.length) && window._user){
-        const _uk='gt_cycle_'+window._user.uid;
-        const _raw=localStorage.getItem(_uk);
-        if(_raw) cyc=JSON.parse(_raw)||{};
-      }
-    }catch(e){ cyc={}; }
+    const cyc=typeof _lsGet==='function'?(_lsGet('gt_cycle')||{}):JSON.parse(localStorage.getItem('gt_cycle')||'{}');
     // Support both old format (periodDays) and new format (periods:[{start,end}])
     const cycLen = cyc.cycleLength||28;
     if(cyc.periods&&Array.isArray(cyc.periods)){
@@ -4225,20 +4083,7 @@ async function renderDiaryCal(){
     const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
     const isSelected=_calSelected===ds;
     const colors=[...new Set(allForDay.map(e=>e.color||'#b8966a'))].slice(0,3);
-    const dots=allForDay.reduce((acc,e)=>{
-      const col=e.color||'#b8966a';
-      if(acc.seen.has(col)) return acc;
-      acc.seen.add(col);
-      if(acc.arr.length>=3) return acc;
-      // Hollow dot for future cycle reminders, filled for all others
-      const hollow = e.isCycleReminder;
-      if(hollow){
-        acc.arr.push(`<span style="display:block;width:6px;height:6px;border-radius:50%;background:transparent;border:1.5px solid ${col};flex-shrink:0;box-sizing:border-box"></span>`);
-      } else {
-        acc.arr.push(`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0"></span>`);
-      }
-      return acc;
-    },{seen:new Set(),arr:[]}).arr.join('');
+    const dots=colors.map(c=>`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${c};flex-shrink:0"></span>`).join('');
     const cls=['dc-day',hasAny?'dc-has':'',isToday?'dc-today':'',isSelected?'dc-sel':''].filter(Boolean).join(' ');
     html+=`<div class="${cls}" onclick="selectCalDay('${ds}')"><span class="dc-num">${day}</span><div class="dc-dots">${dots}</div></div>`;
   }
@@ -4270,7 +4115,7 @@ function selectCalDay(ds){
   // Do NOT touch button classes here — setDiaryView owns that
   // Show homecare buttons when deselecting (calendar detail closes)
   if(!_calSelected){
-    const hcs=document.getElementById('procs-homecare-section');
+    const hcs=document.getElementById('diary-homecare-section');
     if(hcs&&window._user) hcs.style.display='block';
     const detail=document.getElementById('diary-cal-detail');
     if(detail){detail.style.display='none';detail.innerHTML='';}
@@ -4368,7 +4213,7 @@ function showCalDetailV2(entries,dateStr){
   if(!detail) return;
   detail.style.display='block';
   // Hide home care panels when calendar detail is open
-  const hcs=document.getElementById('procs-homecare-section');
+  const hcs=document.getElementById('diary-homecare-section');
   if(hcs) hcs.style.display='none';
 
   const isBG=window._lang!=='en';
@@ -4623,7 +4468,7 @@ function filterDiaryYear(year,el){
 async function loadDiaryTab(){
   const el=document.getElementById('diary-tab-content');
   if(!window._user){
-    // homecare moved to procs tab
+    const _hcsg=document.getElementById('diary-homecare-section');if(_hcsg)_hcsg.style.display='none';
     el.innerHTML=`<div class="empty-state"><div class="empty-ic">🔐</div><div class="empty-title">${window._lang==='en'?'Sign in':'Влез в акаунта си'}</div><div class="empty-sub">${window._lang==='en'?'To see your personal diary':'За да виждаш личния си дневник'}</div><button onclick="openAuthScreen()" style="margin-top:14px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in / Sign up':'Влез / Регистрирай се'}</button></div>`;
     return;
   }
@@ -4683,15 +4528,19 @@ async function loadDiaryTab(){
     // Sort buttons are static HTML — just show them
     const _sbe=document.getElementById('diary-sort-btns');
     if(_sbe) _sbe.style.display='flex';
+    const statsRow=document.getElementById('diary-stats-row');
     const yearRow=document.getElementById('diary-year-row');
     if(statsRow){
-      // stats row removed
+      statsRow.style.display='flex';
+      document.getElementById('dst-procs').textContent=totalProcs;
+      document.getElementById('dst-entries').textContent=totalEntries;
+      document.getElementById('dst-spent').textContent=(totalSpent>0?totalSpent.toFixed(0)+'€':'—');
     }
     // Sort buttons already rendered above — just apply current sort mode after DOM ready
 
     // Build year filter
     if(yearRow){
-      yearRow.style.display='none'; // Year filter hidden permanently
+      yearRow.style.display='flex';
       const years=[...new Set(docs.map(d=>{
         const dt=d.data().createdAt?.toDate?.();
         return dt?dt.getFullYear():null;
@@ -4905,15 +4754,10 @@ function filterDiaryGroups(q){
   if(clear) clear.style.display = q ? 'block' : 'none';
   const groups = document.querySelectorAll('#diary-sortable .dv2-group');
   const ql = (q||'').toLowerCase().trim();
-  if(!ql){ groups.forEach(g=>g.style.display=''); return; }
-  const words = ql.split(/\s+/).filter(Boolean);
   groups.forEach(g => {
-    // Search across name, sub, all entry text (dates, notes, zones)
-    const name = (g.querySelector('.dv2-name')?.textContent||'').toLowerCase();
-    const meta = (g.querySelector('.dv2-meta')?.textContent||'').toLowerCase();
-    const entries = Array.from(g.querySelectorAll('.dv2-hist-item,.dv2-entry-detail')).map(e=>e.textContent||'').join(' ').toLowerCase();
-    const allText = name+' '+meta+' '+entries;
-    g.style.display = words.every(w=>allText.includes(w)) ? '' : 'none';
+    if(!ql){ g.style.display=''; return; }
+    const name = (g.querySelector('.dv2-name')?.textContent||g.querySelector('.dv2-group-hdr')?.textContent||'').toLowerCase();
+    g.style.display = name.includes(ql) ? '' : 'none';
   });
 }
 
@@ -6128,8 +5972,8 @@ function updateFavBtn(procId){
   btn.textContent = getFavs().includes(procId) ? '★' : '☆';
 }
 
-function loadFavsList(containerId){
-  const list = document.getElementById(containerId||'favs-list');
+function loadFavsList(){
+  const list = document.getElementById('favs-list');
   if(!list) return;
   const favs = getFavs();
   if(!favs.length){
@@ -6483,9 +6327,9 @@ function loadNotifsPage(){
   const sorted = [...notifs].sort((a,b)=>getNotifTime(a)-getNotifTime(b));
 
   // Split into 3 groups
-  const reminders = sorted.filter(n=>getNotifTime(n)>=now && n.type!=='booking' && !n.isCycleReminder);
-  const bookings  = sorted.filter(n=>getNotifTime(n)>=now && n.type==='booking' && !n.isCycleReminder);
-  const past      = sorted.filter(n=>getNotifTime(n)<now && !n.isCycleReminder);
+  const reminders = sorted.filter(n=>getNotifTime(n)>=now && n.type!=='booking');
+  const bookings  = sorted.filter(n=>getNotifTime(n)>=now && n.type==='booking');
+  const past      = sorted.filter(n=>getNotifTime(n)<now);
 
   updateNotifBadge(reminders.length + bookings.length);
 
@@ -6624,159 +6468,6 @@ function togglePastNotifs(){
   body.style.flexDirection = 'column';
   body.style.gap = '8px';
   if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
-}
-async function openStatsPanel(){
-  const modal=document.getElementById('profile-modal');
-  const content=document.getElementById('profile-modal-content');
-  if(!modal||!content) return;
-  const isBG=window._lang!=='en';
-  modal.style.display='flex';
-  content.innerHTML=`<div style="padding:0 18px 24px"><div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:20px;font-family:'Cormorant Garamond',serif">${isBG?'Моята статистика':'My Statistics'}</div><div style="text-align:center;padding:20px;color:var(--ink2)">${isBG?'Зарежда...':'Loading...'}</div></div>`;
-  try{
-    let entries=[];
-    if(window._user){
-      const snap=await F().getDocs(F().collection(DB(),'users',window._user.uid,'diary'));
-      entries=snap.docs.map(d=>d.data());
-    }
-    const totalEntries=entries.length;
-    const procIds=new Set(entries.map(e=>e.procId).filter(Boolean));
-    const totalProcs=procIds.size;
-    const totalSpent=entries.reduce((s,e)=>s+(parseFloat(e.price)||0),0);
-    // Last procedure
-    const sorted=[...entries].sort((a,b)=>(b.createdAt?.toMillis?.()??0)-(a.createdAt?.toMillis?.()??0));
-    const lastEntry=sorted[0];
-    const lastProc=lastEntry?((window.PROCS||[]).find(p=>p.id===lastEntry.procId)):null;
-    const lastProcName=lastProc?(window._lang==='en'?(lastProc.nameEn||lastProc.name):lastProc.name):'—';
-    content.innerHTML=`<div style="padding:0 18px 24px">
-      <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">${isBG?'Моята статистика':'My Statistics'}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div style="background:var(--goldlt);border-radius:14px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:700;color:var(--gold)">${totalProcs}</div>
-          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${isBG?'Процедури':'Procedures'}</div>
-        </div>
-        <div style="background:var(--goldlt);border-radius:14px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:700;color:var(--gold)">${totalEntries}</div>
-          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${isBG?'Записа':'Entries'}</div>
-        </div>
-      </div>
-      <div style="background:var(--goldlt);border-radius:14px;padding:16px;text-align:center;margin-bottom:12px">
-        <div style="font-size:28px;font-weight:700;color:var(--gold)">${totalSpent>0?totalSpent.toFixed(0)+' €':'—'}</div>
-        <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${isBG?'Инвестирано':'Invested'}</div>
-      </div>
-      ${lastProcName!=='—'?`<div style="background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:14px 16px">
-        <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${isBG?'Последна процедура':'Last procedure'}</div>
-        <div style="font-size:14px;font-weight:600;color:var(--ink)">${lastProcName}</div>
-        ${lastEntry.date?`<div style="font-size:11px;color:var(--ink2);margin-top:2px">${lastEntry.date}</div>`:''}
-      </div>`:''}
-      ${totalEntries===0?`<div style="text-align:center;padding:20px;color:var(--ink2);font-size:13px">${isBG?'Все още нямаш записи в дневника':'No diary entries yet'}</div>`:''}
-    </div>`;
-  }catch(e){
-    content.innerHTML=`<div style="padding:20px;text-align:center;color:var(--ink2)">${window._lang!=='en'?'Грешка при зареждане':'Error loading stats'}</div>`;
-  }
-}
-function openFavsPanel(){
-  const modal=document.getElementById('profile-modal');
-  const content=document.getElementById('profile-modal-content');
-  if(!modal||!content) return;
-  const isBG=window._lang!=='en';
-  const favs=typeof getFavs==='function'?getFavs():[];
-  const procs=window.PROCS||[];
-  const items=favs.map(id=>{
-    const p=procs.find(x=>x.id===id);
-    if(!p) return '';
-    const name=isBG?p.name:(p.nameEn||p.name);
-    const sub=isBG?p.sub:(p.subEn||p.sub)||'';
-    const icon=p.img?`<img src="${p.img}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="">`:
-      (typeof procCircleIcon==='function'?procCircleIcon(name,'#b8966a',44):'');
-    return `<div onclick="closeModal();openSheet('${id}')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-      ${icon}
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div>
-      </div>
-      <div style="flex-shrink:0;font-size:18px;color:var(--gold)">★</div>
-    </div>`;
-  }).join('');
-  content.innerHTML=`<div style="padding:0 18px 24px">
-    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:12px;font-family:'Cormorant Garamond',serif">★ ${isBG?'Любими процедури':'Favourite Procedures'}</div>
-    ${items||`<div style="text-align:center;padding:24px;color:var(--ink2);font-size:13px">${isBG?'Все още нямаш любими процедури':'No favourites yet'}</div>`}
-  </div>`;
-  modal.style.display='flex';
-}
-function closeModal(){
-  document.getElementById('profile-modal').style.display='none';
-}
-function openSuggestPanel(){
-  const modal=document.getElementById('profile-modal');
-  const content=document.getElementById('profile-modal-content');
-  if(!modal||!content) return;
-  const isBG=window._lang!=='en';
-  content.innerHTML=`<div style="padding:0 18px 24px">
-    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">${isBG?'Изпрати предложение':'Send Suggestion'}</div>
-    <div style="font-size:13px;color:var(--ink2);margin-bottom:12px">${isBG?'Помогни ни да подобрим GlowTrack. Всяко мнение е важно!':'Help us improve GlowTrack. Every opinion matters!'}</div>
-    <textarea id="suggest-modal-text" placeholder="${isBG?'Твоето предложение...':'Your suggestion...'}" style="width:100%;min-height:120px;border:1.5px solid var(--roselt);border-radius:12px;padding:12px;font-family:inherit;font-size:13px;color:var(--ink);background:var(--card);resize:vertical;outline:none"></textarea>
-    <button onclick="submitSuggestionFromModal()" style="margin-top:10px;width:100%;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBG?'Изпрати':'Send'}</button>
-  </div>`;
-  modal.style.display='flex';
-}
-function submitSuggestionFromModal(){
-  const text=document.getElementById('suggest-modal-text')?.value?.trim();
-  if(!text) return;
-  const isBG=window._lang!=='en';
-  if(window._user){
-    try{
-      F().addDoc(F().collection(DB(),'suggestions'),{
-        uid:window._user.uid,
-        name:window._user.displayName||window._user.email.split('@')[0]||'',
-        email:window._user.email||'',
-        text,
-        date:new Date().toLocaleDateString('bg-BG'),
-        ts:new Date().toISOString()
-      }).catch(()=>{});
-    }catch(e){}
-  }
-  document.getElementById('profile-modal').style.display='none';
-  if(typeof showToast==='function') showToast(isBG?'Благодаря! 🙏':'Thank you! 🙏');
-}
-function openProfileSheet(){
-  const sheet=document.getElementById('topbar-profile-sheet');
-  if(!sheet) return;
-  const loggedIn=document.getElementById('ps-logged-in');
-  const guest=document.getElementById('ps-guest');
-  if(window._user){
-    const dn=window._user.displayName||window._user.email||'';
-    const ini=dn.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
-    const psName=document.getElementById('ps-name');
-    const psEmail=document.getElementById('ps-email');
-    const psAvatar=document.getElementById('ps-avatar');
-    if(psName) psName.textContent=window._user.displayName||window._user.email.split('@')[0];
-    if(psEmail) psEmail.textContent=window._user.email;
-    if(psAvatar) psAvatar.textContent=ini;
-    if(loggedIn) loggedIn.style.display='block';
-    if(guest) guest.style.display='none';
-  } else {
-    if(loggedIn) loggedIn.style.display='none';
-    if(guest) guest.style.display='block';
-  }
-  sheet.style.display='flex';
-}
-function closeProfileSheet(){
-  const sheet=document.getElementById('topbar-profile-sheet');
-  if(sheet) sheet.style.display='none';
-}
-function openAccSection(accId){
-  // Navigate to profile tab and open specific accordion
-  goPage('profile', document.querySelector('.nb[onclick*=profile]'));
-  setTimeout(()=>{
-    const acc=document.getElementById(accId);
-    if(acc){
-      const body=acc.querySelector('.acc-body');
-      const arrow=acc.querySelector('.acc-arrow');
-      if(body){body.classList.add('open');}
-      if(arrow){arrow.classList.add('open');}
-      acc.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-  }, 300);
 }
 function updatePushToggleUI(){
   const btn=document.getElementById('push-notif-toggle-btn');
@@ -7433,112 +7124,5 @@ document.addEventListener('keydown',e=>{
   }
 });
 </script>
-<!-- TOPBAR PROFILE SHEET -->
-<div id="topbar-profile-sheet" style="display:none;position:fixed;inset:0;z-index:500">
-  <div onclick="closeProfileSheet()" style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(3px)"></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px 40px;max-width:480px;margin:0 auto">
-    <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto 18px"></div>
-    <!-- Profile info (logged in) -->
-    <div id="ps-logged-in">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--roselt)">
-        <div id="ps-avatar" style="width:54px;height:54px;border-radius:50%;background:var(--goldlt);border:2px solid rgba(184,150,106,.3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0">?</div>
-        <div style="flex:1;min-width:0">
-          <div id="ps-name" style="font-size:15px;font-weight:700;color:var(--ink)">—</div>
-          <div id="ps-email" style="font-size:11px;color:var(--ink2);margin-top:2px">—</div>
-          <button onclick="closeProfileSheet();showEditProfile()" style="margin-top:6px;padding:4px 12px;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:10px;font-weight:600;color:var(--gold);background:none;cursor:pointer;font-family:inherit">✎ Редактирай профила</button>
-        </div>
-      </div>
-      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Моето</div>
-      <div onclick="closeProfileSheet();openStatsPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Моята статистика</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Процедури, харчове, прогрес</div></div>
-        <div style="margin-left:auto;color:var(--ink2)">›</div>
-      </div>
-      <div onclick="closeProfileSheet();openFavsPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        </div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--ink)">★ Любими процедури</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Запазени за бърз достъп</div></div>
-        <div style="margin-left:auto;color:var(--ink2)">›</div>
-      </div>
-      <div onclick="closeProfileSheet();openSuggestPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        </div>
-        <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Изпрати предложение</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Помогни ни да подобрим GlowTrack</div></div>
-        <div style="margin-left:auto;color:var(--ink2)">›</div>
-      </div>
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--roselt)">
-        <div onclick="closeProfileSheet();doLogout()" style="text-align:center;padding:10px 0;font-size:13px;font-weight:600;color:#e85d5d;cursor:pointer">Изход</div>
-        <div onclick="closeProfileSheet();deleteAccount()" style="text-align:center;padding:6px 0;font-size:11px;color:#c5bdb4;cursor:pointer">Изтрий профила</div>
-      </div>
-    </div>
-    <!-- Guest state -->
-    <div id="ps-guest" style="display:none;text-align:center;padding:16px 0">
-      <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px">Влез в акаунта си</div>
-      <div style="font-size:12px;color:var(--ink2);margin-bottom:16px">За да достъпиш профила и дневника си</div>
-      <button onclick="closeProfileSheet();openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Влез / Регистрирай се</button>
-    </div>
-  </div>
-  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px 40px;max-width:480px;margin:0 auto">
-    <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto 18px"></div>
-    <!-- Profile info -->
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--roselt)">
-      <div id="ps-avatar" style="width:54px;height:54px;border-radius:50%;background:var(--goldlt);border:2px solid rgba(184,150,106,.3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0">?</div>
-      <div style="flex:1;min-width:0">
-        <div id="ps-name" style="font-size:15px;font-weight:700;color:var(--ink)">—</div>
-        <div id="ps-email" style="font-size:11px;color:var(--ink2);margin-top:2px">—</div>
-        <button onclick="closeProfileSheet();showEditProfile()" style="margin-top:6px;padding:4px 12px;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:10px;font-weight:600;color:var(--gold);background:none;cursor:pointer;font-family:inherit">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          <span data-t="editProfileBtn">Редактирай профила</span>
-        </button>
-      </div>
-    </div>
-    <!-- Menu items -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px">Моето</div>
-    <div onclick="closeProfileSheet();openStatsPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-      <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-t="profileStats">Моята статистика</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Процедури, харчове, прогрес</div></div>
-    </div>
-    <div onclick="closeProfileSheet();openFavsPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-      <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      </div>
-      <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-t="profileFavs">★ Любими процедури</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Запазени за бърз достъп</div></div>
-    </div>
-    <div onclick="closeProfileSheet();openSuggestPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
-      <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      </div>
-      <div><div style="font-size:13px;font-weight:600;color:var(--ink)" data-t="profileSuggest">Изпрати предложение</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Помогни ни да подобрим GlowTrack</div></div>
-    </div>
-    <!-- Actions -->
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--roselt)">
-      <div onclick="closeProfileSheet();doLogout()" style="text-align:center;padding:10px 0;font-size:13px;font-weight:600;color:#e85d5d;cursor:pointer" data-t="logoutBtn">Изход</div>
-      <div onclick="closeProfileSheet();deleteAccount()" style="text-align:center;padding:6px 0;font-size:11px;color:#c5bdb4;cursor:pointer" data-t="deleteProfileBtn">Изтрий профила</div>
-    </div>
-    <!-- Guest state -->
-    <div id="ps-guest" style="display:none;text-align:center;padding:16px 0">
-      <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px">Влез в акаунта си</div>
-      <button onclick="closeProfileSheet();openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" data-t="signInBtn">Влез / Регистрирай се</button>
-    </div>
-  </div>
-</div>
-
-<!-- PROFILE MODAL -->
-<div id="profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:flex-end">
-  <div onclick="document.getElementById('profile-modal').style.display='none'" style="position:absolute;inset:0;background:rgba(26,26,46,.45)"></div>
-  <div style="position:relative;background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:80vh;overflow-y:auto">
-    <div style="position:sticky;top:0;background:var(--card);padding:16px 18px 8px;display:flex;justify-content:flex-end;border-radius:24px 24px 0 0">
-      <button onclick="document.getElementById('profile-modal').style.display='none'" style="background:none;border:none;font-size:20px;color:var(--ink2);cursor:pointer;padding:4px">✕</button>
-    </div>
-    <div id="profile-modal-content"></div>
-  </div>
-</div>
 </body>
 </html>
-    >
