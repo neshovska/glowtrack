@@ -2954,13 +2954,10 @@ if(window._pendingLang){window._pendingLang=false;applyLang();}
 // ── ADVANCED FILTER PANEL ──
 const ADV_GROUPS=['prob','zone','goal','tech','age','gender','occ','preg','rec','dur','pain','sea','inv'];
 function openAdvFilter(){
-  window._scrollY_beforeFilter = window.scrollY || document.documentElement.scrollTop || 0;
-  document.body.style.overflow='hidden';
-  document.body.style.position='fixed';
-  document.body.style.top = (-window._scrollY_beforeFilter) + 'px';
-  document.body.style.width='100%';
   document.getElementById('adv-filter-bs').style.transform='translateX(-50%) translateY(0)';
   document.getElementById('adv-filter-overlay').style.display='block';
+  // Prevent background scroll without moving the page (no position:fixed jump)
+  document.body.style.overflow='hidden';
   const bsBody=document.getElementById('adv-bs-body');
   if(bsBody) bsBody.scrollTop=0;
 }
@@ -2968,10 +2965,6 @@ function closeAdvFilter(){
   document.getElementById('adv-filter-bs').style.transform='translateX(-50%) translateY(100%)';
   document.getElementById('adv-filter-overlay').style.display='none';
   document.body.style.overflow='';
-  document.body.style.position='';
-  document.body.style.top='';
-  document.body.style.width='';
-  window.scrollTo(0, window._scrollY_beforeFilter||0);
 }
 function advToggleAcc(id){
   const body=document.getElementById(id);
@@ -5822,7 +5815,6 @@ function renderHomePage(){
     return;
   }
 
-  let _homeRenderOK = false;
   try {
   const cycleData = _loadCycleData();
   const hasCycle = !!(cycleData.periods && cycleData.periods.length);
@@ -5859,12 +5851,11 @@ function renderHomePage(){
   }
 
   // 2. Quick stats
-  const _favCount = (function(){ try{ return getFavs().length; }catch(e){ return 0; } })();
   const statsHTML = `
     <div class="profile-card-section">
       <div style="display:flex;text-align:center">
         <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Записи':'Entries'}</div></div>
-        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${_favCount}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
+        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${(function(){try{return getFavs().length;}catch(e){return 0;}})()}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
         <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Похарчени':'Spent'}</div></div>
         <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Оценка':'Rating'}</div></div>
       </div>
@@ -5943,13 +5934,11 @@ function renderHomePage(){
     </div>` : '';
 
   wrap.innerHTML = phaseCardHTML + statsHTML + continueHTML + reminderHTML + recHTML + favHTML;
-  _homeRenderOK = true;
+  homeLoadDiaryStats();
   } catch(e) {
-    console.error('renderHomePage logged-in error:', e);
-    wrap.innerHTML = '<div style="padding:24px 18px"><div class="profile-card-section" style="text-align:center;padding:20px"><div style="font-size:13px;color:var(--ink2)">Грешка при зареждане — '+String(e)+'</div><button onclick="renderHomePage()" style="margin-top:10px;padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">Опитай пак</button></div></div>';
-    return;
+    console.error('renderHomePage error:', e);
+    wrap.innerHTML = '<div class="profile-card-section" style="margin:16px 18px;text-align:center;padding:20px"><div style="font-size:13px;color:var(--ink2);margin-bottom:10px">Грешка: ' + String(e) + '</div><button onclick="renderHomePage()" style="padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Опитай пак</button></div>';
   }
-  if(_homeRenderOK) homeLoadDiaryStats();
 }
 function homeLoadDiaryStats(){
   if(!window._user) return;
