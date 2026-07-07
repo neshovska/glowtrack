@@ -1166,7 +1166,49 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </div></div>
   </div>
   <div class="page" id="page-profile">
-    <div class="page-hdr" style="display:none"><div class="page-hdr-title"></div></div>
+    <div class="page-hdr">
+      <div class="page-hdr-title">Добре<em style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic">дошла</em></div>
+      <div class="page-hdr-sub" id="home-sub">Открий своя glow</div>
+    </div>
+    <div style="padding:0 16px 24px">
+      <!-- Welcome card -->
+      <div id="home-welcome-card" style="background:linear-gradient(135deg,#c9a87a,#e8c99a,#b8966a);border-radius:20px;padding:22px 20px;margin-bottom:16px;text-align:center">
+        <div id="home-avatar-big" style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e">?</div>
+        <div id="home-name" style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#1a1a2e;margin-bottom:4px">Влез в акаунта си</div>
+        <div id="home-email" style="font-size:11px;color:rgba(26,26,46,.55)"></div>
+        <button id="home-auth-btn" onclick="openAuthScreen()" style="margin-top:12px;padding:8px 22px;background:rgba(26,26,46,.15);border:none;border-radius:20px;font-size:12px;font-weight:700;color:#1a1a2e;cursor:pointer;font-family:inherit">Влез / Регистрирай се</button>
+        <button id="home-edit-btn" onclick="openProfileSheet();setTimeout(()=>{closeProfileSheet();showEditProfile();},100)" style="display:none;margin-top:12px;padding:8px 22px;background:rgba(26,26,46,.15);border:none;border-radius:20px;font-size:12px;font-weight:700;color:#1a1a2e;cursor:pointer;font-family:inherit">✎ Редактирай профила</button>
+      </div>
+      <!-- Quick actions -->
+      <div id="home-actions" style="display:none">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Моето</div>
+        <div onclick="openStatsPanel()" style="background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 6px rgba(26,26,46,.06)">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Моята статистика</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Процедури, харчове, прогрес</div></div>
+          <div style="margin-left:auto;color:var(--ink2)">›</div>
+        </div>
+        <div onclick="openFavsPanel()" style="background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 6px rgba(26,26,46,.06)">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div><div style="font-size:13px;font-weight:700;color:var(--ink)">★ Любими процедури</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Запазени за бърз достъп</div></div>
+          <div style="margin-left:auto;color:var(--ink2)">›</div>
+        </div>
+        <div onclick="openSuggestPanel()" style="background:var(--card);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;cursor:pointer;box-shadow:0 1px 6px rgba(26,26,46,.06)">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div><div style="font-size:13px;font-weight:700;color:var(--ink)">Изпрати предложение</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Помогни ни да подобрим GlowTrack</div></div>
+          <div style="margin-left:auto;color:var(--ink2)">›</div>
+        </div>
+        <div style="border-top:1px solid var(--roselt);padding-top:12px">
+          <div onclick="doLogout()" style="text-align:center;padding:10px;font-size:13px;font-weight:600;color:#e85d5d;cursor:pointer">Изход</div>
+          <div onclick="deleteAccount()" style="text-align:center;padding:6px;font-size:11px;color:#c5bdb4;cursor:pointer">Изтрий профила</div>
+        </div>
+      </div>
+    </div>
     <div class="profile-card">
   <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:80px;margin:0 auto 12px">
     <div style="width:76px;display:flex;justify-content:flex-end;align-items:center;gap:2px">
@@ -1729,17 +1771,28 @@ onAuthStateChanged(auth,async user=>{
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
     setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
     setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
-    document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
-    document.getElementById('prof-email').textContent=user.email;
-    // Update topbar avatar initials
+    // Update topbar avatar
     const _tav=document.getElementById('topbar-avatar');
-    if(_tav){const _dn=user.displayName||user.email||'';const _ini=_dn.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';_tav.textContent=_ini;}
-    document.getElementById('topbar-right').textContent='';
-    document.getElementById('topbar-right').style.display='none';
     const _name=user.displayName||user.email.split('@')[0]||'';
     const _parts=_name.trim().split(/\s+/);
-    const _ini=(_parts[0]?_parts[0][0]:'')+((_parts.length>1&&_parts[_parts.length-1])?_parts[_parts.length-1][0]:'');
-    const _iniUp=_ini.toUpperCase();
+    const _ini=((_parts[0]?_parts[0][0]:'')+(_parts.length>1&&_parts[_parts.length-1]?_parts[_parts.length-1][0]:'')).toUpperCase()||'?';
+    const _iniUp=_ini;
+    if(_tav) _tav.textContent=_ini;
+    // Update home page
+    const _hn=document.getElementById('home-name');
+    const _he=document.getElementById('home-email');
+    const _hab=document.getElementById('home-auth-btn');
+    const _heb=document.getElementById('home-edit-btn');
+    const _hav=document.getElementById('home-avatar-big');
+    const _hact=document.getElementById('home-actions');
+    if(_hn) _hn.textContent=_name;
+    if(_he) _he.textContent=user.email;
+    if(_hab) _hab.style.display='none';
+    if(_heb) _heb.style.display='block';
+    if(_hav) _hav.textContent=_ini;
+    if(_hact) _hact.style.display='block';
+    document.getElementById('topbar-right').textContent='';
+    document.getElementById('topbar-right').style.display='none';
     const _navSvg=document.getElementById('nav-avatar');const _profSvg=document.getElementById('profile-av-wrap');
     if(_navSvg)_navSvg.textContent=_iniUp;if(_profSvg)_profSvg.textContent=_iniUp;
     const _navBtn=document.getElementById('nav-profile-btn');
@@ -6514,18 +6567,45 @@ function openStatsPanel(){
   const modal=document.getElementById('profile-modal');
   const content=document.getElementById('profile-modal-content');
   if(!modal||!content) return;
-  const el=document.getElementById('profile-stats-content');
-  if(el){
-    content.innerHTML=`<div style="padding:0 18px 20px"><div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px">Моята статистика</div>${el.innerHTML}</div>`;
-    modal.style.display='flex';
-    if(typeof loadProfileStats==='function') loadProfileStats();
-  } else { goPage('profile',document.querySelector('.nb[onclick*=profile]')); }
+  const isBG=window._lang!=='en';
+  // Build stats from diary data
+  try{
+    const entries=typeof _lsGet==='function'?(_lsGet('gt_diary')||[]):[];
+    const totalEntries=entries.length;
+    const procs=new Set(entries.map(e=>e.procId)).size;
+    const spent=entries.reduce((s,e)=>s+(parseFloat(e.price)||0),0);
+    content.innerHTML=`<div style="padding:0 18px 24px">
+      <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">${isBG?'Моята статистика':'My Statistics'}</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <div style="flex:1;background:var(--goldlt);border-radius:14px;padding:14px;text-align:center">
+          <div style="font-size:26px;font-weight:700;color:var(--gold)">${procs}</div>
+          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">${isBG?'Процедури':'Procedures'}</div>
+        </div>
+        <div style="flex:1;background:var(--goldlt);border-radius:14px;padding:14px;text-align:center">
+          <div style="font-size:26px;font-weight:700;color:var(--gold)">${totalEntries}</div>
+          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">${isBG?'Записа':'Entries'}</div>
+        </div>
+        <div style="flex:1;background:var(--goldlt);border-radius:14px;padding:14px;text-align:center">
+          <div style="font-size:26px;font-weight:700;color:var(--gold)">${spent>0?spent.toFixed(0)+'€':'—'}</div>
+          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">${isBG?'Инвестирано':'Invested'}</div>
+        </div>
+      </div>
+      ${totalEntries===0?`<div style="text-align:center;padding:20px;color:var(--ink2);font-size:13px">${isBG?'Все още нямаш записи в дневника':'No diary entries yet'}</div>`:''}
+    </div>`;
+  }catch(e){
+    content.innerHTML=`<div style="padding:20px;text-align:center;color:var(--ink2)">Грешка при зареждане</div>`;
+  }
+  modal.style.display='flex';
 }
 function openFavsPanel(){
   const modal=document.getElementById('profile-modal');
   const content=document.getElementById('profile-modal-content');
   if(!modal||!content) return;
-  content.innerHTML=`<div style="padding:0 18px 20px"><div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px">★ Любими процедури</div><div id="favs-modal-list"></div></div>`;
+  const isBG=window._lang!=='en';
+  content.innerHTML=`<div style="padding:0 18px 24px">
+    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">★ ${isBG?'Любими процедури':'Favourite Procedures'}</div>
+    <div id="favs-modal-list"></div>
+  </div>`;
   modal.style.display='flex';
   if(typeof loadFavsList==='function') loadFavsList('favs-modal-list');
 }
@@ -6533,39 +6613,52 @@ function openSuggestPanel(){
   const modal=document.getElementById('profile-modal');
   const content=document.getElementById('profile-modal-content');
   if(!modal||!content) return;
-  const el=document.getElementById('suggest-form');
-  if(el){
-    content.innerHTML=`<div style="padding:0 18px 20px"><div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:16px">Изпрати предложение</div>${el.outerHTML}</div>`;
-    modal.style.display='flex';
-  } else { goPage('profile',document.querySelector('.nb[onclick*=profile]')); }
+  const isBG=window._lang!=='en';
+  content.innerHTML=`<div style="padding:0 18px 24px">
+    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">${isBG?'Изпрати предложение':'Send Suggestion'}</div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:12px">${isBG?'Помогни ни да подобрим GlowTrack. Всяко мнение е важно!':'Help us improve GlowTrack. Every opinion matters!'}</div>
+    <textarea id="suggest-modal-text" placeholder="${isBG?'Твоето предложение...':'Your suggestion...'}" style="width:100%;min-height:120px;border:1.5px solid var(--roselt);border-radius:12px;padding:12px;font-family:inherit;font-size:13px;color:var(--ink);background:var(--card);resize:vertical;outline:none"></textarea>
+    <button onclick="submitSuggestionFromModal()" style="margin-top:10px;width:100%;padding:12px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBG?'Изпрати':'Send'}</button>
+  </div>`;
+  modal.style.display='flex';
+}
+function submitSuggestionFromModal(){
+  const text=document.getElementById('suggest-modal-text')?.value?.trim();
+  if(!text) return;
+  const isBG=window._lang!=='en';
+  // Save to Firestore if logged in
+  if(window._user){
+    try{
+      F().addDoc(F().collection(DB(),'suggestions'),{
+        uid:window._user.uid,
+        email:window._user.email,
+        text,
+        ts:new Date().toISOString()
+      }).catch(()=>{});
+    }catch(e){}
+  }
+  document.getElementById('profile-modal').style.display='none';
+  if(typeof showToast==='function') showToast(isBG?'Благодаря! 🙏':'Thank you! 🙏');
 }
 function openProfileSheet(){
-  const sheet = document.getElementById('topbar-profile-sheet');
+  const sheet=document.getElementById('topbar-profile-sheet');
   if(!sheet) return;
-  // Fill data
-  const psName = document.getElementById('ps-name');
-  const psEmail = document.getElementById('ps-email');
-  const psAvatar = document.getElementById('ps-avatar');
-  const psGuest = document.getElementById('ps-guest');
-  const psMy = sheet.querySelector('[data-t="profileStats"]')?.closest('div[onclick]')?.parentElement?.parentElement;
+  const loggedIn=document.getElementById('ps-logged-in');
+  const guest=document.getElementById('ps-guest');
   if(window._user){
-    const dn = window._user.displayName||window._user.email||'';
-    const ini = dn.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
-    if(psName) psName.textContent = window._user.displayName||window._user.email.split('@')[0];
-    if(psEmail) psEmail.textContent = window._user.email;
-    if(psAvatar) psAvatar.textContent = ini;
-    if(psGuest) psGuest.style.display='none';
-    // Show menu items
-    sheet.querySelectorAll('[style*="border-bottom:1px solid var(--goldlt)"]').forEach(el=>el.style.display='flex');
-    sheet.querySelector('[style*="border-top:1px solid var(--roselt)"]')?.style.setProperty('display','block');
+    const dn=window._user.displayName||window._user.email||'';
+    const ini=dn.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+    const psName=document.getElementById('ps-name');
+    const psEmail=document.getElementById('ps-email');
+    const psAvatar=document.getElementById('ps-avatar');
+    if(psName) psName.textContent=window._user.displayName||window._user.email.split('@')[0];
+    if(psEmail) psEmail.textContent=window._user.email;
+    if(psAvatar) psAvatar.textContent=ini;
+    if(loggedIn) loggedIn.style.display='block';
+    if(guest) guest.style.display='none';
   } else {
-    if(psName) psName.textContent='';
-    if(psEmail) psEmail.textContent='';
-    if(psAvatar) psAvatar.textContent='?';
-    if(psGuest) psGuest.style.display='block';
-    // Hide logged-in items
-    sheet.querySelectorAll('[style*="border-bottom:1px solid var(--goldlt)"]').forEach(el=>el.style.display='none');
-    sheet.querySelector('[style*="border-top:1px solid var(--roselt)"]')?.style.setProperty('display','none');
+    if(loggedIn) loggedIn.style.display='none';
+    if(guest) guest.style.display='block';
   }
   sheet.style.display='block';
 }
@@ -7245,6 +7338,52 @@ document.addEventListener('keydown',e=>{
 <!-- TOPBAR PROFILE SHEET -->
 <div id="topbar-profile-sheet" style="display:none;position:fixed;inset:0;z-index:500">
   <div onclick="closeProfileSheet()" style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(3px)"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px 40px;max-width:480px;margin:0 auto">
+    <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto 18px"></div>
+    <!-- Profile info (logged in) -->
+    <div id="ps-logged-in">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--roselt)">
+        <div id="ps-avatar" style="width:54px;height:54px;border-radius:50%;background:var(--goldlt);border:2px solid rgba(184,150,106,.3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--gold);flex-shrink:0">?</div>
+        <div style="flex:1;min-width:0">
+          <div id="ps-name" style="font-size:15px;font-weight:700;color:var(--ink)">—</div>
+          <div id="ps-email" style="font-size:11px;color:var(--ink2);margin-top:2px">—</div>
+          <button onclick="closeProfileSheet();showEditProfile()" style="margin-top:6px;padding:4px 12px;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:10px;font-weight:600;color:var(--gold);background:none;cursor:pointer;font-family:inherit">✎ Редактирай профила</button>
+        </div>
+      </div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Моето</div>
+      <div onclick="closeProfileSheet();openStatsPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Моята статистика</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Процедури, харчове, прогрес</div></div>
+        <div style="margin-left:auto;color:var(--ink2)">›</div>
+      </div>
+      <div onclick="closeProfileSheet();openFavsPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div><div style="font-size:13px;font-weight:600;color:var(--ink)">★ Любими процедури</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Запазени за бърз достъп</div></div>
+        <div style="margin-left:auto;color:var(--ink2)">›</div>
+      </div>
+      <div onclick="closeProfileSheet();openSuggestPanel()" style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Изпрати предложение</div><div style="font-size:11px;color:var(--ink2);margin-top:1px">Помогни ни да подобрим GlowTrack</div></div>
+        <div style="margin-left:auto;color:var(--ink2)">›</div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--roselt)">
+        <div onclick="closeProfileSheet();doLogout()" style="text-align:center;padding:10px 0;font-size:13px;font-weight:600;color:#e85d5d;cursor:pointer">Изход</div>
+        <div onclick="closeProfileSheet();deleteAccount()" style="text-align:center;padding:6px 0;font-size:11px;color:#c5bdb4;cursor:pointer">Изтрий профила</div>
+      </div>
+    </div>
+    <!-- Guest state -->
+    <div id="ps-guest" style="display:none;text-align:center;padding:16px 0">
+      <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px">Влез в акаунта си</div>
+      <div style="font-size:12px;color:var(--ink2);margin-bottom:16px">За да достъпиш профила и дневника си</div>
+      <button onclick="closeProfileSheet();openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Влез / Регистрирай се</button>
+    </div>
+  </div>
   <div style="position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 18px 40px;max-width:480px;margin:0 auto">
     <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto 18px"></div>
     <!-- Profile info -->
