@@ -1638,9 +1638,8 @@ onAuthStateChanged(auth,async user=>{
     // try a personal action (diary, reminders, profile). Keep it closed here.
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.add('show');
-    document.getElementById('topbar-right').innerHTML =
-      `<button onclick="openAuthScreen()" style="background:var(--gold);color:#fff;border:none;border-radius:50px;padding:6px 14px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit">${window._lang==='en'?'Sign in':'Влез'}</button>`;
-    document.getElementById('topbar-right').style.display='block';
+    // Guest state: profile sheet will show auth form - no separate topbar button
+    document.getElementById('topbar-right').style.display='none';
     // Clear stale personal content left over from a previous logged-in session
     // (fixes cards/admin panel showing old data after logout).
     const _stc2=document.getElementById('skin-test-card'); if(_stc2)_stc2.innerHTML='';
@@ -6166,9 +6165,9 @@ function loadNotifsPage(){
   const sorted = [...notifs].sort((a,b)=>getNotifTime(a)-getNotifTime(b));
 
   // Split into 3 groups
-  const reminders = sorted.filter(n=>getNotifTime(n)>=now && n.type!=='booking');
-  const bookings  = sorted.filter(n=>getNotifTime(n)>=now && n.type==='booking');
-  const past      = sorted.filter(n=>getNotifTime(n)<now);
+  const reminders = sorted.filter(n=>getNotifTime(n)>=now && n.type!=='booking' && !n.isCycleReminder);
+  const bookings  = sorted.filter(n=>getNotifTime(n)>=now && n.type==='booking' && !n.isCycleReminder);
+  const past      = sorted.filter(n=>getNotifTime(n)<now && !n.isCycleReminder);
 
   updateNotifBadge(reminders.length + bookings.length);
 
@@ -6995,11 +6994,15 @@ document.addEventListener('keydown',e=>{
         <button onclick="showEditProfile()" style="padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span data-t="editProfileBtn">Редактирай профила</span></button>
       </div>
       <!-- Guest overlay in sheet -->
-      <div id="ps-guest-overlay" style="display:none;padding:20px;text-align:center">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="margin-bottom:10px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px" data-t="profileSignIn">Влез в акаунта си</div>
-        <button onclick="closeProfileSheet();openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" data-t="signInBtn">Влез / Регистрирай се</button>
-      </div>
+      <div id="ps-guest-overlay" style="display:none;padding:16px 20px 8px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;text-align:center;color:var(--ink);margin-bottom:4px">Glow<em style="color:var(--gold)">Track</em></div>
+      <div style="text-align:center;font-size:12px;color:var(--ink2);margin-bottom:18px">Влез или се регистрирай</div>
+      <input id="ps-auth-email" type="email" placeholder="Имейл адрес" style="width:100%;padding:11px 14px;border:1.5px solid var(--roselt);border-radius:12px;font-size:15px;color:var(--ink);background:var(--card);font-family:inherit;margin-bottom:10px;outline:none;display:block">
+      <input id="ps-auth-pass" type="password" placeholder="Парола (минимум 6 символа)" style="width:100%;padding:11px 14px;border:1.5px solid var(--roselt);border-radius:12px;font-size:15px;color:var(--ink);background:var(--card);font-family:inherit;margin-bottom:10px;outline:none;display:block">
+      <div id="ps-auth-error" style="font-size:11px;color:#e85d5d;margin-bottom:8px;display:none"></div>
+      <button onclick="doSheetLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Продължи →</button>
+      <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--ink2)">Нов потребител? Просто въведи имейл и парола.</div>
+    </div>
     </div>
     <!-- Client sections -->
     <div id="ps-client-sections" style="padding:0 18px 8px">
@@ -7071,6 +7074,22 @@ function _updateTopbarAvatar(){
   const parts = dn.trim().split(/\s+/);
   const ini = ((parts[0]?parts[0][0]:'')+(parts.length>1&&parts[parts.length-1]?parts[parts.length-1][0]:'')).toUpperCase()||'?';
   tav.textContent = ini;
+}
+function doSheetLogin(){
+  const email = document.getElementById('ps-auth-email')?.value?.trim();
+  const pass = document.getElementById('ps-auth-pass')?.value;
+  const errEl = document.getElementById('ps-auth-error');
+  if(!email||!pass){ if(errEl){errEl.textContent='Моля въведи имейл и парола';errEl.style.display='block';} return; }
+  if(pass.length<6){ if(errEl){errEl.textContent='Паролата трябва да е поне 6 символа';errEl.style.display='block';} return; }
+  if(errEl) errEl.style.display='none';
+  // Use the existing auth system
+  const emailEl = document.getElementById('auth-email');
+  const passEl = document.getElementById('auth-pass');
+  if(emailEl) emailEl.value = email;
+  if(passEl) passEl.value = pass;
+  closeProfileSheet();
+  if(typeof window.doAuth==='function') window.doAuth();
+  else if(typeof window.doLogin==='function') window.doLogin();
 }
 function openProfileSheet(){
   const sheet = document.getElementById('profile-sheet-overlay');
