@@ -750,7 +750,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="banner-multi" style="display:none"></div>
   </div>
 </div>
-  <div class="topbar"><div class="topbar-inner" style="position:relative;flex-direction:column;align-items:center;gap:1px;padding:10px 0 8px"><div class="logo">Glow<span>Track</span></div><div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div><div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px"><button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 9px;font-size:13px;cursor:pointer;line-height:1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button><button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button></div></div><div id="topbar-right" style="display:none;position:absolute;left:14px;top:50%;transform:translateY(-50%)"></div></div>
+  <div class="topbar"><div class="topbar-inner" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px">
+  <button id="topbar-profile-btn" onclick="openProfileSheet()" style="display:flex;align-items:center;gap:7px;padding:5px 12px 5px 6px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">
+    <div id="topbar-avatar" style="width:28px;height:28px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.03em">?</div>
+    <span style="font-size:11px;font-weight:700;color:var(--gold);white-space:nowrap">Профил</span>
+  </button>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
+    <div class="logo">Glow<span>Track</span></div>
+    <div style="font-size:10px;color:var(--gold);letter-spacing:.15em;font-family:'DM Sans',sans-serif;font-weight:400;opacity:.8">Know your glow.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+    <button id="dark-btn" onclick="toggleDarkMode()" style="background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:5px 9px;font-size:13px;cursor:pointer;line-height:1;display:flex;align-items:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    <button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button>
+  </div>
+</div><div id="topbar-right" style="display:none"></div></div>
   <div class="page active" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
@@ -1143,212 +1156,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </div></div>
   </div>
   <div class="page" id="page-profile">
-    <div class="page-hdr" style="display:none"><div class="page-hdr-title"></div></div>
-    <div class="profile-card">
-  <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:80px;margin:0 auto 12px">
-    <div style="width:76px;display:flex;justify-content:flex-end;align-items:center;gap:2px">
-      <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">G</span><span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">L</span>
-    </div>
-    <span style="width:14px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
-    <div class="profile-av" id="profile-av-wrap" style="width:80px;height:80px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08);flex-shrink:0">?</div>
-    <span style="width:14px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
-    <div style="width:76px;display:flex;justify-content:flex-start;align-items:center">
-      <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:52px;line-height:1;color:rgba(184,150,106,.38);flex-shrink:0">W</span>
-    </div>
-  </div>
-  <div class="profile-name" id="prof-name">—</div>
-  <div class="profile-email" id="prof-email">—</div>
-  <button onclick="showEditProfile()" style="margin-top:10px;padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit" id="edit-profile-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span data-t="editProfileBtn">Редактирай профила</span></button>
-  <!-- Guest overlay — shown when not logged in, hides profile content -->
-  <div id="profile-guest-overlay" style="display:none;position:absolute;inset:0;background:var(--card);border-radius:var(--r);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="margin-bottom:12px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;text-align:center" data-t="profileSignIn">Влез, за да видиш профила си</div>
-    <button onclick="openAuthScreen()" style="margin-top:8px;padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" data-t="signInBtn">Влез / Регистрирай се</button>
-  </div>
-</div>
-<!-- Skin test summary / launcher -->
-<div id="skin-test-card" style="margin:10px 18px 0;border:1.5px solid var(--goldlt);border-radius:16px;background:var(--card);padding:16px;box-shadow:0 2px 8px rgba(26,26,46,.04)"></div>
-<!-- Cycle tracker summary / launcher -->
-<div id="cycle-tracker-card" style="margin:10px 18px 0;border:1.5px solid var(--goldlt);border-radius:16px;background:var(--card);padding:16px;box-shadow:0 2px 8px rgba(26,26,46,.04)"></div>
-<!-- Edit profile modal -->
-<div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
-    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
-    <div class="form-row"><label class="form-lbl" data-t="newName">Ново име</label><input class="form-input" id="ep-name" placeholder="Твоето име"></div>
-    <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="newPass">Нова парола (по желание)</label><input class="form-input" type="password" id="ep-pass" placeholder="Минимум 6 символа"></div>
-    <div id="ep-error" style="font-size:11px;color:#e85d5d;margin-top:6px;display:none"></div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button onclick="saveEditProfile()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" data-t="saveBtn2">Запази</button>
-      <button onclick="document.getElementById('edit-profile-modal').style.display='none'" style="padding:10px 16px;background:none;border:1.5px solid var(--goldlt);border-radius:12px;font-size:13px;color:var(--ink2);cursor:pointer;font-family:inherit" data-t="cancelBtn">Откажи</button>
-    </div>
-  </div>
-</div>
-
-<!-- Skin type quiz modal -->
-<div id="skin-quiz-modal" style="display:none;position:fixed;inset:0;z-index:600;background:var(--mist);overflow-y:auto" onclick="if(event.target===this)return;">
-  <div style="max-width:480px;margin:0 auto;padding:16px 16px 40px">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 16px">
-      <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="1.8" style="vertical-align:-2px"><path d="M6 3c0 6 12 12 12 18M18 3c0 6-12 12-12 18M7 8h10M7 16h10"/></svg> <span id="skin-quiz-title">Тест за типа кожа</span></div>
-      <button onclick="closeSkinQuiz()" style="background:none;border:none;font-size:22px;color:var(--ink2);cursor:pointer;line-height:1;padding:4px">×</button>
-    </div>
-    <div id="skin-quiz-body"></div>
-  </div>
-</div>
-
-<!-- Cycle tracker modal -->
-<div id="cycle-tracker-modal" style="display:none;position:fixed;inset:0;z-index:600;background:var(--mist);overflow-y:auto" onclick="if(event.target===this)return;">
-  <button onclick="closeCycleTracker()" style="position:fixed;top:16px;right:16px;z-index:700;background:var(--card);border:1px solid var(--roselt);border-radius:50%;width:36px;height:36px;font-size:20px;color:var(--ink2);cursor:pointer;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.12)">×</button>
-  <div style="max-width:480px;margin:0 auto;padding:16px 16px 40px">
-    <div style="display:flex;align-items:center;justify-content:center;padding:0 40px 16px 0">
-      <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;text-align:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M12 2l1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5z"/></svg> <span id="cycle-tracker-title">Месечен цикъл и твоята кожа</span></div>
-    </div>
-    <div id="cycle-tracker-body"></div>
-  </div>
-
-min-panel" style="display:none;margin-top:20px">
-      <!-- ADMIN STATS ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
-        <div class="acc-header" onclick="toggleAcc(this);loadAdminStats()" style="padding:0">
-          <span class="pcs-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M4 20V10M12 20V4M20 20v-6"/></svg> Статистика</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <div id="admin-stats-content" style="margin-top:8px;font-size:12px;color:var(--ink2)">Зарежда...</div>
-        </div>
-      </div>
-      <!-- CLINICS ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg> Клиники (партньори)</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <div id="admin-clinics-list" style="margin-top:8px"></div>
-          <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
-          <div id="admin-clinic-form" style="display:none" class="admin-form">
-            <input class="admin-input" type="text" id="ac-icon" placeholder="🏥 Икона">
-            <input class="admin-input" type="text" id="ac-name" placeholder="Ime на клиниката *">
-            <input class="admin-input" type="text" id="ac-address" placeholder="Адрес">
-            <input class="admin-input" type="text" id="ac-phone" placeholder="Телефон">
-            <input class="admin-input" type="text" id="ac-url" placeholder="Уебсайт">
-            <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
-            <div class="proc-picker" id="admin-clinic-picker">
-              <input class="admin-input" type="text" id="ac-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('clinic')">
-              <div class="proc-picker-results" id="ac-proc-results"></div>
-            </div>
-            <div class="chips" id="ac-chips"></div>
-            <input type="hidden" id="ac-edit-id">
-            <button class="admin-btn" onclick="saveClinicAd()">💾 Запази</button>
-          </div>
-        </div>
-      </div>
-      <!-- PRODUCTS ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M9 2h6v3l2 2v13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V7l2-2z"/></svg> Продукти (реклами)</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <div id="admin-products-list" style="margin-top:8px"></div>
-          <button class="admin-btn sm" style="margin-top:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
-          <div id="admin-product-form" style="display:none" class="admin-form">
-            <input class="admin-input" type="text" id="ap-icon" placeholder="🧴 Икона">
-            <input class="admin-input" type="text" id="ap-brand" placeholder="Марка">
-            <input class="admin-input" type="text" id="ap-name" placeholder="Ime на продукта *">
-            <textarea class="admin-input" id="ap-desc" placeholder="Описание..." data-ph="descPh" style="resize:none;min-height:55px"></textarea>
-            <div style="font-size:11px;color:var(--ink2)">Процедури:</div>
-            <div class="proc-picker" id="admin-product-picker">
-              <input class="admin-input" type="text" id="ap-proc-search" placeholder="🔍 Търси процедури..." oninput="filterAdminPicker('product')">
-              <div class="proc-picker-results" id="ap-proc-results"></div>
-            </div>
-            <div class="chips" id="ap-chips"></div>
-            <input type="hidden" id="ap-edit-id">
-            <button class="admin-btn" onclick="saveProductAd()">💾 Запази</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- CLIENT PROFILE SECTIONS -->
-    <div id="client-profile-sections">
-
-      <!-- FAVORITES ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <div id="favs-list" style="margin-top:8px">
-            <div style="font-size:12px;color:var(--ink2)">Натисни ★ на процедура за да я запазиш</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STATS ACCORDION -->
-      <div class="acc-section profile-card-section" style="border-bottom:none">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileStats"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M4 20V10M12 20V4M20 20v-6"/></svg> Моята статистика</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <div style="display:flex;gap:10px;margin-top:10px">
-            <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="color:var(--gold)"><svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:10px">
-            <div class="stat-box"><div class="stat-num" id="stat-spend" style="font-size:16px">—</div><div class="stat-lbl" data-t="statSpend">Похарчени €</div></div>
-            <div class="stat-box"><div class="stat-num" id="stat-rating" style="font-size:16px">—</div><div class="stat-lbl" data-t="statRating">Средна оценка</div></div>
-          </div>
-          <button onclick="exportDiaryCSV()" style="width:100%;margin-top:10px;padding:8px;background:none;border:1.5px solid rgba(184,150,106,.3);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span data-t="exportCSV">Експортирай дневника (CSV)</span>
-          </button>
-          <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none">
-            <span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- FEEDBACK ACCORDION -->
-      <div class="acc-section profile-card-section" id="client-feedback-section" style="border-bottom:none">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title" data-t="profileSuggest"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Изпрати предложение</span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-        <div style="font-size:11px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Идея, корекция или нова функция — споделяй!</div>
-        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
-          <button class="fb-type-btn active" data-type="idea" onclick="setFbType(this,'idea')">💡 Идея</button>
-          <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
-          <button class="fb-type-btn" data-type="content" onclick="setFbType(this,'content')">📝 Съдържание</button>
-        </div>
-        <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." data-ph="suggestionPh" rows="3" style="font-size:16px"></textarea>
-        <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()" data-t="sendBtn">Изпрати ✦</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ADMIN INBOX - only visible to admin -->
-    <div id="admin-inbox-wrap" style="display:none">
-      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:10px">
-        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-          <span class="pcs-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg> <span data-t="profileSuggest">Изпрати предложение</span> <span class="inbox-badge" id="inbox-badge" style="display:none"></span></span>
-          <span class="acc-arrow">⌄</span>
-        </div>
-        <div class="acc-body">
-          <div id="admin-inbox-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зарежда...</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="profile-btns" style="margin:16px 18px 0">
-      <button class="profile-btn danger" onclick="doLogout()" data-t="logoutBtn">Изход</button>
-      <button class="profile-btn" onclick="confirmDeleteAccount()" style="color:#e85d5d;border-color:rgba(232,93,93,.2);font-size:12px;padding:9px" data-t="deleteProfileBtn">🗑️ Изтрий профила</button>
-    </div>
-    <div style="text-align:center;padding:8px 18px 0">
-      <button onclick="goPage('privacy',this)" style="background:none;border:none;font-size:11px;color:var(--ink2);cursor:pointer;text-decoration:underline;font-family:inherit">Privacy Policy</button>
-    </div>
-    <div style="text-align:center;padding:4px 18px 8px;font-size:10px;color:#cbbfae">GlowTrack · build v2026.06.27</div>
-    <div style="height:24px"></div>
+    <div class="page-hdr"><div class="page-hdr-title">Начало</div><div class="page-hdr-sub">Скоро тук ще намериш своето персонализирано табло</div></div>
   </div>
 <!-- COMING SOON PAGE -->
 <div class="page" id="page-soon">
@@ -1491,7 +1299,7 @@ min-panel" style="display:none;margin-top:20px">
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
     <button class="nb" onclick="goPage('soon',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="var(--gold)" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="var(--gold)" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
-    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Профил</span></button>
+    <button class="nb" id="nav-profile-btn" onclick="goPage('profile',this)"><span class="ni" id="nav-avatar" style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1.5px solid #c5bdb4;font-size:9px;font-weight:700;color:#c5bdb4;font-family:'DM Sans',sans-serif;letter-spacing:.03em"></span><span class="nl" id="nav-profile-lbl">Начало</span></button>
   </nav>
 </div>
 
@@ -1755,6 +1563,21 @@ onAuthStateChanged(auth,async user=>{
     setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
     document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
     document.getElementById('prof-email').textContent=user.email;
+    // Update topbar avatar
+    const _tav=document.getElementById('topbar-avatar');
+    if(_tav){
+      const _dn=user.displayName||user.email||'';
+      const _parts=_dn.trim().split(/\s+/);
+      const _ini=((_parts[0]?_parts[0][0]:'')+(_parts.length>1&&_parts[_parts.length-1]?_parts[_parts.length-1][0]:'')).toUpperCase()||'?';
+      _tav.textContent=_ini;
+    }
+    // Pre-fill profile sheet
+    const _psav=document.getElementById('ps-avatar-wrap');
+    const _psnm=document.getElementById('ps-name');
+    const _psem=document.getElementById('ps-email');
+    if(_psav) _psav.textContent=_tav?_tav.textContent:'?';
+    if(_psnm) _psnm.textContent=user.displayName||user.email.split('@')[0];
+    if(_psem) _psem.textContent=user.email;
     document.getElementById('topbar-right').textContent='';
     document.getElementById('topbar-right').style.display='none';
     const _name=user.displayName||user.email.split('@')[0]||'';
@@ -7124,5 +6947,138 @@ document.addEventListener('keydown',e=>{
   }
 });
 </script>
+
+<!-- PROFILE SHEET -->
+<div id="profile-sheet-overlay" style="display:none;position:fixed;inset:0;z-index:500;align-items:flex-end" onclick="if(event.target===this)closeProfileSheet()">
+  <div style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(3px)"></div>
+  <div id="profile-sheet-body" style="position:relative;background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:88vh;overflow-y:auto">
+    <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:14px auto 0;flex-shrink:0"></div>
+    <!-- Profile card -->
+    <div class="profile-card" style="margin:0;padding:16px 18px 0">
+      <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:70px;margin:0 auto 10px">
+        <div style="width:60px;display:flex;justify-content:flex-end;align-items:center;gap:2px">
+          <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:44px;line-height:1;color:rgba(184,150,106,.38)">G</span><span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:44px;line-height:1;color:rgba(184,150,106,.38)">L</span>
+        </div>
+        <span style="width:12px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
+        <div id="ps-avatar-wrap" style="width:70px;height:70px;border-radius:50%;border:2px solid #b8966a;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#b8966a;font-family:'DM Sans',sans-serif;letter-spacing:.05em;background:rgba(184,150,106,.08);flex-shrink:0">?</div>
+        <span style="width:12px;height:1.5px;background:rgba(184,150,106,.4);flex-shrink:0"></span>
+        <div style="width:60px;display:flex;justify-content:flex-start;align-items:center">
+          <span class="glow-letter" style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:44px;line-height:1;color:rgba(184,150,106,.38)">W</span>
+        </div>
+      </div>
+      <div class="profile-name" id="ps-name" style="text-align:center">—</div>
+      <div class="profile-email" id="ps-email" style="text-align:center">—</div>
+      <div style="text-align:center;margin-top:8px;margin-bottom:12px">
+        <button onclick="showEditProfile()" style="padding:6px 16px;background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span data-t="editProfileBtn">Редактирай профила</span></button>
+      </div>
+      <!-- Guest overlay in sheet -->
+      <div id="ps-guest-overlay" style="display:none;padding:20px;text-align:center">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="margin-bottom:10px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px" data-t="profileSignIn">Влез в акаунта си</div>
+        <button onclick="closeProfileSheet();openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" data-t="signInBtn">Влез / Регистрирай се</button>
+      </div>
+    </div>
+    <!-- Client sections -->
+    <div id="ps-client-sections" style="padding:0 18px 8px">
+      <!-- FAVORITES -->
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div id="favs-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Натисни ★ на процедура за да я запазиш</div></div>
+        </div>
+      </div>
+      <!-- STATS -->
+      <div class="acc-section profile-card-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileStats"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M4 20V10M12 20V4M20 20v-6"/></svg> Моята статистика</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="color:var(--gold)"><svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:13px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <div class="stat-box"><div class="stat-num" id="stat-spend" style="font-size:16px">—</div><div class="stat-lbl" data-t="statSpend">Похарчени €</div></div>
+            <div class="stat-box"><div class="stat-num" id="stat-rating" style="font-size:16px">—</div><div class="stat-lbl" data-t="statRating">Средна оценка</div></div>
+          </div>
+          <button onclick="exportDiaryCSV()" style="width:100%;margin-top:10px;padding:8px;background:none;border:1.5px solid rgba(184,150,106,.3);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--gold);cursor:pointer;font-family:inherit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span data-t="exportCSV">Експортирай дневника (CSV)</span></button>
+          <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none"><span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span></div>
+        </div>
+      </div>
+      <!-- FEEDBACK -->
+      <div class="acc-section profile-card-section" id="ps-feedback-section" style="border-bottom:none">
+        <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+          <span class="pcs-title" data-t="profileSuggest"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2" style="vertical-align:-2px"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Изпрати предложение</span>
+          <span class="acc-arrow">⌄</span>
+        </div>
+        <div class="acc-body">
+          <div style="font-size:11px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Идея, корекция или нова функция — споделяй!</div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+            <button class="fb-type-btn active" data-type="idea" onclick="setFbType(this,'idea')">💡 Идея</button>
+            <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
+            <button class="fb-type-btn" data-type="content" onclick="setFbType(this,'content')">📝 Съдържание</button>
+          </div>
+          <textarea class="form-input" id="fb-text" placeholder="Опиши предложението си..." data-ph="suggestionPh" rows="3" style="font-size:16px"></textarea>
+          <button class="admin-btn" style="margin-top:8px;width:100%" onclick="sendFeedback()" data-t="sendBtn">Изпрати ✦</button>
+        </div>
+      </div>
+    </div>
+    <!-- Buttons -->
+    <div class="profile-btns" style="margin:8px 18px 0">
+      <button class="profile-btn danger" onclick="doLogout()" data-t="logoutBtn">Изход</button>
+      <button class="profile-btn" onclick="confirmDeleteAccount()" style="color:#e85d5d;border-color:rgba(232,93,93,.2);font-size:12px;padding:9px" data-t="deleteProfileBtn">🗑️ Изтрий профила</button>
+    </div>
+    <div style="text-align:center;padding:8px 18px 0"><button onclick="closeProfileSheet();goPage('privacy',null)" style="background:none;border:none;font-size:11px;color:var(--ink2);cursor:pointer;text-decoration:underline;font-family:inherit">Privacy Policy</button></div>
+    <div style="text-align:center;padding:4px 18px 16px;font-size:10px;color:#cbbfae">GlowTrack · build v2026.06.27</div>
+  </div>
+</div>
+
+<script>
+function openProfileSheet(){
+  const sheet = document.getElementById('profile-sheet-overlay');
+  if(!sheet) return;
+  // Fill user data
+  const av = document.getElementById('ps-avatar-wrap');
+  const nm = document.getElementById('ps-name');
+  const em = document.getElementById('ps-email');
+  const guest = document.getElementById('ps-guest-overlay');
+  const clientSections = document.getElementById('ps-client-sections');
+  const editBtn = document.querySelector('#profile-sheet-body [onclick="showEditProfile()"]');
+  if(window._user){
+    const dn = window._user.displayName||window._user.email||'';
+    const parts = dn.trim().split(/\s+/);
+    const ini = ((parts[0]?parts[0][0]:'')+(parts.length>1&&parts[parts.length-1]?parts[parts.length-1][0]:'')).toUpperCase()||'?';
+    if(av) av.textContent = ini;
+    if(nm) nm.textContent = window._user.displayName||window._user.email.split('@')[0];
+    if(em) em.textContent = window._user.email;
+    if(guest) guest.style.display='none';
+    if(clientSections) clientSections.style.display='block';
+    if(editBtn) editBtn.style.display='inline-block';
+    // Load stats and favs
+    if(typeof loadFavsList==='function') loadFavsList();
+    if(typeof loadProfileStats==='function') loadProfileStats();
+  } else {
+    if(av) av.textContent='?';
+    if(nm) nm.textContent='—';
+    if(em) em.textContent='—';
+    if(guest) guest.style.display='block';
+    if(clientSections) clientSections.style.display='none';
+    if(editBtn) editBtn.style.display='none';
+  }
+  sheet.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeProfileSheet(){
+  const sheet=document.getElementById('profile-sheet-overlay');
+  if(sheet) sheet.style.display='none';
+  document.body.style.overflow='';
+}
+</script>
+
 </body>
 </html>
