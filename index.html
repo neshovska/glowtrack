@@ -2530,7 +2530,7 @@ function goPage(name,btn){
   if(btn)btn.classList.add('active');
   try{localStorage.setItem('gt_last_page',name);}catch(e){}
   try{
-    if(name==='diary')loadDiaryTab();
+    if(name==='diary'){ if(typeof _diaryView!=='undefined' && _diaryView==='cal') setDiaryView('cal'); else loadDiaryTab(); }
     if(name==='soon') setTimeout(_syncDiaryBtns,0);
     if(name==='notifs'){loadNotifsPage();if(typeof updatePushToggleUI==='function')updatePushToggleUI();if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();}
     if(name==='profile'){
@@ -3758,12 +3758,22 @@ function setDiaryView(v){
     if(btnList){btnList.classList.remove('active');}
     if(btnCal){btnCal.classList.add('active');}
     if(hcs) hcs.style.display='none';
+    // Always start from today's month when freshly entering the calendar view —
+    // otherwise it stays on whatever month was last browsed to before leaving.
+    if(!window._pendingCalDate){
+      const _td0=new Date();
+      _calYear=_td0.getFullYear();
+      _calMonth=_td0.getMonth();
+      _calSelected=null;
+    }
     renderDiaryCal();
     _syncDiaryBtns();
     // If a specific date was requested (e.g. from notif click), select it
     if(window._pendingCalDate){
       const pd = window._pendingCalDate;
       window._pendingCalDate = null;
+      const [_py,_pm] = pd.split('-').map(Number);
+      _calYear=_py; _calMonth=_pm-1;
       setTimeout(()=>{
         if(_diaryView!=='cal') return;
         _calSelected = pd;
@@ -3775,7 +3785,7 @@ function setDiaryView(v){
       // Auto-select today to show entries immediately
       const _td = new Date();
       const _tds = `${_td.getFullYear()}-${String(_td.getMonth()+1).padStart(2,'0')}-${String(_td.getDate()).padStart(2,'0')}`;
-      if(!_calSelected) _calSelected = _tds;
+      _calSelected = _tds;
       setTimeout(()=>{ if(_diaryView==='cal') renderDiaryCal(); }, 100);
     }
   } else {
