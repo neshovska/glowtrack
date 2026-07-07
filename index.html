@@ -985,8 +985,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
-        <button id="diary-view-list" class="diary-view-btn active" onclick="setDiaryView('list')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-radius:8px 0 0 8px;display:flex;align-items:center;justify-content:center" title="Списък"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-        <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:8px 13px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 8px 8px 0;display:flex;align-items:center;justify-content:center" title="Календар"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+        <button id="diary-view-list" class="diary-view-btn active" onclick="setDiaryView('list')" style="padding:7px 14px;border:none;cursor:pointer;line-height:1;border-radius:20px 0 0 20px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Списък</button>
+        <button id="diary-view-cal" class="diary-view-btn" onclick="setDiaryView('cal')" style="padding:7px 14px;border:none;cursor:pointer;line-height:1;border-left:1.5px solid var(--roselt);border-radius:0 20px 20px 0;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Календар</button>
       </div>
     </div>
     <div id="diary-list-header" style="padding:0 16px 10px;position:sticky;top:0;z-index:10;background:var(--mist)">
@@ -1001,13 +1001,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px">✕</button>
       </div>
       <!-- Stats row -->
-      <div class="dv2-stats" id="diary-stats-row" style="display:none">
-        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-procs">0</div><div class="dv2-stat-lbl" data-t="dstProcs">Процедури</div></div>
-        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-entries">0</div><div class="dv2-stat-lbl" data-t="dstEntries">Записа</div></div>
-        <div class="dv2-stat"><div class="dv2-stat-num" id="dst-spent">0€</div><div class="dv2-stat-lbl" data-t="dstSpent">Инвестирано</div></div>
-      </div>
+
       <!-- Year filter -->
-      <div class="dv2-year-row" id="diary-year-row" style="display:none">
+      <div class="dv2-year-row" id="diary-year-row" style="display:none!important">
         <div class="dv2-year-chip active" onclick="filterDiaryYear('all',this)" data-t="yearAll">Всички</div>
       </div>
       <!-- Sort buttons — static HTML, never re-rendered -->
@@ -3812,7 +3808,8 @@ async function renderDiaryCal(){
       if(!n.date) return;
       const ds=n.date.slice(0,10);
       if(!notifDates[ds]) notifDates[ds]=[];
-      notifDates[ds].push({isNotif:true,procName:n.procName||n.procId||'Напомняне',time:n.time||'',color:'#6a8fb8'});
+      const _nc = n.isCycleReminder ? '#e8a0a0' : (n.type==='booking' ? '#6ab89a' : '#6a8fb8');
+      notifDates[ds].push({isNotif:true,isCycleReminder:!!n.isCycleReminder,procName:n.procName||n.procId||'Напомняне',time:n.time||'',color:_nc});
     });
   }catch(e){}
 
@@ -3906,7 +3903,18 @@ async function renderDiaryCal(){
     const isToday=today.getFullYear()===_calYear&&today.getMonth()===_calMonth&&today.getDate()===day;
     const isSelected=_calSelected===ds;
     const colors=[...new Set(allForDay.map(e=>e.color||'#b8966a'))].slice(0,3);
-    const dots=colors.map(c=>`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${c};flex-shrink:0"></span>`).join('');
+    const dots=allForDay.reduce((acc,e)=>{
+      const col=e.color||'#b8966a';
+      if(acc.seen.has(col+String(!!e.isCycleReminder))) return acc;
+      acc.seen.add(col+String(!!e.isCycleReminder));
+      if(acc.arr.length>=3) return acc;
+      if(e.isCycleReminder){
+        acc.arr.push(`<span style="display:block;width:7px;height:7px;border-radius:50%;background:transparent;border:1.5px solid ${col};flex-shrink:0;box-sizing:border-box"></span>`);
+      } else {
+        acc.arr.push(`<span style="display:block;width:5px;height:5px;border-radius:50%;background:${col};flex-shrink:0"></span>`);
+      }
+      return acc;
+    },{seen:new Set(),arr:[]}).arr.join('');
     const cls=['dc-day',hasAny?'dc-has':'',isToday?'dc-today':'',isSelected?'dc-sel':''].filter(Boolean).join(' ');
     html+=`<div class="${cls}" onclick="selectCalDay('${ds}')"><span class="dc-num">${day}</span><div class="dc-dots">${dots}</div></div>`;
   }
@@ -4191,6 +4199,7 @@ function showCalDetailV2(entries,dateStr){
     <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#b8966a"></div>${isBG?'Процедура':'Procedure'}</div>
     <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#6a8fb8"></div>${isBG?'Напомняне':'Reminder'}</div>
     <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#e8a0a0"></div>${isBG?'Цикъл':'Cycle'}</div>
+    <div class="dc-legend-item"><div class="dc-legend-dot" style="width:9px;height:9px;background:transparent;border:1.5px solid #e8a0a0;box-sizing:border-box"></div>${isBG?'Предстоящ цикъл':'Upcoming cycle'}</div>
     <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#9b7ab8"></div>${isBG?'Лично събитие':'Custom event'}</div>
   </div>`;
 
@@ -4355,15 +4364,13 @@ async function loadDiaryTab(){
     const yearRow=document.getElementById('diary-year-row');
     if(statsRow){
       statsRow.style.display='flex';
-      document.getElementById('dst-procs').textContent=totalProcs;
-      document.getElementById('dst-entries').textContent=totalEntries;
       document.getElementById('dst-spent').textContent=(totalSpent>0?totalSpent.toFixed(0)+'€':'—');
     }
     // Sort buttons already rendered above — just apply current sort mode after DOM ready
 
     // Build year filter
     if(yearRow){
-      yearRow.style.display='flex';
+      yearRow.style.display='none'; // Permanently hidden
       const years=[...new Set(docs.map(d=>{
         const dt=d.data().createdAt?.toDate?.();
         return dt?dt.getFullYear():null;
@@ -6952,7 +6959,10 @@ document.addEventListener('keydown',e=>{
 <div id="profile-sheet-overlay" style="display:none;position:fixed;inset:0;z-index:500;align-items:flex-end" onclick="if(event.target===this)closeProfileSheet()">
   <div style="position:absolute;inset:0;background:rgba(26,26,46,.45);backdrop-filter:blur(3px)"></div>
   <div id="profile-sheet-body" style="position:relative;background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;margin:0 auto;max-height:88vh;overflow-y:auto">
-    <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:14px auto 0;flex-shrink:0"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0">
+      <div style="width:36px;height:4px;background:var(--roselt);border-radius:2px;margin:0 auto"></div>
+      <button onclick="closeProfileSheet()" style="position:absolute;right:16px;top:14px;background:none;border:none;font-size:22px;color:var(--ink2);cursor:pointer;line-height:1;padding:4px">✕</button>
+    </div>
     <!-- Profile card -->
     <div class="profile-card" style="margin:0;padding:16px 18px 0">
       <div class="glow-lockup" style="display:flex;align-items:center;justify-content:center;height:70px;margin:0 auto 10px">
@@ -7080,5 +7090,19 @@ function closeProfileSheet(){
 }
 </script>
 
+
+<!-- EDIT PROFILE MODAL -->
+<div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
+    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
+    <div class="form-row"><label class="form-lbl" data-t="newName">Ново име</label><input class="form-input" id="ep-name" placeholder="Твоето име"></div>
+    <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="newPass">Нова парола (по желание)</label><input class="form-input" type="password" id="ep-pass" placeholder="Минимум 6 символа"></div>
+    <div id="ep-error" style="font-size:11px;color:#e85d5d;margin-top:6px;display:none"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="saveEditProfile()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" data-t="saveBtn2">Запази</button>
+      <button onclick="document.getElementById('edit-profile-modal').style.display='none'" style="padding:10px 16px;background:none;border:1.5px solid var(--goldlt);border-radius:12px;font-size:13px;color:var(--ink2);cursor:pointer;font-family:inherit" data-t="cancelBtn">Откажи</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
