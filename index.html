@@ -793,7 +793,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button>
   </div>
 </div><div id="topbar-right" style="display:none"></div></div>
-  <div class="page active" id="page-procs">
+  <div class="page" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
       <div style="display:flex;gap:8px;align-items:center">
@@ -1404,17 +1404,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       </div>
     </div>
   </div>
-  <div class="page" id="page-home">
+  <div class="page active" id="page-home">
     <div class="page-hdr">
-      <div class="page-hdr-title">Начало</div>
+      <div class="page-hdr-title" id="home-greeting-title">Начало</div>
+      <div class="page-hdr-sub" id="home-greeting-sub"></div>
     </div>
-    <div style="padding:60px 24px;text-align:center;color:var(--ink2)">
-      <div style="font-size:13px">Очаквайте скоро 🌿</div>
+    <div id="home-content" style="padding:0 0 24px">
+      <div style="text-align:center;padding:60px 24px;color:var(--ink2)">
+        <div style="font-size:13px">Зареждане...</div>
+      </div>
     </div>
   </div>
   <nav class="bnav" role="navigation" aria-label="Главна навигация">
-    <button class="nb" onclick="goPage('home',this)" id="nav-home-btn"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg></span><span class="nl" id="nav-home-lbl">Начало</span></button>
-    <button class="nb active" onclick="goPage('procs',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 22V12"/><path d="M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/><path d="M12 12C12 12 8 8 5 10s1 8 7 10"/><path d="M12 12C12 12 16 8 19 10s-1 8-7 10"/></svg></span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
+    <button class="nb active" onclick="goPage('home',this)" id="nav-home-btn"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg></span><span class="nl" id="nav-home-lbl">Начало</span></button>
+    <button class="nb" onclick="goPage('procs',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 22V12"/><path d="M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/><path d="M12 12C12 12 8 8 5 10s1 8 7 10"/><path d="M12 12C12 12 16 8 19 10s-1 8-7 10"/></svg></span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
     <button class="nb" onclick="goPage('soon',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="var(--gold)" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="var(--gold)" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
@@ -1774,6 +1777,9 @@ onAuthStateChanged(auth,async user=>{
   // If the Profile tab tried to render before Firebase confirmed the auth state,
   // finish that render now that we know for sure whether the person is logged in.
   // After any auth state change, if profile page is active — refresh it
+  if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function'){
+    renderHomePage();
+  }
   if(document.getElementById('page-profile')?.classList.contains('active')){
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
   } else if(window._pendingProfileGoPage){
@@ -2577,6 +2583,8 @@ function applyLang(){
   hideSuggestions();
   // Re-render diary if active
   if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
+  // Re-render home dashboard if active
+  if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function') renderHomePage();
   // Update diary header
   document.querySelectorAll('[data-diary-hdr]').forEach(el=>{
     el.innerHTML=window._lang==="en"?'My <em>diary</em>':'Моят <em>дневник</em>';
@@ -2647,8 +2655,10 @@ function goPage(name,btn){
   const pg=document.getElementById('page-'+name);
   if(pg)pg.classList.add('active');
   if(btn)btn.classList.add('active');
+  else { const autoBtn=document.querySelector(`.nb[onclick*="goPage('${name}'"]`); if(autoBtn)autoBtn.classList.add('active'); }
   try{localStorage.setItem('gt_last_page',name);}catch(e){}
   try{
+    if(name==='home'){ if(typeof renderHomePage==='function') renderHomePage(); }
     if(name==='diary'){ if(typeof _diaryView!=='undefined' && _diaryView==='cal') setDiaryView('cal'); else loadDiaryTab(); }
     if(name==='soon') setTimeout(_syncDiaryBtns,0);
     if(name==='notifs'){loadNotifsPage();if(typeof updatePushToggleUI==='function')updatePushToggleUI();if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();}
@@ -3112,13 +3122,13 @@ function renderProcs(){
         renderCats();
         renderProcs();
       }
-      // Restore last visited page or default to procs
+      // Restore last visited page or default to home
       const _savedPage = localStorage.getItem('gt_last_page');
-      const _validPages = ['procs','diary','notifs','profile','soon'];
+      const _validPages = ['home','procs','diary','notifs','profile','soon'];
       if(_savedPage && _validPages.includes(_savedPage) && typeof goPage==='function'){
         goPage(_savedPage);
       } else if(typeof goPage==='function'){
-        goPage('procs');
+        goPage('home');
       }
       setTimeout(()=>{ window.scrollTo(0,0); document.querySelector('.page.active')?.scrollTo(0,0); }, 100);
     }catch(e){console.error('Render error:',e);}
@@ -5775,6 +5785,192 @@ function renderCycleTrackerCard(){
       </div>
       <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Настрой календара':'Set up calendar'}</button>`;
   }
+}
+
+
+// ── HOME PAGE DASHBOARD ──
+function renderHomePage(){
+  const wrap = document.getElementById('home-content');
+  if(!wrap) return;
+  const isBGq = window._lang!=='en';
+  const hr = new Date().getHours();
+  const greetWord = isBGq
+    ? (hr<12?'Добро утро':hr<18?'Добър ден':'Добра вечер')
+    : (hr<12?'Good morning':hr<18?'Good afternoon':'Good evening');
+  let firstName = '';
+  if(window._user){
+    const dn = (window._user.displayName || window._user.email || '').trim();
+    firstName = dn.split(/\s+/)[0] || '';
+  }
+  const titleEl = document.getElementById('home-greeting-title');
+  const subEl = document.getElementById('home-greeting-sub');
+  if(titleEl) titleEl.innerHTML = firstName ? `${greetWord}, <em>${firstName}</em> ✨` : `${greetWord} ✨`;
+  if(subEl) subEl.textContent = fmtDate(new Date());
+
+  if(!window._user){
+    wrap.innerHTML = `
+      <div class="profile-card-section" style="text-align:center;padding:26px 16px">
+        <div style="font-size:30px;margin-bottom:8px">🌿</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);margin-bottom:6px">${isBGq?'Добре дошла в GlowTrack':'Welcome to GlowTrack'}</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">${isBGq?'Влез в акаунта си, за да виждаш своя цикъл, съвети за кожата, любими процедури и напомняния.':'Log in to see your cycle, skin tips, favorite procedures and reminders.'}</div>
+        <button onclick="goPage('profile')" style="padding:11px 22px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Влез / Регистрирай се':'Log in / Sign up'}</button>
+      </div>
+      <div class="profile-card-section">
+        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Cormorant Garamond',serif">${isBGq?'✦ Разгледай процедури':'✦ Explore procedures'}</div>
+        <button onclick="document.querySelector('.nb[onclick*=procs]')?.click()" style="width:100%;padding:11px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж всички процедури':'Browse all procedures'}</button>
+      </div>`;
+    return;
+  }
+
+  const cycleData = _loadCycleData();
+  const hasCycle = !!(cycleData.periods && cycleData.periods.length);
+  const currentPhase = hasCycle ? _phaseForDate(new Date().toISOString().slice(0,10), cycleData) : null;
+
+  let skinSaved = null;
+  try{ skinSaved = JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null'); }catch(e){}
+  const hasSkin = !!(skinSaved && skinSaved.skinType);
+
+  // 1. Phase / cycle card
+  let phaseCardHTML;
+  if(currentPhase){
+    const pi = CYCLE_PHASE_INFO[currentPhase];
+    phaseCardHTML = `
+      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCycleTracker()">
+        <div style="font-size:30px;flex-shrink:0">${pi.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">${isBGq?pi.bg:pi.en}</div>
+          <div style="font-size:11px;color:var(--ink2);line-height:1.4;margin-top:2px">${isBGq?pi.tipBg:pi.tipEn}</div>
+          <div style="font-size:10.5px;color:var(--gold);font-weight:600;margin-top:3px">${isBGq?pi.avoidBg:pi.avoidEn}</div>
+        </div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
+      </div>`;
+  } else {
+    phaseCardHTML = `
+      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCycleTracker()">
+        <div style="font-size:26px;flex-shrink:0">🌙</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBGq?'Настрой месечния си цикъл':'Set up your monthly cycle'}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBGq?'Виж фазата си и съвети за кожата всеки ден':'See your phase and daily skin tips'}</div>
+        </div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
+      </div>`;
+  }
+
+  // 2. Quick stats
+  const statsHTML = `
+    <div class="profile-card-section">
+      <div style="display:flex;text-align:center">
+        <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Записи':'Entries'}</div></div>
+        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${getFavs().length}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
+        <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Похарчени':'Spent'}</div></div>
+        <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Оценка':'Rating'}</div></div>
+      </div>
+    </div>`;
+
+  // 3. Continue where you left off (only missing pieces)
+  const continueItems = [];
+  if(!hasSkin) continueItems.push({icon:'🧪', bg:'Направи теста за типа кожа', en:'Take the skin type test', fn:'openSkinQuiz()'});
+  if(!hasCycle) continueItems.push({icon:'🌙', bg:'Настрой цикъла', en:'Set up your cycle', fn:'openCycleTracker()'});
+  const continueHTML = continueItems.length ? `
+    <div class="profile-card-section">
+      <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em">${isBGq?'Продължи оттам, където спря':'Continue where you left off'}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${continueItems.map(it=>`<div onclick="${it.fn}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
+          <div style="font-size:20px;flex-shrink:0">${it.icon}</div>
+          <div style="flex:1;font-size:12.5px;font-weight:600;color:var(--ink1)">${isBGq?it.bg:it.en}</div>
+          <div style="color:var(--gold);font-size:16px">›</div>
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // 4. Upcoming reminder
+  const notifs = _lsGet('gt_notifs')||[];
+  const now = new Date();
+  const getNotifTime = n=>{ const dt=new Date(n.date); if(n.time){const p=(n.time.split(':')).map(Number); dt.setHours(p[0]||0,p[1]||0,0,0);} return dt; };
+  const upcoming = notifs.filter(n=>getNotifTime(n)>=now && !n.isCycleReminder).sort((a,b)=>getNotifTime(a)-getNotifTime(b))[0];
+  let reminderHTML = '';
+  if(upcoming){
+    const dt = getNotifTime(upcoming);
+    const diff = daysUntil(dt);
+    const diffTxt = diff===0?(isBGq?'Днес':'Today'):diff===1?(isBGq?'Утре':'Tomorrow'):diff>0?(isBGq?`След ${diff} дни`:`In ${diff} days`):(isBGq?'Днес':'Today');
+    const linkedProc = window.PROCS && upcoming.procId ? PROCS.find(p=>p.id===upcoming.procId) : null;
+    const displayName = linkedProc ? procL(linkedProc).name : (upcoming.procName||(isBGq?'Напомняне':'Reminder'));
+    reminderHTML = `
+      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="document.querySelector('.nb[onclick*=notifs]')?.click()">
+        <div style="font-size:22px;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9.5px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase">${isBGq?'Предстоящо':'Upcoming'}</div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${fmtDate(dt)}${upcoming.time?' · '+upcoming.time:''} · ${diffTxt}</div>
+        </div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
+      </div>`;
+  }
+
+  // Helper to render a horizontal proc card row
+  const procCardRow = (procs) => procs.map(p=>{
+    const lp = procL(p);
+    const thumb = p.img
+      ? `<img src="${p.img}" loading="lazy" style="width:128px;height:96px;border-radius:12px;object-fit:cover;display:block;margin-bottom:6px">`
+      : `<div style="width:128px;height:96px;border-radius:12px;background:${p.bg||'var(--goldlt)'};display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:6px">${p.icon||'✦'}</div>`;
+    return `<div onclick="document.querySelector('.nb[onclick*=procs]')?.click();openSheet('${p.id}')" style="flex:0 0 128px;cursor:pointer">
+      ${thumb}
+      <div style="font-size:11.5px;font-weight:600;color:var(--ink1);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${lp.name}</div>
+    </div>`;
+  }).join('');
+
+  // 5. Recommended for you
+  let recIds = [];
+  if(currentPhase) recIds = [...(CYCLE_PHASE_INFO[currentPhase].recIds||[])];
+  if(hasSkin) recIds = [...recIds, ...(SKIN_TYPE_RECS[skinSaved.skinType]||[]), ...(PHOTOTYPE_RECS[skinSaved.fototype]||[])];
+  recIds = [...new Set(recIds)].slice(0,6);
+  const recProcs = recIds.map(id=>PROCS.find(p=>p.id===id)).filter(Boolean);
+  const recHTML = recProcs.length ? `
+    <div style="margin:14px 0 4px">
+      <div style="margin:0 18px 10px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink)">${isBGq?'✦ Препоръчано за теб':'✦ Recommended for you'}</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px">${procCardRow(recProcs)}</div>
+    </div>` : '';
+
+  // 6. Favorite procedures
+  const favProcs = getFavs().map(id=>PROCS.find(p=>p.id===id)).filter(Boolean).slice(0,8);
+  const favHTML = favProcs.length ? `
+    <div style="margin:14px 0 4px">
+      <div style="margin:0 18px 10px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink)">${isBGq?'★ Любими процедури':'★ Favorite procedures'}</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px">${procCardRow(favProcs)}</div>
+    </div>` : '';
+
+  wrap.innerHTML = phaseCardHTML + statsHTML + continueHTML + reminderHTML + recHTML + favHTML;
+
+  homeLoadDiaryStats();
+}
+function homeLoadDiaryStats(){
+  if(!window._user) return;
+  const fill = (docs)=>{
+    const realDocs = docs.filter(d=>!d.data().procId?.startsWith('home-care'));
+    const diaryEl = document.getElementById('home-stat-diary');
+    if(diaryEl) diaryEl.textContent = realDocs.length;
+    const spendEl = document.getElementById('home-stat-spend');
+    if(spendEl){
+      const totalSpend = realDocs.reduce((s,d)=>s+(parseFloat(d.data().price)||0),0);
+      spendEl.textContent = totalSpend>0 ? totalSpend.toFixed(0)+'€' : '—';
+    }
+    const ratingEl = document.getElementById('home-stat-rating');
+    if(ratingEl){
+      const rated = realDocs.filter(d=>d.data().rating>0);
+      const avgRating = rated.length ? (rated.reduce((s,d)=>s+(d.data().rating||0),0)/rated.length) : 0;
+      ratingEl.textContent = avgRating>0 ? avgRating.toFixed(1) : '—';
+    }
+  };
+  try{
+    if(!cacheInvalid(window._cache.diaryTs)){
+      fill(window._cache.diary||[]);
+    } else {
+      F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid))).then(s=>{
+        window._cache.diary=s.docs; window._cache.diaryTs=Date.now();
+        fill(s.docs);
+      }).catch(()=>{});
+    }
+  }catch(e){}
 }
 
 
