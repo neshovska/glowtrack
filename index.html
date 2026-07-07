@@ -1225,6 +1225,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none"><span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span></div>
         </div>
 
+        <div class="p-eyebrow" data-t="profileCycle">🌙 Месечен цикъл</div>
+        <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
+
         <div class="p-eyebrow">Любими процедури</div>
         <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
           <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -2126,6 +2129,7 @@ const T = {
     statRating: 'Средна оценка',
     statLastProc: 'Последна процедура',
     profileStats: 'Моята статистика',
+    profileCycle: '🌙 Месечен цикъл',
     profileFavs: '★ Любими процедури',
     profileCare: '🌿 Домашна грижа',
     profileNotifs: '🔔 Напомняния за процедури',
@@ -2376,6 +2380,7 @@ const T = {
     online: '✅ Connection restored',
     priceLabel: '💰 Price',
     profileCare: '🌿 Home care',
+    profileCycle: '🌙 Monthly cycle',
     profileFavs: '★ Favourite procedures',
     profileNotifs: '🔔 Procedure reminders',
     profileStats: 'My statistics',
@@ -7171,6 +7176,14 @@ function refreshProfilePage(){
 
 
 <!-- EDIT PROFILE MODAL -->
+<!-- CYCLE TRACKER MODAL -->
+<div id="cycle-tracker-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:1">
+    <div style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" data-t="profileCycle">🌙 Месечен цикъл</div>
+    <button onclick="closeCycleTracker()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">✕</button>
+  </div>
+  <div id="cycle-tracker-body" style="padding:16px 16px 40px"></div>
+</div>
 <div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
     <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
