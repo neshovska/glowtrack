@@ -276,7 +276,7 @@ body.dark #page-profile .p-avatar-lg{border-color:#1e1e38}
 #page-profile .p-stats-row .stat-lbl{font-size:8.5px}
 #page-profile .p-body{padding:16px 18px 30px}
 /* SEARCH + CATS */
-.search-wrap{padding:0 18px 10px;position:relative}
+.search-wrap{padding:8px 18px 10px;position:relative;overflow:visible}
 .search-box{position:relative}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;color:var(--ink2)}
 .search-input{width:100%;padding:10px 12px 10px 34px;background:var(--card);border:1.5px solid var(--roselt);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);outline:none;box-shadow:var(--shadow)}
@@ -735,22 +735,40 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 <body>
 <div class="bg"></div>
 <div class="auth-screen hidden" id="auth-screen">
-  
   <div class="auth-logo">Glow<span>Track</span></div>
   <div class="auth-tagline">Know your glow.</div>
   <div class="auth-card">
     <div class="auth-error" id="auth-error"></div>
-    <div id="unified-auth-form">
-      <div class="auth-title">Вход / Регистрация</div>
-      <div class="auth-field"><label class="auth-label">Име <span style="font-weight:400;opacity:.6">(само при първи вход)</span></label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
-      <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
-      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
-      <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Продължи</button>
-      <div style="text-align:center;margin-top:12px">
-        <a onclick="showForgotPassword()" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
+
+    <!-- LOGIN VIEW -->
+    <div id="auth-view-login">
+      <div class="auth-title" id="auth-login-title">Вход</div>
+      <div class="auth-field"><label class="auth-label" id="auth-lbl-email-l">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
+      <div class="auth-field"><label class="auth-label" id="auth-lbl-pass-l">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+      <button class="auth-btn" id="auth-btn" onclick="doLogin()">Влез</button>
+      <div style="text-align:center;margin-top:10px">
+        <a onclick="showForgotPassword()" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:8px" id="auth-forgot-lbl">Забравена парола?</a>
+        <div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:6px" id="auth-no-acc-lbl">Нямаш акаунт?</div>
+        <a onclick="switchToRegister()" style="font-size:12.5px;color:var(--gold);cursor:pointer;font-weight:600" id="auth-to-reg-lbl">Регистрирай се →</a>
+      </div>
+      <div style="text-align:center;margin-top:10px">
         <button class="lang-btn" id="auth-lang-btn" onclick="toggleLang()" style="width:auto">EN / БГ</button>
       </div>
     </div>
+
+    <!-- REGISTER VIEW -->
+    <div id="auth-view-register" style="display:none">
+      <div class="auth-title" id="auth-reg-title">Регистрация</div>
+      <div class="auth-field"><label class="auth-label" id="auth-lbl-name-r">Име</label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
+      <div class="auth-field"><label class="auth-label" id="auth-lbl-email-r">Имейл</label><input class="auth-input" type="email" id="auth-email-reg" placeholder="example@mail.com" autocomplete="email"></div>
+      <div class="auth-field"><label class="auth-label" id="auth-lbl-pass-r">Парола</label><input class="auth-input" type="password" id="auth-pass-reg" placeholder="Минимум 6 символа" autocomplete="new-password"></div>
+      <button class="auth-btn" id="auth-btn-reg" onclick="doRegister()">Създай акаунт</button>
+      <div style="text-align:center;margin-top:10px">
+        <div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:6px" id="auth-has-acc-lbl">Вече имаш акаунт?</div>
+        <a onclick="switchToLogin()" style="font-size:12.5px;color:var(--gold);cursor:pointer;font-weight:600" id="auth-to-login-lbl">Влез →</a>
+      </div>
+    </div>
+
   </div>
 </div>
 <!-- SPLASH SCREEN -->
@@ -796,7 +814,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="page" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center;overflow:visible">
         <div class="search-box" style="position:relative;flex:1"><span class="search-icon">🔍</span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onchange="filterProcs()" onkeyup="debounceSearch()" onfocus="hideSuggestions()" autocomplete="off"><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div>
         <button id="adv-filter-btn" onclick="openAdvFilter()" style="display:flex;align-items:center;gap:5px;padding:8px 13px;border-radius:10px;border:1.5px solid var(--gold);background:var(--card);font-size:12px;font-weight:600;color:var(--gold);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0;position:relative">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
@@ -1614,41 +1632,93 @@ window.initPushNotifications=async function(){
     return token;
   }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
-window.doAuthUnified=async function(){
-  const name=document.getElementById('auth-name').value.trim();
+// Auth screen view switching
+window.switchToRegister=function(){
+  document.getElementById('auth-view-login').style.display='none';
+  document.getElementById('auth-view-register').style.display='block';
+  clearAuthError();
+  setTimeout(()=>document.getElementById('auth-name')?.focus(),100);
+};
+window.switchToLogin=function(){
+  document.getElementById('auth-view-register').style.display='none';
+  document.getElementById('auth-view-login').style.display='block';
+  clearAuthError();
+  setTimeout(()=>document.getElementById('auth-email')?.focus(),100);
+};
+window.openAuthScreen=function(view){
+  document.getElementById('auth-screen').classList.remove('hidden');
+  if(view==='register'){ window.switchToRegister(); } else { window.switchToLogin(); }
+};
+// Localize auth screen labels
+function _applyAuthLang(){
+  const isEN=window._lang==='en';
+  const el=id=>document.getElementById(id);
+  if(el('auth-login-title')) el('auth-login-title').textContent=isEN?'Sign In':'Вход';
+  if(el('auth-lbl-email-l')) el('auth-lbl-email-l').textContent=isEN?'Email':'Имейл';
+  if(el('auth-lbl-pass-l')) el('auth-lbl-pass-l').textContent=isEN?'Password':'Парола';
+  if(el('auth-btn')) el('auth-btn').textContent=isEN?'Sign In':'Влез';
+  if(el('auth-forgot-lbl')) el('auth-forgot-lbl').textContent=isEN?'Forgot password?':'Забравена парола?';
+  if(el('auth-no-acc-lbl')) el('auth-no-acc-lbl').textContent=isEN?"Don't have an account?":'Нямаш акаунт?';
+  if(el('auth-to-reg-lbl')) el('auth-to-reg-lbl').textContent=isEN?'Register →':'Регистрирай се →';
+  if(el('auth-reg-title')) el('auth-reg-title').textContent=isEN?'Register':'Регистрация';
+  if(el('auth-lbl-name-r')) el('auth-lbl-name-r').textContent=isEN?'Name':'Име';
+  if(el('auth-lbl-email-r')) el('auth-lbl-email-r').textContent=isEN?'Email':'Имейл';
+  if(el('auth-lbl-pass-r')) el('auth-lbl-pass-r').textContent=isEN?'Password':'Парола';
+  if(el('auth-btn-reg')) el('auth-btn-reg').textContent=isEN?'Create account':'Създай акаунт';
+  if(el('auth-has-acc-lbl')) el('auth-has-acc-lbl').textContent=isEN?'Already have an account?':'Вече имаш акаунт?';
+  if(el('auth-to-login-lbl')) el('auth-to-login-lbl').textContent=isEN?'Sign In →':'Влез →';
+}
+window.doLogin=async function(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
-  if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}
+  if(!email||!pass){window.showAuthError(window._lang==='en'?'Please fill in all fields':'Моля, попълни всички полета');return;}
   if(pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
   const btn=document.getElementById('auth-btn');btn.disabled=true;btn.textContent='...';
   try{
-    // Try signing in first — covers the common case of a returning user.
     await signInWithEmailAndPassword(auth,email,pass);
     if(typeof window.trackEvent==='function')window.trackEvent('login',{});
   }catch(e){
-    // No matching account (or Firebase's generic invalid-credential error) — try
-    // creating a new account with the same details instead, so the person never has
-    // to pick "login" vs "register" themselves.
-    try{
-      const cred=await createUserWithEmailAndPassword(auth,email,pass);
-      if(name)await updateProfile(cred.user,{displayName:name});
-      await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
-      if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
-    }catch(e2){
-      if(e2.code==='auth/email-already-in-use'){
-        window.showAuthError(t('wrongCredentials'));
-      }else if(e2.code==='auth/weak-password'){
-        window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
-      }else if(e2.code==='auth/invalid-email'){
-        window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
-      }else{
-        window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
-      }
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
+      window.showAuthError(window._lang==='en'?'Wrong email or password':'Грешен имейл или парола');
+    }else if(e.code==='auth/invalid-email'){
+      window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+    }else if(e.code==='auth/too-many-requests'){
+      window.showAuthError(window._lang==='en'?'Too many attempts. Please wait a moment.':'Твърде много опити. Изчакай малко.');
+    }else{
+      window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
     }
   }finally{
-    btn.disabled=false;btn.textContent=window._lang==='en'?'Continue':'Продължи';
+    btn.disabled=false;btn.textContent=window._lang==='en'?'Sign In':'Влез';
   }
 };
+window.doRegister=async function(){
+  const name=document.getElementById('auth-name').value.trim();
+  const email=document.getElementById('auth-email-reg').value.trim();
+  const pass=document.getElementById('auth-pass-reg').value;
+  if(!email||!pass){window.showAuthError(window._lang==='en'?'Please fill in all fields':'Моля, попълни всички полета');return;}
+  if(pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
+  const btn=document.getElementById('auth-btn-reg');btn.disabled=true;btn.textContent='...';
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pass);
+    if(name)await updateProfile(cred.user,{displayName:name});
+    await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
+    if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
+  }catch(e2){
+    if(e2.code==='auth/email-already-in-use'){
+      window.showAuthError(window._lang==='en'?'This email is already registered. Try signing in.':'Този имейл вече е регистриран. Опитай да влезеш.');
+    }else if(e2.code==='auth/weak-password'){
+      window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
+    }else if(e2.code==='auth/invalid-email'){
+      window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+    }else{
+      window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
+    }
+  }finally{
+    btn.disabled=false;btn.textContent=window._lang==='en'?'Create account':'Създай акаунт';
+  }
+};
+// Keep doAuthUnified as an alias for backward compat (keyboard Enter handler)
+window.doAuthUnified=window.doLogin;
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
@@ -1779,6 +1849,8 @@ onAuthStateChanged(auth,async user=>{
   // After any auth state change, if profile page is active — refresh it
   if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function'){
     renderHomePage();
+    // Fallback: re-render after short delay in case of async timing issues
+    setTimeout(()=>{ if(document.getElementById('page-home')?.classList.contains('active')) renderHomePage(); }, 400);
   }
   if(document.getElementById('page-profile')?.classList.contains('active')){
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
@@ -1787,9 +1859,7 @@ onAuthStateChanged(auth,async user=>{
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
   }
 });
-window.openAuthScreen=function(){
-  document.getElementById('auth-screen').classList.remove('hidden');
-};
+// openAuthScreen is defined above with view-switching support
 </script>
 
 
@@ -2444,21 +2514,8 @@ function applyLang(){
   document.querySelectorAll('.lang-btn').forEach(b => b.textContent = btn);
   document.documentElement.lang = l === 'bg' ? 'bg' : 'en';
 
-  // Auth
-  const uf = document.getElementById('unified-auth-form');
-  if(uf){
-    uf.querySelector('.auth-title').textContent = window._lang==='en'?'Sign in / Sign up':'Вход / Регистрация';
-    const labs = uf.querySelectorAll('.auth-label');
-    if(labs[0]) labs[0].firstChild.textContent = (window._lang==='en'?'Name ':'Име ');
-    if(labs[1]) labs[1].textContent = t('email');
-    if(labs[2]) labs[2].textContent = t('password');
-    const ni = document.getElementById('auth-name');
-    if(ni) ni.placeholder = t('namePh');
-    const pi = document.getElementById('auth-pass');
-    if(pi) pi.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
-    const ab = document.getElementById('auth-btn');
-    if(ab) ab.textContent = window._lang==='en'?'Continue':'Продължи';
-  }
+  // Auth labels
+  if(typeof _applyAuthLang==='function') _applyAuthLang();
 
   // Nav labels
   const nls = document.querySelectorAll('.nl');
@@ -4011,6 +4068,27 @@ async function renderDiaryCal(){
         if(!syms||!syms.length) return;
         if(!cycleDates[ds]) cycleDates[ds]=[];
         cycleDates[ds].push({isCycle:true,isSymptom:true,name:isBG?'Симптоми: '+syms.join(', '):'Symptoms: '+syms.join(', '),color:'#c4a0d0'});
+      });
+    }
+    // Add predicted future periods (6 cycles ahead) as hollow pink dots
+    if(typeof _getPredictedPeriods==='function' && typeof _dateInRange==='function'){
+      const _cycDataForPred = {periods: cyc.periods||[], cycleLength: cyc.cycleLength||28, periodDays: cyc.periodDays};
+      // Migrate legacy for prediction
+      if(_cycDataForPred.periods.length===0 && cyc.periodDays && cyc.periodDays.length){
+        _cycDataForPred.periods = [{start: [...cyc.periodDays].sort()[0], end: [...cyc.periodDays].sort().pop()}];
+      }
+      const predictedPeriods = _getPredictedPeriods(_cycDataForPred, 6);
+      predictedPeriods.forEach(pp=>{
+        const startPD = new Date(pp.start+'T12:00:00');
+        const endPD = new Date(pp.end+'T12:00:00');
+        for(let d=new Date(startPD); d<=endPD; d.setDate(d.getDate()+1)){
+          const ds=d.toISOString().slice(0,10);
+          if(!cycleDates[ds]) cycleDates[ds]=[];
+          // Only add if not already a logged period
+          if(!cycleDates[ds].some(e=>e.isCycle && !e.isPredicted)){
+            cycleDates[ds].push({isCycle:true,isPredicted:true,isCycleReminder:true,name:isBG?'Прогнозен цикъл':'Predicted period',color:'#e8a0a0'});
+          }
+        }
       });
     }
   }catch(e){}
@@ -5790,6 +5868,13 @@ function renderCycleTrackerCard(){
 
 // ── HOME PAGE DASHBOARD ──
 function renderHomePage(){
+  try{ _renderHomePageInner(); }catch(e){
+    console.error('renderHomePage error:',e);
+    const wrap2=document.getElementById('home-content');
+    if(wrap2) wrap2.innerHTML='<div style="text-align:center;padding:40px 24px;color:var(--ink2)"><div style="font-size:13px">Грешка при зареждане. Опитай пак.</div><button onclick="renderHomePage()" style="margin-top:12px;padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Опитай</button></div>';
+  }
+}
+function _renderHomePageInner(){
   const wrap = document.getElementById('home-content');
   if(!wrap) return;
   const isBGq = window._lang!=='en';
@@ -7289,7 +7374,10 @@ if('serviceWorker' in navigator && location.protocol === 'https:'){
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     const authScreen=document.getElementById('auth-screen');
-    if(authScreen&&!authScreen.classList.contains('hidden'))doAuthUnified();
+    if(authScreen&&!authScreen.classList.contains('hidden')){
+      const regView=document.getElementById('auth-view-register');
+      if(regView&&regView.style.display!=='none') window.doRegister(); else window.doLogin();
+    }
   }
   if(e.key==='Escape'){
     const ov=document.getElementById('overlay');
