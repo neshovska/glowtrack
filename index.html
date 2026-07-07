@@ -739,7 +739,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="auth-tagline">Know your glow.</div>
   <div class="auth-card">
     <div class="auth-error" id="auth-error"></div>
-
     <!-- LOGIN VIEW -->
     <div id="auth-view-login">
       <div class="auth-title" id="auth-login-title">Вход</div>
@@ -755,7 +754,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button class="lang-btn" id="auth-lang-btn" onclick="toggleLang()" style="width:auto">EN / БГ</button>
       </div>
     </div>
-
     <!-- REGISTER VIEW -->
     <div id="auth-view-register" style="display:none">
       <div class="auth-title" id="auth-reg-title">Регистрация</div>
@@ -768,7 +766,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <a onclick="switchToLogin()" style="font-size:12.5px;color:var(--gold);cursor:pointer;font-weight:600" id="auth-to-login-lbl">Влез →</a>
       </div>
     </div>
-
   </div>
 </div>
 <!-- SPLASH SCREEN -->
@@ -1424,12 +1421,19 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page active" id="page-home">
     <div class="page-hdr">
-      <div class="page-hdr-title" id="home-greeting-title">Начало</div>
+      <div class="page-hdr-title" id="home-greeting-title">Добро утро ✨</div>
       <div class="page-hdr-sub" id="home-greeting-sub"></div>
     </div>
     <div id="home-content" style="padding:0 0 24px">
-      <div style="text-align:center;padding:60px 24px;color:var(--ink2)">
-        <div style="font-size:13px">Зареждане...</div>
+      <div class="profile-card-section" style="text-align:center;padding:26px 16px">
+        <div style="font-size:30px;margin-bottom:8px">🌿</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);margin-bottom:6px">Добре дошла в GlowTrack</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">Влез в акаунта си, за да виждаш своя цикъл, съвети за кожата, любими процедури и напомняния.</div>
+        <button onclick="openAuthScreen()" style="padding:11px 22px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Влез / Регистрирай се</button>
+      </div>
+      <div class="profile-card-section">
+        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Cormorant Garamond',serif">✦ Разгледай процедури</div>
+        <button onclick="goPage('procs')" style="width:100%;padding:11px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Виж всички процедури</button>
       </div>
     </div>
   </div>
@@ -1632,42 +1636,20 @@ window.initPushNotifications=async function(){
     return token;
   }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
-// Auth screen view switching
 window.switchToRegister=function(){
   document.getElementById('auth-view-login').style.display='none';
   document.getElementById('auth-view-register').style.display='block';
-  clearAuthError();
-  setTimeout(()=>document.getElementById('auth-name')?.focus(),100);
+  const e=document.getElementById('auth-error');if(e)e.classList.remove('show');
 };
 window.switchToLogin=function(){
   document.getElementById('auth-view-register').style.display='none';
   document.getElementById('auth-view-login').style.display='block';
-  clearAuthError();
-  setTimeout(()=>document.getElementById('auth-email')?.focus(),100);
+  const e=document.getElementById('auth-error');if(e)e.classList.remove('show');
 };
 window.openAuthScreen=function(view){
   document.getElementById('auth-screen').classList.remove('hidden');
-  if(view==='register'){ window.switchToRegister(); } else { window.switchToLogin(); }
+  if(view==='register')window.switchToRegister(); else window.switchToLogin();
 };
-// Localize auth screen labels
-function _applyAuthLang(){
-  const isEN=window._lang==='en';
-  const el=id=>document.getElementById(id);
-  if(el('auth-login-title')) el('auth-login-title').textContent=isEN?'Sign In':'Вход';
-  if(el('auth-lbl-email-l')) el('auth-lbl-email-l').textContent=isEN?'Email':'Имейл';
-  if(el('auth-lbl-pass-l')) el('auth-lbl-pass-l').textContent=isEN?'Password':'Парола';
-  if(el('auth-btn')) el('auth-btn').textContent=isEN?'Sign In':'Влез';
-  if(el('auth-forgot-lbl')) el('auth-forgot-lbl').textContent=isEN?'Forgot password?':'Забравена парола?';
-  if(el('auth-no-acc-lbl')) el('auth-no-acc-lbl').textContent=isEN?"Don't have an account?":'Нямаш акаунт?';
-  if(el('auth-to-reg-lbl')) el('auth-to-reg-lbl').textContent=isEN?'Register →':'Регистрирай се →';
-  if(el('auth-reg-title')) el('auth-reg-title').textContent=isEN?'Register':'Регистрация';
-  if(el('auth-lbl-name-r')) el('auth-lbl-name-r').textContent=isEN?'Name':'Име';
-  if(el('auth-lbl-email-r')) el('auth-lbl-email-r').textContent=isEN?'Email':'Имейл';
-  if(el('auth-lbl-pass-r')) el('auth-lbl-pass-r').textContent=isEN?'Password':'Парола';
-  if(el('auth-btn-reg')) el('auth-btn-reg').textContent=isEN?'Create account':'Създай акаунт';
-  if(el('auth-has-acc-lbl')) el('auth-has-acc-lbl').textContent=isEN?'Already have an account?':'Вече имаш акаунт?';
-  if(el('auth-to-login-lbl')) el('auth-to-login-lbl').textContent=isEN?'Sign In →':'Влез →';
-}
 window.doLogin=async function(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
@@ -1678,18 +1660,12 @@ window.doLogin=async function(){
     await signInWithEmailAndPassword(auth,email,pass);
     if(typeof window.trackEvent==='function')window.trackEvent('login',{});
   }catch(e){
-    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'){
-      window.showAuthError(window._lang==='en'?'Wrong email or password':'Грешен имейл или парола');
-    }else if(e.code==='auth/invalid-email'){
-      window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
-    }else if(e.code==='auth/too-many-requests'){
-      window.showAuthError(window._lang==='en'?'Too many attempts. Please wait a moment.':'Твърде много опити. Изчакай малко.');
-    }else{
-      window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
-    }
-  }finally{
-    btn.disabled=false;btn.textContent=window._lang==='en'?'Sign In':'Влез';
-  }
+    const c=e.code||'';
+    if(c==='auth/user-not-found'||c==='auth/wrong-password'||c==='auth/invalid-credential')window.showAuthError(window._lang==='en'?'Wrong email or password':'Грешен имейл или парола');
+    else if(c==='auth/invalid-email')window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+    else if(c==='auth/too-many-requests')window.showAuthError(window._lang==='en'?'Too many attempts. Please wait.':'Твърде много опити. Изчакай малко.');
+    else window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
+  }finally{btn.disabled=false;btn.textContent=window._lang==='en'?'Sign In':'Влез';}
 };
 window.doRegister=async function(){
   const name=document.getElementById('auth-name').value.trim();
@@ -1704,20 +1680,13 @@ window.doRegister=async function(){
     await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
     if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
   }catch(e2){
-    if(e2.code==='auth/email-already-in-use'){
-      window.showAuthError(window._lang==='en'?'This email is already registered. Try signing in.':'Този имейл вече е регистриран. Опитай да влезеш.');
-    }else if(e2.code==='auth/weak-password'){
-      window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
-    }else if(e2.code==='auth/invalid-email'){
-      window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
-    }else{
-      window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
-    }
-  }finally{
-    btn.disabled=false;btn.textContent=window._lang==='en'?'Create account':'Създай акаунт';
-  }
+    const c=e2.code||'';
+    if(c==='auth/email-already-in-use')window.showAuthError(window._lang==='en'?'This email is already registered. Try signing in.':'Този имейл вече е регистриран. Опитай да влезеш.');
+    else if(c==='auth/weak-password')window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
+    else if(c==='auth/invalid-email')window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+    else window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
+  }finally{btn.disabled=false;btn.textContent=window._lang==='en'?'Create account':'Създай акаунт';}
 };
-// Keep doAuthUnified as an alias for backward compat (keyboard Enter handler)
 window.doAuthUnified=window.doLogin;
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
 onAuthStateChanged(auth,async user=>{
@@ -1849,8 +1818,6 @@ onAuthStateChanged(auth,async user=>{
   // After any auth state change, if profile page is active — refresh it
   if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function'){
     renderHomePage();
-    // Fallback: re-render after short delay in case of async timing issues
-    setTimeout(()=>{ if(document.getElementById('page-home')?.classList.contains('active')) renderHomePage(); }, 400);
   }
   if(document.getElementById('page-profile')?.classList.contains('active')){
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
@@ -1859,7 +1826,7 @@ onAuthStateChanged(auth,async user=>{
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
   }
 });
-// openAuthScreen is defined above with view-switching support
+// openAuthScreen defined above
 </script>
 
 
@@ -2515,7 +2482,19 @@ function applyLang(){
   document.documentElement.lang = l === 'bg' ? 'bg' : 'en';
 
   // Auth labels
-  if(typeof _applyAuthLang==='function') _applyAuthLang();
+  try{
+    const isEN=window._lang==='en';
+    const _el=id=>document.getElementById(id);
+    if(_el('auth-login-title'))_el('auth-login-title').textContent=isEN?'Sign In':'Вход';
+    if(_el('auth-btn'))_el('auth-btn').textContent=isEN?'Sign In':'Влез';
+    if(_el('auth-reg-title'))_el('auth-reg-title').textContent=isEN?'Register':'Регистрация';
+    if(_el('auth-btn-reg'))_el('auth-btn-reg').textContent=isEN?'Create account':'Създай акаунт';
+    if(_el('auth-no-acc-lbl'))_el('auth-no-acc-lbl').textContent=isEN?"Don't have an account?":'Нямаш акаунт?';
+    if(_el('auth-to-reg-lbl'))_el('auth-to-reg-lbl').textContent=isEN?'Register →':'Регистрирай се →';
+    if(_el('auth-has-acc-lbl'))_el('auth-has-acc-lbl').textContent=isEN?'Already have an account?':'Вече имаш акаунт?';
+    if(_el('auth-to-login-lbl'))_el('auth-to-login-lbl').textContent=isEN?'Sign In →':'Влез →';
+    if(_el('auth-forgot-lbl'))_el('auth-forgot-lbl').textContent=isEN?'Forgot password?':'Забравена парола?';
+  }catch(e){}
 
   // Nav labels
   const nls = document.querySelectorAll('.nl');
@@ -2715,7 +2694,7 @@ function goPage(name,btn){
   else { const autoBtn=document.querySelector(`.nb[onclick*="goPage('${name}'"]`); if(autoBtn)autoBtn.classList.add('active'); }
   try{localStorage.setItem('gt_last_page',name);}catch(e){}
   try{
-    if(name==='home'){ if(typeof renderHomePage==='function') renderHomePage(); }
+    if(name==='home'){ setTimeout(function(){ if(typeof renderHomePage==='function') renderHomePage(); }, 0); }
     if(name==='diary'){ if(typeof _diaryView!=='undefined' && _diaryView==='cal') setDiaryView('cal'); else loadDiaryTab(); }
     if(name==='soon') setTimeout(_syncDiaryBtns,0);
     if(name==='notifs'){loadNotifsPage();if(typeof updatePushToggleUI==='function')updatePushToggleUI();if(typeof loadNotifProcSelector==='function')loadNotifProcSelector();}
@@ -4070,24 +4049,19 @@ async function renderDiaryCal(){
         cycleDates[ds].push({isCycle:true,isSymptom:true,name:isBG?'Симптоми: '+syms.join(', '):'Symptoms: '+syms.join(', '),color:'#c4a0d0'});
       });
     }
-    // Add predicted future periods (6 cycles ahead) as hollow pink dots
-    if(typeof _getPredictedPeriods==='function' && typeof _dateInRange==='function'){
-      const _cycDataForPred = {periods: cyc.periods||[], cycleLength: cyc.cycleLength||28, periodDays: cyc.periodDays};
-      // Migrate legacy for prediction
-      if(_cycDataForPred.periods.length===0 && cyc.periodDays && cyc.periodDays.length){
-        _cycDataForPred.periods = [{start: [...cyc.periodDays].sort()[0], end: [...cyc.periodDays].sort().pop()}];
+    // Show predicted future periods (6 cycles) as hollow pink dots
+    if(typeof _getPredictedPeriods==='function'){
+      const _predData={periods:cyc.periods||[],cycleLength:cyc.cycleLength||28};
+      if(_predData.periods.length===0&&cyc.periodDays&&cyc.periodDays.length){
+        _predData.periods=[{start:[...cyc.periodDays].sort()[0],end:[...cyc.periodDays].sort().pop()}];
       }
-      const predictedPeriods = _getPredictedPeriods(_cycDataForPred, 6);
-      predictedPeriods.forEach(pp=>{
-        const startPD = new Date(pp.start+'T12:00:00');
-        const endPD = new Date(pp.end+'T12:00:00');
-        for(let d=new Date(startPD); d<=endPD; d.setDate(d.getDate()+1)){
+      _getPredictedPeriods(_predData,6).forEach(pp=>{
+        const sD=new Date(pp.start+'T12:00:00'),eD=new Date(pp.end+'T12:00:00');
+        for(let d=new Date(sD);d<=eD;d.setDate(d.getDate()+1)){
           const ds=d.toISOString().slice(0,10);
           if(!cycleDates[ds]) cycleDates[ds]=[];
-          // Only add if not already a logged period
-          if(!cycleDates[ds].some(e=>e.isCycle && !e.isPredicted)){
+          if(!cycleDates[ds].some(e=>e.isCycle&&!e.isPredicted))
             cycleDates[ds].push({isCycle:true,isPredicted:true,isCycleReminder:true,name:isBG?'Прогнозен цикъл':'Predicted period',color:'#e8a0a0'});
-          }
         }
       });
     }
@@ -5868,87 +5842,157 @@ function renderCycleTrackerCard(){
 
 // ── HOME PAGE DASHBOARD ──
 function renderHomePage(){
-  _renderHomePageInner();
-}
-function _renderHomePageInner(){
   const wrap = document.getElementById('home-content');
   if(!wrap) return;
   const isBGq = window._lang!=='en';
-
-  // Greeting
-  try{
-    const hr = new Date().getHours();
-    const greetWord = isBGq
-      ? (hr<12?'\u0414\u043e\u0431\u0440\u043e \u0443\u0442\u0440\u043e':hr<18?'\u0414\u043e\u0431\u044a\u0440 \u0434\u0435\u043d':'\u0414\u043e\u0431\u0440\u0430 \u0432\u0435\u0447\u0435\u0440')
-      : (hr<12?'Good morning':hr<18?'Good afternoon':'Good evening');
-    let firstName = '';
-    if(window._user){
-      const dn = (window._user.displayName || window._user.email || '').trim();
-      firstName = dn.split(/\s+/)[0] || '';
-    }
-    const titleEl = document.getElementById('home-greeting-title');
-    const subEl = document.getElementById('home-greeting-sub');
-    if(titleEl) titleEl.innerHTML = firstName ? `${greetWord}, <em>${firstName}</em> \u2728` : `${greetWord} \u2728`;
-    if(subEl) subEl.textContent = typeof fmtDate==='function' ? fmtDate(new Date()) : '';
-  }catch(e){ console.warn('home greeting',e); }
+  const hr = new Date().getHours();
+  const greetWord = isBGq
+    ? (hr<12?'Добро утро':hr<18?'Добър ден':'Добра вечер')
+    : (hr<12?'Good morning':hr<18?'Good afternoon':'Good evening');
+  let firstName = '';
+  if(window._user){
+    const dn = (window._user.displayName || window._user.email || '').trim();
+    firstName = dn.split(/\s+/)[0] || '';
+  }
+  const titleEl = document.getElementById('home-greeting-title');
+  const subEl = document.getElementById('home-greeting-sub');
+  if(titleEl) titleEl.innerHTML = firstName ? `${greetWord}, <em>${firstName}</em> ✨` : `${greetWord} ✨`;
+  if(subEl) subEl.textContent = fmtDate(new Date());
 
   if(!window._user){
     wrap.innerHTML = `
       <div class="profile-card-section" style="text-align:center;padding:26px 16px">
-        <div style="font-size:30px;margin-bottom:8px">\ud83c\udf3f</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);margin-bottom:6px">${isBGq?'\u0414\u043e\u0431\u0440\u0435 \u0434\u043e\u0448\u043b\u0430 \u0432 GlowTrack':'Welcome to GlowTrack'}</div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">${isBGq?'\u0412\u043b\u0435\u0437 \u0432 \u0430\u043a\u0430\u0443\u043d\u0442\u0430 \u0441\u0438, \u0437\u0430 \u0434\u0430 \u0432\u0438\u0436\u0434\u0430\u0448 \u0441\u0432\u043e\u044f \u0446\u0438\u043a\u044a\u043b, \u0441\u044a\u0432\u0435\u0442\u0438 \u0437\u0430 \u043a\u043e\u0436\u0430\u0442\u0430, \u043b\u044e\u0431\u0438\u043c\u0438 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438 \u0438 \u043d\u0430\u043f\u043e\u043c\u043d\u044f\u043d\u0438\u044f.':'Log in to see your cycle, skin tips, favorite procedures and reminders.'}</div>
-        <button onclick="openAuthScreen()" style="padding:11px 22px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'\u0412\u043b\u0435\u0437 / \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u0430\u0439 \u0441\u0435':'Log in / Sign up'}</button>
+        <div style="font-size:30px;margin-bottom:8px">🌿</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);margin-bottom:6px">${isBGq?'Добре дошла в GlowTrack':'Welcome to GlowTrack'}</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">${isBGq?'Влез в акаунта си, за да виждаш своя цикъл, съвети за кожата, любими процедури и напомняния.':'Log in to see your cycle, skin tips, favorite procedures and reminders.'}</div>
+        <button onclick="goPage('profile')" style="padding:11px 22px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Влез / Регистрирай се':'Log in / Sign up'}</button>
       </div>
       <div class="profile-card-section">
-        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Cormorant Garamond',serif">${isBGq?'\u2726 \u0420\u0430\u0437\u0433\u043b\u0435\u0434\u0430\u0439 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438':'\u2726 Explore procedures'}</div>
-        <button onclick="goPage('procs')" style="width:100%;padding:11px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'\u0412\u0438\u0436 \u0432\u0441\u0438\u0447\u043a\u0438 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438':'Browse all procedures'}</button>
+        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Cormorant Garamond',serif">${isBGq?'✦ Разгледай процедури':'✦ Explore procedures'}</div>
+        <button onclick="document.querySelector('.nb[onclick*=procs]')?.click()" style="width:100%;padding:11px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж всички процедури':'Browse all procedures'}</button>
       </div>`;
     return;
   }
 
-  const parts = [];
+  const cycleData = _loadCycleData();
+  const hasCycle = !!(cycleData.periods && cycleData.periods.length);
+  const currentPhase = hasCycle ? _phaseForDate(new Date().toISOString().slice(0,10), cycleData) : null;
 
-  // 1. Cycle phase card
-  try{
-    const cd = (typeof _loadCycleData==='function') ? _loadCycleData() : {periods:[],cycleLength:28};
-    const hasCycle = !!(cd.periods && cd.periods.length);
-    const phase = (hasCycle && typeof _phaseForDate==='function') ? _phaseForDate(new Date().toISOString().slice(0,10), cd) : null;
-    if(phase && window.CYCLE_PHASE_INFO && CYCLE_PHASE_INFO[phase]){
-      const pi = CYCLE_PHASE_INFO[phase];
-      parts.push(`<div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="typeof openCycleTracker==='function'&&openCycleTracker()">
+  let skinSaved = null;
+  try{ skinSaved = JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null'); }catch(e){}
+  const hasSkin = !!(skinSaved && skinSaved.skinType);
+
+  // 1. Phase / cycle card
+  let phaseCardHTML;
+  if(currentPhase){
+    const pi = CYCLE_PHASE_INFO[currentPhase];
+    phaseCardHTML = `
+      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCycleTracker()">
         <div style="font-size:30px;flex-shrink:0">${pi.icon}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">${isBGq?pi.bg:pi.en}</div>
           <div style="font-size:11px;color:var(--ink2);line-height:1.4;margin-top:2px">${isBGq?pi.tipBg:pi.tipEn}</div>
           <div style="font-size:10.5px;color:var(--gold);font-weight:600;margin-top:3px">${isBGq?pi.avoidBg:pi.avoidEn}</div>
         </div>
-        <div style="color:var(--gold);font-size:20px;flex-shrink:0">&#8250;</div>
-      </div>`);
-    } else {
-      parts.push(`<div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="typeof openCycleTracker==='function'&&openCycleTracker()">
-        <div style="font-size:26px;flex-shrink:0">\ud83c\udf19</div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
+      </div>`;
+  } else {
+    phaseCardHTML = `
+      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCycleTracker()">
+        <div style="font-size:26px;flex-shrink:0">🌙</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBGq?'\u041d\u0430\u0441\u0442\u0440\u043e\u0439 \u043c\u0435\u0441\u0435\u0447\u043d\u0438\u044f \u0441\u0438 \u0446\u0438\u043a\u044a\u043b':'Set up your monthly cycle'}</div>
-          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBGq?'\u0412\u0438\u0436 \u0444\u0430\u0437\u0430\u0442\u0430 \u0441\u0438 \u0438 \u0441\u044a\u0432\u0435\u0442\u0438 \u0437\u0430 \u043a\u043e\u0436\u0430\u0442\u0430 \u0432\u0441\u0435\u043a\u0438 \u0434\u0435\u043d':'See your phase and daily skin tips'}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBGq?'Настрой месечния си цикъл':'Set up your monthly cycle'}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBGq?'Виж фазата си и съвети за кожата всеки ден':'See your phase and daily skin tips'}</div>
         </div>
-        <div style="color:var(--gold);font-size:20px;flex-shrink:0">&#8250;</div>
-      </div>`);
-    }
-  }catch(e){ console.warn('home phase',e); }
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
+      </div>`;
+  }
 
-  // 2. Stats
-  try{
-    const favCount = (typeof getFavs==='function') ? getFavs().length : 0;
-    parts.push(`<div class="profile-card-section"><div style="display:flex;text-align:center">
-      <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">\u2014</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u0417\u0430\u043f\u0438\u0441\u0438':'Entries'}</div></div>
-      <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${favCount}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u041b\u044e\u0431\u0438\u043c\u0438':'Favorites'}</div></div>
-      <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">\u2014</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u041f\u043e\u0445\u0430\u0440\u0447\u0435\u043d\u0438':'Spent'}</div></div>
-      <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">\u2014</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u041e\u0446\u0435\u043d\u043a\u0430':'Rating'}</div></div>
-    </div></div>`);
-  }catch(e){ console.warn('home stats',e); }
+  // 2. Quick stats
+  const statsHTML = `
+    <div class="profile-card-section">
+      <div style="display:flex;text-align:center">
+        <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Записи':'Entries'}</div></div>
+        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${getFavs().length}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
+        <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Похарчени':'Spent'}</div></div>
+        <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Оценка':'Rating'}</div></div>
+      </div>
+    </div>`;
 
-  wrap.innerHTML = parts.join('') || '<div style="padding:40px 24px;text-align:center;color:var(--ink2);font-size:13px">GlowTrack \u2726</div>';
+  // 3. Continue where you left off (only missing pieces)
+  const continueItems = [];
+  if(!hasSkin) continueItems.push({icon:'🧪', bg:'Направи теста за типа кожа', en:'Take the skin type test', fn:'openSkinQuiz()'});
+  if(!hasCycle) continueItems.push({icon:'🌙', bg:'Настрой цикъла', en:'Set up your cycle', fn:'openCycleTracker()'});
+  const continueHTML = continueItems.length ? `
+    <div class="profile-card-section">
+      <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em">${isBGq?'Продължи оттам, където спря':'Continue where you left off'}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${continueItems.map(it=>`<div onclick="${it.fn}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
+          <div style="font-size:20px;flex-shrink:0">${it.icon}</div>
+          <div style="flex:1;font-size:12.5px;font-weight:600;color:var(--ink1)">${isBGq?it.bg:it.en}</div>
+          <div style="color:var(--gold);font-size:16px">›</div>
+        </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // 4. Upcoming reminder
+  const notifs = _lsGet('gt_notifs')||[];
+  const now = new Date();
+  const getNotifTime = n=>{ const dt=new Date(n.date); if(n.time){const p=(n.time.split(':')).map(Number); dt.setHours(p[0]||0,p[1]||0,0,0);} return dt; };
+  const upcoming = notifs.filter(n=>getNotifTime(n)>=now && !n.isCycleReminder).sort((a,b)=>getNotifTime(a)-getNotifTime(b))[0];
+  let reminderHTML = '';
+  if(upcoming){
+    const dt = getNotifTime(upcoming);
+    const diff = daysUntil(dt);
+    const diffTxt = diff===0?(isBGq?'Днес':'Today'):diff===1?(isBGq?'Утре':'Tomorrow'):diff>0?(isBGq?`След ${diff} дни`:`In ${diff} days`):(isBGq?'Днес':'Today');
+    const linkedProc = window.PROCS && upcoming.procId ? PROCS.find(p=>p.id===upcoming.procId) : null;
+    const displayName = linkedProc ? procL(linkedProc).name : (upcoming.procName||(isBGq?'Напомняне':'Reminder'));
+    reminderHTML = `
+      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="document.querySelector('.nb[onclick*=notifs]')?.click()">
+        <div style="font-size:22px;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:9.5px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase">${isBGq?'Предстоящо':'Upcoming'}</div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${fmtDate(dt)}${upcoming.time?' · '+upcoming.time:''} · ${diffTxt}</div>
+        </div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
+      </div>`;
+  }
+
+  // Helper to render a horizontal proc card row
+  const procCardRow = (procs) => procs.map(p=>{
+    const lp = procL(p);
+    const thumb = p.img
+      ? `<img src="${p.img}" loading="lazy" style="width:128px;height:96px;border-radius:12px;object-fit:cover;display:block;margin-bottom:6px">`
+      : `<div style="width:128px;height:96px;border-radius:12px;background:${p.bg||'var(--goldlt)'};display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:6px">${p.icon||'✦'}</div>`;
+    return `<div onclick="document.querySelector('.nb[onclick*=procs]')?.click();openSheet('${p.id}')" style="flex:0 0 128px;cursor:pointer">
+      ${thumb}
+      <div style="font-size:11.5px;font-weight:600;color:var(--ink1);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${lp.name}</div>
+    </div>`;
+  }).join('');
+
+  // 5. Recommended for you
+  let recIds = [];
+  if(currentPhase) recIds = [...(CYCLE_PHASE_INFO[currentPhase].recIds||[])];
+  if(hasSkin) recIds = [...recIds, ...(SKIN_TYPE_RECS[skinSaved.skinType]||[]), ...(PHOTOTYPE_RECS[skinSaved.fototype]||[])];
+  recIds = [...new Set(recIds)].slice(0,6);
+  const recProcs = recIds.map(id=>PROCS.find(p=>p.id===id)).filter(Boolean);
+  const recHTML = recProcs.length ? `
+    <div style="margin:14px 0 4px">
+      <div style="margin:0 18px 10px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink)">${isBGq?'✦ Препоръчано за теб':'✦ Recommended for you'}</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px">${procCardRow(recProcs)}</div>
+    </div>` : '';
+
+  // 6. Favorite procedures
+  const favProcs = getFavs().map(id=>PROCS.find(p=>p.id===id)).filter(Boolean).slice(0,8);
+  const favHTML = favProcs.length ? `
+    <div style="margin:14px 0 4px">
+      <div style="margin:0 18px 10px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink)">${isBGq?'★ Любими процедури':'★ Favorite procedures'}</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px">${procCardRow(favProcs)}</div>
+    </div>` : '';
+
+  wrap.innerHTML = phaseCardHTML + statsHTML + continueHTML + reminderHTML + recHTML + favHTML;
+
   homeLoadDiaryStats();
 }
 function homeLoadDiaryStats(){
@@ -7298,8 +7342,8 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     const authScreen=document.getElementById('auth-screen');
     if(authScreen&&!authScreen.classList.contains('hidden')){
-      const regView=document.getElementById('auth-view-register');
-      if(regView&&regView.style.display!=='none') window.doRegister(); else window.doLogin();
+      const rv=document.getElementById('auth-view-register');
+      if(rv&&rv.style.display!=='none')window.doRegister(); else window.doLogin();
     }
   }
   if(e.key==='Escape'){
