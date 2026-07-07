@@ -5868,164 +5868,87 @@ function renderCycleTrackerCard(){
 
 // ── HOME PAGE DASHBOARD ──
 function renderHomePage(){
-  try{ _renderHomePageInner(); }catch(e){
-    console.error('renderHomePage error:',e);
-    const wrap2=document.getElementById('home-content');
-    if(wrap2) wrap2.innerHTML='<div style="text-align:center;padding:40px 24px;color:var(--ink2)"><div style="font-size:13px">Грешка при зареждане. Опитай пак.</div><button onclick="renderHomePage()" style="margin-top:12px;padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Опитай</button></div>';
-  }
+  _renderHomePageInner();
 }
 function _renderHomePageInner(){
   const wrap = document.getElementById('home-content');
   if(!wrap) return;
   const isBGq = window._lang!=='en';
-  const hr = new Date().getHours();
-  const greetWord = isBGq
-    ? (hr<12?'Добро утро':hr<18?'Добър ден':'Добра вечер')
-    : (hr<12?'Good morning':hr<18?'Good afternoon':'Good evening');
-  let firstName = '';
-  if(window._user){
-    const dn = (window._user.displayName || window._user.email || '').trim();
-    firstName = dn.split(/\s+/)[0] || '';
-  }
-  const titleEl = document.getElementById('home-greeting-title');
-  const subEl = document.getElementById('home-greeting-sub');
-  if(titleEl) titleEl.innerHTML = firstName ? `${greetWord}, <em>${firstName}</em> ✨` : `${greetWord} ✨`;
-  if(subEl) subEl.textContent = fmtDate(new Date());
+
+  // Greeting
+  try{
+    const hr = new Date().getHours();
+    const greetWord = isBGq
+      ? (hr<12?'\u0414\u043e\u0431\u0440\u043e \u0443\u0442\u0440\u043e':hr<18?'\u0414\u043e\u0431\u044a\u0440 \u0434\u0435\u043d':'\u0414\u043e\u0431\u0440\u0430 \u0432\u0435\u0447\u0435\u0440')
+      : (hr<12?'Good morning':hr<18?'Good afternoon':'Good evening');
+    let firstName = '';
+    if(window._user){
+      const dn = (window._user.displayName || window._user.email || '').trim();
+      firstName = dn.split(/\s+/)[0] || '';
+    }
+    const titleEl = document.getElementById('home-greeting-title');
+    const subEl = document.getElementById('home-greeting-sub');
+    if(titleEl) titleEl.innerHTML = firstName ? `${greetWord}, <em>${firstName}</em> \u2728` : `${greetWord} \u2728`;
+    if(subEl) subEl.textContent = typeof fmtDate==='function' ? fmtDate(new Date()) : '';
+  }catch(e){ console.warn('home greeting',e); }
 
   if(!window._user){
     wrap.innerHTML = `
       <div class="profile-card-section" style="text-align:center;padding:26px 16px">
-        <div style="font-size:30px;margin-bottom:8px">🌿</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);margin-bottom:6px">${isBGq?'Добре дошла в GlowTrack':'Welcome to GlowTrack'}</div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">${isBGq?'Влез в акаунта си, за да виждаш своя цикъл, съвети за кожата, любими процедури и напомняния.':'Log in to see your cycle, skin tips, favorite procedures and reminders.'}</div>
-        <button onclick="goPage('profile')" style="padding:11px 22px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Влез / Регистрирай се':'Log in / Sign up'}</button>
+        <div style="font-size:30px;margin-bottom:8px">\ud83c\udf3f</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);margin-bottom:6px">${isBGq?'\u0414\u043e\u0431\u0440\u0435 \u0434\u043e\u0448\u043b\u0430 \u0432 GlowTrack':'Welcome to GlowTrack'}</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.55;margin-bottom:14px">${isBGq?'\u0412\u043b\u0435\u0437 \u0432 \u0430\u043a\u0430\u0443\u043d\u0442\u0430 \u0441\u0438, \u0437\u0430 \u0434\u0430 \u0432\u0438\u0436\u0434\u0430\u0448 \u0441\u0432\u043e\u044f \u0446\u0438\u043a\u044a\u043b, \u0441\u044a\u0432\u0435\u0442\u0438 \u0437\u0430 \u043a\u043e\u0436\u0430\u0442\u0430, \u043b\u044e\u0431\u0438\u043c\u0438 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438 \u0438 \u043d\u0430\u043f\u043e\u043c\u043d\u044f\u043d\u0438\u044f.':'Log in to see your cycle, skin tips, favorite procedures and reminders.'}</div>
+        <button onclick="openAuthScreen()" style="padding:11px 22px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'\u0412\u043b\u0435\u0437 / \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u0430\u0439 \u0441\u0435':'Log in / Sign up'}</button>
       </div>
       <div class="profile-card-section">
-        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Cormorant Garamond',serif">${isBGq?'✦ Разгледай процедури':'✦ Explore procedures'}</div>
-        <button onclick="document.querySelector('.nb[onclick*=procs]')?.click()" style="width:100%;padding:11px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж всички процедури':'Browse all procedures'}</button>
+        <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px;font-family:'Cormorant Garamond',serif">${isBGq?'\u2726 \u0420\u0430\u0437\u0433\u043b\u0435\u0434\u0430\u0439 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438':'\u2726 Explore procedures'}</div>
+        <button onclick="goPage('procs')" style="width:100%;padding:11px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'\u0412\u0438\u0436 \u0432\u0441\u0438\u0447\u043a\u0438 \u043f\u0440\u043e\u0446\u0435\u0434\u0443\u0440\u0438':'Browse all procedures'}</button>
       </div>`;
     return;
   }
 
-  const cycleData = _loadCycleData();
-  const hasCycle = !!(cycleData.periods && cycleData.periods.length);
-  const currentPhase = hasCycle ? _phaseForDate(new Date().toISOString().slice(0,10), cycleData) : null;
+  const parts = [];
 
-  let skinSaved = null;
-  try{ skinSaved = JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null'); }catch(e){}
-  const hasSkin = !!(skinSaved && skinSaved.skinType);
-
-  // 1. Phase / cycle card
-  let phaseCardHTML;
-  if(currentPhase){
-    const pi = CYCLE_PHASE_INFO[currentPhase];
-    phaseCardHTML = `
-      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCycleTracker()">
+  // 1. Cycle phase card
+  try{
+    const cd = (typeof _loadCycleData==='function') ? _loadCycleData() : {periods:[],cycleLength:28};
+    const hasCycle = !!(cd.periods && cd.periods.length);
+    const phase = (hasCycle && typeof _phaseForDate==='function') ? _phaseForDate(new Date().toISOString().slice(0,10), cd) : null;
+    if(phase && window.CYCLE_PHASE_INFO && CYCLE_PHASE_INFO[phase]){
+      const pi = CYCLE_PHASE_INFO[phase];
+      parts.push(`<div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="typeof openCycleTracker==='function'&&openCycleTracker()">
         <div style="font-size:30px;flex-shrink:0">${pi.icon}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">${isBGq?pi.bg:pi.en}</div>
           <div style="font-size:11px;color:var(--ink2);line-height:1.4;margin-top:2px">${isBGq?pi.tipBg:pi.tipEn}</div>
           <div style="font-size:10.5px;color:var(--gold);font-weight:600;margin-top:3px">${isBGq?pi.avoidBg:pi.avoidEn}</div>
         </div>
-        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
-      </div>`;
-  } else {
-    phaseCardHTML = `
-      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openCycleTracker()">
-        <div style="font-size:26px;flex-shrink:0">🌙</div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">&#8250;</div>
+      </div>`);
+    } else {
+      parts.push(`<div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="typeof openCycleTracker==='function'&&openCycleTracker()">
+        <div style="font-size:26px;flex-shrink:0">\ud83c\udf19</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBGq?'Настрой месечния си цикъл':'Set up your monthly cycle'}</div>
-          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBGq?'Виж фазата си и съвети за кожата всеки ден':'See your phase and daily skin tips'}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBGq?'\u041d\u0430\u0441\u0442\u0440\u043e\u0439 \u043c\u0435\u0441\u0435\u0447\u043d\u0438\u044f \u0441\u0438 \u0446\u0438\u043a\u044a\u043b':'Set up your monthly cycle'}</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${isBGq?'\u0412\u0438\u0436 \u0444\u0430\u0437\u0430\u0442\u0430 \u0441\u0438 \u0438 \u0441\u044a\u0432\u0435\u0442\u0438 \u0437\u0430 \u043a\u043e\u0436\u0430\u0442\u0430 \u0432\u0441\u0435\u043a\u0438 \u0434\u0435\u043d':'See your phase and daily skin tips'}</div>
         </div>
-        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
-      </div>`;
-  }
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">&#8250;</div>
+      </div>`);
+    }
+  }catch(e){ console.warn('home phase',e); }
 
-  // 2. Quick stats
-  const statsHTML = `
-    <div class="profile-card-section">
-      <div style="display:flex;text-align:center">
-        <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Записи':'Entries'}</div></div>
-        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${getFavs().length}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
-        <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Похарчени':'Spent'}</div></div>
-        <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Оценка':'Rating'}</div></div>
-      </div>
-    </div>`;
+  // 2. Stats
+  try{
+    const favCount = (typeof getFavs==='function') ? getFavs().length : 0;
+    parts.push(`<div class="profile-card-section"><div style="display:flex;text-align:center">
+      <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">\u2014</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u0417\u0430\u043f\u0438\u0441\u0438':'Entries'}</div></div>
+      <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${favCount}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u041b\u044e\u0431\u0438\u043c\u0438':'Favorites'}</div></div>
+      <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">\u2014</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u041f\u043e\u0445\u0430\u0440\u0447\u0435\u043d\u0438':'Spent'}</div></div>
+      <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">\u2014</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'\u041e\u0446\u0435\u043d\u043a\u0430':'Rating'}</div></div>
+    </div></div>`);
+  }catch(e){ console.warn('home stats',e); }
 
-  // 3. Continue where you left off (only missing pieces)
-  const continueItems = [];
-  if(!hasSkin) continueItems.push({icon:'🧪', bg:'Направи теста за типа кожа', en:'Take the skin type test', fn:'openSkinQuiz()'});
-  if(!hasCycle) continueItems.push({icon:'🌙', bg:'Настрой цикъла', en:'Set up your cycle', fn:'openCycleTracker()'});
-  const continueHTML = continueItems.length ? `
-    <div class="profile-card-section">
-      <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em">${isBGq?'Продължи оттам, където спря':'Continue where you left off'}</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${continueItems.map(it=>`<div onclick="${it.fn}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
-          <div style="font-size:20px;flex-shrink:0">${it.icon}</div>
-          <div style="flex:1;font-size:12.5px;font-weight:600;color:var(--ink1)">${isBGq?it.bg:it.en}</div>
-          <div style="color:var(--gold);font-size:16px">›</div>
-        </div>`).join('')}
-      </div>
-    </div>` : '';
-
-  // 4. Upcoming reminder
-  const notifs = _lsGet('gt_notifs')||[];
-  const now = new Date();
-  const getNotifTime = n=>{ const dt=new Date(n.date); if(n.time){const p=(n.time.split(':')).map(Number); dt.setHours(p[0]||0,p[1]||0,0,0);} return dt; };
-  const upcoming = notifs.filter(n=>getNotifTime(n)>=now && !n.isCycleReminder).sort((a,b)=>getNotifTime(a)-getNotifTime(b))[0];
-  let reminderHTML = '';
-  if(upcoming){
-    const dt = getNotifTime(upcoming);
-    const diff = daysUntil(dt);
-    const diffTxt = diff===0?(isBGq?'Днес':'Today'):diff===1?(isBGq?'Утре':'Tomorrow'):diff>0?(isBGq?`След ${diff} дни`:`In ${diff} days`):(isBGq?'Днес':'Today');
-    const linkedProc = window.PROCS && upcoming.procId ? PROCS.find(p=>p.id===upcoming.procId) : null;
-    const displayName = linkedProc ? procL(linkedProc).name : (upcoming.procName||(isBGq?'Напомняне':'Reminder'));
-    reminderHTML = `
-      <div class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="document.querySelector('.nb[onclick*=notifs]')?.click()">
-        <div style="font-size:22px;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:9.5px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase">${isBGq?'Предстоящо':'Upcoming'}</div>
-          <div style="font-size:13.5px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName}</div>
-          <div style="font-size:11px;color:var(--ink2);margin-top:2px">${fmtDate(dt)}${upcoming.time?' · '+upcoming.time:''} · ${diffTxt}</div>
-        </div>
-        <div style="color:var(--gold);font-size:20px;flex-shrink:0">›</div>
-      </div>`;
-  }
-
-  // Helper to render a horizontal proc card row
-  const procCardRow = (procs) => procs.map(p=>{
-    const lp = procL(p);
-    const thumb = p.img
-      ? `<img src="${p.img}" loading="lazy" style="width:128px;height:96px;border-radius:12px;object-fit:cover;display:block;margin-bottom:6px">`
-      : `<div style="width:128px;height:96px;border-radius:12px;background:${p.bg||'var(--goldlt)'};display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:6px">${p.icon||'✦'}</div>`;
-    return `<div onclick="document.querySelector('.nb[onclick*=procs]')?.click();openSheet('${p.id}')" style="flex:0 0 128px;cursor:pointer">
-      ${thumb}
-      <div style="font-size:11.5px;font-weight:600;color:var(--ink1);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${lp.name}</div>
-    </div>`;
-  }).join('');
-
-  // 5. Recommended for you
-  let recIds = [];
-  if(currentPhase) recIds = [...(CYCLE_PHASE_INFO[currentPhase].recIds||[])];
-  if(hasSkin) recIds = [...recIds, ...(SKIN_TYPE_RECS[skinSaved.skinType]||[]), ...(PHOTOTYPE_RECS[skinSaved.fototype]||[])];
-  recIds = [...new Set(recIds)].slice(0,6);
-  const recProcs = recIds.map(id=>PROCS.find(p=>p.id===id)).filter(Boolean);
-  const recHTML = recProcs.length ? `
-    <div style="margin:14px 0 4px">
-      <div style="margin:0 18px 10px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink)">${isBGq?'✦ Препоръчано за теб':'✦ Recommended for you'}</div>
-      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px">${procCardRow(recProcs)}</div>
-    </div>` : '';
-
-  // 6. Favorite procedures
-  const favProcs = getFavs().map(id=>PROCS.find(p=>p.id===id)).filter(Boolean).slice(0,8);
-  const favHTML = favProcs.length ? `
-    <div style="margin:14px 0 4px">
-      <div style="margin:0 18px 10px;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink)">${isBGq?'★ Любими процедури':'★ Favorite procedures'}</div>
-      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 18px 4px">${procCardRow(favProcs)}</div>
-    </div>` : '';
-
-  wrap.innerHTML = phaseCardHTML + statsHTML + continueHTML + reminderHTML + recHTML + favHTML;
-
+  wrap.innerHTML = parts.join('') || '<div style="padding:40px 24px;text-align:center;color:var(--ink2);font-size:13px">GlowTrack \u2726</div>';
   homeLoadDiaryStats();
 }
 function homeLoadDiaryStats(){
