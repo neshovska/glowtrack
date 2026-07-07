@@ -1756,6 +1756,19 @@ onAuthStateChanged(auth,async user=>{
     // thinking the first attempt hadn't worked.
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.add('show');
+    // Reset home page to guest state
+    const _hhome=document.getElementById('home-name');
+    const _hhab=document.getElementById('home-auth-btn');
+    const _hheb=document.getElementById('home-edit-btn');
+    const _hhact=document.getElementById('home-actions');
+    const _hhav=document.getElementById('home-avatar-big');
+    const _htav=document.getElementById('topbar-avatar');
+    if(_hhome) _hhome.textContent=window._lang!=='en'?'Влез в акаунта си':'Sign in';
+    if(_hhab) _hhab.style.display='block';
+    if(_hheb) _hheb.style.display='none';
+    if(_hhact) _hhact.style.display='none';
+    if(_hhav) _hhav.textContent='?';
+    if(_htav) _htav.textContent='?';
     if(document.activeElement) document.activeElement.blur();
     window.scrollTo({top:0,left:0,behavior:'instant'});
     document.documentElement.scrollTop=0;
@@ -4848,10 +4861,15 @@ function filterDiaryGroups(q){
   if(clear) clear.style.display = q ? 'block' : 'none';
   const groups = document.querySelectorAll('#diary-sortable .dv2-group');
   const ql = (q||'').toLowerCase().trim();
+  if(!ql){ groups.forEach(g=>g.style.display=''); return; }
+  const words = ql.split(/\s+/).filter(Boolean);
   groups.forEach(g => {
-    if(!ql){ g.style.display=''; return; }
-    const name = (g.querySelector('.dv2-name')?.textContent||g.querySelector('.dv2-group-hdr')?.textContent||'').toLowerCase();
-    g.style.display = name.includes(ql) ? '' : 'none';
+    // Search across name, sub, all entry text (dates, notes, zones)
+    const name = (g.querySelector('.dv2-name')?.textContent||'').toLowerCase();
+    const meta = (g.querySelector('.dv2-meta')?.textContent||'').toLowerCase();
+    const entries = Array.from(g.querySelectorAll('.dv2-hist-item,.dv2-entry-detail')).map(e=>e.textContent||'').join(' ').toLowerCase();
+    const allText = name+' '+meta+' '+entries;
+    g.style.display = words.every(w=>allText.includes(w)) ? '' : 'none';
   });
 }
 
@@ -6066,8 +6084,8 @@ function updateFavBtn(procId){
   btn.textContent = getFavs().includes(procId) ? '★' : '☆';
 }
 
-function loadFavsList(){
-  const list = document.getElementById('favs-list');
+function loadFavsList(containerId){
+  const list = document.getElementById(containerId||'favs-list');
   if(!list) return;
   const favs = getFavs();
   if(!favs.length){
@@ -6563,51 +6581,86 @@ function togglePastNotifs(){
   body.style.gap = '8px';
   if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
 }
-function openStatsPanel(){
+async function openStatsPanel(){
   const modal=document.getElementById('profile-modal');
   const content=document.getElementById('profile-modal-content');
   if(!modal||!content) return;
   const isBG=window._lang!=='en';
-  // Build stats from diary data
+  modal.style.display='flex';
+  content.innerHTML=`<div style="padding:0 18px 24px"><div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:20px;font-family:'Cormorant Garamond',serif">${isBG?'Моята статистика':'My Statistics'}</div><div style="text-align:center;padding:20px;color:var(--ink2)">${isBG?'Зарежда...':'Loading...'}</div></div>`;
   try{
-    const entries=typeof _lsGet==='function'?(_lsGet('gt_diary')||[]):[];
+    let entries=[];
+    if(window._user){
+      const snap=await F().getDocs(F().collection(DB(),'users',window._user.uid,'diary'));
+      entries=snap.docs.map(d=>d.data());
+    }
     const totalEntries=entries.length;
-    const procs=new Set(entries.map(e=>e.procId)).size;
-    const spent=entries.reduce((s,e)=>s+(parseFloat(e.price)||0),0);
+    const procIds=new Set(entries.map(e=>e.procId).filter(Boolean));
+    const totalProcs=procIds.size;
+    const totalSpent=entries.reduce((s,e)=>s+(parseFloat(e.price)||0),0);
+    // Last procedure
+    const sorted=[...entries].sort((a,b)=>(b.createdAt?.toMillis?.()??0)-(a.createdAt?.toMillis?.()??0));
+    const lastEntry=sorted[0];
+    const lastProc=lastEntry?((window.PROCS||[]).find(p=>p.id===lastEntry.procId)):null;
+    const lastProcName=lastProc?(window._lang==='en'?(lastProc.nameEn||lastProc.name):lastProc.name):'—';
     content.innerHTML=`<div style="padding:0 18px 24px">
       <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">${isBG?'Моята статистика':'My Statistics'}</div>
-      <div style="display:flex;gap:10px;margin-bottom:16px">
-        <div style="flex:1;background:var(--goldlt);border-radius:14px;padding:14px;text-align:center">
-          <div style="font-size:26px;font-weight:700;color:var(--gold)">${procs}</div>
-          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">${isBG?'Процедури':'Procedures'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="background:var(--goldlt);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--gold)">${totalProcs}</div>
+          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${isBG?'Процедури':'Procedures'}</div>
         </div>
-        <div style="flex:1;background:var(--goldlt);border-radius:14px;padding:14px;text-align:center">
-          <div style="font-size:26px;font-weight:700;color:var(--gold)">${totalEntries}</div>
-          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">${isBG?'Записа':'Entries'}</div>
-        </div>
-        <div style="flex:1;background:var(--goldlt);border-radius:14px;padding:14px;text-align:center">
-          <div style="font-size:26px;font-weight:700;color:var(--gold)">${spent>0?spent.toFixed(0)+'€':'—'}</div>
-          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">${isBG?'Инвестирано':'Invested'}</div>
+        <div style="background:var(--goldlt);border-radius:14px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--gold)">${totalEntries}</div>
+          <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${isBG?'Записа':'Entries'}</div>
         </div>
       </div>
+      <div style="background:var(--goldlt);border-radius:14px;padding:16px;text-align:center;margin-bottom:12px">
+        <div style="font-size:28px;font-weight:700;color:var(--gold)">${totalSpent>0?totalSpent.toFixed(0)+' €':'—'}</div>
+        <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">${isBG?'Инвестирано':'Invested'}</div>
+      </div>
+      ${lastProcName!=='—'?`<div style="background:var(--card);border:1.5px solid var(--roselt);border-radius:14px;padding:14px 16px">
+        <div style="font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${isBG?'Последна процедура':'Last procedure'}</div>
+        <div style="font-size:14px;font-weight:600;color:var(--ink)">${lastProcName}</div>
+        ${lastEntry.date?`<div style="font-size:11px;color:var(--ink2);margin-top:2px">${lastEntry.date}</div>`:''}
+      </div>`:''}
       ${totalEntries===0?`<div style="text-align:center;padding:20px;color:var(--ink2);font-size:13px">${isBG?'Все още нямаш записи в дневника':'No diary entries yet'}</div>`:''}
     </div>`;
   }catch(e){
-    content.innerHTML=`<div style="padding:20px;text-align:center;color:var(--ink2)">Грешка при зареждане</div>`;
+    content.innerHTML=`<div style="padding:20px;text-align:center;color:var(--ink2)">${window._lang!=='en'?'Грешка при зареждане':'Error loading stats'}</div>`;
   }
-  modal.style.display='flex';
 }
 function openFavsPanel(){
   const modal=document.getElementById('profile-modal');
   const content=document.getElementById('profile-modal-content');
   if(!modal||!content) return;
   const isBG=window._lang!=='en';
+  const favs=typeof getFavs==='function'?getFavs():[];
+  const procs=window.PROCS||[];
+  const items=favs.map(id=>{
+    const p=procs.find(x=>x.id===id);
+    if(!p) return '';
+    const name=isBG?p.name:(p.nameEn||p.name);
+    const sub=isBG?p.sub:(p.subEn||p.sub)||'';
+    const icon=p.img?`<img src="${p.img}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="">`:
+      (typeof procCircleIcon==='function'?procCircleIcon(name,'#b8966a',44):'');
+    return `<div onclick="closeModal();openSheet('${id}')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--goldlt);cursor:pointer">
+      ${icon}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</div>
+      </div>
+      <div style="flex-shrink:0;font-size:18px;color:var(--gold)">★</div>
+    </div>`;
+  }).join('');
   content.innerHTML=`<div style="padding:0 18px 24px">
-    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:16px;font-family:'Cormorant Garamond',serif">★ ${isBG?'Любими процедури':'Favourite Procedures'}</div>
-    <div id="favs-modal-list"></div>
+    <div style="font-size:20px;font-weight:700;color:var(--ink);margin-bottom:12px;font-family:'Cormorant Garamond',serif">★ ${isBG?'Любими процедури':'Favourite Procedures'}</div>
+    ${items||`<div style="text-align:center;padding:24px;color:var(--ink2);font-size:13px">${isBG?'Все още нямаш любими процедури':'No favourites yet'}</div>`}
   </div>`;
   modal.style.display='flex';
-  if(typeof loadFavsList==='function') loadFavsList('favs-modal-list');
+}
+function closeModal(){
+  document.getElementById('profile-modal').style.display='none';
 }
 function openSuggestPanel(){
   const modal=document.getElementById('profile-modal');
@@ -6626,13 +6679,14 @@ function submitSuggestionFromModal(){
   const text=document.getElementById('suggest-modal-text')?.value?.trim();
   if(!text) return;
   const isBG=window._lang!=='en';
-  // Save to Firestore if logged in
   if(window._user){
     try{
       F().addDoc(F().collection(DB(),'suggestions'),{
         uid:window._user.uid,
-        email:window._user.email,
+        name:window._user.displayName||window._user.email.split('@')[0]||'',
+        email:window._user.email||'',
         text,
+        date:new Date().toLocaleDateString('bg-BG'),
         ts:new Date().toISOString()
       }).catch(()=>{});
     }catch(e){}
