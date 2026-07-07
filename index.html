@@ -1564,8 +1564,8 @@ onAuthStateChanged(auth,async user=>{
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
     setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
     setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
-    document.getElementById('prof-name').textContent=user.displayName||user.email.split('@')[0];
-    document.getElementById('prof-email').textContent=user.email;
+    const _profNameEl=document.getElementById('prof-name'); if(_profNameEl) _profNameEl.textContent=user.displayName||user.email.split('@')[0];
+    const _profEmailEl=document.getElementById('prof-email'); if(_profEmailEl) _profEmailEl.textContent=user.email;
     // Update topbar avatar
     const _tav=document.getElementById('topbar-avatar');
     if(_tav){
@@ -4910,9 +4910,10 @@ async function loadAdminInbox(){
     const items=snap.docs.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
     const unread=items.filter(d=>!d.data().read).length;
     const badge=document.getElementById('inbox-badge');
-    if(unread>0){badge.style.display='inline';badge.textContent=unread+' нови';}else{badge.style.display='none';}
+    if(badge){ if(unread>0){badge.style.display='inline';badge.textContent=unread+' нови';}else{badge.style.display='none';} }
     const typeLabel={idea:'💡 Идея',bug:'🐛 Грешка',content:'📝 Съдържание'};
-    document.getElementById('admin-inbox-list').innerHTML=items.length?items.map(d=>{
+    const listEl=document.getElementById('admin-inbox-list');
+    if(listEl) listEl.innerHTML=items.length?items.map(d=>{
       const fb=d.data();
       const dt=fb.createdAt?.toDate?fb.createdAt.toDate():new Date();
       return`<div class="admin-inbox-item">
@@ -4923,7 +4924,7 @@ async function loadAdminInbox(){
     }).join(''):'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма предложения</div>';
     // mark all as read
     items.filter(d=>!d.data().read).forEach(d=>{F().updateDoc(F().doc(DB(),'feedback',d.id),{read:true}).catch(()=>{});});
-  }catch(e){document.getElementById('admin-inbox-list').innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
+  }catch(e){const listEl2=document.getElementById('admin-inbox-list'); if(listEl2) listEl2.innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
 }
 
 
@@ -6755,7 +6756,8 @@ async function saveEditProfile(){
     }
     await Promise.all(updates);
     // Update UI
-    document.getElementById('prof-name').textContent = name;
+    const _pnEl=document.getElementById('prof-name'); if(_pnEl) _pnEl.textContent = name;
+    const _psnEl=document.getElementById('ps-name'); if(_psnEl) _psnEl.textContent = name;
     const parts = name.trim().split(/\s+/);
     const ini = (parts[0]?parts[0][0]:'') + ((parts.length>1&&parts[parts.length-1])?parts[parts.length-1][0]:'');
     const av = document.getElementById('profile-av-wrap');
