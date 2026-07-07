@@ -1167,9 +1167,10 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page" id="page-profile">
     <div class="page-hdr">
-      <div class="page-hdr-title">Добре<em style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic">дошла</em></div>
-      <div class="page-hdr-sub" id="home-sub">Открий своя glow</div>
+      <div class="page-hdr-title">Начало</div>
+      <div class="page-hdr-sub">Скоро тук ще намериш своето персонализирано табло</div>
     </div>
+  </div>
     <div style="padding:0 16px 24px">
       <!-- Welcome card -->
       <div id="home-welcome-card" style="background:linear-gradient(135deg,#c9a87a,#e8c99a,#b8966a);border-radius:20px;padding:22px 20px;margin-bottom:16px;text-align:center">
@@ -1756,19 +1757,7 @@ onAuthStateChanged(auth,async user=>{
     // thinking the first attempt hadn't worked.
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.add('show');
-    // Reset home page to guest state
-    const _hhome=document.getElementById('home-name');
-    const _hhab=document.getElementById('home-auth-btn');
-    const _hheb=document.getElementById('home-edit-btn');
-    const _hhact=document.getElementById('home-actions');
-    const _hhav=document.getElementById('home-avatar-big');
-    const _htav=document.getElementById('topbar-avatar');
-    if(_hhome) _hhome.textContent=window._lang!=='en'?'Влез в акаунта си':'Sign in';
-    if(_hhab) _hhab.style.display='block';
-    if(_hheb) _hheb.style.display='none';
-    if(_hhact) _hhact.style.display='none';
-    if(_hhav) _hhav.textContent='?';
-    if(_htav) _htav.textContent='?';
+
     if(document.activeElement) document.activeElement.blur();
     window.scrollTo({top:0,left:0,behavior:'instant'});
     document.documentElement.scrollTop=0;
@@ -1791,19 +1780,7 @@ onAuthStateChanged(auth,async user=>{
     const _ini=((_parts[0]?_parts[0][0]:'')+(_parts.length>1&&_parts[_parts.length-1]?_parts[_parts.length-1][0]:'')).toUpperCase()||'?';
     const _iniUp=_ini;
     if(_tav) _tav.textContent=_ini;
-    // Update home page
-    const _hn=document.getElementById('home-name');
-    const _he=document.getElementById('home-email');
-    const _hab=document.getElementById('home-auth-btn');
-    const _heb=document.getElementById('home-edit-btn');
-    const _hav=document.getElementById('home-avatar-big');
-    const _hact=document.getElementById('home-actions');
-    if(_hn) _hn.textContent=_name;
-    if(_he) _he.textContent=user.email;
-    if(_hab) _hab.style.display='none';
-    if(_heb) _heb.style.display='block';
-    if(_hav) _hav.textContent=_ini;
-    if(_hact) _hact.style.display='block';
+
     document.getElementById('topbar-right').textContent='';
     document.getElementById('topbar-right').style.display='none';
     const _navSvg=document.getElementById('nav-avatar');const _profSvg=document.getElementById('profile-av-wrap');
