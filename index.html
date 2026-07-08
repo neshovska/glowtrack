@@ -236,13 +236,15 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .topbar{position:sticky;top:0;z-index:50;background:rgba(247,245,242,.9);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
-.logo span{color:var(--gold)}
+.logo span{background:linear-gradient(120deg,var(--gold),#d4849a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .page{display:none;animation:fadeIn .18s ease}
 #page-profile{overflow:visible}
 .page.active{display:block;min-height:100%;overflow-y:visible}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .page-hdr{padding:20px 18px 14px}
-.page-hdr-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--ink)}
+.page-hdr-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;
+  background:linear-gradient(100deg,var(--ink) 25%,#8a6a4a 68%,#d4849a 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.dark .page-hdr-title{background:linear-gradient(100deg,#f0ede8 25%,#e0b789 68%,#e8a4bb 100%);-webkit-background-clip:text;background-clip:text}
 #page-profile .page-hdr-title{font-size:20px}
 .page-hdr-title em{font-style:italic;color:var(--gold)}
 .page-hdr-sub{font-size:12px;color:var(--ink2);margin-top:3px}
@@ -276,6 +278,7 @@ body.dark .home-hero{background:rgba(30,30,56,.66);border-color:rgba(255,255,255
 .home-orb .ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 200deg,var(--sage),#e0a86a 30%,#d4849a 62%,var(--lilac) 100%);animation:homeOrbit 10s linear infinite}
 .home-orb .ring2{position:absolute;inset:-5px;border-radius:50%;border:1.5px dashed rgba(184,150,106,.35);animation:homeOrbit 22s linear infinite reverse}
 .home-orb .core{position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--sagelt,#eef3f0) 45%,var(--sage) 100%);box-shadow:inset 0 2px 7px rgba(255,255,255,.7),0 3px 12px rgba(143,168,154,.4);display:flex;align-items:center;justify-content:center;font-size:19px}
+.home-orb .core svg{width:20px;height:20px}
 @keyframes homeOrbit{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){.home-orb .ring,.home-orb .ring2{animation:none}}
 .home-greet-wrap{flex:1;min-width:0}
@@ -318,6 +321,14 @@ body.dark .home-spot-card{background:linear-gradient(135deg,rgba(155,142,196,.14
 body.dark .home-spot-cta{background:rgba(255,255,255,.1);color:#f0ede8}
 .home-spot-dots{display:flex;gap:5px;justify-content:center;margin-top:9px}
 .home-spot-dots span{width:5px;height:5px;border-radius:50%;background:rgba(184,150,106,.3);transition:width .2s}
+.home-skin-card{display:flex;align-items:center;gap:12px;border-radius:20px;padding:14px 15px;margin-bottom:16px;cursor:pointer;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.9);box-shadow:0 8px 22px rgba(26,26,46,.07)}
+body.dark .home-skin-card{background:rgba(30,30,56,.72);border-color:rgba(255,255,255,.08)}
+.home-skin-ico{width:42px;height:42px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;
+  background:linear-gradient(135deg,var(--goldlt),#f6d9e2)}
+.home-skin-title{font-size:13px;font-weight:700;color:var(--ink)}
+.home-skin-sub{font-size:10.5px;color:var(--ink2);margin-top:2px}
+.home-skin-cta{font-size:10.5px;font-weight:700;background:linear-gradient(120deg,var(--gold),#d4849a);-webkit-background-clip:text;background-clip:text;color:transparent;flex-shrink:0}
 .home-spot-dots span.on{width:14px;border-radius:4px;background:linear-gradient(120deg,var(--gold),#d4849a)}
 
 /* ── PROFILE PAGE (redesign) ── */
@@ -631,7 +642,7 @@ body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);background:rgba(247,245,242,.94);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid rgba(184,150,106,.18);padding:7px 10px calc(env(safe-area-inset-bottom,0px) + 7px);display:flex;justify-content:space-around;z-index:150}
 .nb{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:10px;border:none;background:none;min-width:50px}
 .nb.active .ni{color:var(--gold)}.nb.active svg ellipse,.nb.active svg path{fill:var(--gold) !important;stroke:var(--gold)}
-.nb.active .nl{color:var(--gold);font-weight:600}
+.nb.active .nl{background:linear-gradient(120deg,var(--gold),#d4849a);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
 .ni{font-size:18px;color:#c5bdb4;transition:color .15s}
 .nl{font-size:8px;font-weight:500;color:#c5bdb4;letter-spacing:.03em;white-space:nowrap}
 /* LANG TOGGLE */
@@ -886,7 +897,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <!-- Advanced Filter Overlay -->
     <div id="adv-filter-overlay" onclick="closeAdvFilter()" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.5);z-index:200"></div>
     <!-- Advanced Filter Bottomsheet -->
-    <div id="adv-filter-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(480px,100vw);background:#f7f5f2;border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;display:flex;flex-direction:column">
+    <div id="adv-filter-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(480px,100vw);background:#f7f5f2;border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;max-height:88dvh;display:flex;flex-direction:column">
       <div style="width:38px;height:4px;background:var(--roselt);border-radius:2px;margin:10px auto 0;flex-shrink:0"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0">
         <button onclick="closeAdvFilter()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:15px;line-height:1;flex-shrink:0;padding:0">✕</button>
@@ -1515,6 +1526,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       </div>
 
       <div id="home-client-sections" style="padding:0 16px 24px">
+        <div id="home-skin-card"></div>
         <div id="home-nudges" style="margin-bottom:22px"></div>
         <div id="home-reminder"></div>
         <div id="home-diary-preview"></div>
@@ -4094,6 +4106,22 @@ async function renderDiaryCal(){
         if(!cycleDates[ovDs]) cycleDates[ovDs]=[];
         cycleDates[ovDs].push({isCycle:true,isOvulation:true,name:isBG?'Овулация':'Ovulation',color:'#9b7ab8'});
       });
+      // Project future cycles (predicted, not yet logged) so upcoming months aren't empty
+      try{
+        const predicted = typeof _getPredictedPeriods==='function' ? _getPredictedPeriods(cyc, 6) : [];
+        predicted.forEach(period=>{
+          const startD = new Date(period.start+'T12:00:00');
+          const endD = period.end ? new Date(period.end+'T12:00:00') : startD;
+          for(let d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)){
+            const ds=d.toISOString().slice(0,10);
+            if(!cycleDates[ds]) cycleDates[ds]=[{isCycle:true,isPredicted:true,name:isBG?'Очакван цикъл (прогноза)':'Expected cycle (predicted)',color:'#e8a0a0'}];
+          }
+          const ovD=new Date(startD);
+          ovD.setDate(ovD.getDate()+cycLen-14);
+          const ovDs=ovD.toISOString().slice(0,10);
+          if(!cycleDates[ovDs]) cycleDates[ovDs]=[{isCycle:true,isOvulation:true,isPredicted:true,name:isBG?'Очаквана овулация (прогноза)':'Expected ovulation (predicted)',color:'#9b7ab8'}];
+        });
+      }catch(e){}
     } else if(cyc.periodDays&&Array.isArray(cyc.periodDays)){
       // Legacy format
       cyc.periodDays.forEach(ds=>{
@@ -5905,6 +5933,14 @@ function renderHomePage(){
         ? (isBG?`Сияй днес${namePart} ✨`:`Keep glowing${namePart} ✨`)
         : (isBG?`Твоят вечерен ритуал${namePart}`:`Your evening ritual${namePart}`);
       nameEl.textContent = greet;
+      try{
+        const orbIconEl0 = document.getElementById('home-orb-icon');
+        if(orbIconEl0){
+          orbIconEl0.innerHTML = hour<18
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="#8a6a4a" stroke-width="1.8"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="4.2" y1="4.2" x2="5.9" y2="5.9"/><line x1="18.1" y1="18.1" x2="19.8" y2="19.8"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/><line x1="4.2" y1="19.8" x2="5.9" y2="18.1"/><line x1="18.1" y1="5.9" x2="19.8" y2="4.2"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="#8a6a4a" stroke-width="1.8"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>';
+        }
+      }catch(e){}
     }
     if(dateEl){
       const now = new Date();
@@ -5929,7 +5965,6 @@ function renderHomePage(){
     const phaseWrapEl = document.getElementById('home-phase-wrap');
     const cycleTipEl = document.getElementById('home-cycle-tip');
     const eyebrowEl = document.getElementById('home-eyebrow');
-    const orbIconEl = document.getElementById('home-orb-icon');
     const data = typeof _loadCycleData==='function' ? _loadCycleData() : {periods:[]};
     let pi = null;
     if(data.periods && data.periods.length){
@@ -5938,7 +5973,6 @@ function renderHomePage(){
       pi = (phase && typeof CYCLE_PHASE_INFO!=='undefined') ? CYCLE_PHASE_INFO[phase] : null;
     }
     if(eyebrowEl) eyebrowEl.textContent = pi ? (isBG?pi.bg:pi.en) : '';
-    if(orbIconEl) orbIconEl.textContent = pi ? pi.icon : '✨';
     if(cycleTipEl && phaseWrapEl){
       if(pi){
         phaseWrapEl.style.display='block';
@@ -5955,16 +5989,43 @@ function renderHomePage(){
     }
   }catch(e){}
 
-  // Setup nudges (skin test / cycle) — quiet chips, only shown while missing
+  // Persistent skin-type card — always visible, shows result once taken
+  try{
+    const skinEl = document.getElementById('home-skin-card');
+    if(skinEl){
+      let saved=null; try{saved=JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null');}catch(e){}
+      if(saved && saved.skinType && typeof SKIN_TYPE_INFO!=='undefined'){
+        const ti = SKIN_TYPE_INFO[saved.skinType]||{icon:'✨',bg:saved.skinType,en:saved.skinType};
+        const fotoLbl = saved.fototype ? ' · '+['','I','II','III','IV','V','VI'][saved.fototype] : '';
+        skinEl.innerHTML = `
+          <div class="home-skin-card" onclick="viewSkinResult()">
+            <div class="home-skin-ico">${ti.icon||'✨'}</div>
+            <div style="flex:1;min-width:0">
+              <div class="home-skin-title">${isBG?ti.bg:ti.en}${fotoLbl}</div>
+              <div class="home-skin-sub">${isBG?'Твоят тип кожа':'Your skin type'}</div>
+            </div>
+            <div class="home-skin-cta">${isBG?'Виж препоръките ›':'View recs ›'}</div>
+          </div>`;
+      } else {
+        skinEl.innerHTML = `
+          <div class="home-skin-card" onclick="openSkinQuiz()">
+            <div class="home-skin-ico">🔍</div>
+            <div style="flex:1;min-width:0">
+              <div class="home-skin-title">${isBG?'Тест за типа кожа':'Skin type test'}</div>
+              <div class="home-skin-sub">${isBG?'7 въпроса · 1 минута':'7 questions · 1 minute'}</div>
+            </div>
+            <div class="home-skin-cta">${isBG?'Направи го ›':'Take it ›'}</div>
+          </div>`;
+      }
+    }
+  }catch(e){}
+
+  // Setup nudge (monthly cycle) — quiet chip, only shown while missing
   try{
     const nudgesEl = document.getElementById('home-nudges');
     if(nudgesEl){
       let chips='';
-      let skinDone=null; try{skinDone=JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null');}catch(e){}
       const cyc = typeof _loadCycleData==='function' ? _loadCycleData() : {periods:[]};
-      if(!skinDone || !skinDone.skinType){
-        chips += `<div class="home-reco-chip" onclick="openSkinQuiz()"><span class="ico">🔍</span>${isBG?'Тест за тип кожа':'Skin type test'}<span class="arrow">›</span></div>`;
-      }
       if(!cyc.periods || !cyc.periods.length){
         chips += `<div class="home-reco-chip" onclick="openCycleTracker()"><span class="ico">🌙</span>${isBG?'Настрой цикъла':'Set up your cycle'}<span class="arrow">›</span></div>`;
       }
