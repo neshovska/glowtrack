@@ -1,12 +1,7 @@
-// GlowTrack Service Worker v3
-const CACHE = 'glowtrack-v3';
+// GlowTrack Service Worker v4
+const CACHE = 'glowtrack-v4';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
-// ── FIREBASE CLOUD MESSAGING ──
-// Compat SDK used here on purpose: service workers can't easily use the
-// modular SDK without a bundler, so this stays independent of the
-// version used in index.html (10.14.1 there, compat build here — fine,
-// they don't need to match).
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
@@ -21,7 +16,6 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Обработва push съобщения, когато приложението е на заден план/затворено
 messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification?.title || 'GlowTrack';
   const notificationOptions = {
@@ -33,7 +27,6 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// При клик върху нотификацията — фокусира/отваря приложението
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
@@ -46,10 +39,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// ── CACHING (непроменено) ──
 self.addEventListener('install', e => {
-  // Cache only non-HTML static assets
-  // DO NOT cache index.html - let browser handle auth state
   e.waitUntil(
     caches.open(CACHE)
       .then(c => c.addAll(STATIC))
@@ -63,16 +53,13 @@ self.addEventListener('activate', e => {
       .then(keys => Promise.all(
         keys.filter(k => k !== CACHE).map(k => caches.delete(k))
       ))
-    // NO clients.claim() - this was breaking Firebase auth sessions
+      .then(() => clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // Always skip caching for:
-  // - HTML pages (auth state must be fresh)
-  // - Firebase/Google APIs
-  // - POST/PUT/DELETE requests
+  // Never cache HTML or Firebase — always fetch fresh
   if(
     e.request.headers.get('accept')?.includes('text/html') ||
     url.hostname.includes('firebase') ||
@@ -81,16 +68,12 @@ self.addEventListener('fetch', e => {
     url.hostname.includes('firebaseapp') ||
     e.request.method !== 'GET'
   ) {
-    e.respondWith(fetch(e.request).catch(() => {
-      // Offline fallback for HTML
-      if(e.request.headers.get('accept')?.includes('text/html')) {
-        return caches.match('./index.html');
-      }
-      return new Response('', {status: 503});
-    }));
+    e.respondWith(
+      fetch(e.request).catch(() => new Response('', {status: 503}))
+    );
     return;
   }
-  // Cache-first for static assets (icons, manifest)
+  // Cache-first for static assets only
   e.respondWith(
     caches.match(e.request).then(cached => {
       if(cached) return cached;
@@ -106,5 +89,5 @@ self.addEventListener('fetch', e => {
 });
 
 self.addEventListener('message', e => {
-  if(e.data === 'skipWaiting') self.skipWaiting();
+  if(e.data === 'skipWaiting' || e.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
