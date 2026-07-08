@@ -731,6 +731,15 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     });
   }
 </script>
+<script>
+// Force clear old SW cache on every load
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>{ r.unregister(); });
+  });
+  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+}
+</script>
 </head>
 <body>
 <div class="bg"></div>
@@ -1681,7 +1690,7 @@ onAuthStateChanged(auth,async user=>{
     if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
     if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
     setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
-    setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
+    setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},400);
     const _profNameEl=document.getElementById('prof-name'); if(_profNameEl) _profNameEl.textContent=user.displayName||user.email.split('@')[0];
     const _profEmailEl=document.getElementById('prof-email'); if(_profEmailEl) _profEmailEl.textContent=user.email;
     // Update topbar avatar
@@ -5943,21 +5952,36 @@ function renderHomePage(){
 }
 function homeLoadDiaryStats(){
   if(!window._user) return;
-  const fill = (docs)=>{
-    const realDocs = docs.filter(d=>!d.data().procId?.startsWith('home-care'));
+  // First show local diary entries from localStorage
+  try{
+    const localDiary = typeof _lsGet==='function' ? (_lsGet('gt_diary')||[]) : [];
     const diaryEl = document.getElementById('home-stat-diary');
-    if(diaryEl) diaryEl.textContent = realDocs.length;
-    const spendEl = document.getElementById('home-stat-spend');
-    if(spendEl){
-      const totalSpend = realDocs.reduce((s,d)=>s+(parseFloat(d.data().price)||0),0);
-      spendEl.textContent = totalSpend>0 ? totalSpend.toFixed(0)+'€' : '—';
-    }
-    const ratingEl = document.getElementById('home-stat-rating');
-    if(ratingEl){
-      const rated = realDocs.filter(d=>d.data().rating>0);
-      const avgRating = rated.length ? (rated.reduce((s,d)=>s+(d.data().rating||0),0)/rated.length) : 0;
-      ratingEl.textContent = avgRating>0 ? avgRating.toFixed(1) : '—';
-    }
+    if(diaryEl && localDiary.length) diaryEl.textContent = localDiary.length;
+  }catch(e){}
+  // Also show favs count
+  try{
+    const fc = typeof getFavs==='function' ? (getFavs()||[]).length : 0;
+    const favsEl = document.getElementById('home-stat-favs');
+    if(favsEl) favsEl.textContent = fc || '—';
+  }catch(e){}
+  // Then try Firestore for full stats
+  const fill = (docs)=>{
+    try{
+      const realDocs = docs.filter(d=>!d.data().procId?.startsWith('home-care'));
+      const diaryEl = document.getElementById('home-stat-diary');
+      if(diaryEl) diaryEl.textContent = realDocs.length || '—';
+      const spendEl = document.getElementById('home-stat-spend');
+      if(spendEl){
+        const totalSpend = realDocs.reduce((s,d)=>s+(parseFloat(d.data().price)||0),0);
+        spendEl.textContent = totalSpend>0 ? totalSpend.toFixed(0)+'€' : '—';
+      }
+      const ratingEl = document.getElementById('home-stat-rating');
+      if(ratingEl){
+        const rated = realDocs.filter(d=>d.data().rating>0);
+        const avg = rated.length ? (rated.reduce((s,d)=>s+(d.data().rating||0),0)/rated.length) : 0;
+        ratingEl.textContent = avg>0 ? avg.toFixed(1) : '—';
+      }
+    }catch(e){}
   };
   try{
     if(!cacheInvalid(window._cache.diaryTs)){
