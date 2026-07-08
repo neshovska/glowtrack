@@ -754,7 +754,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
 </div>
 <!-- SPLASH SCREEN -->
-<div id="splash" style="position:fixed;inset:0;background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s ease">
+<div id="splash" style="position:fixed;inset:0;background:#1a1a2e;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s ease">
   <div id="splash-logo" style="text-align:center;transform:scale(0.3);opacity:0;transition:all .8s cubic-bezier(.34,1.56,.64,1)">
     <div style="font-family:\'Cormorant Garamond\',serif;font-size:52px;font-weight:300;color:#fff;letter-spacing:.05em">Glow<span style="color:#b8966a">Track</span></div>
     <div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:rgba(255,255,255,.55);font-style:italic;letter-spacing:.2em;margin-top:8px">Know your glow.</div>
@@ -1705,10 +1705,7 @@ onAuthStateChanged(auth,async user=>{
         'width=device-width, initial-scale=1.0, viewport-fit=cover');
     }, 300);
     // Splash overlay is now purely decorative — fades on top while the app underneath is already live.
-    if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
-    if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
-    setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
-    setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
+    // Splash hidden by default - no need to show/hide for cached sessions
     const _profNameEl=document.getElementById('prof-name'); if(_profNameEl) _profNameEl.textContent=user.displayName||user.email.split('@')[0];
     const _profEmailEl=document.getElementById('prof-email'); if(_profEmailEl) _profEmailEl.textContent=user.email;
     // Update topbar avatar
@@ -1790,9 +1787,6 @@ onAuthStateChanged(auth,async user=>{
     // try a personal action (diary, reminders, profile). Keep it closed here.
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.add('show');
-    // Hide splash for guests too
-    var _gsp=document.getElementById('splash');
-    if(_gsp){_gsp.style.opacity='0';setTimeout(function(){_gsp.style.display='none';},600);}
     // Guest state: profile sheet will show auth form - no separate topbar button
     document.getElementById('topbar-right').style.display='none';
     // Clear stale personal content left over from a previous logged-in session
@@ -7237,19 +7231,6 @@ document.addEventListener('click',e=>{
 window.addEventListener('online', ()=>showToast(t('online')));
 window.addEventListener('offline', ()=>showToast(t('offline'), 4000));
 if(!navigator.onLine) showToast(t('offline'), 4000);
-
-// ── GUARANTEED SPLASH HIDE ──
-// Splash must disappear even if Firebase auth never resolves
-(function(){
-  var MAX_WAIT = 2000;
-  setTimeout(function(){
-    var sp = document.getElementById('splash');
-    if(sp && sp.style.display !== 'none'){
-      sp.style.opacity = '0';
-      setTimeout(function(){ if(sp) sp.style.display='none'; }, 600);
-    }
-  }, MAX_WAIT);
-})();
 
 // ── SERVICE WORKER ──
 // Note: blob: URL registration not supported in Safari
