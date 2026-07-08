@@ -1151,10 +1151,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <!-- Client-only sections -->
       <div id="ps-client-sections">
 
+        <div class="p-eyebrow" data-t="profileCycle">🌙 Месечен цикъл</div>
+        <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
+
         <div class="p-eyebrow">Статистика</div>
         <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
           <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-            <span class="pcs-title">📊 Статистика</span>
+            <span class="pcs-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2" style="vertical-align:-2px"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Статистика</span>
             <span class="acc-arrow">⌄</span>
           </div>
           <div class="acc-body">
@@ -1170,9 +1173,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none"><span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span></div>
           </div>
         </div>
-
-        <div class="p-eyebrow" data-t="profileCycle">🌙 Месечен цикъл</div>
-        <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
 
         <div class="p-eyebrow">✦ Тест за типа кожа</div>
         <div class="profile-card-section" id="skin-test-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
@@ -1206,7 +1206,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           </div>
         </div>
 
-        <div class="p-eyebrow">Профил</div>
         <div class="profile-btns" style="padding:0;margin-bottom:6px">
           <button class="profile-btn danger" onclick="doLogout()" data-t="logoutBtn">Изход</button>
           <button class="profile-btn" onclick="confirmDeleteAccount()" style="color:#e85d5d;border-color:rgba(232,93,93,.2);font-size:12px;padding:9px" data-t="deleteProfileBtn">🗑️ Изтрий профила</button>
@@ -5748,7 +5747,7 @@ function renderCycleTrackerCard(){
           <div style="font-size:14px;font-weight:700;color:var(--ink)">${pi?(isBGq?pi.bg:pi.en):'—'}</div>
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:linear-gradient(135deg,#c9a06a,#d4849a);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
   } else {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -5758,7 +5757,7 @@ function renderCycleTrackerCard(){
           <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'Проследявай цикъла и връзката му с кожата':'Track your cycle and its link to your skin'}</div>
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:linear-gradient(135deg,#c9a06a,#d4849a);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Настрой календара':'Set up calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Настрой календара':'Set up calendar'}</button>`;
   }
 }
 
