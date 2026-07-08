@@ -1406,12 +1406,36 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page active" id="page-home">
     <div class="page-hdr">
-      <div class="page-hdr-title" id="home-greeting-title">Начало</div>
+      <div class="page-hdr-title" id="home-greeting-title">Начало ✨</div>
       <div class="page-hdr-sub" id="home-greeting-sub"></div>
     </div>
     <div id="home-content" style="padding:0 0 24px">
-      <div style="text-align:center;padding:60px 24px;color:var(--ink2)">
-        <div style="font-size:13px">Зареждане...</div>
+      <div id="home-phase-card" class="profile-card-section" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="typeof openCycleTracker==='function'&&openCycleTracker()">
+        <div style="font-size:28px;flex-shrink:0" id="home-phase-icon">&#127769;</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" id="home-phase-title">&#1053;&#1072;&#1089;&#1090;&#1088;&#1086;&#1081; &#1094;&#1080;&#1082;&#1098;&#1083;&#1072; &#1089;&#1080;</div>
+          <div style="font-size:11px;color:var(--ink2);margin-top:2px" id="home-phase-tip">&#1042;&#1080;&#1078; &#1092;&#1072;&#1079;&#1072;&#1090;&#1072; &#1089;&#1080; &#1080; &#1089;&#1098;&#1074;&#1077;&#1090;&#1080; &#1079;&#1072; &#1082;&#1086;&#1078;&#1072;&#1090;&#1072; &#1074;&#1089;&#1077;&#1082;&#1080; &#1076;&#1077;&#1085;</div>
+        </div>
+        <div style="color:var(--gold);font-size:20px;flex-shrink:0">&#8250;</div>
+      </div>
+      <div class="profile-card-section">
+        <div style="display:flex;text-align:center">
+          <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">&#8212;</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">&#1047;&#1072;&#1087;&#1080;&#1089;&#1080;</div></div>
+          <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">&#8212;</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">&#1051;&#1102;&#1073;&#1080;&#1084;&#1080;</div></div>
+          <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">&#8212;</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">&#1055;&#1086;&#1093;&#1072;&#1088;&#1095;&#1077;&#1085;&#1080;</div></div>
+          <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">&#8212;</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">&#1054;&#1094;&#1077;&#1085;&#1082;&#1072;</div></div>
+        </div>
+      </div>
+      <div class="profile-card-section">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:10px">&#10022; &#1041;&#1098;&#1088;&#1079;&#1080; &#1074;&#1088;&#1098;&#1079;&#1082;&#1080;</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button onclick="goPage('procs')" style="flex:1;padding:10px 8px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#1055;&#1088;&#1086;&#1094;&#1077;&#1076;&#1091;&#1088;&#1080;</button>
+          <button onclick="goPage('diary')" style="flex:1;padding:10px 8px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#1044;&#1085;&#1077;&#1074;&#1085;&#1080;&#1082;</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="goPage('notifs')" style="flex:1;padding:10px 8px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#1053;&#1072;&#1087;&#1086;&#1084;&#1085;&#1103;&#1085;&#1080;&#1103;</button>
+          <button onclick="typeof openCycleTracker==='function'&&openCycleTracker()" style="flex:1;padding:10px 8px;background:none;border:1.5px solid var(--gold);border-radius:12px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#1062;&#1080;&#1082;&#1098;&#1083;</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1653,7 +1677,6 @@ window.doLogout=async function(){await signOut(auth);window.showToast&&window.sh
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
-    try {
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
     try{ if(typeof Sentry!=='undefined') Sentry.setUser({id:user.uid,email:user.email}); }catch(e){}
     // Invalidate cache on user change to ensure fresh data
@@ -1756,7 +1779,6 @@ onAuthStateChanged(auth,async user=>{
     if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll&&uSnapAll.exists()?uSnapAll.data():null);
     if(typeof loadHomeCare==='function')loadHomeCare();
     const _hcs2=document.getElementById('procs-homecare-section');if(_hcs2)_hcs2.style.display='block';
-    } catch(e) { console.warn('Auth user block error (Firestore?):', e); }
   }else{
     window._user=null;
     window._lastUserId=null;
@@ -1779,7 +1801,9 @@ onAuthStateChanged(auth,async user=>{
   // If the Profile tab tried to render before Firebase confirmed the auth state,
   // finish that render now that we know for sure whether the person is logged in.
   // After any auth state change, if profile page is active — refresh it
-  setTimeout(function(){ if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function') renderHomePage(); }, 50);
+  if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function'){
+    renderHomePage();
+  }
   if(document.getElementById('page-profile')?.classList.contains('active')){
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
   } else if(window._pendingProfileGoPage){
@@ -2666,7 +2690,7 @@ function goPage(name,btn){
       if(typeof refreshProfilePage==='function') refreshProfilePage();
       if(!window._authReady) window._pendingProfileGoPage=true;
     }
-  }catch(e){console.error('goPage('+name+') error:',e);}
+  }catch(e){}
 }
 window.goPage=goPage;
 
@@ -5814,7 +5838,6 @@ function renderHomePage(){
     return;
   }
 
-  try {
   const cycleData = _loadCycleData();
   const hasCycle = !!(cycleData.periods && cycleData.periods.length);
   const currentPhase = hasCycle ? _phaseForDate(new Date().toISOString().slice(0,10), cycleData) : null;
@@ -5854,7 +5877,7 @@ function renderHomePage(){
     <div class="profile-card-section">
       <div style="display:flex;text-align:center">
         <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Записи':'Entries'}</div></div>
-        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${(function(){try{return getFavs().length;}catch(e){return 0;}})()}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
+        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${getFavs().length}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
         <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Похарчени':'Spent'}</div></div>
         <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Оценка':'Rating'}</div></div>
       </div>
@@ -5933,11 +5956,8 @@ function renderHomePage(){
     </div>` : '';
 
   wrap.innerHTML = phaseCardHTML + statsHTML + continueHTML + reminderHTML + recHTML + favHTML;
+
   homeLoadDiaryStats();
-  } catch(e) {
-    console.error('renderHomePage error:', e);
-    wrap.innerHTML = '<div class="profile-card-section" style="margin:16px 18px;text-align:center;padding:20px"><div style="font-size:13px;color:var(--ink2);margin-bottom:10px">Грешка: ' + String(e) + '</div><button onclick="renderHomePage()" style="padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Опитай пак</button></div>';
-  }
 }
 function homeLoadDiaryStats(){
   if(!window._user) return;
@@ -7260,36 +7280,17 @@ window.addEventListener('offline', ()=>showToast(t('offline'), 4000));
 if(!navigator.onLine) showToast(t('offline'), 4000);
 
 // ── SERVICE WORKER ──
-// Note: blob: URL registration not supported in Safari
-// SW must be registered from a dedicated sw.js file on same origin
-// Relative path — resolves correctly whether the app lives at domain root
-// or in a subdirectory (e.g. GitHub Pages project page /glowtrack/)
 if('serviceWorker' in navigator && location.protocol === 'https:'){
   try{
-    // Version bump forces SW cache clear when app updates
-    const _APP_VERSION = '2026-07-08-v2';
-    const _storedVer = localStorage.getItem('gt_app_version');
-    if(_storedVer && _storedVer !== _APP_VERSION){
-      // New version detected - unregister old SW and reload clean
-      localStorage.setItem('gt_app_version', _APP_VERSION);
-      navigator.serviceWorker.getRegistrations().then(regs=>{
-        Promise.all(regs.map(r=>r.unregister())).then(()=>window.location.reload(true));
-      });
-    } else {
-      localStorage.setItem('gt_app_version', _APP_VERSION);
-      navigator.serviceWorker.register('./sw.js').then(reg=>{
-        reg.update();
+    // Clear ALL old caches and unregister old SWs, then register fresh
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(r => r.unregister());
+      // Re-register after clearing
+      navigator.serviceWorker.register('./sw.js?v=4').then(reg => {
         if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
-        reg.addEventListener('updatefound',()=>{
-          const nw=reg.installing;
-          if(nw) nw.addEventListener('statechange',()=>{
-            if(nw.state==='installed'&&navigator.serviceWorker.controller){
-              nw.postMessage({type:'SKIP_WAITING'});
-            }
-          });
-        });
-      }).catch((err)=>{console.error('SW register failed:',err);});
-    }
+      }).catch(()=>{});
+    });
   }catch(e){}
 }
 
