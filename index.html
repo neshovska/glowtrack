@@ -246,6 +246,80 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 #page-profile .page-hdr-title{font-size:20px}
 .page-hdr-title em{font-style:italic;color:var(--gold)}
 .page-hdr-sub{font-size:12px;color:var(--ink2);margin-top:3px}
+/* ── HOME PAGE (redesign) ── */
+#page-home{position:relative}
+#home-aurora{position:absolute;top:0;left:0;right:0;height:640px;overflow:hidden;pointer-events:none;z-index:0}
+#home-aurora .blob{position:absolute;border-radius:50%;filter:blur(46px);opacity:.5;animation:homeDrift 18s ease-in-out infinite alternate}
+#home-aurora .blob.b1{width:230px;height:230px;background:radial-gradient(circle,#e8c99a,transparent 70%);top:-50px;left:-60px}
+#home-aurora .blob.b2{width:200px;height:200px;background:radial-gradient(circle,#e8b7c6,transparent 70%);top:100px;right:-70px;animation-duration:22s;animation-delay:-4s}
+#home-aurora .blob.b3{width:220px;height:220px;background:radial-gradient(circle,#c3b8ea,transparent 70%);top:380px;left:-80px;animation-duration:20s;animation-delay:-8s}
+body.dark #home-aurora .blob{opacity:.28}
+@keyframes homeDrift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(16px,-18px) scale(1.1)}}
+@media (prefers-reduced-motion: reduce){#home-aurora .blob{animation:none}}
+#home-content{position:relative;z-index:1}
+.home-hdr-row{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px}
+.home-hdr-title{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:400;color:var(--ink)}
+.home-cal-btn{display:flex;align-items:center;gap:7px;padding:10px 16px 10px 13px;border-radius:24px;border:none;
+  background:linear-gradient(120deg,#e0a86a,#d4849a);font-size:12px;font-weight:700;color:#fff;
+  font-family:'DM Sans',sans-serif;cursor:pointer;position:relative;
+  box-shadow:0 8px 18px rgba(212,132,154,.35),0 3px 7px rgba(184,150,106,.28)}
+.home-cal-btn svg{width:15px;height:15px;stroke:#fff}
+.home-cal-btn::after{content:'';position:absolute;inset:-4px;border-radius:28px;border:1.5px solid rgba(212,132,154,.4);animation:homeCalPulse 2.4s ease-out infinite}
+@keyframes homeCalPulse{0%{transform:scale(.94);opacity:.9}70%{transform:scale(1.16);opacity:0}100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.home-cal-btn::after{animation:none}}
+.home-hero{margin:8px 16px 22px;border-radius:26px;padding:26px 22px 22px;position:relative;overflow:hidden;
+  background:rgba(255,255,255,.66);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.8);box-shadow:0 12px 34px rgba(26,26,46,.09)}
+body.dark .home-hero{background:rgba(30,30,56,.66);border-color:rgba(255,255,255,.08)}
+.home-hero-top{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.home-orb{position:relative;width:56px;height:56px;flex-shrink:0}
+.home-orb .ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 200deg,var(--sage),#e0a86a 30%,#d4849a 62%,var(--lilac) 100%);animation:homeOrbit 10s linear infinite}
+.home-orb .ring2{position:absolute;inset:-5px;border-radius:50%;border:1.5px dashed rgba(184,150,106,.35);animation:homeOrbit 22s linear infinite reverse}
+.home-orb .core{position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--sagelt,#eef3f0) 45%,var(--sage) 100%);box-shadow:inset 0 2px 7px rgba(255,255,255,.7),0 3px 12px rgba(143,168,154,.4);display:flex;align-items:center;justify-content:center;font-size:19px}
+@keyframes homeOrbit{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.home-orb .ring,.home-orb .ring2{animation:none}}
+.home-greet-wrap{flex:1;min-width:0}
+.home-eyebrow{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);font-weight:700;margin-bottom:3px}
+#home-greeting-text{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;line-height:1.2;
+  background:linear-gradient(100deg,var(--ink) 30%,#8a6a4a 70%,#d4849a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+body.dark #home-greeting-text{background:linear-gradient(100deg,#f0ede8 30%,#e0b789 70%,#e8a4bb 100%);-webkit-background-clip:text;background-clip:text}
+#home-greeting-date{font-size:11.5px;color:var(--ink2);margin-top:3px}
+.home-divider{height:1px;background:linear-gradient(90deg,rgba(212,132,154,.35),rgba(184,150,106,.05));margin:16px 0 13px}
+.home-chip-row{display:flex;gap:8px;flex-wrap:wrap}
+.home-reco-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 13px 9px 9px;border-radius:30px;cursor:pointer;
+  background:rgba(255,255,255,.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);
+  font-size:11.5px;font-weight:600;color:var(--ink);box-shadow:0 3px 12px rgba(26,26,46,.05)}
+body.dark .home-reco-chip{background:rgba(30,30,56,.7);border-color:rgba(255,255,255,.08)}
+.home-reco-chip .ico{width:22px;height:22px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;font-size:11px}
+.home-reco-chip .arrow{color:#d4849a;font-size:12px;margin-left:1px}
+.home-up-row{display:flex;align-items:center;gap:14px;border-radius:20px;padding:13px 15px;cursor:pointer;
+  background:linear-gradient(120deg,rgba(255,255,255,.85),rgba(255,255,255,.6));backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.9);box-shadow:0 8px 22px rgba(26,26,46,.07)}
+body.dark .home-up-row{background:linear-gradient(120deg,rgba(30,30,56,.85),rgba(30,30,56,.6));border-color:rgba(255,255,255,.08)}
+.home-up-date{width:46px;height:50px;border-radius:13px;flex-shrink:0;background:linear-gradient(160deg,#3a2f5c,#241f3f);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.home-up-date .d{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;line-height:1;background:linear-gradient(120deg,#e8c99a,#e8b7c6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.home-up-date .m{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#c9b8e0;margin-top:2px}
+.home-up-name{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-up-when{font-size:10.5px;font-weight:700;margin-top:2px;background:linear-gradient(120deg,var(--gold),#d4849a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.home-spot-strip{display:flex;gap:11px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 4px;scrollbar-width:none}
+.home-spot-strip::-webkit-scrollbar{display:none}
+.home-spot-card{flex:0 0 78%;max-width:270px;scroll-snap-align:start;position:relative;border-radius:20px;padding:16px 16px 15px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(155,142,196,.16),rgba(212,132,154,.14) 60%,rgba(232,201,154,.16));
+  backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.85);box-shadow:0 10px 26px rgba(26,26,46,.08)}
+body.dark .home-spot-card{background:linear-gradient(135deg,rgba(155,142,196,.14),rgba(212,132,154,.12) 60%,rgba(232,201,154,.12));border-color:rgba(255,255,255,.08)}
+.home-spot-tag{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;padding:4px 9px;border-radius:20px;margin-bottom:10px}
+.home-spot-body{display:flex;gap:12px;align-items:flex-start}
+.home-spot-ico{width:44px;height:44px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.home-spot-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--ink);line-height:1.25}
+.home-spot-txt{font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5}
+.home-spot-cta{display:inline-flex;align-items:center;gap:4px;margin-top:12px;font-size:11px;font-weight:700;color:var(--ink);
+  background:rgba(255,255,255,.8);padding:7px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.9);cursor:pointer}
+body.dark .home-spot-cta{background:rgba(255,255,255,.1);color:#f0ede8}
+.home-spot-dots{display:flex;gap:5px;justify-content:center;margin-top:9px}
+.home-spot-dots span{width:5px;height:5px;border-radius:50%;background:rgba(184,150,106,.3);transition:width .2s}
+.home-spot-dots span.on{width:14px;border-radius:4px;background:linear-gradient(120deg,var(--gold),#d4849a)}
+
 /* ── PROFILE PAGE (redesign) ── */
 #page-profile .p-hero{position:relative;padding:52px 20px 30px;text-align:center;
   background:radial-gradient(120% 90% at 18% -10%, rgba(212,175,130,.55), transparent 60%),
@@ -780,9 +854,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
 </div>
   <div class="topbar"><div class="topbar-inner" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px">
-  <button id="topbar-profile-btn" onclick="goPage('profile')" style="display:flex;align-items:center;gap:5px;padding:3px 9px 3px 4px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:18px;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">
-    <div id="topbar-avatar" style="width:22px;height:22px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.03em">?</div>
-    <span style="font-size:10px;font-weight:700;color:var(--gold);white-space:nowrap">Профил</span>
+  <button id="topbar-profile-btn" onclick="goPage('profile')" style="display:flex;align-items:center;gap:4px;padding:2px 8px 2px 3px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:16px;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">
+    <div id="topbar-avatar" style="width:19px;height:19px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.03em">?</div>
+    <span style="font-size:9.5px;font-weight:700;color:var(--gold);white-space:nowrap">Профил</span>
   </button>
   <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
     <div class="logo">Glow<span>Track</span></div>
@@ -1401,18 +1475,35 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
   </div>
   <div class="page" id="page-home">
-    <div class="page-hdr">
-      <div class="page-hdr-title">Начало</div>
-    </div>
-    <div style="padding:0 16px 24px">
+    <div id="home-aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+    <div id="home-content">
+
+      <div class="home-hdr-row">
+        <div class="home-hdr-title">Начало</div>
+        <div class="home-cal-btn" onclick="if(typeof setDiaryView==='function')setDiaryView('cal');goPage('diary')" title="Отвори дневника в календарен изглед">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="home-cal-btn-lbl">Календар</span>
+        </div>
+      </div>
 
       <!-- Greeting hero -->
-      <div style="position:relative;padding:26px 20px 22px;border-radius:20px;margin:14px 0 16px;overflow:hidden;background:radial-gradient(120% 90% at 18% -10%,rgba(184,150,106,.16),transparent 60%),var(--card);border:1px solid var(--roselt)">
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d4a96a);display:flex;align-items:center;justify-content:center;margin-bottom:12px">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>
+      <div class="home-hero">
+        <div class="home-hero-top">
+          <div class="home-orb">
+            <div class="ring"></div>
+            <div class="ring2"></div>
+            <div class="core" id="home-orb-icon">✨</div>
+          </div>
+          <div class="home-greet-wrap">
+            <div class="home-eyebrow" id="home-eyebrow"></div>
+            <div id="home-greeting-text">—</div>
+            <div id="home-greeting-date"></div>
+          </div>
         </div>
-        <div id="home-greeting-text" style="font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);line-height:1.25">—</div>
-        <div id="home-greeting-date" style="font-size:11.5px;color:var(--ink2);margin-top:3px"></div>
+        <div id="home-phase-wrap" style="display:none">
+          <div class="home-divider"></div>
+          <div id="home-cycle-tip"></div>
+        </div>
       </div>
 
       <!-- Guest state -->
@@ -1423,9 +1514,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button onclick="openAuthScreen()" style="padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Влез / Регистрирай се</button>
       </div>
 
-      <div id="home-client-sections">
-        <div id="home-cycle-tip"></div>
-        <div id="home-nudges"></div>
+      <div id="home-client-sections" style="padding:0 16px 24px">
+        <div id="home-nudges" style="margin-bottom:22px"></div>
         <div id="home-reminder"></div>
         <div id="home-diary-preview"></div>
       </div>
@@ -5803,13 +5893,18 @@ function renderHomePage(){
     const dateEl = document.getElementById('home-greeting-date');
     if(nameEl){
       const hour = new Date().getHours();
-      const greet = hour<12 ? (isBG?'Добро утро':'Good morning') : hour<18 ? (isBG?'Добър ден':'Good afternoon') : (isBG?'Добър вечер':'Good evening');
       let firstName = '';
       if(window._user){
         const dn = window._user.displayName||(window._user.email?window._user.email.split('@')[0]:'')||'';
         firstName = dn.trim().split(/\s+/)[0]||'';
       }
-      nameEl.textContent = `${greet}${firstName?', '+firstName:''} ✨`;
+      const namePart = firstName?', '+firstName:'';
+      const greet = hour<12
+        ? (isBG?`Изгрей днес${namePart}`:`Rise and glow${namePart}`)
+        : hour<18
+        ? (isBG?`Сияй днес${namePart} ✨`:`Keep glowing${namePart} ✨`)
+        : (isBG?`Твоят вечерен ритуал${namePart}`:`Your evening ritual${namePart}`);
+      nameEl.textContent = greet;
     }
     if(dateEl){
       const now = new Date();
@@ -5829,57 +5924,55 @@ function renderHomePage(){
   if(guestEl) guestEl.style.display='none';
   if(clientEl) clientEl.style.display='block';
 
-  // Cycle phase tip
+  // Cycle phase — feeds the eyebrow, the orb icon, and the phase line in the hero
   try{
+    const phaseWrapEl = document.getElementById('home-phase-wrap');
     const cycleTipEl = document.getElementById('home-cycle-tip');
-    if(cycleTipEl){
-      const data = typeof _loadCycleData==='function' ? _loadCycleData() : {periods:[]};
-      if(data.periods && data.periods.length){
-        const todayStr = new Date().toISOString().slice(0,10);
-        const phase = typeof _phaseForDate==='function' ? _phaseForDate(todayStr, data) : null;
-        const pi = (phase && typeof CYCLE_PHASE_INFO!=='undefined') ? CYCLE_PHASE_INFO[phase] : null;
-        cycleTipEl.innerHTML = pi ? `
-          <div onclick="openCycleTracker()" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid rgba(184,150,106,.25);border-radius:16px;background:var(--card);margin-bottom:12px;box-shadow:var(--shadow)">
-            <div style="font-size:26px;flex-shrink:0">${pi.icon}</div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">${isBG?'Днес':'Today'}</div>
-              <div style="font-size:13.5px;font-weight:700;color:var(--ink)">${isBG?pi.bg:pi.en}</div>
-              <div style="font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.4">${isBG?pi.tipBg:pi.tipEn}</div>
-            </div>
-            <div style="color:var(--gold);font-size:16px;flex-shrink:0">›</div>
-          </div>` : '';
+    const eyebrowEl = document.getElementById('home-eyebrow');
+    const orbIconEl = document.getElementById('home-orb-icon');
+    const data = typeof _loadCycleData==='function' ? _loadCycleData() : {periods:[]};
+    let pi = null;
+    if(data.periods && data.periods.length){
+      const todayStr = new Date().toISOString().slice(0,10);
+      const phase = typeof _phaseForDate==='function' ? _phaseForDate(todayStr, data) : null;
+      pi = (phase && typeof CYCLE_PHASE_INFO!=='undefined') ? CYCLE_PHASE_INFO[phase] : null;
+    }
+    if(eyebrowEl) eyebrowEl.textContent = pi ? (isBG?pi.bg:pi.en) : '';
+    if(orbIconEl) orbIconEl.textContent = pi ? pi.icon : '✨';
+    if(cycleTipEl && phaseWrapEl){
+      if(pi){
+        phaseWrapEl.style.display='block';
+        cycleTipEl.innerHTML = `
+          <div onclick="openCycleTracker()" style="cursor:pointer;display:flex;align-items:flex-start;gap:10px">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--sage);margin-top:6px;flex-shrink:0"></span>
+            <div style="flex:1;font-size:12.5px;line-height:1.55;color:var(--ink)">${isBG?pi.tipBg:pi.tipEn}</div>
+            <span style="color:#d4849a;font-size:15px;flex-shrink:0;margin-top:2px">›</span>
+          </div>`;
       } else {
+        phaseWrapEl.style.display='none';
         cycleTipEl.innerHTML='';
       }
     }
   }catch(e){}
 
-  // Setup nudges (skin test / cycle) — only shown while missing
+  // Setup nudges (skin test / cycle) — quiet chips, only shown while missing
   try{
     const nudgesEl = document.getElementById('home-nudges');
     if(nudgesEl){
-      let nudges='';
+      let chips='';
       let skinDone=null; try{skinDone=JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null');}catch(e){}
       const cyc = typeof _loadCycleData==='function' ? _loadCycleData() : {periods:[]};
       if(!skinDone || !skinDone.skinType){
-        nudges += `<div onclick="openSkinQuiz()" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 14px;border:1.5px dashed rgba(184,150,106,.4);border-radius:16px;background:var(--goldlt);margin-bottom:10px">
-          <div style="font-size:22px">🔍</div>
-          <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:var(--ink)">${isBG?'Направи теста за типа кожа':'Take the skin type test'}</div><div style="font-size:10.5px;color:var(--ink2)">${isBG?'7 въпроса · 1 минута':'7 questions · 1 minute'}</div></div>
-          <div style="color:var(--gold);font-size:16px;flex-shrink:0">›</div>
-        </div>`;
+        chips += `<div class="home-reco-chip" onclick="openSkinQuiz()"><span class="ico">🔍</span>${isBG?'Тест за тип кожа':'Skin type test'}<span class="arrow">›</span></div>`;
       }
       if(!cyc.periods || !cyc.periods.length){
-        nudges += `<div onclick="openCycleTracker()" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 14px;border:1.5px dashed rgba(184,150,106,.4);border-radius:16px;background:var(--goldlt);margin-bottom:10px">
-          <div style="font-size:22px">🌙</div>
-          <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:var(--ink)">${isBG?'Настрой месечния цикъл':'Set up your monthly cycle'}</div><div style="font-size:10.5px;color:var(--ink2)">${isBG?'За персонализирани съвети':'For personalized tips'}</div></div>
-          <div style="color:var(--gold);font-size:16px;flex-shrink:0">›</div>
-        </div>`;
+        chips += `<div class="home-reco-chip" onclick="openCycleTracker()"><span class="ico">🌙</span>${isBG?'Настрой цикъла':'Set up your cycle'}<span class="arrow">›</span></div>`;
       }
-      nudgesEl.innerHTML = nudges;
+      nudgesEl.innerHTML = chips ? `<div class="home-chip-row">${chips}</div>` : '';
     }
   }catch(e){}
 
-  // Upcoming reminder
+  // Upcoming reminder — date-badge row
   try{
     const remEl = document.getElementById('home-reminder');
     if(remEl){
@@ -5894,12 +5987,16 @@ function renderHomePage(){
         const diffTxt = diff===0?(isBG?'Днес':'Today'):diff===1?(isBG?'Утре':'Tomorrow'):diff>0?(isBG?`След ${diff} дни`:`In ${diff} days`):(isBG?'Просрочено':'Overdue');
         let procName = n.procName||'';
         if(window.PROCS && n.procId){ const p=window.PROCS.find(x=>x.id===n.procId); if(p) procName=procL(p).name; }
+        const months = (typeof CYCLE_MONTHS_BG!=='undefined')?(isBG?CYCLE_MONTHS_BG:CYCLE_MONTHS_EN):[];
         remEl.innerHTML = `
-          <div class="p-eyebrow" style="margin-top:2px">${isBG?'Предстоящо':'Upcoming'}</div>
-          <div onclick="goPage('notifs')" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--roselt);border-radius:16px;background:var(--card);margin-bottom:14px;box-shadow:var(--shadow)">
-            <div style="width:38px;height:38px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
-            <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${procName}</div><div style="font-size:11px;color:var(--gold);font-weight:600;margin-top:1px">${diffTxt}</div></div>
-            <div style="color:var(--ink2);font-size:16px;flex-shrink:0">›</div>
+          <div class="section-eyebrow" style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px">${isBG?'Предстоящо':'Upcoming'}</div>
+          <div class="home-up-row" onclick="goPage('notifs')">
+            <div class="home-up-date"><span class="d">${dt.getDate()}</span><span class="m">${(months[dt.getMonth()]||'').slice(0,3).toLowerCase()}</span></div>
+            <div style="flex:1;min-width:0">
+              <div class="home-up-name">${procName}</div>
+              <div class="home-up-when">${diffTxt}</div>
+            </div>
+            <span style="color:var(--ink2);font-size:16px;flex-shrink:0">›</span>
           </div>`;
       } else {
         remEl.innerHTML='';
@@ -5907,45 +6004,126 @@ function renderHomePage(){
     }
   }catch(e){}
 
-  // Latest diary entry preview — show cached data immediately, refresh in background if stale
+  // "Открий ново" spotlight carousel — replaces the plain diary preview
   try{
-    _renderHomeDiaryPreview(window._cache.diary||[]);
+    _renderHomeSpotlight(window._cache.diary||[]);
     if(typeof cacheInvalid==='function' && cacheInvalid(window._cache.diaryTs)){
       F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid))).then(s=>{
         window._cache.diary=s.docs; window._cache.diaryTs=Date.now();
-        _renderHomeDiaryPreview(s.docs);
+        _renderHomeSpotlight(s.docs);
       }).catch(()=>{});
     }
   }catch(e){}
  }catch(e){ console.error('renderHomePage error:', e); }
 }
-function _renderHomeDiaryPreview(docs){
+function _renderHomeSpotlight(docs){
  try{
-  const el = document.getElementById('home-diary-preview');
-  if(!el) return;
+  const stripEl = document.getElementById('home-diary-preview');
+  if(!stripEl) return;
   const isBG = window._lang!=='en';
   const realDocs = (docs||[]).filter(d=>!d.data().procId?.startsWith('home-care'));
-  if(realDocs.length){
-    const sorted=[...realDocs].sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
-    const d = sorted[0].data();
-    const dt = d.createdAt?.toDate ? d.createdAt.toDate() : new Date();
-    const rating = d.rating||0;
-    el.innerHTML = `
-      <div class="p-eyebrow">${isBG?'Последен запис':'Latest entry'}</div>
-      <div onclick="goPage('diary')" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--roselt);border-radius:16px;background:var(--card);margin-bottom:14px;box-shadow:var(--shadow)">
-        ${procCircleIcon(d.procName||'', '#b8966a', 40)}
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.procName||''}</div>
-          <div style="font-size:10.5px;color:var(--ink2);margin-top:1px">${fmtDate(dt)}${rating?' · '+'★'.repeat(rating):''}</div>
-        </div>
-        <div style="color:var(--ink2);font-size:16px;flex-shrink:0">›</div>
-      </div>`;
-  } else {
-    el.innerHTML = `
-      <div class="p-eyebrow">${isBG?'Дневник':'Diary'}</div>
-      <div onclick="goPage('procs')" style="cursor:pointer;text-align:center;padding:20px 14px;border:1.5px dashed var(--roselt);border-radius:16px;color:var(--ink2);font-size:12px;margin-bottom:14px">${isBG?'Все още няма записи — добави първия си запис':'No entries yet — add your first one'}</div>`;
+  const triedIds = new Set(realDocs.map(d=>d.data().procId).filter(Boolean));
+  const cards=[];
+
+  // 1) According to the current cycle phase
+  try{
+    const cyc = typeof _loadCycleData==='function' ? _loadCycleData() : {periods:[]};
+    if(cyc.periods && cyc.periods.length && typeof CYCLE_PHASE_INFO!=='undefined'){
+      const todayStr = new Date().toISOString().slice(0,10);
+      const phase = typeof _phaseForDate==='function' ? _phaseForDate(todayStr, cyc) : null;
+      const pi = phase ? CYCLE_PHASE_INFO[phase] : null;
+      if(pi && pi.recIds && pi.recIds.length && window.PROCS){
+        const pickId = pi.recIds.find(id=>!triedIds.has(id)) || pi.recIds[0];
+        const proc = window.PROCS.find(p=>p.id===pickId);
+        if(proc){
+          const lp = procL(proc);
+          cards.push({
+            tagBg:'linear-gradient(120deg,var(--sage),#c9a96e)', tag:(isBG?'🌿 Според фазата ти':'🌿 For your phase'),
+            icoBg: proc.bg||'var(--goldlt)', ico: proc.icon||'✨',
+            title: lp.name, txt: isBG?(pi.tipBg||''):(pi.tipEn||''),
+            cta: isBG?'Виж процедурата':'View treatment', action:`openSheet('${proc.id}')`
+          });
+        }
+      }
+    }
+  }catch(e){}
+
+  // 2) Something new — untried procedure (stable pick per day)
+  try{
+    if(window.PROCS && window.PROCS.length){
+      const untried = window.PROCS.filter(p=>!triedIds.has(p.id));
+      const pool = untried.length ? untried : window.PROCS;
+      const doy = Math.floor(Date.now()/86400000);
+      const proc = pool[doy % pool.length];
+      if(proc){
+        const lp = procL(proc);
+        cards.push({
+          tagBg:'linear-gradient(120deg,var(--lilac),#d4849a)', tag:(isBG?'✨ Подбрано за теб':'✨ Picked for you'),
+          icoBg: proc.bg||'var(--lilaclt)', ico: proc.icon||'🧖‍♀️',
+          title: lp.name, txt: isBG?'Още не си я пробвала — може да ти хареса.':"You haven't tried this yet — might be worth exploring.",
+          cta: isBG?'Виж процедурата':'View treatment', action:`openSheet('${proc.id}')`
+        });
+      }
+    }
+  }catch(e){}
+
+  // 3) Loved before — highly rated entry, worth revisiting
+  try{
+    const liked = realDocs.map(d=>d.data()).filter(d=>(d.rating||0)>=4 && d.procId)
+      .sort((a,b)=>(a.createdAt?.toMillis?.()??0)-(b.createdAt?.toMillis?.()??0));
+    if(liked.length && window.PROCS){
+      const l = liked[0];
+      const proc = window.PROCS.find(p=>p.id===l.procId);
+      if(proc){
+        const lp = procL(proc);
+        const dt = l.createdAt?.toDate ? l.createdAt.toDate() : null;
+        const weeks = dt ? Math.floor((Date.now()-dt.getTime())/(7*86400000)) : null;
+        cards.push({
+          tagBg:'linear-gradient(120deg,#c9a96e,#e8c99a)', tag:(isBG?'⭐ Хареса ти преди':'⭐ You loved this'),
+          icoBg: proc.bg||'var(--goldlt)', ico: proc.icon||'✨',
+          title: (isBG?'Отново: ':'Again: ')+lp.name,
+          txt: weeks!=null ? (isBG?`Оцени я с ${l.rating}★ — минаха ${weeks} седмици.`:`You rated it ${l.rating}★ — ${weeks} weeks ago.`) : (isBG?'Оцени я високо миналия път.':'You rated it highly last time.'),
+          cta: isBG?'Виж процедурата':'View treatment', action:`openSheet('${proc.id}')`
+        });
+      }
+    }
+  }catch(e){}
+
+  const dotsHtml = document.getElementById('home-spot-dots');
+  if(!cards.length){
+    stripEl.innerHTML = `<div style="text-align:center;padding:20px 14px;border:1.5px dashed var(--roselt);border-radius:16px;color:var(--ink2);font-size:12px">${isBG?'Все още няма записи — добави първия си запис':'No entries yet — add your first one'}</div>`;
+    return;
   }
- }catch(e){ console.error('_renderHomeDiaryPreview error:', e); }
+  stripEl.innerHTML = `
+    <div class="section-eyebrow" style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:22px 0 11px">${isBG?'Открий ново':'Discover something new'}</div>
+    <div class="home-spot-strip" id="home-spot-strip">
+      ${cards.map(c=>`
+        <div class="home-spot-card">
+          <span class="home-spot-tag" style="background:${c.tagBg}">${c.tag}</span>
+          <div class="home-spot-body">
+            <div class="home-spot-ico" style="background:${c.icoBg}">${c.ico}</div>
+            <div style="min-width:0">
+              <div class="home-spot-title">${c.title}</div>
+              <div class="home-spot-txt">${c.txt}</div>
+            </div>
+          </div>
+          <div class="home-spot-cta" onclick="${c.action}">${c.cta} <span style="color:#d4849a">›</span></div>
+        </div>`).join('')}
+    </div>
+    ${cards.length>1?`<div class="home-spot-dots" id="home-spot-dots">${cards.map((_,i)=>`<span class="${i===0?'on':''}"></span>`).join('')}</div>`:''}`;
+
+  if(cards.length>1){
+    const stripNode = document.getElementById('home-spot-strip');
+    const dotsNode = document.getElementById('home-spot-dots');
+    if(stripNode && dotsNode){
+      stripNode.onscroll = ()=>{
+        const w = stripNode.firstElementChild ? stripNode.firstElementChild.offsetWidth+11 : 1;
+        const idx = Math.round(stripNode.scrollLeft/w);
+        Array.from(dotsNode.children).forEach((d,i)=>d.className=i===idx?'on':'');
+      };
+    }
+  }
+ }catch(e){ console.error('_renderHomeSpotlight error:', e); }
 }
 window.renderHomePage = renderHomePage;
 function loadProfileStats(){
