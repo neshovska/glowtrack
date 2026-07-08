@@ -1409,7 +1409,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="page-hdr-title" id="home-greeting-title">Начало</div>
       <div class="page-hdr-sub" id="home-greeting-sub"></div>
     </div>
-    <div id="home-debug" style="background:#c0392b;color:#fff;font-size:12px;font-weight:700;padding:8px 18px;letter-spacing:.02em">HOME DIV VISIBLE ✓ | user=<span id="dbg-user">?</span> | js=<span id="dbg-js">no</span></div>
     <div id="home-content" style="padding:0 0 24px">
       <div style="text-align:center;padding:60px 24px;color:var(--ink2)">
         <div style="font-size:13px">Зареждане...</div>
@@ -1654,6 +1653,7 @@ window.doLogout=async function(){await signOut(auth);window.showToast&&window.sh
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
+    try {
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
     try{ if(typeof Sentry!=='undefined') Sentry.setUser({id:user.uid,email:user.email}); }catch(e){}
     // Invalidate cache on user change to ensure fresh data
@@ -1756,6 +1756,7 @@ onAuthStateChanged(auth,async user=>{
     if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll&&uSnapAll.exists()?uSnapAll.data():null);
     if(typeof loadHomeCare==='function')loadHomeCare();
     const _hcs2=document.getElementById('procs-homecare-section');if(_hcs2)_hcs2.style.display='block';
+    } catch(e) { console.warn('Auth user block error (Firestore?):', e); }
   }else{
     window._user=null;
     window._lastUserId=null;
@@ -1778,9 +1779,7 @@ onAuthStateChanged(auth,async user=>{
   // If the Profile tab tried to render before Firebase confirmed the auth state,
   // finish that render now that we know for sure whether the person is logged in.
   // After any auth state change, if profile page is active — refresh it
-  if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function'){
-    renderHomePage();
-  }
+  setTimeout(function(){ if(document.getElementById('page-home')?.classList.contains('active') && typeof renderHomePage==='function') renderHomePage(); }, 50);
   if(document.getElementById('page-profile')?.classList.contains('active')){
     if(typeof goPage==='function') setTimeout(()=>goPage('profile'), 50);
   } else if(window._pendingProfileGoPage){
@@ -2667,7 +2666,7 @@ function goPage(name,btn){
       if(typeof refreshProfilePage==='function') refreshProfilePage();
       if(!window._authReady) window._pendingProfileGoPage=true;
     }
-  }catch(e){}
+  }catch(e){console.error('goPage('+name+') error:',e);}
 }
 window.goPage=goPage;
 
@@ -2955,13 +2954,9 @@ if(window._pendingLang){window._pendingLang=false;applyLang();}
 // ── ADVANCED FILTER PANEL ──
 const ADV_GROUPS=['prob','zone','goal','tech','age','gender','occ','preg','rec','dur','pain','sea','inv'];
 function openAdvFilter(){
-  window._scrollY_beforeFilter = window.scrollY || document.documentElement.scrollTop || 0;
-  document.body.style.overflow='hidden';
-  document.body.style.position='fixed';
-  document.body.style.top = (-window._scrollY_beforeFilter) + 'px';
-  document.body.style.width='100%';
   document.getElementById('adv-filter-bs').style.transform='translateX(-50%) translateY(0)';
   document.getElementById('adv-filter-overlay').style.display='block';
+  document.body.style.overflow='hidden';
   const bsBody=document.getElementById('adv-bs-body');
   if(bsBody) bsBody.scrollTop=0;
 }
@@ -2969,10 +2964,6 @@ function closeAdvFilter(){
   document.getElementById('adv-filter-bs').style.transform='translateX(-50%) translateY(100%)';
   document.getElementById('adv-filter-overlay').style.display='none';
   document.body.style.overflow='';
-  document.body.style.position='';
-  document.body.style.top='';
-  document.body.style.width='';
-  window.scrollTo(0, window._scrollY_beforeFilter||0);
 }
 function advToggleAcc(id){
   const body=document.getElementById(id);
@@ -5792,10 +5783,6 @@ function renderCycleTrackerCard(){
 // ── HOME PAGE DASHBOARD ──
 function renderHomePage(){
   const wrap = document.getElementById('home-content');
-  const dbgU = document.getElementById('dbg-user');
-  const dbgJ = document.getElementById('dbg-js');
-  if(dbgJ) dbgJ.textContent = 'yes';
-  if(dbgU) dbgU.textContent = window._user ? (window._user.email||'logged-in') : 'null';
   if(!wrap) return;
   const isBGq = window._lang!=='en';
   const hr = new Date().getHours();
@@ -5827,6 +5814,7 @@ function renderHomePage(){
     return;
   }
 
+  try {
   const cycleData = _loadCycleData();
   const hasCycle = !!(cycleData.periods && cycleData.periods.length);
   const currentPhase = hasCycle ? _phaseForDate(new Date().toISOString().slice(0,10), cycleData) : null;
@@ -5866,7 +5854,7 @@ function renderHomePage(){
     <div class="profile-card-section">
       <div style="display:flex;text-align:center">
         <div style="flex:1"><div id="home-stat-diary" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Записи':'Entries'}</div></div>
-        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${getFavs().length}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
+        <div style="flex:1"><div id="home-stat-favs" style="font-size:17px;font-weight:700;color:var(--gold)">${(function(){try{return getFavs().length;}catch(e){return 0;}})()}</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Любими':'Favorites'}</div></div>
         <div style="flex:1"><div id="home-stat-spend" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Похарчени':'Spent'}</div></div>
         <div style="flex:1"><div id="home-stat-rating" style="font-size:17px;font-weight:700;color:var(--gold)">—</div><div style="font-size:9.5px;color:var(--ink2);margin-top:2px">${isBGq?'Оценка':'Rating'}</div></div>
       </div>
@@ -5945,8 +5933,11 @@ function renderHomePage(){
     </div>` : '';
 
   wrap.innerHTML = phaseCardHTML + statsHTML + continueHTML + reminderHTML + recHTML + favHTML;
-
   homeLoadDiaryStats();
+  } catch(e) {
+    console.error('renderHomePage error:', e);
+    wrap.innerHTML = '<div class="profile-card-section" style="margin:16px 18px;text-align:center;padding:20px"><div style="font-size:13px;color:var(--ink2);margin-bottom:10px">Грешка: ' + String(e) + '</div><button onclick="renderHomePage()" style="padding:8px 18px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Опитай пак</button></div>';
+  }
 }
 function homeLoadDiaryStats(){
   if(!window._user) return;
@@ -7275,19 +7266,30 @@ if(!navigator.onLine) showToast(t('offline'), 4000);
 // or in a subdirectory (e.g. GitHub Pages project page /glowtrack/)
 if('serviceWorker' in navigator && location.protocol === 'https:'){
   try{
-    navigator.serviceWorker.register('./sw.js').then(reg=>{
-      // Force update check on every load
-      reg.update();
-      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
-      reg.addEventListener('updatefound',()=>{
-        const nw=reg.installing;
-        if(nw) nw.addEventListener('statechange',()=>{
-          if(nw.state==='installed'&&navigator.serviceWorker.controller){
-            nw.postMessage({type:'SKIP_WAITING'});
-          }
-        });
+    // Version bump forces SW cache clear when app updates
+    const _APP_VERSION = '2026-07-08-v2';
+    const _storedVer = localStorage.getItem('gt_app_version');
+    if(_storedVer && _storedVer !== _APP_VERSION){
+      // New version detected - unregister old SW and reload clean
+      localStorage.setItem('gt_app_version', _APP_VERSION);
+      navigator.serviceWorker.getRegistrations().then(regs=>{
+        Promise.all(regs.map(r=>r.unregister())).then(()=>window.location.reload(true));
       });
-    }).catch((err)=>{console.error('SW register failed:',err);});
+    } else {
+      localStorage.setItem('gt_app_version', _APP_VERSION);
+      navigator.serviceWorker.register('./sw.js').then(reg=>{
+        reg.update();
+        if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+        reg.addEventListener('updatefound',()=>{
+          const nw=reg.installing;
+          if(nw) nw.addEventListener('statechange',()=>{
+            if(nw.state==='installed'&&navigator.serviceWorker.controller){
+              nw.postMessage({type:'SKIP_WAITING'});
+            }
+          });
+        });
+      }).catch((err)=>{console.error('SW register failed:',err);});
+    }
   }catch(e){}
 }
 
