@@ -1154,6 +1154,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div class="p-eyebrow" data-t="profileCycle">🌙 Месечен цикъл</div>
         <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
 
+        <div class="p-eyebrow">✦ Тест за типа кожа</div>
+        <div class="profile-card-section" id="skin-test-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
+
+        <div class="p-eyebrow">Любими процедури</div>
+        <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+          <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+            <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
+            <span class="acc-arrow">⌄</span>
+          </div>
+          <div class="acc-body">
+            <div id="favs-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Натисни ★ на процедура за да я запазиш</div></div>
+          </div>
+        </div>
+
         <div class="p-eyebrow">Статистика</div>
         <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
           <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -1174,20 +1188,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           </div>
         </div>
 
-        <div class="p-eyebrow">✦ Тест за типа кожа</div>
-        <div class="profile-card-section" id="skin-test-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
-
-        <div class="p-eyebrow">Любими процедури</div>
-        <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
-          <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
-            <span class="pcs-title" data-t="profileFavs"><svg width="15" height="15" viewBox="0 0 24 24" fill="#b8966a" style="vertical-align:-2px"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> Любими процедури</span>
-            <span class="acc-arrow">⌄</span>
-          </div>
-          <div class="acc-body">
-            <div id="favs-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Натисни ★ на процедура за да я запазиш</div></div>
-          </div>
-        </div>
-
         <div class="p-eyebrow">Обратна връзка</div>
         <div class="acc-section profile-card-section" id="ps-feedback-section" style="border-bottom:none;margin-bottom:14px">
           <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -1195,7 +1195,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <span class="acc-arrow">⌄</span>
           </div>
           <div class="acc-body">
-            <div style="font-size:11px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Идея, корекция или нова функция — споделяй!</div>
+            <div style="font-size:11px;color:var(--ink2);margin-bottom:10px;margin-top:8px">Идея, корекция или нова функция — споделяй! Или ни пиши директно на <a href="mailto:info@glowtrack.eu" style="color:var(--gold);text-decoration:underline">info@glowtrack.eu</a></div>
             <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
               <button class="fb-type-btn active" data-type="idea" onclick="setFbType(this,'idea')">💡 Идея</button>
               <button class="fb-type-btn" data-type="bug" onclick="setFbType(this,'bug')">🐛 Грешка</button>
