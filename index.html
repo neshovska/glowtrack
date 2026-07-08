@@ -7627,6 +7627,13 @@ function refreshProfilePage(){
   </div>
   <div id="cycle-tracker-body" style="padding:16px 16px 40px"></div>
 </div>
+<div id="skin-quiz-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:1">
+    <div id="skin-quiz-title" style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Тест за типа кожа</div>
+    <button onclick="closeSkinQuiz()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">✕</button>
+  </div>
+  <div id="skin-quiz-body" style="padding:16px 16px 40px"></div>
+</div>
 <div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
     <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
