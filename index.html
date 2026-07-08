@@ -838,10 +838,6 @@ body.dark #adv-filter-bs{background:#12122a!important}
 body.dark .diary-entry-row{background:#1a1a2e}
 body.dark #diary-search{background:#12122a!important;color:#f0ede8!important}
 body.dark #page-diary [style*="position:sticky"]{background:var(--mist)!important}
-body.dark #soon-hero{background:#000!important}
-body.dark #soon-hero [style*="color:#1a1a2e"]{color:#f0ede8!important}
-body.dark #soon-hero [style*="color:rgba(26,26,46,.6)"]{color:rgba(240,237,232,.5)!important}
-body.dark #soon-hero [style*="color:rgba(26,26,46,.5)"]{color:rgba(212,169,106,.65)!important}
 
 .dsort-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1.5px solid var(--roselt);background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--ink2);white-space:nowrap}
 .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold);border-width:2px;font-weight:700}
@@ -1156,8 +1152,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div id="ps-client-sections">
 
         <div class="p-eyebrow">Статистика</div>
-        <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px">
-          <div class="p-stats-row" style="margin-top:0">
+        <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+          <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+            <span class="pcs-title">📊 Статистика</span>
+            <span class="acc-arrow">⌄</span>
+          </div>
+          <div class="acc-body">
+          <div class="p-stats-row" style="margin-top:8px">
             <div class="stat-box"><div class="stat-num" id="stat-diary"><span style="font-size:11px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-favs"><span style="color:var(--gold)"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></div><div class="stat-lbl" data-t="statFavs">Любими</div></div>
             <div class="stat-box"><div class="stat-num" id="stat-procs"><span style="font-size:11px;font-weight:900;color:#b8966a;opacity:.5;letter-spacing:.05em">GT</span></div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
@@ -1167,10 +1168,14 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <div class="stat-box"><div class="stat-num" id="stat-rating">—</div><div class="stat-lbl" data-t="statRating">Ср. оценка</div></div>
           </div>
           <div id="stat-last-proc" style="margin-top:10px;padding:9px 12px;background:var(--goldlt);border-radius:10px;font-size:11.5px;color:var(--ink2);display:none"><span style="color:var(--gold)" data-t="statLastProc">✦ Последна процедура:</span> <span id="stat-last-proc-name" style="color:var(--ink);font-weight:600"></span> · <span id="stat-last-proc-date" style="color:var(--ink2)"></span></div>
+          </div>
         </div>
 
         <div class="p-eyebrow" data-t="profileCycle">🌙 Месечен цикъл</div>
         <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
+
+        <div class="p-eyebrow">✦ Тест за типа кожа</div>
+        <div class="profile-card-section" id="skin-test-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
 
         <div class="p-eyebrow">Любими процедури</div>
         <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
@@ -5743,7 +5748,7 @@ function renderCycleTrackerCard(){
           <div style="font-size:14px;font-weight:700;color:var(--ink)">${pi?(isBGq?pi.bg:pi.en):'—'}</div>
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:linear-gradient(135deg,#c9a06a,#d4849a);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
   } else {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -5753,7 +5758,7 @@ function renderCycleTrackerCard(){
           <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'Проследявай цикъла и връзката му с кожата':'Track your cycle and its link to your skin'}</div>
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Настрой календара':'Set up calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;padding:10px;background:linear-gradient(135deg,#c9a06a,#d4849a);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Настрой календара':'Set up calendar'}</button>`;
   }
 }
 
