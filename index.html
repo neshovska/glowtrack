@@ -231,6 +231,9 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .auth-btn:disabled{opacity:.5}
 .auth-switch{text-align:center;margin-top:14px;font-size:12.5px;color:var(--ink2)}
 .auth-switch a{color:var(--gold);cursor:pointer}
+.auth-mode-tabs{display:flex;background:var(--mist);border-radius:12px;padding:3px;margin-bottom:20px;gap:3px}
+.auth-mode-tab{flex:1;padding:10px 8px;border:none;border-radius:9px;background:none;color:var(--ink2);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.auth-mode-tab.active{background:#fff;color:var(--gold);box-shadow:0 2px 8px rgba(26,26,46,.08)}
 /* APP */
 .app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 80px;display:block}
 .app.show{display:block}
@@ -859,13 +862,17 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="auth-card">
     <div class="auth-error" id="auth-error"></div>
     <div id="unified-auth-form">
-      <div class="auth-title">Вход / Регистрация</div>
-      <div class="auth-field"><label class="auth-label">Име <span style="font-weight:400;opacity:.6">(само при първи вход)</span></label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
+      <div class="auth-mode-tabs">
+        <button type="button" class="auth-mode-tab active" id="auth-tab-login" onclick="setAuthMode('login')">Вход</button>
+        <button type="button" class="auth-mode-tab" id="auth-tab-register" onclick="setAuthMode('register')">Регистрация</button>
+      </div>
+      <div class="auth-field" id="auth-name-field" style="display:none"><label class="auth-label">Име</label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
       <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
       <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
-      <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Продължи</button>
+      <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Влез</button>
       <div style="text-align:center;margin-top:12px">
-        <a onclick="showForgotPassword()" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
+        <a onclick="showForgotPassword()" id="auth-forgot-link" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
+        <a onclick="setAuthMode(window._authMode==='register'?'login':'register')" id="auth-switch-link" style="display:block;font-size:12px;color:var(--ink2);text-decoration:none;cursor:pointer;margin-bottom:10px">Нямаш акаунт? <span style="color:var(--gold);font-weight:600">Регистрирай се</span></a>
         <button class="lang-btn" id="auth-lang-btn" onclick="toggleLang()" style="width:auto">EN / БГ</button>
       </div>
     </div>
@@ -1556,39 +1563,65 @@ window.initPushNotifications=async function(){
     return token;
   }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
+window._authMode='login';
+window.setAuthMode=function(mode){
+  window._authMode = mode;
+  const isEN = window._lang==='en';
+  const tabLogin=document.getElementById('auth-tab-login'), tabReg=document.getElementById('auth-tab-register');
+  if(tabLogin) tabLogin.classList.toggle('active', mode==='login');
+  if(tabReg) tabReg.classList.toggle('active', mode==='register');
+  const nameField=document.getElementById('auth-name-field');
+  if(nameField) nameField.style.display = mode==='register' ? 'block' : 'none';
+  const btn=document.getElementById('auth-btn');
+  if(btn) btn.textContent = mode==='register' ? (isEN?'Sign up':'Регистрирай се') : (isEN?'Log in':'Влез');
+  const forgotLink=document.getElementById('auth-forgot-link');
+  if(forgotLink) forgotLink.style.display = mode==='login' ? 'block' : 'none';
+  const switchLink=document.getElementById('auth-switch-link');
+  if(switchLink){
+    switchLink.innerHTML = mode==='register'
+      ? (isEN?'Already have an account? <span style="color:var(--gold);font-weight:600">Log in</span>':'Вече имаш акаунт? <span style="color:var(--gold);font-weight:600">Влез</span>')
+      : (isEN?"Don't have an account? <span style=\"color:var(--gold);font-weight:600\">Sign up</span>":'Нямаш акаунт? <span style="color:var(--gold);font-weight:600">Регистрирай се</span>');
+  }
+  const errEl=document.getElementById('auth-error');
+  if(errEl){errEl.classList.remove('show');errEl.textContent='';}
+};
 window.doAuthUnified=async function(){
   const name=document.getElementById('auth-name').value.trim();
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
   if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}
-  if(pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
+  if(window._authMode==='register' && pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
   const btn=document.getElementById('auth-btn');btn.disabled=true;btn.textContent='...';
   try{
-    // Try signing in first — covers the common case of a returning user.
-    await signInWithEmailAndPassword(auth,email,pass);
-    if(typeof window.trackEvent==='function')window.trackEvent('login',{});
-  }catch(e){
-    // No matching account (or Firebase's generic invalid-credential error) — try
-    // creating a new account with the same details instead, so the person never has
-    // to pick "login" vs "register" themselves.
-    try{
+    if(window._authMode==='register'){
       const cred=await createUserWithEmailAndPassword(auth,email,pass);
       if(name)await updateProfile(cred.user,{displayName:name});
       await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
       if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
-    }catch(e2){
-      if(e2.code==='auth/email-already-in-use'){
-        window.showAuthError(t('wrongCredentials'));
-      }else if(e2.code==='auth/weak-password'){
+    } else {
+      await signInWithEmailAndPassword(auth,email,pass);
+      if(typeof window.trackEvent==='function')window.trackEvent('login',{});
+    }
+  }catch(e){
+    if(window._authMode==='register'){
+      if(e.code==='auth/email-already-in-use'){
+        window.showAuthError(window._lang==='en'?'An account with this email already exists — try logging in instead.':'Вече има акаунт с този имейл — опитай да влезеш вместо това.');
+      }else if(e.code==='auth/weak-password'){
         window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
-      }else if(e2.code==='auth/invalid-email'){
+      }else if(e.code==='auth/invalid-email'){
         window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
       }else{
         window.showAuthError(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
       }
+    } else {
+      if(e.code==='auth/invalid-email'){
+        window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+      }else{
+        window.showAuthError(t('wrongCredentials'));
+      }
     }
   }finally{
-    btn.disabled=false;btn.textContent=window._lang==='en'?'Continue':'Продължи';
+    btn.disabled=false;btn.textContent=window._authMode==='register' ? (window._lang==='en'?'Sign up':'Регистрирай се') : (window._lang==='en'?'Log in':'Влез');
   }
 };
 window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
@@ -1735,6 +1768,7 @@ onAuthStateChanged(auth,async user=>{
 });
 window.openAuthScreen=function(){
   document.getElementById('auth-screen').classList.remove('hidden');
+  if(typeof setAuthMode==='function') setAuthMode('login');
 };
 </script>
 
@@ -2393,17 +2427,20 @@ function applyLang(){
   // Auth
   const uf = document.getElementById('unified-auth-form');
   if(uf){
-    uf.querySelector('.auth-title').textContent = window._lang==='en'?'Sign in / Sign up':'Вход / Регистрация';
+    const tabLogin=document.getElementById('auth-tab-login'), tabReg=document.getElementById('auth-tab-register');
+    if(tabLogin) tabLogin.textContent = window._lang==='en'?'Log in':'Вход';
+    if(tabReg) tabReg.textContent = window._lang==='en'?'Sign up':'Регистрация';
     const labs = uf.querySelectorAll('.auth-label');
-    if(labs[0]) labs[0].firstChild.textContent = (window._lang==='en'?'Name ':'Име ');
+    if(labs[0]) labs[0].textContent = (window._lang==='en'?'Name':'Име');
     if(labs[1]) labs[1].textContent = t('email');
     if(labs[2]) labs[2].textContent = t('password');
     const ni = document.getElementById('auth-name');
     if(ni) ni.placeholder = t('namePh');
     const pi = document.getElementById('auth-pass');
     if(pi) pi.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
-    const ab = document.getElementById('auth-btn');
-    if(ab) ab.textContent = window._lang==='en'?'Continue':'Продължи';
+    const forgotLink=document.getElementById('auth-forgot-link');
+    if(forgotLink) forgotLink.textContent = window._lang==='en'?'Forgot password?':'Забравена парола?';
+    if(typeof setAuthMode==='function') setAuthMode(window._authMode||'login');
   }
 
   // Nav labels
