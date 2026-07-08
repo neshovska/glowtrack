@@ -1790,6 +1790,9 @@ onAuthStateChanged(auth,async user=>{
     // try a personal action (diary, reminders, profile). Keep it closed here.
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('app').classList.add('show');
+    // Hide splash for guests too
+    var _gsp=document.getElementById('splash');
+    if(_gsp){_gsp.style.opacity='0';setTimeout(function(){_gsp.style.display='none';},600);}
     // Guest state: profile sheet will show auth form - no separate topbar button
     document.getElementById('topbar-right').style.display='none';
     // Clear stale personal content left over from a previous logged-in session
@@ -7234,6 +7237,19 @@ document.addEventListener('click',e=>{
 window.addEventListener('online', ()=>showToast(t('online')));
 window.addEventListener('offline', ()=>showToast(t('offline'), 4000));
 if(!navigator.onLine) showToast(t('offline'), 4000);
+
+// ── GUARANTEED SPLASH HIDE ──
+// Splash must disappear even if Firebase auth never resolves
+(function(){
+  var MAX_WAIT = 2000;
+  setTimeout(function(){
+    var sp = document.getElementById('splash');
+    if(sp && sp.style.display !== 'none'){
+      sp.style.opacity = '0';
+      setTimeout(function(){ if(sp) sp.style.display='none'; }, 600);
+    }
+  }, MAX_WAIT);
+})();
 
 // ── SERVICE WORKER ──
 // Note: blob: URL registration not supported in Safari
