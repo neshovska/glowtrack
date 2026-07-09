@@ -237,6 +237,18 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 /* APP */
 .app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 80px;display:block}
 .app.show{display:block}
+.desktop-deco{display:none;position:fixed;top:50%;transform:translateY(-50%);pointer-events:none;z-index:0;font-family:'Cormorant Garamond',serif}
+.desktop-deco-left{left:6%;font-size:52px;font-style:italic;color:rgba(184,150,106,.16);line-height:1.25;max-width:280px}
+.desktop-deco-right{right:6%;font-size:17px;color:rgba(184,150,106,.42);text-align:right;line-height:1.7;max-width:220px}
+body.dark .desktop-deco-left{color:rgba(212,169,106,.13)}
+body.dark .desktop-deco-right{color:rgba(212,169,106,.32)}
+@media (min-width:900px){
+  body{background:radial-gradient(circle at 15% 20%,rgba(232,201,154,.25),transparent 55%),radial-gradient(circle at 85% 80%,rgba(184,150,106,.18),transparent 55%),#faf7f2}
+  body.dark{background:radial-gradient(circle at 15% 20%,rgba(212,169,106,.12),transparent 55%),radial-gradient(circle at 85% 80%,rgba(212,169,106,.08),transparent 55%),#12122a}
+  .app{margin-top:40px;margin-bottom:40px;border-radius:28px;box-shadow:0 30px 80px rgba(26,26,46,.18);border:1px solid rgba(184,150,106,.15)}
+  body.dark .app{border-color:rgba(212,169,106,.15);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .desktop-deco{display:block}
+}
 .topbar{position:sticky;top:0;z-index:50;
   background:radial-gradient(120% 100% at 12% 0%,rgba(232,201,154,.16),transparent 55%),radial-gradient(120% 100% at 90% 0%,rgba(184,150,106,.10),transparent 55%),rgba(247,245,242,.9);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
@@ -880,6 +892,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 <body>
 <script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
 <div class="bg"></div>
+<div class="desktop-deco desktop-deco-left" aria-hidden="true">Know<br>your<br>glow.</div>
+<div class="desktop-deco desktop-deco-right" id="desktop-deco-right" aria-hidden="true">80+ козметични процедури<br>твоят личен beauty дневник<br>напомняния навреме</div>
 <div class="auth-screen hidden" id="auth-screen">
   
   <div class="auth-logo">Glow<span>Track</span></div>
@@ -2591,6 +2605,11 @@ function applyLang(){
     : 'Очак<em style="color:var(--gold);font-family:\'Cormorant Garamond\',serif;font-style:italic">вайте</em>';
   const soonHeroTitle = document.getElementById('soon-hero-title');
   if(soonHeroTitle) soonHeroTitle.innerHTML = window._lang==='en' ? 'Your glow,<br>your partners' : 'Твоят glow,<br>твоите партньори';
+  // Desktop decoration text (wide-screen only, contains <br>)
+  const deskDecoRight = document.getElementById('desktop-deco-right');
+  if(deskDecoRight) deskDecoRight.innerHTML = window._lang==='en'
+    ? '80+ beauty treatments<br>your personal beauty diary<br>timely reminders'
+    : '80+ козметични процедури<br>твоят личен beauty дневник<br>напомняния навреме';
   // Notifs page title (not a standard hdr)
   const nt = document.getElementById('notifs-page-title');
   if(nt) nt.textContent = t('notifsTitle');
