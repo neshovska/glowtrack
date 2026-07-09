@@ -244,10 +244,6 @@ body.dark .topbar{background:radial-gradient(120% 100% at 12% 0%,rgba(212,169,10
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
 .logo span{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
-#topbar-profile-btn{position:relative}
-#topbar-profile-btn::before,#topbar-profile-btn::after{content:'';position:absolute;top:50%;width:13px;height:1.5px;transform:translateY(-50%);pointer-events:none}
-#topbar-profile-btn::before{left:-17px;background:linear-gradient(90deg,transparent,var(--gold))}
-#topbar-profile-btn::after{right:-17px;background:linear-gradient(90deg,var(--gold),transparent)}
 .page{display:none;animation:fadeIn .18s ease}
 #page-profile{overflow:visible}
 .page.active{display:block;min-height:100%;overflow-y:visible}
@@ -955,10 +951,15 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="procs-homecare-section" style="padding:0 16px 8px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px" data-t="profileCare">🌿 Домашна грижа</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
-        <button onclick="toggleCarePanel('morning')" id="morning-btn" class="cat-btn"
-          style="width:100%;box-sizing:border-box;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;color:var(--gold);border-color:rgba(184,150,106,.35)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> <span data-t="morningCare">Сутрешна грижа</span>
-          <svg id="morning-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+        <button onclick="toggleCarePanel('morning')" id="morning-btn"
+          style="width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit">
+          <img src="https://images.pexels.com/photos/5938253/pexels-photo-5938253.jpeg?cs=srgb&fm=jpg&w=200" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">
+          <div style="flex:1;min-width:0;overflow:hidden">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCare">Сутрешна грижа</div>
+            <div style="font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCareSub">Твоята дневна рутина</div>
+            <div style="font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500" data-t="homeCareLabel">ДОМАШНА ГРИЖА</div>
+          </div>
+          <svg id="morning-btn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <!-- СУТРЕШНА ГРИЖА PANEL -->
         <div id="morning-panel" style="display:none;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
@@ -981,10 +982,15 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
           <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
         </div>
-        <button onclick="toggleCarePanel('evening')" id="evening-btn" class="cat-btn"
-          style="width:100%;box-sizing:border-box;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;color:var(--gold);border-color:rgba(184,150,106,.35)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> <span data-t="eveningCare">Вечерна грижа</span>
-          <svg id="evening-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+        <button onclick="toggleCarePanel('evening')" id="evening-btn"
+          style="width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit">
+          <img src="https://images.pexels.com/photos/3628342/pexels-photo-3628342.jpeg?cs=srgb&fm=jpg&w=200" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">
+          <div style="flex:1;min-width:0;overflow:hidden">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCare">Вечерна грижа</div>
+            <div style="font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCareSub">Твоят нощен ритуал</div>
+            <div style="font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500" data-t="homeCareLabel">ДОМАШНА ГРИЖА</div>
+          </div>
+          <svg id="evening-btn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <!-- ВЕЧЕРНА ГРИЖА PANEL -->
         <div id="evening-panel" style="display:none;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
@@ -1085,8 +1091,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <!-- Header — adapts to theme -->
         <div onclick="toggleNotifForm()" class="notif-acc-hdr" style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
           <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:34px;height:34px;border-radius:50%;background:rgba(184,150,106,.15);border:1.5px solid rgba(184,150,106,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#d4a96a);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(184,150,106,.35)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
             <div>
               <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;letter-spacing:.02em;color:var(--ink)" data-t="addReminder">Добави напомняне</div>
@@ -1136,7 +1142,37 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="page" id="page-profile">
     <div class="p-hero">
       <div class="p-close" onclick="goPage('procs')" title="Затвори">✕</div>
-      <div class="p-avatar-lg" id="ps-avatar-wrap">?</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:10px">
+        <svg width="54" height="54" viewBox="0 0 60 60" style="flex-shrink:0;margin-right:-8px" aria-hidden="true">
+          <defs>
+            <linearGradient id="rayGradL" gradientUnits="userSpaceOnUse" x1="6" y1="50" x2="54" y2="12">
+              <stop offset="0%" stop-color="var(--gold)" stop-opacity="0"/>
+              <stop offset="100%" stop-color="var(--gold)" stop-opacity=".9"/>
+            </linearGradient>
+            <linearGradient id="rayGradL2" gradientUnits="userSpaceOnUse" x1="10" y1="54" x2="56" y2="20">
+              <stop offset="0%" stop-color="var(--gold)" stop-opacity="0"/>
+              <stop offset="100%" stop-color="var(--gold)" stop-opacity=".55"/>
+            </linearGradient>
+          </defs>
+          <path d="M6,50 C20,45 32,22 54,12" fill="none" stroke="url(#rayGradL)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M10,54 C24,49 34,28 56,20" fill="none" stroke="url(#rayGradL2)" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+        <div class="p-avatar-lg" id="ps-avatar-wrap" style="margin:0">?</div>
+        <svg width="54" height="54" viewBox="0 0 60 60" style="flex-shrink:0;margin-left:-8px" aria-hidden="true">
+          <defs>
+            <linearGradient id="rayGradR" gradientUnits="userSpaceOnUse" x1="54" y1="50" x2="6" y2="12">
+              <stop offset="0%" stop-color="var(--gold)" stop-opacity="0"/>
+              <stop offset="100%" stop-color="var(--gold)" stop-opacity=".9"/>
+            </linearGradient>
+            <linearGradient id="rayGradR2" gradientUnits="userSpaceOnUse" x1="50" y1="54" x2="4" y2="20">
+              <stop offset="0%" stop-color="var(--gold)" stop-opacity="0"/>
+              <stop offset="100%" stop-color="var(--gold)" stop-opacity=".55"/>
+            </linearGradient>
+          </defs>
+          <path d="M54,50 C40,45 28,22 6,12" fill="none" stroke="url(#rayGradR)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M50,54 C36,49 26,28 4,20" fill="none" stroke="url(#rayGradR2)" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
       <div class="p-name-lg" id="ps-name">—</div>
       <div class="p-email-lg" id="ps-email">—</div>
       <div class="p-edit-btn" id="ps-edit-btn" onclick="showEditProfile()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span data-t="editProfileBtn">Редактирай профила</span></div>
@@ -1984,11 +2020,14 @@ const T = {
     notifPastSection: 'Минали',
     notifUpcoming: 'Предстоящи',
     notifLast: 'Последно',
-    morningCare: '☀️ Сутрешна грижа',
-    eveningCare: '🌙 Вечерна грижа',
+    morningCare: 'Сутрешна грижа',
+    eveningCare: 'Вечерна грижа',
+    morningCareSub: 'Твоята дневна рутина',
+    eveningCareSub: 'Твоят нощен ритуал',
+    homeCareLabel: 'ДОМАШНА ГРИЖА',
     saveRoutineMorning: 'Запази',
     saveRoutineEvening: 'Запази',
-    eveningCare: '🌙 Вечерна грижа',
+    eveningCare: 'Вечерна грижа',
     addStep: '+ Добави стъпка...',
     notifsSub: 'Предстоящи процедури',
     // Pages
@@ -2219,11 +2258,14 @@ const T = {
     notifPastSection: 'Past',
     notifUpcoming: 'Upcoming',
     notifLast: 'Last',
-    morningCare: '☀️ Morning care',
-    eveningCare: '🌙 Evening care',
+    morningCare: 'Morning care',
+    eveningCare: 'Evening care',
+    morningCareSub: 'Your daily ritual',
+    eveningCareSub: 'Your nightly ritual',
+    homeCareLabel: 'HOME CARE',
     saveRoutineMorning: 'Save',
     saveRoutineEvening: 'Save',
-    eveningCare: '🌙 Evening care',
+    eveningCare: 'Evening care',
     addStep: '+ Add step...',
     notifsSub: 'Upcoming procedures',
     procsTitle: 'Procedures',
@@ -6663,8 +6705,8 @@ function loadNotifsPage(){
   // Section 1: Reminders 🔔 — collapsible
   if(reminders.length){
     html += `<div style="margin-top:8px">
-      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:10px;background:var(--goldlt);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
-        <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+      <div onclick="toggleNotifSection('ns-reminders')" style="display:flex;align-items:center;gap:12px;background:var(--goldlt);border:2px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
+        <div style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gold),#d4a96a);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(184,150,106,.4)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.1"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Напомняния':'Reminders'}</div>
           <div style="font-size:11px;color:var(--ink2);margin-top:1px">${reminders.length} ${isBG?(reminders.length===1?'напомняне':'напомняния'):(reminders.length===1?'reminder':'reminders')}</div>
@@ -6680,10 +6722,10 @@ function loadNotifsPage(){
   // Section 2: Bookings ✅ — collapsible
   if(bookings.length){
     html += `<div style="margin-top:8px">
-      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:10px;background:var(--goldlt);border:2.5px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
-        <div style="font-size:22px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div onclick="toggleNotifSection('ns-bookings')" style="display:flex;align-items:center;gap:12px;background:var(--goldlt);border:2px solid var(--gold);border-radius:14px;padding:11px 14px;cursor:pointer">
+        <div style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#8a6a4a,#b8966a);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(138,106,74,.4)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:var(--gold)">${isBG?'Запазени часове':'Bookings'}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Запазени часове':'Bookings'}</div>
           <div style="font-size:11px;color:var(--ink2);margin-top:1px">${bookings.length} ${isBG?(bookings.length===1?'резервация':'резервации'):(bookings.length===1?'booking':'bookings')}</div>
         </div>
         <svg id="ns-bookings-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
@@ -6698,13 +6740,13 @@ function loadNotifsPage(){
   if(past.length){
     const pastCards = past.map(n=>renderCard(n,true)).join('');
     html += `<div id="past-notifs-card" style="margin-top:16px">
-      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--goldlt);border:2.5px solid rgba(184,150,106,.4);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;opacity:.75">
-        <div style="font-size:24px;flex-shrink:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div onclick="togglePastNotifs()" style="display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid rgba(184,150,106,.25);border-radius:14px;padding:12px 14px;cursor:pointer;margin-bottom:0;box-shadow:0 4px 24px rgba(26,26,46,.15)">
+        <div style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:rgba(184,150,106,.15);border:1.5px solid rgba(184,150,106,.35);display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--ink)">${isBG?'Минали събития':'Past events'}</div>
           <div style="font-size:11px;color:var(--ink2);margin-top:2px">${past.length} ${isBG?(past.length===1?'събитие':'събитие'):'event'}${past.length!==1&&isBG?'':past.length!==1?'s':''}</div>
         </div>
-        <svg id="past-notifs-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg id="past-notifs-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;transition:transform .2s;opacity:.7"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
       <div id="past-notifs-body" style="display:none;margin-top:8px;flex-direction:column;gap:8px">
         ${pastCards}
