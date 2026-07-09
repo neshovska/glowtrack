@@ -930,9 +930,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
 </div>
   <div class="topbar"><div class="topbar-inner" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px">
-  <button id="topbar-profile-btn" onclick="goPage('profile')" style="display:flex;align-items:center;gap:4px;padding:2px 8px 2px 3px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:16px;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">
+  <button id="topbar-profile-btn" onclick="toggleProfilePage()" style="display:flex;align-items:center;gap:4px;padding:2px 8px 2px 3px;background:var(--goldlt);border:1.5px solid rgba(184,150,106,.4);border-radius:16px;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">
     <div id="topbar-avatar" style="width:19px;height:19px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.03em">?</div>
-    <span style="font-size:9.5px;font-weight:700;color:var(--gold);white-space:nowrap">Профил</span>
+    <span style="font-size:9.5px;font-weight:700;color:var(--gold);white-space:nowrap" data-t="navProfile">Профил</span>
   </button>
   <div style="display:flex;flex-direction:column;align-items:center;gap:1px">
     <div class="logo">Glow<span>Track</span></div>
@@ -1030,6 +1030,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
   </div>
   <div class="page" id="page-diary">
+    <button id="diary-back-to-profile" onclick="closeDiaryBackToProfile()" title="Затвори" style="display:none;position:fixed;top:calc(env(safe-area-inset-top,0px) + 66px);right:16px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid rgba(184,150,106,.3);align-items:center;justify-content:center;font-size:15px;color:var(--ink2);cursor:pointer;z-index:55;box-shadow:0 2px 8px rgba(26,26,46,.12);backdrop-filter:blur(6px)">✕</button>
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
@@ -1152,7 +1153,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page" id="page-profile">
     <div class="p-hero">
-      <div class="p-close" onclick="goPage('procs')" title="Затвори">✕</div>
+      <div class="p-close" onclick="toggleProfilePage()" title="Затвори">✕</div>
       <div style="position:relative;z-index:1">
       <div style="display:flex;align-items:center;justify-content:center;margin-bottom:10px">
         <div class="p-avatar-lg" id="ps-avatar-wrap">?</div>
@@ -1184,11 +1185,25 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <!-- Client-only sections -->
       <div id="ps-client-sections">
 
-        <div class="p-eyebrow" data-t="profileCycle">🌙 Месечен цикъл</div>
+        <div class="p-eyebrow" data-t="profileCycle">✦ Месечен цикъл</div>
         <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
 
         <div class="p-eyebrow">✦ Тест за типа кожа</div>
         <div class="profile-card-section" id="skin-test-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
+
+        <div class="p-eyebrow" data-t="profileCalendar">✦ Календар</div>
+        <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:700;color:var(--ink)" data-t="profileCalTitle">Твоят календар</div>
+              <div style="font-size:11px;color:var(--ink2)" data-t="profileCalSub">Виж процедури и напомняния по дни</div>
+            </div>
+          </div>
+          <button onclick="openCalendarFromProfile()" style="width:100%;margin-top:10px;padding:9px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" data-t="profileCalBtn">Отвори календара</button>
+        </div>
 
         <div class="p-eyebrow">Любими процедури</div>
         <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
@@ -1393,7 +1408,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <button class="nb" onclick="goPage('procs',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 22V12"/><path d="M12 12C12 12 7 10 7 5a5 5 0 0 1 10 0c0 5-5 7-5 7z"/><path d="M12 12C12 12 8 8 5 10s1 8 7 10"/><path d="M12 12C12 12 16 8 19 10s-1 8-7 10"/></svg></span><span class="nl" id="nav-procs-lbl">Процедури</span></button>
     <button class="nb" onclick="goPage('notifs',this)" id="nav-notifs-btn"><span class="ni" style="position:relative;display:inline-flex;align-items:center;justify-content:center"><span style="font-size:20px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><span id="notif-badge" style="display:none;position:absolute;top:-5px;right:-7px;background:#e85d5d;color:#fff;border-radius:50%;min-width:16px;height:16px;font-size:9px;font-weight:800;align-items:center;justify-content:center;line-height:1;padding:0 3px"></span></span><span class="nl" id="nav-notifs-lbl">Напомняне</span></button>
     <button class="nb" onclick="goPage('soon',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="var(--gold)" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="var(--gold)" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
-    <button class="nb" onclick="goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
+    <button class="nb" onclick="window._calFromProfile=false;goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
   </nav>
 </div>
 
@@ -2170,7 +2185,11 @@ const T = {
     statRating: 'Средна оценка',
     statLastProc: 'Последна процедура',
     profileStats: 'Моята статистика',
-    profileCycle: '🌙 Месечен цикъл',
+    profileCycle: '✦ Месечен цикъл',
+    profileCalendar: '✦ Календар',
+    profileCalTitle: 'Твоят календар',
+    profileCalSub: 'Виж процедури и напомняния по дни',
+    profileCalBtn: 'Отвори календара',
     profileFavs: '★ Любими процедури',
     profileCare: '🌿 Домашна грижа',
     profileNotifs: '🔔 Напомняния за процедури',
@@ -2452,7 +2471,11 @@ const T = {
     online: '✅ Connection restored',
     priceLabel: '💰 Price',
     profileCare: '🌿 Home care',
-    profileCycle: '🌙 Monthly cycle',
+    profileCycle: '✦ Monthly cycle',
+    profileCalendar: '✦ Calendar',
+    profileCalTitle: 'Your calendar',
+    profileCalSub: 'See treatments and reminders by day',
+    profileCalBtn: 'Open calendar',
     profileFavs: '★ Favourite procedures',
     profileNotifs: '🔔 Procedure reminders',
     profileStats: 'My statistics',
@@ -2759,8 +2782,44 @@ function goPage(name,btn){
       if(!window._authReady) window._pendingProfileGoPage=true;
     }
   }catch(e){}
+  if(typeof syncDiaryBackBtn==='function') syncDiaryBackBtn();
 }
 window.goPage=goPage;
+
+function _currentActivePageName(){
+  const active = document.querySelector('.page.active');
+  if(!active || !active.id) return 'home';
+  return active.id.replace('page-','');
+}
+function toggleProfilePage(){
+  const pg = document.getElementById('page-profile');
+  const isOpen = pg && pg.classList.contains('active');
+  if(isOpen){
+    goPage(window._preProfilePage || 'home');
+  } else {
+    window._preProfilePage = _currentActivePageName();
+    goPage('profile');
+  }
+}
+window.toggleProfilePage=toggleProfilePage;
+
+function openCalendarFromProfile(){
+  window._calFromProfile = true;
+  goPage('diary');
+  setDiaryView('cal');
+  syncDiaryBackBtn();
+}
+function closeDiaryBackToProfile(){
+  window._calFromProfile = false;
+  goPage('profile');
+  syncDiaryBackBtn();
+}
+function syncDiaryBackBtn(){
+  const btn = document.getElementById('diary-back-to-profile');
+  if(!btn) return;
+  const active = document.getElementById('page-diary')?.classList.contains('active');
+  btn.style.display = (window._calFromProfile && active) ? 'flex' : 'none';
+}
 
 
 // ── PROCEDURES ──
@@ -5869,10 +5928,11 @@ function renderCycleTrackerCard(){
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${isBGq?'Текуща фаза':'Current phase'}</div>
-          <div style="font-size:14px;font-weight:700;color:var(--ink)">${pi?(isBGq?pi.bg:pi.en):'—'}</div>
+          <div style="font-size:13.5px;font-weight:700;color:var(--ink)">${pi?(isBGq?pi.bg:pi.en):'—'}</div>
+          ${pi ? `<div style="font-size:10px;color:var(--ink2);line-height:1.3;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${isBGq?pi.tipBg:pi.tipEn}</div>` : ''}
         </div>
       </div>
-      <button onclick="openCycleTracker()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
+      <button onclick="openCycleTracker()" style="width:100%;margin-top:10px;padding:9px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Виж календара':'View calendar'}</button>`;
   } else {
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -7847,7 +7907,7 @@ function refreshProfilePage(){
 
 <div id="cycle-tracker-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;z-index:1">
-    <div style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" data-t="profileCycle">🌙 Месечен цикъл</div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" data-t="profileCycle">✦ Месечен цикъл</div>
     <button onclick="closeCycleTracker()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">✕</button>
   </div>
   <div id="cycle-tracker-body" style="padding:16px 16px 40px"></div>
