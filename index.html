@@ -398,7 +398,10 @@ body.dark #page-profile .p-hero{background:radial-gradient(120% 90% at 18% -10%,
 body.dark #page-profile .p-close{background:rgba(255,255,255,.06)}
 #page-profile .p-avatar-lg{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;display:flex;position:relative;
   align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:700;font-size:24px;color:#fff;
-  background:linear-gradient(135deg,#c9a87a,#a67c4f);border:3px solid #fff;box-shadow:0 6px 16px rgba(184,150,106,.35)}
+  background:linear-gradient(135deg,#c9a87a,#a67c4f);border:3px solid #fff;box-shadow:0 6px 16px rgba(184,150,106,.35);
+  animation:avatarCirclePulse 3.6s ease-in-out infinite}
+@keyframes avatarCirclePulse{0%,100%{transform:scale(1);box-shadow:0 6px 16px rgba(184,150,106,.35)}50%{transform:scale(1.045);box-shadow:0 8px 22px rgba(184,150,106,.5)}}
+@media (prefers-reduced-motion: reduce){#page-profile .p-avatar-lg{animation:none}}
 #page-profile .p-avatar-lg::before{content:'';position:absolute;inset:-38px;border-radius:50%;z-index:-1;
   background:radial-gradient(circle, rgba(232,201,154,.75) 0%, rgba(212,175,130,.42) 40%, rgba(184,150,106,.1) 62%, rgba(184,150,106,0) 78%);
   filter:blur(9px);animation:avatarGlowPulse 3.6s ease-in-out infinite}
