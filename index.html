@@ -949,16 +949,17 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <div class="cats" id="cats-bar"></div>
     <div id="procs-homecare-section" style="padding:0 16px 8px">
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <button onclick="toggleCarePanel('morning')" id="morning-btn"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(184,150,106,.35);background:var(--card);font-family:inherit;font-size:13px;font-weight:700;color:var(--gold);cursor:pointer">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px" data-t="profileCare">🌿 Домашна грижа</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+        <button onclick="toggleCarePanel('morning')" id="morning-btn" class="cat-btn"
+          style="width:100%;box-sizing:border-box;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;color:var(--gold);border-color:rgba(184,150,106,.35)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> <span data-t="morningCare">Сутрешна грижа</span>
-          <svg id="morning-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg id="morning-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <button onclick="toggleCarePanel('evening')" id="evening-btn"
-          style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(184,150,106,.35);background:var(--card);font-family:inherit;font-size:13px;font-weight:700;color:var(--gold);cursor:pointer">
+        <button onclick="toggleCarePanel('evening')" id="evening-btn" class="cat-btn"
+          style="width:100%;box-sizing:border-box;justify-content:center;gap:6px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;color:var(--gold);border-color:rgba(184,150,106,.35)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> <span data-t="eveningCare">Вечерна грижа</span>
-          <svg id="evening-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg id="evening-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
       <!-- СУТРЕШНА ГРИЖА PANEL -->
