@@ -2768,6 +2768,13 @@ function goPage(name,btn){
   const pg=document.getElementById('page-'+name);
   if(pg)pg.classList.add('active');
   if(btn)btn.classList.add('active');
+  // Always start a freshly opened page scrolled to the very top —
+  // otherwise it can retain the previous page's scroll position, hiding
+  // the header/close controls until the user manually scrolls up.
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+  document.documentElement.scrollTop=0;
+  document.body.scrollTop=0;
+  if(pg) pg.scrollTop=0;
   try{localStorage.setItem('gt_last_page',name);}catch(e){}
   try{
     if(name==='diary'){ if(typeof _diaryView!=='undefined' && _diaryView==='cal') setDiaryView('cal'); else loadDiaryTab(); }
@@ -4012,6 +4019,9 @@ function _syncDiaryBtns(){
 }
 function setDiaryView(v){
   _diaryView=v;
+  window.scrollTo({top:0,left:0,behavior:'instant'});
+  document.documentElement.scrollTop=0;
+  document.body.scrollTop=0;
   const listView=document.getElementById('diary-tab-content');
   const calView=document.getElementById('diary-cal-view');
   const sortBtns=document.getElementById('diary-sort-btns');
