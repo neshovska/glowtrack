@@ -1164,12 +1164,19 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 
       <!-- Guest login (shown when not signed in) -->
       <div id="ps-guest-overlay" style="display:none;padding:18px 4px 0;text-align:left;max-width:320px;margin:0 auto">
-        <div style="text-align:center;font-size:12px;color:var(--ink2);margin-bottom:14px">Влез или се регистрирай</div>
-        <input id="ps-auth-email" type="email" placeholder="Имейл адрес" style="width:100%;padding:11px 14px;border:1.5px solid var(--roselt);border-radius:12px;font-size:15px;color:var(--ink);background:var(--card);font-family:inherit;margin-bottom:10px;outline:none;display:block">
-        <input id="ps-auth-pass" type="password" placeholder="Парола (минимум 6 символа)" style="width:100%;padding:11px 14px;border:1.5px solid var(--roselt);border-radius:12px;font-size:15px;color:var(--ink);background:var(--card);font-family:inherit;margin-bottom:10px;outline:none;display:block">
-        <div id="ps-auth-error" style="font-size:11px;color:#e85d5d;margin-bottom:8px;display:none"></div>
-        <button onclick="doSheetLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Продължи →</button>
-        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--ink2)">Нов потребител? Просто въведи имейл и парола.</div>
+        <div class="auth-error" id="ps-auth-error"></div>
+        <div class="auth-mode-tabs">
+          <button type="button" class="auth-mode-tab active" id="ps-auth-tab-login" onclick="setPsAuthMode('login')">Вход</button>
+          <button type="button" class="auth-mode-tab" id="ps-auth-tab-register" onclick="setPsAuthMode('register')">Регистрация</button>
+        </div>
+        <div class="auth-field" id="ps-auth-name-field" style="display:none"><label class="auth-label">Име</label><input class="auth-input" type="text" id="ps-auth-name" placeholder="Твоето име" autocomplete="name"></div>
+        <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="ps-auth-email" placeholder="example@mail.com" autocomplete="email"></div>
+        <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="ps-auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+        <button class="auth-btn" id="ps-auth-btn" onclick="doPsAuthUnified()">Влез</button>
+        <div style="text-align:center;margin-top:12px">
+          <a onclick="showForgotPassword()" id="ps-auth-forgot-link" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
+          <a onclick="setPsAuthMode(window._psAuthMode==='register'?'login':'register')" id="ps-auth-switch-link" style="display:block;font-size:12px;color:var(--ink2);text-decoration:none;cursor:pointer">Нямаш акаунт? <span style="color:var(--gold);font-weight:600">Регистрирай се</span></a>
+        </div>
       </div>
     </div>
 
@@ -7111,6 +7118,10 @@ function filterDiary(){
 
 // ── ONBOARDING ──
 async function checkOnboarding(userData){
+  // Disabled for now — first-time onboarding modal is turned off per request.
+  return;
+}
+async function _checkOnboarding_disabled(userData){
   if(!window._user) return;
   // Check localStorage first (fast)
   if(localStorage.getItem('gt_onboarded_'+window._user.uid)) return;
@@ -7448,34 +7459,61 @@ function _updateTopbarAvatar(){
   const ini = ((parts[0]?parts[0][0]:'')+(parts.length>1&&parts[parts.length-1]?parts[parts.length-1][0]:'')).toUpperCase()||'?';
   tav.textContent = ini;
 }
-async function doSheetLogin(){
-  const email = document.getElementById('ps-auth-email')?.value?.trim();
-  const pass = document.getElementById('ps-auth-pass')?.value;
-  const errEl = document.getElementById('ps-auth-error');
-  const btn = document.querySelector('#ps-guest-overlay button[onclick="doSheetLogin()"]');
-  if(!email||!pass){ if(errEl){errEl.textContent='Моля въведи имейл и парола';errEl.style.display='block';} return; }
-  if(pass.length<6){ if(errEl){errEl.textContent='Паролата трябва да е поне 6 символа';errEl.style.display='block';} return; }
-  if(errEl) errEl.style.display='none';
-  if(btn){ btn.disabled=true; btn.textContent='...'; }
+window._psAuthMode='login';
+window.setPsAuthMode=function(mode){
+  window._psAuthMode = mode;
+  const isEN = window._lang==='en';
+  const tabLogin=document.getElementById('ps-auth-tab-login'), tabReg=document.getElementById('ps-auth-tab-register');
+  if(tabLogin) tabLogin.classList.toggle('active', mode==='login');
+  if(tabReg) tabReg.classList.toggle('active', mode==='register');
+  const nameField=document.getElementById('ps-auth-name-field');
+  if(nameField) nameField.style.display = mode==='register' ? 'block' : 'none';
+  const btn=document.getElementById('ps-auth-btn');
+  if(btn) btn.textContent = mode==='register' ? (isEN?'Sign up':'Регистрирай се') : (isEN?'Log in':'Влез');
+  const forgotLink=document.getElementById('ps-auth-forgot-link');
+  if(forgotLink) forgotLink.style.display = mode==='login' ? 'block' : 'none';
+  const switchLink=document.getElementById('ps-auth-switch-link');
+  if(switchLink){
+    switchLink.innerHTML = mode==='register'
+      ? (isEN?'Already have an account? <span style="color:var(--gold);font-weight:600">Log in</span>':'Вече имаш акаунт? <span style="color:var(--gold);font-weight:600">Влез</span>')
+      : (isEN?"Don't have an account? <span style=\"color:var(--gold);font-weight:600\">Sign up</span>":'Нямаш акаунт? <span style="color:var(--gold);font-weight:600">Регистрирай се</span>');
+  }
+  const errEl=document.getElementById('ps-auth-error');
+  if(errEl){errEl.classList.remove('show');errEl.textContent='';}
+};
+async function doPsAuthUnified(){
+  const name=(document.getElementById('ps-auth-name')?.value||'').trim();
+  const email=(document.getElementById('ps-auth-email')?.value||'').trim();
+  const pass=document.getElementById('ps-auth-pass')?.value||'';
+  const errEl=document.getElementById('ps-auth-error');
+  const showErr=(msg)=>{ if(errEl){errEl.textContent=msg; errEl.classList.add('show');} };
+  if(!email||!pass){ showErr(t('fillAllFields')); return; }
+  if(window._psAuthMode==='register' && pass.length<6){ showErr(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа'); return; }
+  if(errEl) errEl.classList.remove('show');
+  const btn=document.getElementById('ps-auth-btn'); if(btn){btn.disabled=true;btn.textContent='...';}
   try{
-    // Try sign in first
-    await F().signInWithEmailAndPassword(AU(), email, pass);
-    refreshProfilePage();
-  }catch(e){
-    // Try create account
-    try{
+    if(window._psAuthMode==='register'){
       const cred = await F().createUserWithEmailAndPassword(AU(), email, pass);
-      try{ await F().setDoc(F().doc(DB(),'users',cred.user.uid),{uid:cred.user.uid,name:'',email,createdAt:new Date().toISOString()}); }catch(e3){}
-      refreshProfilePage();
-    }catch(e2){
-      const msg = e2.code==='auth/email-already-in-use' ? 'Грешна парола. Опитай пак.' :
-                  e2.code==='auth/invalid-email' ? 'Невалиден имейл адрес' :
-                  e2.code==='auth/weak-password' ? 'Паролата трябва да е поне 6 символа' :
-                  'Нещо се обърка. Опитай пак.';
-      if(errEl){ errEl.textContent=msg; errEl.style.display='block'; }
+      if(name) await F().updateProfile(cred.user,{displayName:name});
+      await F().setDoc(F().doc(DB(),'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:F().serverTimestamp()});
+      if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
+    } else {
+      await F().signInWithEmailAndPassword(AU(), email, pass);
+      if(typeof window.trackEvent==='function')window.trackEvent('login',{});
+    }
+    if(typeof refreshProfilePage==='function') refreshProfilePage();
+  }catch(e){
+    if(window._psAuthMode==='register'){
+      if(e.code==='auth/email-already-in-use') showErr(window._lang==='en'?'An account with this email already exists — try logging in instead.':'Вече има акаунт с този имейл — опитай да влезеш вместо това.');
+      else if(e.code==='auth/weak-password') showErr(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
+      else if(e.code==='auth/invalid-email') showErr(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+      else showErr(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
+    } else {
+      if(e.code==='auth/invalid-email') showErr(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+      else showErr(t('wrongCredentials'));
     }
   }finally{
-    if(btn){ btn.disabled=false; btn.textContent='Продължи →'; }
+    if(btn){btn.disabled=false; btn.textContent=window._psAuthMode==='register' ? (window._lang==='en'?'Sign up':'Регистрирай се') : (window._lang==='en'?'Log in':'Влез');}
   }
 }
 // Populates the inline Profile tab (avatar, name, email, guest-vs-client view, stats, favorites).
@@ -7510,6 +7548,7 @@ function refreshProfilePage(){
     if(nm) nm.textContent='—';
     if(em) em.textContent='—';
     if(guest) guest.style.display='block';
+    if(typeof setPsAuthMode==='function') setPsAuthMode('login');
     if(clientSections) clientSections.style.display='none';
     if(editBtn) editBtn.style.display='none';
   }
@@ -7720,14 +7759,14 @@ function refreshProfilePage(){
     </div>
 
 <div id="cycle-tracker-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
-  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:1">
+  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;z-index:1">
     <div style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" data-t="profileCycle">🌙 Месечен цикъл</div>
     <button onclick="closeCycleTracker()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">✕</button>
   </div>
   <div id="cycle-tracker-body" style="padding:16px 16px 40px"></div>
 </div>
 <div id="skin-quiz-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
-  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;z-index:1">
+  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;z-index:1">
     <div id="skin-quiz-title" style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Тест за типа кожа</div>
     <button onclick="closeSkinQuiz()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">✕</button>
   </div>
