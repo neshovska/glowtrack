@@ -1056,10 +1056,10 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       </div>
       <!-- Sort buttons — static HTML, never re-rendered -->
       <div id="diary-sort-btns" style="display:none;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none">
-        <button id="dsort-default" class="dsort-btn dsort-active" onclick="sortDiary('default')" data-t-sort="По дата">По дата</button>
-        <button id="dsort-name" class="dsort-btn" onclick="sortDiary('name')" data-t-sort="По азбука">По азбука</button>
-        <button id="dsort-count" class="dsort-btn" onclick="sortDiary('count')" data-t-sort="По брой">По брой</button>
-        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t-sort="Ръчно">↕ Ръчно</button>
+        <button id="dsort-default" class="dsort-btn dsort-active" onclick="sortDiary('default')" data-t="diarySortDate">По дата</button>
+        <button id="dsort-name" class="dsort-btn" onclick="sortDiary('name')" data-t="diarySortAlpha">По азбука</button>
+        <button id="dsort-count" class="dsort-btn" onclick="sortDiary('count')" data-t="diarySortCount">По брой</button>
+        <button id="dsort-manual" class="dsort-btn" onclick="sortDiary('manual')" data-t="diarySortManual">↕ Ръчно</button>
       </div>
     </div>
     <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
@@ -1253,7 +1253,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 <div class="page" id="page-soon">
   <div class="page-hdr">
     <div class="page-hdr-title" id="soon-page-title">Очак<em style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic">вайте</em></div>
-    <div class="page-hdr-sub" style="text-transform:uppercase;letter-spacing:.07em;font-size:11px">Скоро в GlowTrack</div>
+    <div class="page-hdr-sub" style="text-transform:uppercase;letter-spacing:.07em;font-size:11px" data-t="soonSub">Скоро в GlowTrack</div>
   </div>
   <div style="padding:0 16px 24px">
     <!-- Hero -->
@@ -1262,64 +1262,64 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(26,26,46,.65)" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       </div>
       <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,26,46,.5);margin-bottom:6px">GLOWTRACK PARTNERS</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e;line-height:1.25;margin-bottom:10px">Твоят glow,<br>твоите партньори</div>
-      <div style="font-size:12px;color:rgba(26,26,46,.6);line-height:1.75">Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.</div>
+      <div id="soon-hero-title" style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e;line-height:1.25;margin-bottom:10px">Твоят glow,<br>твоите партньори</div>
+      <div style="font-size:12px;color:rgba(26,26,46,.6);line-height:1.75" data-t="soonHeroDesc">Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.</div>
     </div>
     <!-- Клиники -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Клиники партньори</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px" data-t="soonClinicsLbl">Клиники партньори</div>
     <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
       <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Верифицирани клиники</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Намери клиника близо до теб, специализирана в процедурите които следиш</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink)" data-t="soonClinicsTitle">Верифицирани клиники</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5" data-t="soonClinicsDesc">Намери клиника близо до теб, специализирана в процедурите които следиш</div>
       </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)" data-t="soonBadge">СКОРО</div>
     </div>
     <!-- Брандове -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Козметични брандове</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px" data-t="soonBrandsLbl">Козметични брандове</div>
     <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
       <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Препоръчани продукти</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink)" data-t="soonProductsTitle">Препоръчани продукти</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5" data-t="soonProductsDesc">Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа</div>
       </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)" data-t="soonBadge">СКОРО</div>
     </div>
     <!-- Промо -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Промоции и отстъпки</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px" data-t="soonPromoLbl">Промоции и отстъпки</div>
     <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
       <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Ексклузивни промо кодове</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Отстъпки от партньорски клиники и брандове, достъпни само за потребители на GlowTrack</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink)" data-t="soonPromoTitle">Ексклузивни промо кодове</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5" data-t="soonPromoDesc">Отстъпки от партньорски клиники и брандове, достъпни само за потребители на GlowTrack</div>
       </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)" data-t="soonBadge">СКОРО</div>
     </div>
     <!-- Препоръки -->
-    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px">Персонализирани препоръки</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px" data-t="soonRecoLbl">Персонализирани препоръки</div>
     <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:16px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
       <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)">Базирано на твоята история</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5">Препоръки за следваща процедура, продукт или клиника според твоя дневник</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink)" data-t="soonRecoTitle">Базирано на твоята история</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5" data-t="soonRecoDesc">Препоръки за следваща процедура, продукт или клиника според твоя дневник</div>
       </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)">СКОРО</div>
+      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)" data-t="soonBadge">СКОРО</div>
     </div>
     <!-- CTA -->
     <div style="background:var(--card);border-radius:16px;padding:18px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
       <div style="flex:1;font-size:12px;color:var(--ink2);line-height:1.6">
-        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px">Искаш да станеш партньор?</div>
-        Клиники и брандове — свържете се с нас
+        <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px" data-t="soonPartnerQ">Искаш да станеш партньор?</div>
+        <span data-t="soonPartnerSub">Клиники и брандове — свържете се с нас</span>
       </div>
-      <button onclick="window.location.href='mailto:info@glowtrack.eu'" style="flex-shrink:0;padding:8px 14px;background:var(--gold);color:#fff;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Пишете ни</button>
+      <button onclick="window.location.href='mailto:info@glowtrack.eu'" style="flex-shrink:0;padding:8px 14px;background:var(--gold);color:#fff;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" data-t="soonWriteBtn">Пишете ни</button>
     </div>
   </div>
 </div>
@@ -1447,17 +1447,17 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <div style="display:flex;gap:8px;margin-bottom:16px">
       <div style="flex:1">
-        <div style="font-size:11px;color:var(--ink2);margin-bottom:5px">Дата</div>
+        <div style="font-size:11px;color:var(--ink2);margin-bottom:5px" data-t="dateLbl">Дата</div>
         <input type="date" id="edit-notif-date" class="form-input" style="font-size:16px">
       </div>
       <div>
-        <div style="font-size:11px;color:var(--ink2);margin-bottom:5px">Час</div>
+        <div style="font-size:11px;color:var(--ink2);margin-bottom:5px" data-t="timeLbl">Час</div>
         <input type="time" id="edit-notif-time" class="form-input" style="font-size:16px;width:95px">
       </div>
     </div>
     <div style="display:flex;gap:8px">
-      <button onclick="closeEditNotif()" style="flex:1;padding:10px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px">Отмени</button>
-      <button onclick="saveEditNotif()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">Запази ✦</button>
+      <button onclick="closeEditNotif()" style="flex:1;padding:10px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" data-t="cancelBtn">Отмени</button>
+      <button onclick="saveEditNotif()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600" data-t="saveBtnStar">Запази ✦</button>
     </div>
   </div>
 </div>
@@ -1488,12 +1488,12 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 <div id="forgot-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:400">
   <div style="background:white;border-radius:20px;padding:24px;width:90%;max-width:340px;box-shadow:0 8px 32px rgba(26,26,46,.2)">
     <div style="text-align:center;margin-bottom:20px">
-      <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px">Забравена парола</div>
-      <div style="font-size:12px;color:var(--ink2)">Въведи имейла си и ще получиш линк за reset</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px" data-t="forgotPassTitle">Забравена парола</div>
+      <div style="font-size:12px;color:var(--ink2)" data-t="forgotPassDesc">Въведи имейла си и ще получиш линк за reset</div>
     </div>
     <input class="auth-input" id="forgot-email" type="email" placeholder="Твоят имейл" data-ph="emailPh2" style="margin-bottom:12px">
-    <button class="auth-btn" onclick="sendPasswordReset()" style="margin-bottom:8px">Изпрати линк</button>
-    <button style="width:100%;padding:11px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" onclick="closeForgotModal()">Отмени</button>
+    <button class="auth-btn" onclick="sendPasswordReset()" style="margin-bottom:8px" data-t="sendResetBtn">Изпрати линк</button>
+    <button style="width:100%;padding:11px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" onclick="closeForgotModal()" data-t="cancelBtn">Отмени</button>
     <div id="forgot-message" style="margin-top:12px;font-size:12px;color:var(--sage);text-align:center;display:none"></div>
   </div>
 </div>
@@ -2052,6 +2052,34 @@ const T = {
     sortDefault: '📅 По дата',
     sortName: '🔤 По процедура',
     sortCount: '🔢 По брой',
+    diarySortDate: 'По дата',
+    diarySortAlpha: 'По азбука',
+    diarySortCount: 'По брой',
+    diarySortManual: '↕ Ръчно',
+    soonSub: 'Скоро в GlowTrack',
+    soonHeroDesc: 'Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.',
+    soonClinicsLbl: 'Клиники партньори',
+    soonClinicsTitle: 'Верифицирани клиники',
+    soonClinicsDesc: 'Намери клиника близо до теб, специализирана в процедурите които следиш',
+    soonBrandsLbl: 'Козметични брандове',
+    soonProductsTitle: 'Препоръчани продукти',
+    soonProductsDesc: 'Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа',
+    soonPromoLbl: 'Промоции и отстъпки',
+    soonPromoTitle: 'Ексклузивни промо кодове',
+    soonPromoDesc: 'Отстъпки от партньорски клиники и брандове, достъпни само за потребители на GlowTrack',
+    soonRecoLbl: 'Персонализирани препоръки',
+    soonRecoTitle: 'Базирано на твоята история',
+    soonRecoDesc: 'Препоръки за следваща процедура, продукт или клиника според твоя дневник',
+    soonBadge: 'СКОРО',
+    soonPartnerQ: 'Искаш да станеш партньор?',
+    soonPartnerSub: 'Клиники и брандове — свържете се с нас',
+    soonWriteBtn: 'Пишете ни',
+    forgotPassTitle: 'Забравена парола',
+    forgotPassDesc: 'Въведи имейла си и ще получиш линк за reset',
+    sendResetBtn: 'Изпрати линк',
+    dateLbl: 'Дата',
+    timeLbl: 'Час',
+    saveBtnStar: 'Запази ✦',
     diarySearch: 'Намери извършена процедура...',
     notifHint: 'Задай дата за следващо посещение',
     deleteProfileBtn: 'Изтрий профила',
@@ -2289,6 +2317,34 @@ const T = {
     sortDefault: '📅 By date',
     sortName: '🔤 By name',
     sortCount: '🔢 By count',
+    diarySortDate: 'By date',
+    diarySortAlpha: 'A-Z',
+    diarySortCount: 'By count',
+    diarySortManual: '↕ Manual',
+    soonSub: 'Coming soon to GlowTrack',
+    soonHeroDesc: "Soon we'll connect you with verified clinics, beauty brands, and exclusive offers — all personalized to your treatments.",
+    soonClinicsLbl: 'Partner clinics',
+    soonClinicsTitle: 'Verified clinics',
+    soonClinicsDesc: 'Find a clinic near you that specializes in the treatments you track',
+    soonBrandsLbl: 'Beauty brands',
+    soonProductsTitle: 'Recommended products',
+    soonProductsDesc: 'Home-care products picked for your treatments and skin type',
+    soonPromoLbl: 'Promotions & discounts',
+    soonPromoTitle: 'Exclusive promo codes',
+    soonPromoDesc: 'Discounts from partner clinics and brands, available only to GlowTrack users',
+    soonRecoLbl: 'Personalized recommendations',
+    soonRecoTitle: 'Based on your history',
+    soonRecoDesc: 'Suggestions for your next treatment, product, or clinic based on your diary',
+    soonBadge: 'SOON',
+    soonPartnerQ: 'Want to become a partner?',
+    soonPartnerSub: "Clinics and brands — get in touch with us",
+    soonWriteBtn: 'Email us',
+    forgotPassTitle: 'Forgot password',
+    forgotPassDesc: "Enter your email and you'll receive a reset link",
+    sendResetBtn: 'Send link',
+    dateLbl: 'Date',
+    timeLbl: 'Time',
+    saveBtnStar: 'Save ✦',
     diarySearch: 'Find a completed procedure...',
     notifHint: 'Set a date for your next visit',
     deleteProfileBtn: 'Delete profile',
@@ -2472,6 +2528,19 @@ function applyLang(){
     if(forgotLink) forgotLink.textContent = window._lang==='en'?'Forgot password?':'Забравена парола?';
     if(typeof setAuthMode==='function') setAuthMode(window._authMode||'login');
   }
+  // Profile logout/login form (same structure, separate IDs)
+  const psGuest = document.getElementById('ps-guest-overlay');
+  if(psGuest){
+    const psLabs = psGuest.querySelectorAll('.auth-label');
+    if(psLabs[0]) psLabs[0].textContent = (window._lang==='en'?'Name':'Име');
+    if(psLabs[1]) psLabs[1].textContent = t('email');
+    if(psLabs[2]) psLabs[2].textContent = t('password');
+    const psPass = document.getElementById('ps-auth-pass');
+    if(psPass) psPass.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
+    const psEmail = document.getElementById('ps-auth-email');
+    if(psEmail) psEmail.placeholder = 'example@mail.com';
+    if(typeof setPsAuthMode==='function') setPsAuthMode(window._psAuthMode||'login');
+  }
 
   // Nav labels
   const nls = document.querySelectorAll('.nl');
@@ -2492,6 +2561,13 @@ function applyLang(){
   setHdr('page-clinics', '<em>'+t('clinicsTitle')+'</em>', t('clinicsSub'));
   setHdr('page-products', t('productsTitle'), t('productsSub'));
   setHdr('page-profile', '', '');
+  // Coming Soon page titles (contain inline HTML, can't use plain data-t)
+  const soonTitle = document.getElementById('soon-page-title');
+  if(soonTitle) soonTitle.innerHTML = window._lang==='en'
+    ? 'C<em style="color:var(--gold);font-family:\'Cormorant Garamond\',serif;font-style:italic">oming soon</em>'
+    : 'Очак<em style="color:var(--gold);font-family:\'Cormorant Garamond\',serif;font-style:italic">вайте</em>';
+  const soonHeroTitle = document.getElementById('soon-hero-title');
+  if(soonHeroTitle) soonHeroTitle.innerHTML = window._lang==='en' ? 'Your glow,<br>your partners' : 'Твоят glow,<br>твоите партньори';
   // Notifs page title (not a standard hdr)
   const nt = document.getElementById('notifs-page-title');
   if(nt) nt.textContent = t('notifsTitle');
@@ -2584,6 +2660,9 @@ function applyLang(){
   document.querySelectorAll('#adv-filter-bs [onclick="advResetAll()"]').forEach(el=>{
     el.textContent = isEN ? 'Clear all' : 'Изчисти всички';
   });
+  // Filter chip labels (Бръчки/Wrinkles etc.) — display only, matching always uses BG value
+  if(typeof translateFilterChips==='function') translateFilterChips();
+  if(typeof advUpdatePills==='function') advUpdatePills();
 
   // Re-render procedures with new language
   renderCats();
@@ -3053,7 +3132,14 @@ function advResetAll(){
   renderProcs();
 }
 function getAdvActiveLabels(){
-  return Array.from(document.querySelectorAll('#adv-bs-body .adv-chip.active')).map(c=>c.textContent.toLowerCase());
+  return Array.from(document.querySelectorAll('#adv-bs-body .adv-chip.active')).map(c=>(c.dataset.bg||c.textContent).toLowerCase());
+}
+function translateFilterChips(){
+  const isEN = window._lang==='en';
+  document.querySelectorAll('.adv-chip[data-bg]').forEach(chip=>{
+    const val = isEN ? (chip.dataset.en||chip.dataset.bg) : chip.dataset.bg;
+    if(val) chip.textContent = val;
+  });
 }
 
 function filterProcs(){
@@ -3283,7 +3369,7 @@ async function openSheet(id){
       </button>
       <div id="new-entry-form" style="display:none;margin-top:10px;border:1.5px solid var(--roselt);border-radius:14px;padding:14px">
         <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input class="form-input" type="text" id="de-clinic" placeholder="" data-ph="clinicPh"></div>
-        <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specPh"></div>
+        <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specialistPh"></div>
         <div class="form-row"><label class="form-lbl">${t('contact')}</label><input class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
         <div class="form-row"><label class="form-lbl">${t('adviceLabel')}</label><textarea class="form-input" id="de-advice" rows="3" placeholder="" data-ph="advicePh"></textarea></div>
         <div class="form-row"><label class="form-lbl">${t('feelingLabel')}</label><textarea class="form-input" id="de-feeling" rows="2" placeholder="" data-ph="feelingPh"></textarea></div>
@@ -6784,26 +6870,27 @@ function updatePushToggleUI(){
   const label=document.getElementById('push-notif-title-label');
   const wrap=document.getElementById('push-notif-toggle-wrap');
   if(!btn||!txt)return;
+  const isEN = window._lang==='en';
   const status=typeof pushNotifStatus==='function'?pushNotifStatus():'default';
   btn.style.display='inline-block';
   if(status==='granted'){
-    btn.textContent='✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.85';btn.style.cursor='default';btn.style.color='#fff';
+    btn.textContent=isEN?'✓ Enabled':'✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.85';btn.style.cursor='default';btn.style.color='#fff';
     txt.textContent='';txt.style.display='none';
     if(label)label.style.display='none';
     if(wrap){wrap.style.padding='8px 12px';wrap.style.justifyContent='center';wrap.style.alignItems='center';}
   }else if(status==='denied'){
-    btn.textContent='Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.textContent='Известията са блокирани от браузъра. Разреши ги от настройките на телефона, за да продължиш.';txt.style.display='block';
+    btn.textContent=isEN?'Blocked':'Блокирани';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
+    txt.textContent=isEN?'Notifications are blocked by the browser. Allow them in your phone settings to continue.':'Известията са блокирани от браузъра. Разреши ги от настройките на телефона, за да продължиш.';txt.style.display='block';
     if(label)label.style.display='block';
     if(wrap){wrap.style.padding='10px 12px';wrap.style.justifyContent='flex-start';}
   }else if(status==='unsupported'){
-    btn.textContent='Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
-    txt.innerHTML='Push известията не работят в браузър таб. Добави приложението на десктоп (Share → Add to Home Screen).';txt.style.display='block';
+    btn.textContent=isEN?'Unavailable':'Недостъпно';btn.style.background='var(--card)';btn.style.color='var(--ink2)';btn.disabled=true;btn.style.cursor='default';btn.style.borderColor='var(--roselt)';
+    txt.innerHTML=isEN?'Push notifications don\'t work in a browser tab. Add the app to your home screen (Share → Add to Home Screen).':'Push известията не работят в браузър таб. Добави приложението на десктоп (Share → Add to Home Screen).';txt.style.display='block';
     if(label)label.style.display='block';
     if(wrap){wrap.style.padding='10px 12px';wrap.style.justifyContent='flex-start';}
   }else{
-    btn.textContent='Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
-    txt.textContent='Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.';txt.style.display='block';
+    btn.textContent=isEN?'Enable':'Включи';btn.disabled=false;btn.style.opacity='1';btn.style.cursor='pointer';btn.style.background='var(--gold)';btn.style.borderColor='var(--gold)';btn.style.color='#fff';
+    txt.textContent=isEN?'Allow the browser to send notifications so you get reminders on time. On iPhone, add the app to your home screen for this to work.':'Позволи на браузъра да изпраща известия, за да получаваш напомняния навреме. На iPhone добави приложението на началния екран, за да проработят.';txt.style.display='block';
     if(label)label.style.display='block';
     if(wrap){wrap.style.padding='10px 12px';wrap.style.justifyContent='flex-start';}
   }
@@ -7580,7 +7667,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-prob-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-prob-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-prob" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'prob')">Бръчки</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Фини линии</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Акне</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Постакне</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Пигментации</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Мелазма</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Слънчеви петна</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Разширени пори</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Мазна кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Суха кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Отпусната кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Загуба на обем</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Дехидратация</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Белези</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Чувствителна кожа</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Розацея</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Купероза</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Разширени капиляри</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Тъмни кръгове</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Целулит</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Стрии</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Локални мазнини</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Отпуснато тяло</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Косопад</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Хиперхидроза</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Разширени вени</span><span class="adv-chip" onclick="advToggleChip(this,'prob')">Неравна текстура</span>
+            <span class="adv-chip" data-bg="Бръчки" data-en="Wrinkles" onclick="advToggleChip(this,'prob')">Бръчки</span><span class="adv-chip" data-bg="Фини линии" data-en="Fine lines" onclick="advToggleChip(this,'prob')">Фини линии</span><span class="adv-chip" data-bg="Акне" data-en="Acne" onclick="advToggleChip(this,'prob')">Акне</span><span class="adv-chip" data-bg="Постакне" data-en="Post-acne marks" onclick="advToggleChip(this,'prob')">Постакне</span><span class="adv-chip" data-bg="Пигментации" data-en="Pigmentation" onclick="advToggleChip(this,'prob')">Пигментации</span><span class="adv-chip" data-bg="Мелазма" data-en="Melasma" onclick="advToggleChip(this,'prob')">Мелазма</span><span class="adv-chip" data-bg="Слънчеви петна" data-en="Sun spots" onclick="advToggleChip(this,'prob')">Слънчеви петна</span><span class="adv-chip" data-bg="Разширени пори" data-en="Enlarged pores" onclick="advToggleChip(this,'prob')">Разширени пори</span><span class="adv-chip" data-bg="Мазна кожа" data-en="Oily skin" onclick="advToggleChip(this,'prob')">Мазна кожа</span><span class="adv-chip" data-bg="Суха кожа" data-en="Dry skin" onclick="advToggleChip(this,'prob')">Суха кожа</span><span class="adv-chip" data-bg="Отпусната кожа" data-en="Sagging skin" onclick="advToggleChip(this,'prob')">Отпусната кожа</span><span class="adv-chip" data-bg="Загуба на обем" data-en="Volume loss" onclick="advToggleChip(this,'prob')">Загуба на обем</span><span class="adv-chip" data-bg="Дехидратация" data-en="Dehydration" onclick="advToggleChip(this,'prob')">Дехидратация</span><span class="adv-chip" data-bg="Белези" data-en="Scars" onclick="advToggleChip(this,'prob')">Белези</span><span class="adv-chip" data-bg="Чувствителна кожа" data-en="Sensitive skin" onclick="advToggleChip(this,'prob')">Чувствителна кожа</span><span class="adv-chip" data-bg="Розацея" data-en="Rosacea" onclick="advToggleChip(this,'prob')">Розацея</span><span class="adv-chip" data-bg="Купероза" data-en="Couperose" onclick="advToggleChip(this,'prob')">Купероза</span><span class="adv-chip" data-bg="Разширени капиляри" data-en="Broken capillaries" onclick="advToggleChip(this,'prob')">Разширени капиляри</span><span class="adv-chip" data-bg="Тъмни кръгове" data-en="Dark circles" onclick="advToggleChip(this,'prob')">Тъмни кръгове</span><span class="adv-chip" data-bg="Целулит" data-en="Cellulite" onclick="advToggleChip(this,'prob')">Целулит</span><span class="adv-chip" data-bg="Стрии" data-en="Stretch marks" onclick="advToggleChip(this,'prob')">Стрии</span><span class="adv-chip" data-bg="Локални мазнини" data-en="Localized fat" onclick="advToggleChip(this,'prob')">Локални мазнини</span><span class="adv-chip" data-bg="Отпуснато тяло" data-en="Body laxity" onclick="advToggleChip(this,'prob')">Отпуснато тяло</span><span class="adv-chip" data-bg="Косопад" data-en="Hair loss" onclick="advToggleChip(this,'prob')">Косопад</span><span class="adv-chip" data-bg="Хиперхидроза" data-en="Hyperhidrosis" onclick="advToggleChip(this,'prob')">Хиперхидроза</span><span class="adv-chip" data-bg="Разширени вени" data-en="Varicose veins" onclick="advToggleChip(this,'prob')">Разширени вени</span><span class="adv-chip" data-bg="Неравна текстура" data-en="Uneven texture" onclick="advToggleChip(this,'prob')">Неравна текстура</span>
           </div>
         </div>
 
@@ -7594,7 +7681,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-zone-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-zone-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-zone" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'zone')">Лице</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Чело</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Очи</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Бузи</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Нос</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Устни</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Брадичка</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Челюст</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Слепоочия</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Шия</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Деколте</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Ръце</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Подмишници</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Корем</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Ханш</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Гръб</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Седалище</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Бедра</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Крака</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Стъпала</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Скалп</span><span class="adv-chip" onclick="advToggleChip(this,'zone')">Интимна зона</span>
+            <span class="adv-chip" data-bg="Лице" data-en="Face" onclick="advToggleChip(this,'zone')">Лице</span><span class="adv-chip" data-bg="Чело" data-en="Forehead" onclick="advToggleChip(this,'zone')">Чело</span><span class="adv-chip" data-bg="Очи" data-en="Eyes" onclick="advToggleChip(this,'zone')">Очи</span><span class="adv-chip" data-bg="Бузи" data-en="Cheeks" onclick="advToggleChip(this,'zone')">Бузи</span><span class="adv-chip" data-bg="Нос" data-en="Nose" onclick="advToggleChip(this,'zone')">Нос</span><span class="adv-chip" data-bg="Устни" data-en="Lips" onclick="advToggleChip(this,'zone')">Устни</span><span class="adv-chip" data-bg="Брадичка" data-en="Chin" onclick="advToggleChip(this,'zone')">Брадичка</span><span class="adv-chip" data-bg="Челюст" data-en="Jaw" onclick="advToggleChip(this,'zone')">Челюст</span><span class="adv-chip" data-bg="Слепоочия" data-en="Temples" onclick="advToggleChip(this,'zone')">Слепоочия</span><span class="adv-chip" data-bg="Шия" data-en="Neck" onclick="advToggleChip(this,'zone')">Шия</span><span class="adv-chip" data-bg="Деколте" data-en="Décolleté" onclick="advToggleChip(this,'zone')">Деколте</span><span class="adv-chip" data-bg="Ръце" data-en="Arms" onclick="advToggleChip(this,'zone')">Ръце</span><span class="adv-chip" data-bg="Подмишници" data-en="Underarms" onclick="advToggleChip(this,'zone')">Подмишници</span><span class="adv-chip" data-bg="Корем" data-en="Abdomen" onclick="advToggleChip(this,'zone')">Корем</span><span class="adv-chip" data-bg="Ханш" data-en="Hips" onclick="advToggleChip(this,'zone')">Ханш</span><span class="adv-chip" data-bg="Гръб" data-en="Back" onclick="advToggleChip(this,'zone')">Гръб</span><span class="adv-chip" data-bg="Седалище" data-en="Buttocks" onclick="advToggleChip(this,'zone')">Седалище</span><span class="adv-chip" data-bg="Бедра" data-en="Thighs" onclick="advToggleChip(this,'zone')">Бедра</span><span class="adv-chip" data-bg="Крака" data-en="Legs" onclick="advToggleChip(this,'zone')">Крака</span><span class="adv-chip" data-bg="Стъпала" data-en="Feet" onclick="advToggleChip(this,'zone')">Стъпала</span><span class="adv-chip" data-bg="Скалп" data-en="Scalp" onclick="advToggleChip(this,'zone')">Скалп</span><span class="adv-chip" data-bg="Интимна зона" data-en="Intimate area" onclick="advToggleChip(this,'zone')">Интимна зона</span>
           </div>
         </div>
 
@@ -7608,7 +7695,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-goal-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-goal-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-goal" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'goal')">Незабавен резултат</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Дълготраен ефект</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Превантивен</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Поддържащ</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Подмладяване</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Хидратация</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Лифтинг</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Биостимулация</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Стимулиране на колаген</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Стягане</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Контуриране</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Изсветляване</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Почистване</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Редукция на мазнини</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Сияние</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Лечение</span><span class="adv-chip" onclick="advToggleChip(this,'goal')">Превенция</span>
+            <span class="adv-chip" data-bg="Незабавен резултат" data-en="Instant results" onclick="advToggleChip(this,'goal')">Незабавен резултат</span><span class="adv-chip" data-bg="Дълготраен ефект" data-en="Long-lasting effect" onclick="advToggleChip(this,'goal')">Дълготраен ефект</span><span class="adv-chip" data-bg="Превантивен" data-en="Preventive" onclick="advToggleChip(this,'goal')">Превантивен</span><span class="adv-chip" data-bg="Поддържащ" data-en="Maintenance" onclick="advToggleChip(this,'goal')">Поддържащ</span><span class="adv-chip" data-bg="Подмладяване" data-en="Rejuvenation" onclick="advToggleChip(this,'goal')">Подмладяване</span><span class="adv-chip" data-bg="Хидратация" data-en="Hydration" onclick="advToggleChip(this,'goal')">Хидратация</span><span class="adv-chip" data-bg="Лифтинг" data-en="Lifting" onclick="advToggleChip(this,'goal')">Лифтинг</span><span class="adv-chip" data-bg="Биостимулация" data-en="Biostimulation" onclick="advToggleChip(this,'goal')">Биостимулация</span><span class="adv-chip" data-bg="Стимулиране на колаген" data-en="Collagen stimulation" onclick="advToggleChip(this,'goal')">Стимулиране на колаген</span><span class="adv-chip" data-bg="Стягане" data-en="Firming" onclick="advToggleChip(this,'goal')">Стягане</span><span class="adv-chip" data-bg="Контуриране" data-en="Contouring" onclick="advToggleChip(this,'goal')">Контуриране</span><span class="adv-chip" data-bg="Изсветляване" data-en="Brightening" onclick="advToggleChip(this,'goal')">Изсветляване</span><span class="adv-chip" data-bg="Почистване" data-en="Cleansing" onclick="advToggleChip(this,'goal')">Почистване</span><span class="adv-chip" data-bg="Редукция на мазнини" data-en="Fat reduction" onclick="advToggleChip(this,'goal')">Редукция на мазнини</span><span class="adv-chip" data-bg="Сияние" data-en="Radiance" onclick="advToggleChip(this,'goal')">Сияние</span><span class="adv-chip" data-bg="Лечение" data-en="Treatment" onclick="advToggleChip(this,'goal')">Лечение</span><span class="adv-chip" data-bg="Превенция" data-en="Prevention" onclick="advToggleChip(this,'goal')">Превенция</span>
           </div>
         </div>
 
@@ -7622,7 +7709,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-tech-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-tech-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-tech" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'tech')">CO₂ Laser</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Er:YAG</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Nd:YAG</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">IPL</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">RF</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">HIFU</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">LED</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Ultrasound</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Cryotherapy</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Microneedling</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Dermapen</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">PRP</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">PRF</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Exosomes</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Polynucleotides</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Skinboosters</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Хиалуронова к-на</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Ботулинов токсин</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Биостимулатори</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Chemical Peel</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Електропорация</span><span class="adv-chip" onclick="advToggleChip(this,'tech')">Plasma</span>
+            <span class="adv-chip" data-bg="CO₂ Laser" data-en="CO₂ Laser" onclick="advToggleChip(this,'tech')">CO₂ Laser</span><span class="adv-chip" data-bg="Er:YAG" data-en="Er:YAG" onclick="advToggleChip(this,'tech')">Er:YAG</span><span class="adv-chip" data-bg="Nd:YAG" data-en="Nd:YAG" onclick="advToggleChip(this,'tech')">Nd:YAG</span><span class="adv-chip" data-bg="IPL" data-en="IPL" onclick="advToggleChip(this,'tech')">IPL</span><span class="adv-chip" data-bg="RF" data-en="RF" onclick="advToggleChip(this,'tech')">RF</span><span class="adv-chip" data-bg="HIFU" data-en="HIFU" onclick="advToggleChip(this,'tech')">HIFU</span><span class="adv-chip" data-bg="LED" data-en="LED" onclick="advToggleChip(this,'tech')">LED</span><span class="adv-chip" data-bg="Ultrasound" data-en="Ultrasound" onclick="advToggleChip(this,'tech')">Ultrasound</span><span class="adv-chip" data-bg="Cryotherapy" data-en="Cryotherapy" onclick="advToggleChip(this,'tech')">Cryotherapy</span><span class="adv-chip" data-bg="Microneedling" data-en="Microneedling" onclick="advToggleChip(this,'tech')">Microneedling</span><span class="adv-chip" data-bg="Dermapen" data-en="Dermapen" onclick="advToggleChip(this,'tech')">Dermapen</span><span class="adv-chip" data-bg="PRP" data-en="PRP" onclick="advToggleChip(this,'tech')">PRP</span><span class="adv-chip" data-bg="PRF" data-en="PRF" onclick="advToggleChip(this,'tech')">PRF</span><span class="adv-chip" data-bg="Exosomes" data-en="Exosomes" onclick="advToggleChip(this,'tech')">Exosomes</span><span class="adv-chip" data-bg="Polynucleotides" data-en="Polynucleotides" onclick="advToggleChip(this,'tech')">Polynucleotides</span><span class="adv-chip" data-bg="Skinboosters" data-en="Skinboosters" onclick="advToggleChip(this,'tech')">Skinboosters</span><span class="adv-chip" data-bg="Хиалуронова к-на" data-en="Hyaluronic acid" onclick="advToggleChip(this,'tech')">Хиалуронова к-на</span><span class="adv-chip" data-bg="Ботулинов токсин" data-en="Botulinum toxin" onclick="advToggleChip(this,'tech')">Ботулинов токсин</span><span class="adv-chip" data-bg="Биостимулатори" data-en="Biostimulators" onclick="advToggleChip(this,'tech')">Биостимулатори</span><span class="adv-chip" data-bg="Chemical Peel" data-en="Chemical Peel" onclick="advToggleChip(this,'tech')">Chemical Peel</span><span class="adv-chip" data-bg="Електропорация" data-en="Electroporation" onclick="advToggleChip(this,'tech')">Електропорация</span><span class="adv-chip" data-bg="Plasma" data-en="Plasma" onclick="advToggleChip(this,'tech')">Plasma</span>
           </div>
         </div>
 
@@ -7636,7 +7723,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-age-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-age-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-age" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'age')">18–25 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">25–35 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">35–45 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">45–55 години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">55+ години</span><span class="adv-chip" onclick="advToggleChip(this,'age')">Млада кожа</span><span class="adv-chip" onclick="advToggleChip(this,'age')">Anti-age</span><span class="adv-chip" onclick="advToggleChip(this,'age')">Превантивна грижа</span>
+            <span class="adv-chip" data-bg="18–25 години" data-en="18–25 years" onclick="advToggleChip(this,'age')">18–25 години</span><span class="adv-chip" data-bg="25–35 години" data-en="25–35 years" onclick="advToggleChip(this,'age')">25–35 години</span><span class="adv-chip" data-bg="35–45 години" data-en="35–45 years" onclick="advToggleChip(this,'age')">35–45 години</span><span class="adv-chip" data-bg="45–55 години" data-en="45–55 years" onclick="advToggleChip(this,'age')">45–55 години</span><span class="adv-chip" data-bg="55+ години" data-en="55+ years" onclick="advToggleChip(this,'age')">55+ години</span><span class="adv-chip" data-bg="Млада кожа" data-en="Young skin" onclick="advToggleChip(this,'age')">Млада кожа</span><span class="adv-chip" data-bg="Anti-age" data-en="Anti-age" onclick="advToggleChip(this,'age')">Anti-age</span><span class="adv-chip" data-bg="Превантивна грижа" data-en="Preventive care" onclick="advToggleChip(this,'age')">Превантивна грижа</span>
           </div>
         </div>
 
@@ -7650,7 +7737,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-gender-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-gender-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-gender" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'gender')">За жени</span><span class="adv-chip" onclick="advToggleChip(this,'gender')">За мъже</span><span class="adv-chip" onclick="advToggleChip(this,'gender')">Унисекс</span>
+            <span class="adv-chip" data-bg="За жени" data-en="For women" onclick="advToggleChip(this,'gender')">За жени</span><span class="adv-chip" data-bg="За мъже" data-en="For men" onclick="advToggleChip(this,'gender')">За мъже</span><span class="adv-chip" data-bg="Унисекс" data-en="Unisex" onclick="advToggleChip(this,'gender')">Унисекс</span>
           </div>
         </div>
 
@@ -7664,7 +7751,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-occ-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-occ-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-occ" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди събитие</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди сватба</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди отпуска</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Преди лято</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Есен / Зима курс</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Нова година</span><span class="adv-chip" onclick="advToggleChip(this,'occ')">Подарък процедура</span>
+            <span class="adv-chip" data-bg="Преди събитие" data-en="Before an event" onclick="advToggleChip(this,'occ')">Преди събитие</span><span class="adv-chip" data-bg="Преди сватба" data-en="Before a wedding" onclick="advToggleChip(this,'occ')">Преди сватба</span><span class="adv-chip" data-bg="Преди отпуска" data-en="Before a vacation" onclick="advToggleChip(this,'occ')">Преди отпуска</span><span class="adv-chip" data-bg="Преди лято" data-en="Before summer" onclick="advToggleChip(this,'occ')">Преди лято</span><span class="adv-chip" data-bg="Есен / Зима курс" data-en="Autumn/Winter course" onclick="advToggleChip(this,'occ')">Есен / Зима курс</span><span class="adv-chip" data-bg="Нова година" data-en="New Year" onclick="advToggleChip(this,'occ')">Нова година</span><span class="adv-chip" data-bg="Подарък процедура" data-en="Gift treatment" onclick="advToggleChip(this,'occ')">Подарък процедура</span>
           </div>
         </div>
 
@@ -7678,7 +7765,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-preg-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-preg-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-preg" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'preg')">Подходяща при бременност</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">Подходяща при кърмене</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">След бременност</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">Постпартум грижа</span><span class="adv-chip" onclick="advToggleChip(this,'preg')">Без хормонални ефекти</span>
+            <span class="adv-chip" data-bg="Подходяща при бременност" data-en="Safe during pregnancy" onclick="advToggleChip(this,'preg')">Подходяща при бременност</span><span class="adv-chip" data-bg="Подходяща при кърмене" data-en="Safe while breastfeeding" onclick="advToggleChip(this,'preg')">Подходяща при кърмене</span><span class="adv-chip" data-bg="След бременност" data-en="Postpartum" onclick="advToggleChip(this,'preg')">След бременност</span><span class="adv-chip" data-bg="Постпартум грижа" data-en="Postpartum care" onclick="advToggleChip(this,'preg')">Постпартум грижа</span><span class="adv-chip" data-bg="Без хормонални ефекти" data-en="No hormonal effects" onclick="advToggleChip(this,'preg')">Без хормонални ефекти</span>
           </div>
         </div>
 
@@ -7692,7 +7779,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-rec-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-rec-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-rec" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'rec')">Без downtime</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">До 24 часа</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">2–3 дни</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">До 7 дни</span><span class="adv-chip" onclick="advToggleChip(this,'rec')">Над 7 дни</span>
+            <span class="adv-chip" data-bg="Без downtime" data-en="No downtime" onclick="advToggleChip(this,'rec')">Без downtime</span><span class="adv-chip" data-bg="До 24 часа" data-en="Up to 24 hours" onclick="advToggleChip(this,'rec')">До 24 часа</span><span class="adv-chip" data-bg="2–3 дни" data-en="2–3 days" onclick="advToggleChip(this,'rec')">2–3 дни</span><span class="adv-chip" data-bg="До 7 дни" data-en="Up to 7 days" onclick="advToggleChip(this,'rec')">До 7 дни</span><span class="adv-chip" data-bg="Над 7 дни" data-en="Over 7 days" onclick="advToggleChip(this,'rec')">Над 7 дни</span>
           </div>
         </div>
 
@@ -7706,7 +7793,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-dur-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-dur-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-dur" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'dur')">До 1 месец</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">До 3 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">3–6 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">6–12 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">12–24 месеца</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">Над 2 години</span><span class="adv-chip" onclick="advToggleChip(this,'dur')">Перманентен</span>
+            <span class="adv-chip" data-bg="До 1 месец" data-en="Up to 1 month" onclick="advToggleChip(this,'dur')">До 1 месец</span><span class="adv-chip" data-bg="До 3 месеца" data-en="Up to 3 months" onclick="advToggleChip(this,'dur')">До 3 месеца</span><span class="adv-chip" data-bg="3–6 месеца" data-en="3–6 months" onclick="advToggleChip(this,'dur')">3–6 месеца</span><span class="adv-chip" data-bg="6–12 месеца" data-en="6–12 months" onclick="advToggleChip(this,'dur')">6–12 месеца</span><span class="adv-chip" data-bg="12–24 месеца" data-en="12–24 months" onclick="advToggleChip(this,'dur')">12–24 месеца</span><span class="adv-chip" data-bg="Над 2 години" data-en="Over 2 years" onclick="advToggleChip(this,'dur')">Над 2 години</span><span class="adv-chip" data-bg="Перманентен" data-en="Permanent" onclick="advToggleChip(this,'dur')">Перманентен</span>
           </div>
         </div>
 
@@ -7720,7 +7807,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-pain-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-pain-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-pain" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'pain')">Безболезнена</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">Лека</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">Умерена</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">Интензивна</span><span class="adv-chip" onclick="advToggleChip(this,'pain')">С анестезия</span>
+            <span class="adv-chip" data-bg="Безболезнена" data-en="Painless" onclick="advToggleChip(this,'pain')">Безболезнена</span><span class="adv-chip" data-bg="Лека" data-en="Mild" onclick="advToggleChip(this,'pain')">Лека</span><span class="adv-chip" data-bg="Умерена" data-en="Moderate" onclick="advToggleChip(this,'pain')">Умерена</span><span class="adv-chip" data-bg="Интензивна" data-en="Intense" onclick="advToggleChip(this,'pain')">Интензивна</span><span class="adv-chip" data-bg="С анестезия" data-en="With anesthesia" onclick="advToggleChip(this,'pain')">С анестезия</span>
           </div>
         </div>
 
@@ -7734,7 +7821,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-sea-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-sea-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-sea" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'sea')">Целогодишно</span><span class="adv-chip" onclick="advToggleChip(this,'sea')">Есен / Зима</span><span class="adv-chip" onclick="advToggleChip(this,'sea')">Подходяща за лято</span><span class="adv-chip" onclick="advToggleChip(this,'sea')">Изисква избягване на слънце</span>
+            <span class="adv-chip" data-bg="Целогодишно" data-en="Year-round" onclick="advToggleChip(this,'sea')">Целогодишно</span><span class="adv-chip" data-bg="Есен / Зима" data-en="Autumn/Winter" onclick="advToggleChip(this,'sea')">Есен / Зима</span><span class="adv-chip" data-bg="Подходяща за лято" data-en="Suitable for summer" onclick="advToggleChip(this,'sea')">Подходяща за лято</span><span class="adv-chip" data-bg="Изисква избягване на слънце" data-en="Requires sun avoidance" onclick="advToggleChip(this,'sea')">Изисква избягване на слънце</span>
           </div>
         </div>
 
@@ -7748,7 +7835,7 @@ function refreshProfilePage(){
             <div style="display:flex;align-items:center;gap:6px"><span id="adv-inv-cnt" style="display:none;font-size:9px;color:#fff;background:var(--gold);border-radius:8px;padding:1px 6px;font-weight:700">0</span><svg id="adv-inv-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg></div>
           </div>
           <div id="adv-inv" style="display:none;flex-wrap:wrap;gap:6px;padding:0 2px 12px">
-            <span class="adv-chip" onclick="advToggleChip(this,'inv')">Неинвазивна</span><span class="adv-chip" onclick="advToggleChip(this,'inv')">Минимално инвазивна</span><span class="adv-chip" onclick="advToggleChip(this,'inv')">Инжекционна</span><span class="adv-chip" onclick="advToggleChip(this,'inv')">Хирургична</span>
+            <span class="adv-chip" data-bg="Неинвазивна" data-en="Non-invasive" onclick="advToggleChip(this,'inv')">Неинвазивна</span><span class="adv-chip" data-bg="Минимално инвазивна" data-en="Minimally invasive" onclick="advToggleChip(this,'inv')">Минимално инвазивна</span><span class="adv-chip" data-bg="Инжекционна" data-en="Injectable" onclick="advToggleChip(this,'inv')">Инжекционна</span><span class="adv-chip" data-bg="Хирургична" data-en="Surgical" onclick="advToggleChip(this,'inv')">Хирургична</span>
           </div>
         </div>
 
