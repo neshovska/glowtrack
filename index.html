@@ -159,6 +159,7 @@ body.dark .device-tag{background:rgba(184,168,224,.15);color:#c8b8f0;border-colo
 body.dark .sheet-body [style*="background:#fff"]{background:#252545!important}
 body.dark .sheet-body [style*="background: #fff"]{background:#252545!important}
 body.dark .care-item,.dark .care-item{background:#1e1e38}
+body.dark .adv-apply-bar{background:#1a1a2e!important;border-top-color:rgba(212,169,106,.15)!important}
 
 /* ── SEARCH SUGGESTIONS ── */
 .suggestion-item{padding:10px 14px;font-size:13px;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(184,150,106,.2)}
@@ -8242,7 +8243,7 @@ function refreshProfilePage(){
         </div>
 
       </div>
-      <div style="padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 16px);background:#f7f5f2;border-top:1px solid var(--roselt);flex-shrink:0">
+      <div class="adv-apply-bar" style="padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 16px);background:#f7f5f2;border-top:1px solid var(--roselt);flex-shrink:0">
         <button onclick="advApplyFilters()" style="width:100%;padding:13px;border-radius:13px;border:none;background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" id="adv-apply-btn">Покажи резултатите</button>
       </div>
     </div>
