@@ -1734,7 +1734,7 @@ window.uploadLogoImage=async function(file, folder){
 window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 
 // ── PUSH NOTIFICATIONS (Firebase Cloud Messaging) ──
-window._fcmVapidKey='e8atqaAEjz6ddfVrzfBIEPO2_xY41F1t_woCJ023LVM'; // Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
+window._fcmVapidKey='BAj74mUgR7VEdH6-YL000hXSuzFmqe6Y7WZ5acrnJi3fxMZejJg-GRLwvYHgAw5-T6LMW5YlDX5iMFnT-nF-ZrA'; // Firebase Console → Project Settings → Cloud Messaging → Web Push certificates (Key pair, публичен ключ)
 window.pushNotifStatus=function(){
   if(!('Notification' in window))return 'unsupported';
   return Notification.permission; // 'default' | 'granted' | 'denied'
