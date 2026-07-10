@@ -1,0 +1,17 @@
+# Firebase / GCP service account keys — НИКОГА не качвай тези във git
+serviceAccountKey.json
+*serviceAccountKey*.json
+*-firebase-adminsdk-*.json
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Общи тайни/env файлове
+.env
+.env.local
+.env.*.local
+
+# OS файлове
+.DS_Store
+Thumbs.db
