@@ -3876,7 +3876,8 @@ async function openSheet(id){
     if(productsForProc.length)productAdsHTML=`<div class="info-section"><div class="info-title">${t('productAds')}</div>
       ${productsForProc.map(a=>{
         const tag=a.url?'a':'div';
-        const attrs=a.url?`href="${normalizeUrl(a.url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit" onclick="trackAffiliateClick('${a.id}')"`:'';
+        const clickId=a.url?genClickId():'';
+        const attrs=a.url?`href="${appendTrackingParam(normalizeUrl(a.url),clickId)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit" onclick="trackAffiliateClick('${a.id}','${clickId}')"`:'';
         return`<${tag} class="product-ad-row" ${attrs}>
         <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="" onerror="this.parentElement.textContent='${a.icon||'🧴'}'">`:(a.icon||'🧴')}</div>
         <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
@@ -5522,7 +5523,8 @@ function renderProducts(){
   c.innerHTML=filtered.map(a=>{
     const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
     const tag=a.url?'a':'div';
-    const attrs=a.url?`href="${normalizeUrl(a.url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit" onclick="trackAffiliateClick('${a.id}')"`:'';
+    const clickId=a.url?genClickId():'';
+    const attrs=a.url?`href="${appendTrackingParam(normalizeUrl(a.url),clickId)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit" onclick="trackAffiliateClick('${a.id}','${clickId}')"`:'';
     return`<${tag} class="product-tab-card" ${attrs}>
       <div class="product-tab-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="" onerror="this.parentElement.textContent='${a.icon||'🧴'}'">`:(a.icon||'🧴')}</div>
       <div class="product-tab-info">
@@ -5541,8 +5543,19 @@ function normalizeUrl(url){
   if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
   return url;
 }
-function trackAffiliateClick(productId){
-  try{F().addDoc(F().collection(DB(),'affiliate_clicks'),{productId,ts:F().serverTimestamp(),uid:window._user?.uid||null});}catch(e){}
+function genClickId(){
+  return Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+}
+function appendTrackingParam(url,clickId){
+  if(!url) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return url+sep+'glowtrack_id='+clickId;
+  // Забележка: за истинско sub-ID проследяване в конкретна афилиейт мрежа
+  // (Amazon: ascsubtag, Awin: clickref, Admitad: subid1 и т.н.) — смени
+  // 'glowtrack_id' с точния параметър, който твоята мрежа очаква.
+}
+function trackAffiliateClick(productId,clickId){
+  try{F().addDoc(F().collection(DB(),'affiliate_clicks'),{productId,clickId:clickId||null,ts:F().serverTimestamp(),uid:window._user?.uid||null});}catch(e){}
 }
 
 // ── ADMIN ──
