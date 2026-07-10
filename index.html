@@ -3881,7 +3881,8 @@ async function openSheet(id){
         <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="" onerror="this.parentElement.textContent='${a.icon||'🧴'}'">`:(a.icon||'🧴')}</div>
         <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
         <div class="product-ad-name">${a.name}</div>
-        ${a.desc?`<div class="product-ad-desc">${a.desc}</div>`:''}</div>
+        ${a.desc?`<div class="product-ad-desc">${a.desc}</div>`:''}
+        ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:2px;opacity:.7">🔗 Афилиейт линк — може да получим комисионна</div>`:''}</div>
         <span class="ad-label">Реклама</span></${tag}>`;
       }).join('')}</div>`;
   }catch(e){}
