@@ -1285,62 +1285,56 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           </div>
 
           <div class="p-eyebrow">AI асистент</div>
-          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
-            <div class="acc-body" style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
               <div style="font-size:12px;color:var(--ink1)">Статус: <strong id="adm-ai-status" style="color:var(--gold)">Изключен</strong><br><span style="font-size:10.5px;color:var(--ink2)">Показва се на клиентите само когато е включен</span></div>
               <button id="adm-ai-toggle-btn" onclick="toggleAiAssistantAdmin()" style="flex-shrink:0;background:var(--gold);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Включи</button>
             </div>
           </div>
 
           <div class="p-eyebrow">Търсене на потребител</div>
-          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
-            <div class="acc-body" style="margin-top:8px">
-              <div style="display:flex;gap:6px">
-                <input type="email" id="adm-user-search-input" class="form-input" placeholder="имейл на потребител..." style="flex:1;font-size:16px">
-                <button onclick="searchAdminUser()" style="background:var(--gold);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:13px;cursor:pointer">🔍</button>
-              </div>
-              <div id="adm-user-search-result" style="margin-top:10px;font-size:12px;color:var(--ink1)"></div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 18px">
+            <div style="display:flex;gap:6px">
+              <input type="email" id="adm-user-search-input" class="form-input" placeholder="имейл на потребител..." style="flex:1;font-size:16px">
+              <button onclick="searchAdminUser()" style="background:var(--gold);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:13px;cursor:pointer">🔍</button>
             </div>
+            <div id="adm-user-search-result" style="margin-top:10px;font-size:12px;color:var(--ink1)"></div>
           </div>
 
           <div class="p-eyebrow">Клиники</div>
-          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
-            <div class="acc-body" style="margin-top:8px">
-              <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
-              <div id="admin-clinic-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
-                <input type="hidden" id="ac-edit-id" value="">
-                <input class="form-input" id="ac-icon" placeholder="Икона (напр. 🏥)" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ac-name" placeholder="Име на клиниката" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ac-address" placeholder="Адрес" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ac-phone" placeholder="Телефон" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ac-url" placeholder="Линк (сайт/резервация)" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ac-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px">
-                <div id="ac-proc-results" class="proc-picker-results"></div>
-                <div id="ac-chips" style="margin:6px 0"></div>
-                <button class="admin-btn" style="width:100%" onclick="saveClinicAd()">Запази клиника</button>
-              </div>
-              <div id="admin-clinics-list"></div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 18px">
+            <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
+            <div id="admin-clinic-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
+              <input type="hidden" id="ac-edit-id" value="">
+              <input class="form-input" id="ac-icon" placeholder="Икона (напр. 🏥)" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ac-name" placeholder="Име на клиниката" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ac-address" placeholder="Адрес" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ac-phone" placeholder="Телефон" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ac-url" placeholder="Линк (сайт/резервация)" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ac-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px">
+              <div id="ac-proc-results" class="proc-picker-results"></div>
+              <div id="ac-chips" style="margin:6px 0"></div>
+              <button class="admin-btn" style="width:100%" onclick="saveClinicAd()">Запази клиника</button>
             </div>
+            <div id="admin-clinics-list"></div>
           </div>
 
           <div class="p-eyebrow">Продукти (афилиейт)</div>
-          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
-            <div class="acc-body" style="margin-top:8px">
-              <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
-              <div id="admin-product-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
-                <input type="hidden" id="ap-edit-id" value="">
-                <input class="form-input" id="ap-icon" placeholder="Икона (напр. 🧴)" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ap-brand" placeholder="Бранд" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ap-name" placeholder="Име на продукта" style="font-size:16px;margin-bottom:6px">
-                <textarea class="form-input" id="ap-desc" placeholder="Кратко описание" rows="2" style="font-size:16px;margin-bottom:6px"></textarea>
-                <input class="form-input" id="ap-url" placeholder="Афилиейт линк" style="font-size:16px;margin-bottom:6px">
-                <input class="form-input" id="ap-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px">
-                <div id="ap-proc-results" class="proc-picker-results"></div>
-                <div id="ap-chips" style="margin:6px 0"></div>
-                <button class="admin-btn" style="width:100%" onclick="saveProductAd()">Запази продукт</button>
-              </div>
-              <div id="admin-products-list"></div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 18px">
+            <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
+            <div id="admin-product-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
+              <input type="hidden" id="ap-edit-id" value="">
+              <input class="form-input" id="ap-icon" placeholder="Икона (напр. 🧴)" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ap-brand" placeholder="Бранд" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ap-name" placeholder="Име на продукта" style="font-size:16px;margin-bottom:6px">
+              <textarea class="form-input" id="ap-desc" placeholder="Кратко описание" rows="2" style="font-size:16px;margin-bottom:6px"></textarea>
+              <input class="form-input" id="ap-url" placeholder="Афилиейт линк" style="font-size:16px;margin-bottom:6px">
+              <input class="form-input" id="ap-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px">
+              <div id="ap-proc-results" class="proc-picker-results"></div>
+              <div id="ap-chips" style="margin:6px 0"></div>
+              <button class="admin-btn" style="width:100%" onclick="saveProductAd()">Запази продукт</button>
             </div>
+            <div id="admin-products-list"></div>
           </div>
 
           <div class="p-eyebrow">Съобщения от потребители</div>
