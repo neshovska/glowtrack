@@ -3847,8 +3847,8 @@ async function openSheet(id){
       window._cache.productAds=pSnap.docs.map(d=>({id:d.id,...d.data()}));
       window._cache.adsTs=Date.now();
     }
-    const clinicsForProc=(window._cache.clinicAds||[]).filter(a=>(a.procIds||[]).includes(id));
-    const productsForProc=(window._cache.productAds||[]).filter(a=>(a.procIds||[]).includes(id));
+    const clinicsForProc=(window._cache.clinicAds||[]).filter(a=>a.active!==false&&(a.procIds||[]).includes(id));
+    const productsForProc=(window._cache.productAds||[]).filter(a=>a.active!==false&&(a.procIds||[]).includes(id));
     if(clinicsForProc.length)clinicAdsHTML=`<div class="info-section"><div class="info-title">🏥 Клиники предлагащи тази процедура</div>
       ${clinicsForProc.map(a=>`<div class="clinic-ad-card">
         <div class="clinic-ad-logo">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="">`:(a.icon||'🏥')}</div>
@@ -5456,7 +5456,7 @@ function filterClinics(){renderClinics();}
 function renderClinics(){
   const s=document.getElementById('clinic-search')?.value.toLowerCase()||'';
   const c=document.getElementById('clinics-list');
-  const filtered=allClinics.filter(a=>!s||a.name?.toLowerCase().includes(s)||(a.procIds||[]).some(pid=>PROCS.find(p=>p.id===pid)?.name.toLowerCase().includes(s)));
+  const filtered=allClinics.filter(a=>a.active!==false&&(!s||a.name?.toLowerCase().includes(s)||(a.procIds||[]).some(pid=>PROCS.find(p=>p.id===pid)?.name.toLowerCase().includes(s))));
   if(!filtered.length){c.innerHTML='<div class="empty-state"><div class="empty-ic">🏥</div><div class="empty-title">Няма клиники</div><div class="empty-sub">Скоро ще има партньорски клиники</div></div>';return;}
   c.innerHTML=filtered.map(a=>{
     const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
@@ -5493,7 +5493,7 @@ function filterProducts(){renderProducts();}
 function renderProducts(){
   const s=document.getElementById('prod-search')?.value.toLowerCase()||'';
   const c=document.getElementById('products-tab-list');
-  const filtered=allProducts.filter(a=>!s||a.name?.toLowerCase().includes(s)||a.brand?.toLowerCase().includes(s)||(a.procIds||[]).some(pid=>PROCS.find(p=>p.id===pid)?.name.toLowerCase().includes(s)));
+  const filtered=allProducts.filter(a=>a.active!==false&&(!s||a.name?.toLowerCase().includes(s)||a.brand?.toLowerCase().includes(s)||(a.procIds||[]).some(pid=>PROCS.find(p=>p.id===pid)?.name.toLowerCase().includes(s))));
   if(!filtered.length){c.innerHTML='<div class="empty-state"><div class="empty-ic">🧴</div><div class="empty-title">Няма продукти</div><div class="empty-sub">Скоро ще има препоръчани продукти</div></div>';return;}
   c.innerHTML=filtered.map(a=>{
     const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
@@ -5617,9 +5617,68 @@ async function loadAdminLists(){
   if(!window._isAdmin)return;
   try{
     const [cs,ps]=await Promise.all([F().getDocs(F().collection(DB(),'clinic_ads')),F().getDocs(F().collection(DB(),'product_ads'))]);
-    document.getElementById('admin-clinics-list').innerHTML=cs.empty?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма клиники</div>':cs.docs.map(d=>{const a=d.data();return`<div class="admin-list-item"><span style="flex:1">${a.icon||'🏥'} ${a.name}</span><button class="admin-btn sm red" onclick="deleteAdminItem('clinic_ads','${d.id}')">✕</button></div>`;}).join('');
-    document.getElementById('admin-products-list').innerHTML=ps.empty?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма продукти</div>':ps.docs.map(d=>{const a=d.data();return`<div class="admin-list-item"><span style="flex:1">${a.icon||'🧴'} ${a.brand?a.brand+' — ':''}${a.name}</span><button class="admin-btn sm red" onclick="deleteAdminItem('product_ads','${d.id}')">✕</button></div>`;}).join('');
+    window._adminClinicsCache = cs.docs.map(d=>({id:d.id,...d.data()}));
+    window._adminProductsCache = ps.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById('admin-clinics-list').innerHTML=!window._adminClinicsCache.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма клиники</div>':window._adminClinicsCache.map(a=>{
+      const isActive = a.active !== false;
+      return`<div class="admin-list-item" style="${isActive?'':'opacity:.45'}">
+        <span style="flex:1">${a.icon||'🏥'} ${a.name}${isActive?'':' <em style=\"font-size:10px\">(скрита)</em>'}</span>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="editClinicAd('${a.id}')">✎</button>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('clinic_ads','${a.id}',${isActive})">${isActive?'👁️':'🚫'}</button>
+        <button class="admin-btn sm red" onclick="deleteAdminItem('clinic_ads','${a.id}')">✕</button>
+      </div>`;
+    }).join('');
+    document.getElementById('admin-products-list').innerHTML=!window._adminProductsCache.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма продукти</div>':window._adminProductsCache.map(a=>{
+      const isActive = a.active !== false;
+      return`<div class="admin-list-item" style="${isActive?'':'opacity:.45'}">
+        <span style="flex:1">${a.icon||'🧴'} ${a.brand?a.brand+' — ':''}${a.name}${isActive?'':' <em style=\"font-size:10px\">(скрит)</em>'}</span>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="editProductAd('${a.id}')">✎</button>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('product_ads','${a.id}',${isActive})">${isActive?'👁️':'🚫'}</button>
+        <button class="admin-btn sm red" onclick="deleteAdminItem('product_ads','${a.id}')">✕</button>
+      </div>`;
+    }).join('');
   }catch(e){}
+}
+function editClinicAd(id){
+  const a = (window._adminClinicsCache||[]).find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('ac-edit-id').value = id;
+  document.getElementById('ac-icon').value = a.icon||'';
+  document.getElementById('ac-name').value = a.name||'';
+  document.getElementById('ac-address').value = a.address||'';
+  document.getElementById('ac-phone').value = a.phone||'';
+  document.getElementById('ac-url').value = a.url||'';
+  document.getElementById('ac-logo-url').value = a.logoUrl||'';
+  const prev = document.getElementById('ac-logo-preview');
+  if(a.logoUrl && prev){ prev.src=a.logoUrl; prev.style.display='block'; } else if(prev){ prev.style.display='none'; }
+  acSelProcs = [...(a.procIds||[])];
+  renderAdminChips('clinic');
+  document.getElementById('admin-clinic-form').style.display='block';
+  document.getElementById('admin-clinic-form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function editProductAd(id){
+  const a = (window._adminProductsCache||[]).find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('ap-edit-id').value = id;
+  document.getElementById('ap-icon').value = a.icon||'';
+  document.getElementById('ap-brand').value = a.brand||'';
+  document.getElementById('ap-name').value = a.name||'';
+  document.getElementById('ap-desc').value = a.desc||'';
+  if(document.getElementById('ap-url')) document.getElementById('ap-url').value = a.url||'';
+  document.getElementById('ap-logo-url').value = a.logoUrl||'';
+  const prev = document.getElementById('ap-logo-preview');
+  if(a.logoUrl && prev){ prev.src=a.logoUrl; prev.style.display='block'; } else if(prev){ prev.style.display='none'; }
+  apSelProcs = [...(a.procIds||[])];
+  renderAdminChips('product');
+  document.getElementById('admin-product-form').style.display='block';
+  document.getElementById('admin-product-form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function toggleActiveStatus(col,id,currentlyActive){
+  try{
+    await F().setDoc(F().doc(DB(),col,id),{active:!currentlyActive},{merge:true});
+    showToast(!currentlyActive ? 'Вече е видимо' : 'Скрито от потребителите');
+    loadAdminLists();loadClinicsTab();loadProductsTab();
+  }catch(e){console.error(e);showToast(t('toastErr'));}
 }
 async function deleteAdminItem(col,id){
   if(!confirm('Изтрий?'))return;
