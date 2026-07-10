@@ -196,8 +196,14 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--mist);min-heigh
 .ai-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:45vh}
 .ai-msg{max-width:85%;padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.55}
 .ai-msg.user{align-self:flex-end;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border-bottom-right-radius:4px}
-.ai-msg.bot{align-self:flex-start;background:#f5f3f0;color:var(--ink1);border-bottom-left-radius:4px}
+.ai-msg.bot{align-self:flex-start;background:#f5f3f0;color:#2a2a3a;border-bottom-left-radius:4px}
 .ai-msg.loading{align-self:flex-start;background:#f5f3f0;padding:12px 16px}
+body.dark .ai-msg.bot,body.dark .ai-msg.loading{background:#2a2a4a;color:#f0ede8}
+body.dark .ai-sug-btn{background:#2a2a4a;color:#d4a96a;border-color:rgba(212,169,106,.3)}
+body.dark .ai-input{background:#12122a;color:#f0ede8;border-color:rgba(212,169,106,.3)}
+body.dark .ai-input::placeholder{color:#a09890}
+body.dark .ai-input-row{border-top-color:rgba(212,169,106,.2)}
+body.dark .ai-proc-title,body.dark .ai-panel-hdr{color:#f0ede8}
 .ai-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 2px;animation:aidot 1.2s ease-in-out infinite}
 .ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
 @keyframes aidot{0%,80%,100%{transform:scale(0.6);opacity:.4}40%{transform:scale(1);opacity:1}}
@@ -2558,6 +2564,7 @@ const T = {
     // AI
     aiWelcome: 'Здравей! 👋 Аз съм AI асистентът на GlowTrack. Можеш да ме питаш всичко за',
     aiAbout: '— подготовка, грижа след, резултати, противопоказания...',
+    aiLimitTip: '💡 Имаш ограничен брой въпроси на ден — по-добре задай един по-подробен въпрос (или няколко наведнъж), вместо да питаш на части.',
     aiInputPh: 'Задай въпрос...',
     aiSuggestions: ['Колко процедури са нужни?','Има ли странични ефекти?','Кой е подходящ кандидат?'],
     aiFollowUp: ['Разкажи повече','Каква е цената?','Как да се подготвя?'],
@@ -2752,6 +2759,7 @@ const T = {
     deleteEntryBtn: '🗑️ Delete',
     aiWelcome: "Hi! 👋 I'm GlowTrack's AI assistant. Ask me anything about",
     aiAbout: '— preparation, aftercare, results, contraindications...',
+    aiLimitTip: "💡 You have a limited number of questions per day — it's better to ask one detailed question (or a few things at once) instead of splitting it up.",
     aiInputPh: 'Ask a question...',
     aiSuggestions: ['How many sessions are needed?','Are there side effects?','Who is a good candidate?'],
     aiFollowUp: ['Tell me more','What is the price?','How do I prepare?'],
@@ -5710,6 +5718,7 @@ function openAiChat(procId,procName){
   document.getElementById('ai-messages').innerHTML='';
   // Welcome message
   addAiMsg('bot',t('aiWelcome')+' <strong>'+procName+'</strong> '+t('aiAbout'));
+  addAiMsg('bot',t('aiLimitTip'));
   showAiSuggestions(t('aiSuggestions'));
   document.getElementById('ai-overlay').classList.add('open');
   document.body.style.overflow='hidden';
