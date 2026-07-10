@@ -203,6 +203,7 @@ body.dark .ai-sug-btn{background:#2a2a4a;color:#d4a96a;border-color:rgba(212,169
 body.dark .ai-input{background:#12122a;color:#f0ede8;border-color:rgba(212,169,106,.3)}
 body.dark .ai-input::placeholder{color:#a09890}
 body.dark .ai-input-row{border-top-color:rgba(212,169,106,.2)}
+.ai-proc-title{color:#2a2a3a}
 body.dark .ai-proc-title,body.dark .ai-panel-hdr{color:#f0ede8}
 .ai-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 2px;animation:aidot 1.2s ease-in-out infinite}
 .ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
@@ -1666,10 +1667,10 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="ai-panel" id="ai-panel">
     <div class="ai-header">
       <div style="display:flex;flex-direction:column;gap:2px">
-        <div style="font-size:13px;font-weight:700;color:var(--ink1)" id="ai-proc-title">AI Асистент</div>
+        <div class="ai-proc-title" style="font-size:13px;font-weight:700" id="ai-proc-title">AI Асистент</div>
         <div style="font-size:10px;color:var(--ink2)">✦ Powered by GlowTrack AI</div>
       </div>
-      <button class="close-btn" onclick="closeAiChat()">✕</button>
+      <button onclick="closeAiChat()" style="width:32px;height:32px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(184,150,106,.4)">✕</button>
     </div>
     <div class="ai-messages" id="ai-messages"></div>
     <div class="ai-suggestions" id="ai-suggestions"></div>
