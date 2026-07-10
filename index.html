@@ -1317,8 +1317,10 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
               <input class="form-input" id="ac-address" placeholder="Адрес" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ac-phone" placeholder="Телефон" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ac-url" placeholder="Линк (сайт/резервация)" style="font-size:16px;margin-bottom:6px">
-              <input class="form-input" id="ac-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px">
-              <div id="ac-proc-results" class="proc-picker-results"></div>
+              <div id="admin-clinic-picker" style="position:relative">
+                <input class="form-input" id="ac-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px;width:100%;box-sizing:border-box">
+                <div id="ac-proc-results" class="proc-picker-results"></div>
+              </div>
               <div id="ac-chips" style="margin:6px 0"></div>
               <button class="admin-btn" style="width:100%" onclick="saveClinicAd()">Запази клиника</button>
             </div>
@@ -1341,8 +1343,10 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
               <input class="form-input" id="ap-name" placeholder="Име на продукта" style="font-size:16px;margin-bottom:6px">
               <textarea class="form-input" id="ap-desc" placeholder="Кратко описание" rows="2" style="font-size:16px;margin-bottom:6px"></textarea>
               <input class="form-input" id="ap-url" placeholder="Афилиейт линк" style="font-size:16px;margin-bottom:6px">
-              <input class="form-input" id="ap-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px">
-              <div id="ap-proc-results" class="proc-picker-results"></div>
+              <div id="admin-product-picker" style="position:relative">
+                <input class="form-input" id="ap-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px;width:100%;box-sizing:border-box">
+                <div id="ap-proc-results" class="proc-picker-results"></div>
+              </div>
               <div id="ap-chips" style="margin:6px 0"></div>
               <button class="admin-btn" style="width:100%" onclick="saveProductAd()">Запази продукт</button>
             </div>
