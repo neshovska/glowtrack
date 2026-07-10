@@ -1280,6 +1280,66 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
               <div style="margin-top:14px;padding:10px 12px;background:var(--goldlt);border-radius:10px;font-size:11px;color:var(--ink1);line-height:1.5">
                 🔒 <strong>Напомняне за поддръжка:</strong> ако си добавяла нова функция, която пази нови данни (нова Firestore колекция), увери се, че в <strong>Firestore Rules</strong> (Firebase Console → Firestore Database → Rules) има правило за нея — иначе тихо няма да работи.
               </div>
+              <div style="text-align:center;margin-top:10px;font-size:10px;color:var(--ink2)" id="adm-build-version">GlowTrack · build v2026.07.10</div>
+            </div>
+          </div>
+
+          <div class="p-eyebrow">AI асистент</div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+            <div class="acc-body" style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div style="font-size:12px;color:var(--ink1)">Статус: <strong id="adm-ai-status" style="color:var(--gold)">Изключен</strong><br><span style="font-size:10.5px;color:var(--ink2)">Показва се на клиентите само когато е включен</span></div>
+              <button id="adm-ai-toggle-btn" onclick="toggleAiAssistantAdmin()" style="flex-shrink:0;background:var(--gold);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Включи</button>
+            </div>
+          </div>
+
+          <div class="p-eyebrow">Търсене на потребител</div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+            <div class="acc-body" style="margin-top:8px">
+              <div style="display:flex;gap:6px">
+                <input type="email" id="adm-user-search-input" class="form-input" placeholder="имейл на потребител..." style="flex:1;font-size:16px">
+                <button onclick="searchAdminUser()" style="background:var(--gold);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:13px;cursor:pointer">🔍</button>
+              </div>
+              <div id="adm-user-search-result" style="margin-top:10px;font-size:12px;color:var(--ink1)"></div>
+            </div>
+          </div>
+
+          <div class="p-eyebrow">Клиники</div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+            <div class="acc-body" style="margin-top:8px">
+              <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
+              <div id="admin-clinic-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
+                <input type="hidden" id="ac-edit-id" value="">
+                <input class="form-input" id="ac-icon" placeholder="Икона (напр. 🏥)" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ac-name" placeholder="Име на клиниката" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ac-address" placeholder="Адрес" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ac-phone" placeholder="Телефон" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ac-url" placeholder="Линк (сайт/резервация)" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ac-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px">
+                <div id="ac-proc-results" class="proc-picker-results"></div>
+                <div id="ac-chips" style="margin:6px 0"></div>
+                <button class="admin-btn" style="width:100%" onclick="saveClinicAd()">Запази клиника</button>
+              </div>
+              <div id="admin-clinics-list"></div>
+            </div>
+          </div>
+
+          <div class="p-eyebrow">Продукти (афилиейт)</div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+            <div class="acc-body" style="margin-top:8px">
+              <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
+              <div id="admin-product-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
+                <input type="hidden" id="ap-edit-id" value="">
+                <input class="form-input" id="ap-icon" placeholder="Икона (напр. 🧴)" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ap-brand" placeholder="Бранд" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ap-name" placeholder="Име на продукта" style="font-size:16px;margin-bottom:6px">
+                <textarea class="form-input" id="ap-desc" placeholder="Кратко описание" rows="2" style="font-size:16px;margin-bottom:6px"></textarea>
+                <input class="form-input" id="ap-url" placeholder="Афилиейт линк" style="font-size:16px;margin-bottom:6px">
+                <input class="form-input" id="ap-proc-search" placeholder="🔍 Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px">
+                <div id="ap-proc-results" class="proc-picker-results"></div>
+                <div id="ap-chips" style="margin:6px 0"></div>
+                <button class="admin-btn" style="width:100%" onclick="saveProductAd()">Запази продукт</button>
+              </div>
+              <div id="admin-products-list"></div>
             </div>
           </div>
 
@@ -1320,7 +1380,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       </div>
 
       <div style="text-align:center;padding:8px 0 0"><button onclick="goPage('privacy',null)" style="background:none;border:none;font-size:11px;color:var(--ink2);cursor:pointer;text-decoration:underline;font-family:inherit">Privacy Policy</button></div>
-      <div style="text-align:center;padding:4px 0 0;font-size:10px;color:#cbbfae">GlowTrack · build v2026.06.27</div>
+      <div style="text-align:center;padding:4px 0 0;font-size:10px;color:#cbbfae">GlowTrack · build v2026.07.10</div>
     </div>
   </div>
 <!-- COMING SOON PAGE -->
@@ -1616,11 +1676,15 @@ import{getFunctions,httpsCallable}from"https://www.gstatic.com/firebasejs/10.14.
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"G-XZFJ8ZK6B9"});
 const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
 const fnInstance=getFunctions(fb,'us-central1'); // смени региона тук ако функциите ти са в друг
-// ── AI АСИСТЕНТ — feature flag ──
-// ВАЖНО: тази функция е ГОТОВА, но НЕ Е ПУСНАТА за клиенти.
-// Смени на true само когато решиш да я активираш (напр. след добавяне на платен достъп).
-window._aiAssistantEnabled = false;
+// ── AI АСИСТЕНТ — feature flag (управлява се от Firestore app_config, вижда се в admin таблото) ──
+window._aiAssistantEnabled = false; // безопасна стойност по подразбиране, докато се зареди реалната
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
+(async function(){
+  try{
+    const snap = await getDoc(doc(db,'app_config','settings'));
+    if(snap.exists() && snap.data().aiAssistantEnabled === true) window._aiAssistantEnabled = true;
+  }catch(e){}
+})();
 // Ensure auth persists across page reloads
 try{ setPersistence(auth, browserLocalPersistence); }catch(e){}
 window._auth=auth;window._db=db;
@@ -6782,6 +6846,8 @@ function loadProfileStats(){
     if(fb) fb.style.display = 'none';
     loadAdminInbox();
     loadAdminDashboard();
+    loadAdminLists();
+    renderAiToggleUI();
   }
 }
 
@@ -6850,6 +6916,50 @@ async function loadAdminDashboard(){
   if(loadingEl) loadingEl.style.display = 'none';
 }
 function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+
+// ── AI ВКЛ/ИЗКЛ (admin) ──
+function toggleAiAssistantAdmin(){
+  if(!window._isAdmin) return;
+  const newVal = !window._aiAssistantEnabled;
+  F().setDoc(F().doc(DB(),'app_config','settings'),{aiAssistantEnabled:newVal},{merge:true})
+    .then(()=>{
+      window._aiAssistantEnabled = newVal;
+      renderAiToggleUI();
+      showToast(newVal ? 'AI асистентът е включен' : 'AI асистентът е изключен');
+    })
+    .catch(e=>{console.error(e);showToast(t('toastErr'));});
+}
+function renderAiToggleUI(){
+  const statusEl = document.getElementById('adm-ai-status');
+  const btnEl = document.getElementById('adm-ai-toggle-btn');
+  if(statusEl) statusEl.textContent = window._aiAssistantEnabled ? 'Включен' : 'Изключен';
+  if(btnEl){
+    btnEl.textContent = window._aiAssistantEnabled ? 'Изключи' : 'Включи';
+    btnEl.style.background = window._aiAssistantEnabled ? '#e85d5d' : 'var(--gold)';
+  }
+}
+
+// ── ТЪРСЕНЕ НА ПОТРЕБИТЕЛ (admin) ──
+async function searchAdminUser(){
+  if(!window._isAdmin) return;
+  const val = (document.getElementById('adm-user-search-input').value||'').trim().toLowerCase();
+  const resEl = document.getElementById('adm-user-search-result');
+  if(!val){ if(resEl) resEl.innerHTML=''; return; }
+  if(resEl) resEl.innerHTML = '<div style="color:var(--ink2)">Търсене...</div>';
+  try{
+    const snap = await F().getDocs(F().query(F().collection(DB(),'users'), F().where('email','==',val)));
+    if(snap.empty){ if(resEl) resEl.innerHTML = '<div style="color:var(--ink2)">Няма намерен потребител</div>'; return; }
+    const d = snap.docs[0].data();
+    const aiInfo = d.aiUsage ? `${d.aiUsage.count||0} въпроса на ${d.aiUsage.date||'—'}` : 'няма данни';
+    if(resEl) resEl.innerHTML = `
+      <div style="padding:8px 10px;background:var(--goldlt);border-radius:8px">
+        <div><strong>${d.name||d.email}</strong></div>
+        <div style="color:var(--ink2);font-size:11px;margin-top:2px">${d.email}</div>
+        <div style="margin-top:6px">Push: ${d.fcmToken?'✅ разрешен':'❌ няма'}</div>
+        <div>AI въпроси днес: ${aiInfo}</div>
+      </div>`;
+  }catch(e){ console.error(e); if(resEl) resEl.innerHTML = '<div style="color:var(--ink2)">Грешка при търсене</div>'; }
+}
 
 // ── SEARCH LOGGING (за admin статистиката) ──
 let _searchLogTimer;
