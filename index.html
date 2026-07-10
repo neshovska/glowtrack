@@ -1306,7 +1306,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('clinic')">+ Добави клиника</button>
             <div id="admin-clinic-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
               <input type="hidden" id="ac-edit-id" value="">
-              <input class="form-input" id="ac-icon" placeholder="Икона (напр. 🏥)" style="font-size:16px;margin-bottom:6px">
+              <input type="hidden" id="ac-logo-url" value="">
+              <div style="margin-bottom:8px">
+                <label style="font-size:11px;color:var(--ink2);display:block;margin-bottom:4px">Лого на клиниката (по избор)</label>
+                <input type="file" id="ac-logo-file" accept="image/*" onchange="handleLogoUpload(this,'ac-logo-url','ac-logo-preview')" style="font-size:12px;width:100%">
+                <img id="ac-logo-preview" style="display:none;width:52px;height:52px;border-radius:50%;object-fit:cover;margin-top:6px">
+              </div>
+              <input class="form-input" id="ac-icon" placeholder="Икона (напр. 🏥) — резервна, ако няма лого" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ac-name" placeholder="Име на клиниката" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ac-address" placeholder="Адрес" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ac-phone" placeholder="Телефон" style="font-size:16px;margin-bottom:6px">
@@ -1324,7 +1330,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button class="admin-btn" style="width:100%;margin-bottom:8px" onclick="toggleAdminForm('product')">+ Добави продукт</button>
             <div id="admin-product-form" style="display:none;padding:10px;background:var(--goldlt);border-radius:10px;margin-bottom:10px">
               <input type="hidden" id="ap-edit-id" value="">
-              <input class="form-input" id="ap-icon" placeholder="Икона (напр. 🧴)" style="font-size:16px;margin-bottom:6px">
+              <input type="hidden" id="ap-logo-url" value="">
+              <div style="margin-bottom:8px">
+                <label style="font-size:11px;color:var(--ink2);display:block;margin-bottom:4px">Лого/снимка на продукта (по избор)</label>
+                <input type="file" id="ap-logo-file" accept="image/*" onchange="handleLogoUpload(this,'ap-logo-url','ap-logo-preview')" style="font-size:12px;width:100%">
+                <img id="ap-logo-preview" style="display:none;width:52px;height:52px;border-radius:50%;object-fit:cover;margin-top:6px">
+              </div>
+              <input class="form-input" id="ap-icon" placeholder="Икона (напр. 🧴) — резервна, ако няма снимка" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ap-brand" placeholder="Бранд" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ap-name" placeholder="Име на продукта" style="font-size:16px;margin-bottom:6px">
               <textarea class="form-input" id="ap-desc" placeholder="Кратко описание" rows="2" style="font-size:16px;margin-bottom:6px"></textarea>
@@ -1698,6 +1710,14 @@ window.uploadPhotoBlob=async function(blob){
   const path=`diary-photos/${window._user.uid}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.jpg`;
   const sref=storageRef(storage,path);
   await uploadBytes(sref,blob,{contentType:'image/jpeg'});
+  return await getDownloadURL(sref);
+};
+window.uploadLogoImage=async function(file, folder){
+  if(!window._user)throw new Error('no-user');
+  const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+  const path=`${folder}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const sref=storageRef(storage,path);
+  await uploadBytes(sref,file,{contentType:file.type||'image/jpeg'});
   return await getDownloadURL(sref);
 };
 window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
@@ -3831,14 +3851,14 @@ async function openSheet(id){
     const productsForProc=(window._cache.productAds||[]).filter(a=>(a.procIds||[]).includes(id));
     if(clinicsForProc.length)clinicAdsHTML=`<div class="info-section"><div class="info-title">🏥 Клиники предлагащи тази процедура</div>
       ${clinicsForProc.map(a=>`<div class="clinic-ad-card">
-        <div class="clinic-ad-logo">${a.icon||'🏥'}</div>
+        <div class="clinic-ad-logo">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="">`:(a.icon||'🏥')}</div>
         <div class="clinic-ad-info"><div class="clinic-ad-name">${a.name}</div>
         <div class="clinic-ad-sub">${[a.address,a.phone].filter(Boolean).join(' · ')}</div>
         ${a.url?`<div style="font-size:10.5px;color:var(--sage);margin-top:2px">🔗 ${a.url}</div>`:''}</div>
         <span class="clinic-ad-badge">Партньор</span></div>`).join('')}</div>`;
     if(productsForProc.length)productAdsHTML=`<div class="info-section"><div class="info-title">${t('productAds')}</div>
       ${productsForProc.map(a=>`<div class="product-ad-row">
-        <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.icon||'🧴'}</div>
+        <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="">`:(a.icon||'🧴')}</div>
         <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
         <div class="product-ad-name">${a.name}</div>
         ${a.desc?`<div class="product-ad-desc">${a.desc}</div>`:''}</div>
@@ -3872,6 +3892,7 @@ async function openSheet(id){
   try{
   document.getElementById('sh-body').innerHTML=`
     ${lp.img?`<div style="margin:-4px -4px 14px;border-radius:16px;overflow:hidden;aspect-ratio:16/9"><img src="${lp.img}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" alt=""></div>`:''}
+    ${window._aiAssistantEnabled?`<button onclick="openAiChat('${id}','${lp.name.replace(/'/g,"\\'")}')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#c9a87a,#e8c99a);color:#1a1a2e;border:none;border-radius:14px;padding:12px 16px;font-size:13.5px;font-weight:700;margin-bottom:14px;cursor:pointer">✨ Попитай AI за тази процедура</button>`:''}
     ${acc(t('whatIs'), `<div class="info-text">${lp.what||''}</div>`, false, true)}
     ${lp.devices?.length?acc(t('devices'), `<div class="device-tags">${lp.devices.map(d=>`<span class="device-tag">${d}</span>`).join('')}</div>`, false, true):''}
     ${lp.zones?acc(t('zones'), `<div class="info-text">${lp.zones}</div>`, false, true):''}
@@ -5441,7 +5462,7 @@ function renderClinics(){
     const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
     return`<div class="clinic-card">
       <div class="clinic-card-hdr">
-        <div class="clinic-logo">${a.icon||'🏥'}</div>
+        <div class="clinic-logo">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="">`:(a.icon||'🏥')}</div>
         <div style="flex:1;min-width:0">
           <div class="clinic-name">${a.name}</div>
           ${a.address?`<div class="clinic-address">📍 ${a.address}</div>`:''}
@@ -5478,7 +5499,7 @@ function renderProducts(){
     const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
     const clickable=a.url?`onclick="trackAffiliateClick('${a.id}');window.open('${a.url}','_blank','noopener')" style="cursor:pointer"`:'';
     return`<div class="product-tab-card" ${clickable}>
-      <div class="product-tab-icon" style="background:${a.color||'#eeeaf8'}">${a.icon||'🧴'}</div>
+      <div class="product-tab-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="">`:(a.icon||'🧴')}</div>
       <div class="product-tab-info">
         <div class="product-tab-brand">${a.brand||''}</div>
         <div class="product-tab-name">${a.name}</div>
@@ -5528,15 +5549,28 @@ function renderAdminChips(type){
   const el=document.getElementById(type==='clinic'?'ac-chips':'ap-chips');
   el.innerHTML=arr.map(id=>{const p=PROCS.find(x=>x.id===id);return`<span class="chip">${p?p.icon+' '+p.name:id}<button onclick="removeAdminProc('${type}','${id}')">✕</button></span>`;}).join('');
 }
+async function handleLogoUpload(inputEl, hiddenFieldId, previewId){
+  const file = inputEl.files && inputEl.files[0];
+  if(!file) return;
+  const preview = document.getElementById(previewId);
+  try{
+    showToast('Качва се...');
+    const url = await window.uploadLogoImage(file, hiddenFieldId==='ac-logo-url' ? 'clinic_logos' : 'product_logos');
+    document.getElementById(hiddenFieldId).value = url;
+    if(preview){ preview.src = url; preview.style.display = 'block'; }
+    showToast('Логото е качено ✓');
+  }catch(e){ console.error(e); showToast(t('toastErr')); }
+}
 async function saveClinicAd(){
   const icon=document.getElementById('ac-icon').value.trim()||'🏥';
+  const logoUrl=document.getElementById('ac-logo-url').value.trim();
   const name=document.getElementById('ac-name').value.trim();
   const address=document.getElementById('ac-address').value.trim();
   const phone=document.getElementById('ac-phone').value.trim();
   const url=document.getElementById('ac-url').value.trim();
   const editId=document.getElementById('ac-edit-id').value;
   if(!name){showToast(t('toastEnterName'));return;}
-  const data={icon,name,address,phone,url,procIds:acSelProcs,updatedAt:F().serverTimestamp()};
+  const data={icon,logoUrl,name,address,phone,url,procIds:acSelProcs,updatedAt:F().serverTimestamp()};
   try{
     if(editId){await F().setDoc(F().doc(DB(),'clinic_ads',editId),data,{merge:true});}
     else{data.createdAt=F().serverTimestamp();await F().addDoc(F().collection(DB(),'clinic_ads'),data);}
@@ -5546,11 +5580,14 @@ async function saveClinicAd(){
     document.getElementById('ac-icon').value='';document.getElementById('ac-name').value='';
     document.getElementById('ac-address').value='';document.getElementById('ac-phone').value='';
     document.getElementById('ac-url').value='';document.getElementById('ac-edit-id').value='';
+    document.getElementById('ac-logo-url').value='';
+    const acPrev=document.getElementById('ac-logo-preview'); if(acPrev){acPrev.style.display='none';acPrev.src='';}
     loadAdminLists();loadClinicsTab();
   }catch(e){console.error(e);showToast(t('toastErr'));}
 }
 async function saveProductAd(){
   const icon=document.getElementById('ap-icon').value.trim()||'🧴';
+  const logoUrl=document.getElementById('ap-logo-url').value.trim();
   const brand=document.getElementById('ap-brand').value.trim();
   const name=document.getElementById('ap-name').value.trim();
   const desc=document.getElementById('ap-desc').value.trim();
@@ -5560,7 +5597,7 @@ async function saveProductAd(){
   const colors=['#e4f0f7','#fdf0f5','#eeeaf8','#e8f0ec','#f0e8dc'];
   const fgs=['#6fa8c8','#d4849a','#9b8ec4','#8fa89a','#b8966a'];
   const ci=Math.floor(Math.random()*colors.length);
-  const data={icon,brand,name,desc,url,color:colors[ci],fg:fgs[ci],procIds:apSelProcs,updatedAt:F().serverTimestamp()};
+  const data={icon,logoUrl,brand,name,desc,url,color:colors[ci],fg:fgs[ci],procIds:apSelProcs,updatedAt:F().serverTimestamp()};
   try{
     if(editId){await F().setDoc(F().doc(DB(),'product_ads',editId),data,{merge:true});}
     else{data.createdAt=F().serverTimestamp();await F().addDoc(F().collection(DB(),'product_ads'),data);}
@@ -5571,6 +5608,8 @@ async function saveProductAd(){
     document.getElementById('ap-name').value='';document.getElementById('ap-desc').value='';
     if(document.getElementById('ap-url'))document.getElementById('ap-url').value='';
     document.getElementById('ap-edit-id').value='';
+    document.getElementById('ap-logo-url').value='';
+    const apPrev=document.getElementById('ap-logo-preview'); if(apPrev){apPrev.style.display='none';apPrev.src='';}
     loadAdminLists();loadProductsTab();
   }catch(e){console.error(e);showToast(t('toastErr'));}
 }
