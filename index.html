@@ -5341,16 +5341,21 @@ function renderProducts(){
   if(!filtered.length){c.innerHTML='<div class="empty-state"><div class="empty-ic">🧴</div><div class="empty-title">Няма продукти</div><div class="empty-sub">Скоро ще има препоръчани продукти</div></div>';return;}
   c.innerHTML=filtered.map(a=>{
     const procNames=(a.procIds||[]).map(pid=>PROCS.find(p=>p.id===pid)?.name||'').filter(Boolean);
-    return`<div class="product-tab-card">
+    const clickable=a.url?`onclick="trackAffiliateClick('${a.id}');window.open('${a.url}','_blank','noopener')" style="cursor:pointer"`:'';
+    return`<div class="product-tab-card" ${clickable}>
       <div class="product-tab-icon" style="background:${a.color||'#eeeaf8'}">${a.icon||'🧴'}</div>
       <div class="product-tab-info">
         <div class="product-tab-brand">${a.brand||''}</div>
         <div class="product-tab-name">${a.name}</div>
         ${a.desc?`<div class="product-tab-desc">${a.desc}</div>`:''}
         ${procNames.length?`<div class="product-tab-procs">📋 ${procNames.slice(0,4).join(', ')}${procNames.length>4?' …':''}</div>`:''}
+        ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:4px;opacity:.7">🔗 Афилиейт линк — може да получим комисионна</div>`:''}
       </div>
     </div>`;
   }).join('');
+}
+function trackAffiliateClick(productId){
+  try{F().addDoc(F().collection(DB(),'affiliate_clicks'),{productId,ts:F().serverTimestamp(),uid:window._user?.uid||null});}catch(e){}
 }
 
 // ── ADMIN ──
@@ -5414,12 +5419,13 @@ async function saveProductAd(){
   const brand=document.getElementById('ap-brand').value.trim();
   const name=document.getElementById('ap-name').value.trim();
   const desc=document.getElementById('ap-desc').value.trim();
+  const url=document.getElementById('ap-url')?.value.trim()||'';
   const editId=document.getElementById('ap-edit-id').value;
   if(!name){showToast(t('toastEnterName'));return;}
   const colors=['#e4f0f7','#fdf0f5','#eeeaf8','#e8f0ec','#f0e8dc'];
   const fgs=['#6fa8c8','#d4849a','#9b8ec4','#8fa89a','#b8966a'];
   const ci=Math.floor(Math.random()*colors.length);
-  const data={icon,brand,name,desc,color:colors[ci],fg:fgs[ci],procIds:apSelProcs,updatedAt:F().serverTimestamp()};
+  const data={icon,brand,name,desc,url,color:colors[ci],fg:fgs[ci],procIds:apSelProcs,updatedAt:F().serverTimestamp()};
   try{
     if(editId){await F().setDoc(F().doc(DB(),'product_ads',editId),data,{merge:true});}
     else{data.createdAt=F().serverTimestamp();await F().addDoc(F().collection(DB(),'product_ads'),data);}
@@ -5427,7 +5433,9 @@ async function saveProductAd(){
     document.getElementById('admin-product-form').style.display='none';
     apSelProcs=[];renderAdminChips('product');
     document.getElementById('ap-icon').value='';document.getElementById('ap-brand').value='';
-    document.getElementById('ap-name').value='';document.getElementById('ap-desc').value='';document.getElementById('ap-edit-id').value='';
+    document.getElementById('ap-name').value='';document.getElementById('ap-desc').value='';
+    if(document.getElementById('ap-url'))document.getElementById('ap-url').value='';
+    document.getElementById('ap-edit-id').value='';
     loadAdminLists();loadProductsTab();
   }catch(e){console.error(e);showToast(t('toastErr'));}
 }
