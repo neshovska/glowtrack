@@ -75,6 +75,7 @@ exports.sendScheduledReminders = functions.pubsub
 
     const usersSnapshot = await db.collection('users').get();
     const messages = [];
+    const seenKeys = new Set(); // dedup: един и същ fcmToken + едно и също съдържание = само 1 push
 
     for (const userDoc of usersSnapshot.docs) {
       const userId = userDoc.id;
@@ -105,6 +106,16 @@ exports.sendScheduledReminders = functions.pubsub
         // Ако друго паралелно/повторно изпълнение вече го е взело — прескачаме.
         const claimed = await claimNotif(userId, notif.id);
         if (!claimed) continue;
+
+        // DEDUP: ако вече сме сложили в опашката push към същия fcmToken
+        // със същото съдържание (напр. защото 2 акаунта споделят едно устройство
+        // и имат дублиран запис за същото напомняне) — прескачаме втория.
+        const dedupKey = `${fcmToken}|${notif.date}|${notif.time}|${notif.procName || ''}|${notif.type || 'reminder'}`;
+        if (seenKeys.has(dedupKey)) {
+          console.log(`⏭️ Пропуснат дубликат (същ. устройство+съдържание): ${userId} — ${notif.procName} на ${notif.date} в ${notif.time}`);
+          continue;
+        }
+        seenKeys.add(dedupKey);
 
         const isBooking = notif.type === 'booking';
         const title = isBooking ? '📅 Резервация — GlowTrack' : '🔔 Напомняне — GlowTrack';
