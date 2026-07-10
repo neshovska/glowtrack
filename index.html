@@ -1568,8 +1568,15 @@ import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,delete
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
 import{getAnalytics,logEvent,isSupported as analyticsIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+import{getFunctions,httpsCallable}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"G-XZFJ8ZK6B9"});
 const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
+const fnInstance=getFunctions(fb,'us-central1'); // смени региона тук ако функциите ти са в друг
+// ── AI АСИСТЕНТ — feature flag ──
+// ВАЖНО: тази функция е ГОТОВА, но НЕ Е ПУСНАТА за клиенти.
+// Смени на true само когато решиш да я активираш (напр. след добавяне на платен достъп).
+window._aiAssistantEnabled = false;
+window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
 // Ensure auth persists across page reloads
 try{ setPersistence(auth, browserLocalPersistence); }catch(e){}
 window._auth=auth;window._db=db;
@@ -3560,9 +3567,34 @@ function procMatchesAdvGroup(p,group,activeInGroup){
     +' '+(en.name||'')+' '+(en.sub||'')+' '+(en.subcat||'')+' '+(en.zones||'')).toLowerCase();
   return activeInGroup.some(v=>hay.includes(v.toLowerCase()));
 }
+// Малък речник от разговорни думи → канонични тагове, за да разпознава описателен текст
+const SEARCH_SYNONYMS={
+  'пъпки':'акне','пъпчици':'акне','акне':'акне','обриви':'акне',
+  'пори':'разширени пори','едри пори':'разширени пори',
+  'бръчки':'бръчки','линии':'бръчки','фини линии':'бръчки',
+  'петна':'пигментации','пигментация':'пигментации','тъмни петна':'пигментации','слънчеви петна':'слънчеви петна',
+  'зачервяване':'розацея','зачервена':'розацея','червенина':'розацея',
+  'капиляри':'разширени капиляри','вени':'разширени вени','куперозна':'купероза',
+  'мазна':'мазна кожа','лъщи':'мазна кожа',
+  'суха':'суха кожа','дехидратирана':'дехидратация','лющи':'дехидратация',
+  'чувствителна':'чувствителна кожа',
+  'отпусната':'отпусната кожа','увиснала':'отпусната кожа',
+  'целулит':'целулит','неравности':'неравна текстура',
+  'косопад':'косопад','пада коса':'косопад','оплешивяване':'косопад',
+  'торбички':'фини линии','торбичките':'фини линии',
+  'умора':'дехидратация','уморена':'дехидратация',
+};
+function procSearchHaystack(p){
+  const en=PROCS_EN[p.id]||{};
+  const catLbl=(CATS_LIST.find(c=>c.id===p.cat)?.label||'');
+  const tagVals=p.tags?Object.values(p.tags).flat().filter(Boolean).join(' '):'';
+  return (p.name+' '+p.sub+' '+(p.subcat||'')+' '+(p.what||'')+' '+(p.zones||'')+' '+catLbl
+    +' '+(Array.isArray(p.results)?p.results.join(' '):'')+' '+(Array.isArray(p.contra)?p.contra.join(' '):'')
+    +' '+(en.name||'')+' '+(en.sub||'')+' '+(en.subcat||'')+' '+(en.zones||'')+' '+tagVals).toLowerCase();
+}
 function renderProcs(){
   const s=searchTerm.toLowerCase().trim();
-  const sWords = s ? s.split(/\s+/).filter(Boolean) : [];
+  const sWordsRaw = s ? s.split(/\s+/).filter(Boolean) : [];
   const advGrouped=typeof getAdvActiveGrouped==='function'?getAdvActiveGrouped():{};
   const filtered=PROCS.filter(p=>{
     const catOk=activeCat==='all'||p.cat===activeCat;
@@ -3570,11 +3602,10 @@ function renderProcs(){
     const advOk=ADV_GROUPS.every(g=>procMatchesAdvGroup(p,g,advGrouped[g]));
     if(!advOk) return false;
     if(!s) return catOk;
-    const en=PROCS_EN[p.id]||{};
-    const catLbl=(CATS_LIST.find(c=>c.id===p.cat)?.label||'');
-    const hay=(p.name+' '+p.sub+' '+(p.subcat||'')+' '+(p.what||'')+' '+(p.zones||'')+' '+catLbl
-      +' '+(Array.isArray(p.results)?p.results.join(' '):'')+' '+(Array.isArray(p.contra)?p.contra.join(' '):'')+' '+(en.name||'')+' '+(en.sub||'')+' '+(en.subcat||'')+' '+(en.zones||'')).toLowerCase();
-    return catOk&&sWords.every(w=>hay.includes(w));
+    const hay=procSearchHaystack(p);
+    // всяка дума от заявката трябва да съвпада директно ИЛИ през разпознат синоним
+    const allWordsMatch=sWordsRaw.every(w=>hay.includes(w)||(SEARCH_SYNONYMS[w]&&hay.includes(SEARCH_SYNONYMS[w])));
+    return catOk&&allWordsMatch;
   });
   document.getElementById('no-results').style.display=filtered.length?'none':'block';
 
@@ -5467,6 +5498,7 @@ const AI_SUGGESTIONS={
   default:['Колко процедури са нужни?','Има ли странични ефекти?','Кой е подходящ кандидат?'],
 };
 function openAiChat(procId,procName){
+  if(!window._aiAssistantEnabled){showToast('AI асистентът все още не е пуснат.');return;}
   _aiProcId=procId;_aiProcName=procName;_aiHistory=[];
   document.getElementById('ai-proc-title').textContent=procName;
   document.getElementById('ai-messages').innerHTML='';
@@ -5498,6 +5530,8 @@ function pickSuggestion(txt){
   sendAiMsg();
 }
 async function sendAiMsg(){
+  if(!window._aiAssistantEnabled){showToast('AI асистентът все още не е пуснат.');return;}
+  if(!window._user){showToast('Трябва да си логната, за да ползваш AI асистента.');return;}
   const inp=document.getElementById('ai-input');
   const text=inp.value.trim();if(!text)return;
   inp.value='';
@@ -5513,18 +5547,9 @@ async function sendAiMsg(){
   const procContext=proc?`Процедура: ${proc.name}. ${proc.what||''} Зони: ${proc.zones||''}. Резултати: ${(proc.results||[]).join(', ')}. Противопоказания: ${(proc.contra||[]).join(', ')}.`:'';
   const systemPrompt=t('aiSystem')+' Procedure context: '+procContext;
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        system:systemPrompt,
-        messages:_aiHistory
-      })
-    });
-    const data=await resp.json();
-    const reply=data.content?.[0]?.text||'Нещо се обърка. Опитай пак.';
+    // Заявката минава през Cloud Function — API ключът никога не е в клиентския код
+    const result=await window._callAiAssistant({systemPrompt,messages:_aiHistory});
+    const reply=result?.data?.reply||'Нещо се обърка. Опитай пак.';
     _aiHistory.push({role:'assistant',content:reply});
     loadDiv.remove();
     addAiMsg('bot',reply.replace(/\n/g,'<br>'));
@@ -5532,7 +5557,13 @@ async function sendAiMsg(){
     showAiSuggestions(t('aiFollowUp'));
   }catch(e){
     loadDiv.remove();
-    addAiMsg('bot','Грешка при свързване с AI. Провери интернет връзката.');
+    if(e?.code==='functions/resource-exhausted'){
+      addAiMsg('bot',e.message||'Достигнахте дневния лимит въпроси. Опитайте пак утре.');
+    }else if(e?.code==='functions/unauthenticated'){
+      addAiMsg('bot','Трябва да си логната, за да ползваш AI асистента.');
+    }else{
+      addAiMsg('bot','Грешка при свързване с AI. Провери интернет връзката.');
+    }
   }
   document.getElementById('ai-send-btn').disabled=false;
 }
