@@ -7713,7 +7713,7 @@ function updatePushToggleUI(){
   const status=typeof pushNotifStatus==='function'?pushNotifStatus():'default';
   btn.style.display='inline-block';
   if(status==='granted'){
-    btn.textContent=isEN?'✓ Enabled':'✓ Включени';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=true;btn.style.opacity='0.85';btn.style.cursor='default';btn.style.color='#fff';
+    btn.textContent=isEN?'✓ Enabled (tap to retry)':'✓ Включени (тапни за проверка)';btn.style.background='var(--sage,#7a9b7e)';btn.style.borderColor='var(--sage,#7a9b7e)';btn.disabled=false;btn.style.opacity='0.85';btn.style.cursor='pointer';btn.style.color='#fff';
     txt.textContent='';txt.style.display='none';
     if(label)label.style.display='none';
     if(wrap){wrap.style.padding='8px 12px';wrap.style.justifyContent='center';wrap.style.alignItems='center';}
