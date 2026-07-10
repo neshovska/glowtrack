@@ -1251,6 +1251,47 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           </div>
         </div>
 
+        <div id="admin-panel" style="display:none">
+          <div class="p-eyebrow">Admin табло</div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+            <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+              <span class="pcs-title">📊 Статистика на приложението</span>
+              <span class="acc-arrow">⌄</span>
+            </div>
+            <div class="acc-body">
+              <div style="display:flex;justify-content:flex-end;margin:8px 0 4px">
+                <button onclick="loadAdminDashboard()" style="background:none;border:1px solid var(--goldlt);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--gold);cursor:pointer">↻ Обнови</button>
+              </div>
+              <div class="p-stats-row">
+                <div class="stat-box"><div class="stat-num" id="adm-total-users">—</div><div class="stat-lbl">Потребители</div></div>
+                <div class="stat-box"><div class="stat-num" id="adm-active-week">—</div><div class="stat-lbl">Активни 7д</div></div>
+                <div class="stat-box"><div class="stat-num" id="adm-push-enabled">—</div><div class="stat-lbl">С push</div></div>
+              </div>
+              <div class="p-stats-row">
+                <div class="stat-box"><div class="stat-num" id="adm-ai-today">—</div><div class="stat-lbl">AI въпроси днес</div></div>
+                <div class="stat-box"><div class="stat-num" id="adm-affiliate-today">—</div><div class="stat-lbl">Афил. кликове днес</div></div>
+                <div class="stat-box"><div class="stat-num" id="adm-affiliate-total">—</div><div class="stat-lbl">Афил. общо</div></div>
+              </div>
+              <div style="margin-top:12px">
+                <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Най-търсени (последните 7 дни)</div>
+                <div id="adm-top-searches" style="font-size:12px;color:var(--ink1)">—</div>
+              </div>
+              <div id="adm-loading" style="font-size:11px;color:var(--ink2);margin-top:10px;display:none">Зареждане...</div>
+            </div>
+          </div>
+
+          <div class="p-eyebrow">Съобщения от потребители</div>
+          <div class="acc-section profile-card-section" id="admin-inbox-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
+            <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+              <span class="pcs-title">📥 Inbox</span>
+              <span class="acc-arrow">⌄</span>
+            </div>
+            <div class="acc-body">
+              <div id="admin-inbox-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зареждане...</div></div>
+            </div>
+          </div>
+        </div>
+
         <div class="p-eyebrow">Обратна връзка</div>
         <div class="acc-section profile-card-section" id="ps-feedback-section" style="border-bottom:none;margin-bottom:14px">
           <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -3410,6 +3451,8 @@ function debounceSearch(){
   _searchTimer=setTimeout(()=>{
     try{ filterProcs(); }catch(e){}
   }, 300);
+  const si=document.getElementById('proc-search');
+  if(si) logSearchTerm(si.value);
 }
 function showSuggestions(){
   // Dropdown suggestions disabled — search filters inline list directly
@@ -6735,7 +6778,90 @@ function loadProfileStats(){
     const fb = document.getElementById('client-feedback-section');
     if(fb) fb.style.display = 'none';
     loadAdminInbox();
+    loadAdminDashboard();
   }
+}
+
+// ── ADMIN DASHBOARD ──
+async function loadAdminDashboard(){
+  if(!window._isAdmin) return;
+  const loadingEl = document.getElementById('adm-loading');
+  if(loadingEl) loadingEl.style.display = 'block';
+  try{
+    const today = new Date().toISOString().slice(0,10);
+    const sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000);
+
+    // Всички потребители
+    const usersSnap = await F().getDocs(F().collection(DB(),'users'));
+    let total=0, activeWeek=0, pushEnabled=0, aiToday=0;
+    usersSnap.forEach(doc=>{
+      const d = doc.data();
+      total++;
+      if(d.fcmToken) pushEnabled++;
+      const lastActive = d.lastActive?.toDate ? d.lastActive.toDate() : (d.updatedAt?.toDate ? d.updatedAt.toDate() : null);
+      if(lastActive && lastActive >= sevenDaysAgo) activeWeek++;
+      if(d.aiUsage && d.aiUsage.date === today) aiToday += (d.aiUsage.count||0);
+    });
+    setText('adm-total-users', total);
+    setText('adm-active-week', activeWeek);
+    setText('adm-push-enabled', pushEnabled);
+    setText('adm-ai-today', aiToday);
+
+    // Афилиейт кликове
+    try{
+      const clicksSnap = await F().getDocs(F().collection(DB(),'affiliate_clicks'));
+      let clicksTotal=0, clicksToday=0;
+      clicksSnap.forEach(doc=>{
+        clicksTotal++;
+        const ts = doc.data().ts?.toDate ? doc.data().ts.toDate() : null;
+        if(ts && ts.toISOString().slice(0,10)===today) clicksToday++;
+      });
+      setText('adm-affiliate-total', clicksTotal);
+      setText('adm-affiliate-today', clicksToday);
+    }catch(e){ setText('adm-affiliate-total','—'); setText('adm-affiliate-today','—'); }
+
+    // Топ търсения (последните 7 дни)
+    try{
+      const searchSnap = await F().getDocs(F().collection(DB(),'search_logs'));
+      const counts={};
+      searchSnap.forEach(doc=>{
+        const d = doc.data();
+        const ts = d.ts?.toDate ? d.ts.toDate() : null;
+        if(!ts || ts < sevenDaysAgo) return;
+        const term = (d.term||'').trim().toLowerCase();
+        if(!term) return;
+        counts[term] = (counts[term]||0)+1;
+      });
+      const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      const el = document.getElementById('adm-top-searches');
+      if(el) el.innerHTML = top.length
+        ? top.map(([term,cnt])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--goldlt)"><span>${term}</span><span style="color:var(--gold);font-weight:600">${cnt}×</span></div>`).join('')
+        : '<div style="color:var(--ink2)">Няма данни още</div>';
+    }catch(e){
+      const el = document.getElementById('adm-top-searches');
+      if(el) el.innerHTML = '<div style="color:var(--ink2)">Няма данни още</div>';
+    }
+  }catch(e){
+    console.error('loadAdminDashboard error:', e);
+  }
+  if(loadingEl) loadingEl.style.display = 'none';
+}
+function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+
+// ── SEARCH LOGGING (за admin статистиката) ──
+let _searchLogTimer;
+function logSearchTerm(term){
+  term = (term||'').trim();
+  if(term.length < 3) return; // прекалено кратко, не си струва
+  if(!window._user) return;
+  clearTimeout(_searchLogTimer);
+  _searchLogTimer = setTimeout(()=>{
+    try{
+      F().addDoc(F().collection(DB(),'search_logs'), {
+        term, ts: F().serverTimestamp(), uid: window._user.uid||null
+      });
+    }catch(e){}
+  }, 1500); // логва само след пауза в писането, за да не спамим Firestore
 }
 
 
