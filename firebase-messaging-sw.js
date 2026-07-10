@@ -1,6 +1,6 @@
 // firebase-messaging-sw.js
 // Трябва да е на корена на домейна (до index.html)
-// Версия: 1.0 — GlowTrack FCM background notifications
+// Версия: 1.1 — GlowTrack FCM background notifications + app badge
 
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
@@ -30,6 +30,11 @@ messaging.onBackgroundMessage(payload => {
     renotify: true,
     requireInteraction: false,
   });
+
+  // Показва червена точка върху PWA иконата (iOS 16.4+/поддържани браузъри)
+  if (self.registration && 'setAppBadge' in self.registration) {
+    self.registration.setAppBadge(1).catch(err => console.warn('setAppBadge failed:', err));
+  }
 });
 
 // При клик на notification — отваря app-а

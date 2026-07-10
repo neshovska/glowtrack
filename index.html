@@ -5935,6 +5935,10 @@ function showPremiumMsg(){
 
 // ── SPLASH ──
 window.addEventListener('load', () => {
+  // Изчиства червената точка на PWA иконата при отваряне на app-а
+  if ('clearAppBadge' in navigator) {
+    navigator.clearAppBadge().catch(()=>{});
+  }
   // Offline/online detection
   window.addEventListener('online', () => {
     if(typeof showToast==='function') showToast('✅ ' + (window._lang==='en'?'Connection restored':'Връзката е възстановена'));
