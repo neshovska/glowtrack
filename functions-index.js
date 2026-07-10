@@ -1,6 +1,10 @@
 // functions/index.js
 // GlowTrack — Cloud Function: изпраща FCM push за напомняния зададени от потребителя
 // Деплой: firebase deploy --only functions
+//
+// v1.1 — ПОПРАВКА: атомарен "claim" на напомняне през Firestore transaction,
+// за да не се пращат дубликати при паралелно/повторно изпълнение на cron-а
+// (Pub/Sub scheduled functions имат at-least-once delivery — може да гръмне 2 пъти).
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
@@ -37,9 +41,28 @@ function getSofiaOffsetHours(date) {
   return diff; // +2 зимно / +3 лятно
 }
 
-// Пуска се на всеки 30 минути — проверява напомняния в следващите 30 минути
+// Атомарно "заявява" право да прати push за конкретно напомняне.
+// Връща true само ако успешно е маркирало notif.sent=true (никой друг не го е взел преди него).
+async function claimNotif(userId, notifId) {
+  const ref = db.collection('users').doc(userId);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const notifs = snap.data()?.notifs || [];
+    const idx = notifs.findIndex(n => n.id === notifId);
+    if (idx === -1) return false;          // изтрито междувременно
+    if (notifs[idx].sent) return false;    // вече е взето/пратено от друго изпълнение
+    const updated = [...notifs];
+    updated[idx] = { ...updated[idx], sent: true };
+    tx.update(ref, { notifs: updated });
+    return true;
+  });
+}
+
+// Пуска се на всеки 5 минути — проверява напомняния в следващите 30 минути.
+// (По-честият интервал прави времето на пристигане по-предвидимо спрямо зададения час,
+//  вместо да чака до 30 мин и да пусне всичко накуп.)
 exports.sendScheduledReminders = functions.pubsub
-  .schedule('*/30 * * * *')
+  .schedule('every 5 minutes')
   .timeZone('Europe/Sofia')
   .onRun(async () => {
 
@@ -52,9 +75,9 @@ exports.sendScheduledReminders = functions.pubsub
 
     const usersSnapshot = await db.collection('users').get();
     const messages = [];
-    const sentUpdates = [];
 
     for (const userDoc of usersSnapshot.docs) {
+      const userId = userDoc.id;
       const data = userDoc.data();
       const fcmToken = data.fcmToken;
       if (!fcmToken) continue;
@@ -77,6 +100,11 @@ exports.sendScheduledReminders = functions.pubsub
 
         // Попада ли в следващите 30 минути?
         if (notifUtc < now || notifUtc >= windowEnd) continue;
+
+        // Атомарно "заявяваме" правото да пратим точно тази нотификация.
+        // Ако друго паралелно/повторно изпълнение вече го е взело — прескачаме.
+        const claimed = await claimNotif(userId, notif.id);
+        if (!claimed) continue;
 
         const isBooking = notif.type === 'booking';
         const title = isBooking ? '📅 Резервация — GlowTrack' : '🔔 Напомняне — GlowTrack';
@@ -103,22 +131,13 @@ exports.sendScheduledReminders = functions.pubsub
           },
         });
 
-        sentUpdates.push({ userId: userDoc.id, notifId: notif.id });
-        console.log(`Push: ${userDoc.id} — ${notif.procName} на ${notif.date} в ${notif.time} (UTC+${offsetHours})`);
+        console.log(`Push: ${userId} — ${notif.procName} на ${notif.date} в ${notif.time} (UTC+${offsetHours})`);
       }
     }
 
     if (messages.length > 0) {
       const response = await admin.messaging().sendEach(messages);
       console.log(`✅ Изпратени ${response.successCount}/${messages.length} нотификации`);
-
-      for (const { userId, notifId } of sentUpdates) {
-        const userRef = db.collection('users').doc(userId);
-        const snap    = await userRef.get();
-        const notifs  = snap.data()?.notifs || [];
-        const updated = notifs.map(n => n.id === notifId ? { ...n, sent: true } : n);
-        await userRef.update({ notifs: updated });
-      }
     } else {
       console.log('Няма напомняния за следващите 30 минути.');
     }
