@@ -3882,7 +3882,7 @@ async function openSheet(id){
         <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
         <div class="product-ad-name">${a.name}</div>
         ${a.desc?`<div class="product-ad-desc">${a.desc}</div>`:''}
-        ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:2px;opacity:.7">🔗 Афилиейт линк — може да получим комисионна</div>`:''}</div>
+        ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:2px;opacity:.7">🔗 Съдържа афилиейт линк</div>`:''}</div>
         <span class="ad-label">Реклама</span></${tag}>`;
       }).join('')}</div>`;
   }catch(e){}
@@ -5530,7 +5530,7 @@ function renderProducts(){
         <div class="product-tab-name">${a.name}</div>
         ${a.desc?`<div class="product-tab-desc">${a.desc}</div>`:''}
         ${procNames.length?`<div class="product-tab-procs">📋 ${procNames.slice(0,4).join(', ')}${procNames.length>4?' …':''}</div>`:''}
-        ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:4px;opacity:.7">🔗 Афилиейт линк — може да получим комисионна</div>`:''}
+        ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:4px;opacity:.7">🔗 Съдържа афилиейт линк</div>`:''}
       </div>
     </${tag}>`;
   }).join('');
