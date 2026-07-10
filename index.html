@@ -1836,6 +1836,14 @@ onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
+    // Ако браузърът вече е дал push разрешение, но токънът не е бил успешно
+    // запазен преди (напр. window._user не е бил готов при първия опит) —
+    // пробвай пак сега, когато потребителят е сигурно логнат.
+    try{
+      if(typeof Notification!=='undefined' && Notification.permission==='granted' && typeof window.initPushNotifications==='function'){
+        window.initPushNotifications().catch(()=>{});
+      }
+    }catch(e){}
     try{ if(typeof Sentry!=='undefined') Sentry.setUser({id:user.uid,email:user.email}); }catch(e){}
     // Invalidate cache on user change to ensure fresh data
     if(window._lastUserId && window._lastUserId !== user.uid){
