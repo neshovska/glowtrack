@@ -1360,7 +1360,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button onclick="history.back();goPage('profile')" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink2)">‹</button>
         <div class="page-hdr-title" style="font-size:22px">Privacy Policy</div>
       </div>
-      <div class="page-hdr-sub">GlowTrack · последно обновена юни 2026</div>
+      <div class="page-hdr-sub">GlowTrack · последно обновена юли 2026</div>
     </div>
     <div style="padding:0 18px 100px;color:var(--ink);font-size:13px;line-height:1.7">
 
@@ -1368,15 +1368,24 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em">КАКВИ ДАННИ СЪБИРАМЕ</div>
         <p style="margin:0 0 8px"><strong>Акаунт:</strong> имейл адрес и парола (съхранявани сигурно чрез Google Firebase Authentication).</p>
         <p style="margin:0 0 8px"><strong>Съдържание от теб:</strong> записи в дневника, напомняния, снимки, любими процедури и домашна рутина.</p>
-        <p style="margin:0"><strong>Не събираме:</strong> платежна информация, точна локация или здравни данни извън това, което ти въвеждаш доброволно.</p>
+        <p style="margin:0 0 8px"><strong>Данни за употреба и устройство:</strong> вид устройство, операционна система, идентификатор на приложението, взаимодействия в апа (напр. кои екрани и процедури разглеждаш) — събирани чрез Firebase Analytics.</p>
+        <p style="margin:0"><strong>Не събираме:</strong> платежна информация или точна локация.</p>
       </div>
 
       <div style="background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--roselt)">
         <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em">КАК ИЗПОЛЗВАМЕ ДАННИТЕ</div>
-        <p style="margin:0 0 8px">✅ За да предоставим услугата GlowTrack</p>
+        <p style="margin:0 0 8px">✅ За да предоставим услугата GlowTrack и да я подобряваме въз основа на анонимизирана статистика за употреба</p>
         <p style="margin:0 0 8px">✅ За синхронизация на дневника между устройства</p>
-        <p style="margin:0 0 8px">❌ Не продаваме данните ти на трети страни</p>
-        <p style="margin:0">❌ Не използваме данните за реклама</p>
+        <p style="margin:0 0 8px">✅ За показване на реклами в приложението (виж секция „Реклами и партньорства" по-долу)</p>
+        <p style="margin:0 0 8px">✅ За препращане към партньорски клиники/брандове, ако избереш да резервираш процедура през апа</p>
+        <p style="margin:0">❌ Не продаваме твоите лични данни на трети страни</p>
+      </div>
+
+      <div style="background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--roselt)">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em">РЕКЛАМИ И ПАРТНЬОРСТВА</div>
+        <p style="margin:0 0 8px"><strong>Реклами:</strong> GlowTrack показва реклами чрез рекламна мрежа на трета страна. По подразбиране рекламите не се персонализират въз основа на твоите лични данни; с твое изрично съгласие можем да показваме персонализирани реклами според интересите ти в апа.</p>
+        <p style="margin:0 0 8px"><strong>Партньорски клиники и брандове:</strong> когато разгледаш или резервираш процедура през препоръка в апа, можем да получим комисионна от партньора. Не споделяме твоя дневник или снимки с партньорите — само факта, че е направена резервация/клик, ако е приложимо.</p>
+        <p style="margin:0"><strong>Афилиейт линкове:</strong> някои продукти в апа съдържат афилиейт линкове. Ако направиш покупка през тях, можем да получим малка комисионна — без допълнителни разходи за теб.</p>
       </div>
 
       <div style="background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--roselt)">
@@ -1388,21 +1397,25 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em">ТВОИТЕ ПРАВА</div>
         <p style="margin:0 0 8px">📝 Редактирай или изтрий всеки запис по всяко време</p>
         <p style="margin:0 0 8px">🗑️ Изтрий целия акаунт: Профил → Изтрий профила</p>
+        <p style="margin:0 0 8px">🔕 Оттегли съгласието си за персонализирани реклами по всяко време: Профил → Настройки за поверителност</p>
         <p style="margin:0">📧 Заявка за данни: support@glowtrack.eu</p>
       </div>
 
       <div style="background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--roselt)">
         <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em">ТРЕТИ СТРАНИ</div>
-        <p style="margin:0 0 6px">• <strong>Firebase (Google)</strong> — автентикация и съхранение</p>
-        <p style="margin:0">• <strong>GitHub Pages</strong> — хостинг на приложението</p>
+        <p style="margin:0 0 6px">• <strong>Firebase (Google)</strong> — автентикация, съхранение и Firebase Analytics</p>
+        <p style="margin:0 0 6px">• <strong>GitHub Pages</strong> — хостинг на приложението</p>
+        <p style="margin:0 0 6px">• <strong>Рекламна мрежа</strong> — показва реклами в апа (напр. Google AdMob)</p>
+        <p style="margin:0">• <strong>Партньорски клиники, брандове и афилиейт програми</strong> — за препращане към техните услуги/продукти</p>
       </div>
 
       <div style="background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--roselt)">
         <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em">ENGLISH VERSION</div>
-        <p style="margin:0 0 8px"><strong>Data collected:</strong> email, password, diary entries, reminders, photos. No payment or location data.</p>
-        <p style="margin:0 0 8px"><strong>Usage:</strong> to provide GlowTrack service only. Not sold or used for advertising.</p>
+        <p style="margin:0 0 8px"><strong>Data collected:</strong> email, password, diary entries, reminders, photos, and usage/device data via Firebase Analytics. No payment or precise location data.</p>
+        <p style="margin:0 0 8px"><strong>Usage:</strong> to provide and improve the GlowTrack service, show in-app ads, and refer you to partner clinics/brands or affiliate products. We never sell your personal data.</p>
+        <p style="margin:0 0 8px"><strong>Ads &amp; partnerships:</strong> ads are non-personalized by default; personalized ads require your explicit consent, adjustable anytime in Profile → Privacy Settings. Partner referrals and affiliate links may earn us a commission at no extra cost to you.</p>
         <p style="margin:0 0 8px"><strong>Storage:</strong> Google Firebase (GDPR compliant).</p>
-        <p style="margin:0"><strong>Your rights:</strong> edit/delete any entry, delete account anytime, request data export.</p>
+        <p style="margin:0"><strong>Your rights:</strong> edit/delete any entry, delete account anytime, withdraw ad consent, request data export.</p>
       </div>
 
       <div style="text-align:center;padding:12px 0;font-size:11px;color:var(--ink2)">
