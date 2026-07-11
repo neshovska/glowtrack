@@ -897,14 +897,28 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   }
 </script>
 <style>
-#gt-debug-panel{position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow-y:auto;background:rgba(0,0,0,.92);color:#0f0;font-family:monospace;font-size:11px;line-height:1.4;padding:8px;z-index:999999;white-space:pre-wrap;word-break:break-all;border-top:2px solid #0f0;display:none}
+#gt-debug-panel{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:rgba(0,0,0,.96);color:#0f0;font-family:monospace;font-size:12px;line-height:1.5;padding:60px 10px 20px;z-index:999999;white-space:pre-wrap;word-break:break-all;display:none}
 #gt-debug-panel.show{display:block}
 #gt-debug-toggle{position:fixed;bottom:8px;right:8px;z-index:1000000;background:#0f0;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;font-weight:bold}
+#gt-debug-bar{position:fixed;top:0;left:0;right:0;z-index:1000001;background:#111;display:none;padding:8px;gap:8px;align-items:center;border-bottom:2px solid #0f0}
+#gt-debug-bar.show{display:flex}
+#gt-debug-bar button{font-family:monospace;font-size:14px;padding:8px 14px;border-radius:8px;border:none;font-weight:bold}
+#gt-debug-copy{background:#0af;color:#fff}
+#gt-debug-close{background:#f55;color:#fff}
+#gt-debug-clear{background:#888;color:#fff}
 </style>
 </head>
 <body>
+<div id="gt-debug-bar">
+  <button id="gt-debug-copy">📋 Копирай</button>
+  <button id="gt-debug-clear">🗑 Изчисти</button>
+  <button id="gt-debug-close">✕ Затвори</button>
+</div>
 <div id="gt-debug-panel"></div>
-<button id="gt-debug-toggle" onclick="document.getElementById('gt-debug-panel').classList.toggle('show')">🐞</button>
+<button id="gt-debug-toggle" onclick="
+  document.getElementById('gt-debug-panel').classList.toggle('show');
+  document.getElementById('gt-debug-bar').classList.toggle('show');
+">🐞</button>
 <script>
 (function(){
   var panel = document.getElementById('gt-debug-panel');
@@ -932,6 +946,36 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     log('error', ['Unhandled promise rejection: '+(e.reason&&e.reason.message||e.reason)]);
   });
   log('log', ['Debug panel ready.']);
+
+  document.getElementById('gt-debug-copy').addEventListener('click', function(){
+    var text = panel.innerText;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        alert('Копирано! Постави го в чата.');
+      }).catch(function(){
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  });
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try{ document.execCommand('copy'); alert('Копирано! Постави го в чата.'); }
+    catch(e){ alert('Копирането не проработи — направи снимка вместо това.'); }
+    document.body.removeChild(ta);
+  }
+  document.getElementById('gt-debug-clear').addEventListener('click', function(){
+    panel.innerHTML = '';
+  });
+  document.getElementById('gt-debug-close').addEventListener('click', function(){
+    panel.classList.remove('show');
+    document.getElementById('gt-debug-bar').classList.remove('show');
+  });
 })();
 </script>
 <script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
@@ -1811,31 +1855,46 @@ window.pushNotifStatus=function(){
   return Notification.permission; // 'default' | 'granted' | 'denied'
 };
 window.initPushNotifications=async function(){
+  console.log('[PUSH] Старт на initPushNotifications');
   try{
-    if(!('serviceWorker' in navigator)||!('Notification' in window)){showToast&&showToast('Известията не се поддържат на това устройство');return null;}
-    const supported=await fcmIsSupported().catch(()=>false);
-    if(!supported){showToast&&showToast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share → Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    if(!('serviceWorker' in navigator)||!('Notification' in window)){console.error('[PUSH] serviceWorker или Notification не се поддържат');showToast&&showToast('Известията не се поддържат на това устройство');return null;}
+    console.log('[PUSH] serviceWorker + Notification API налични');
+    const supported=await fcmIsSupported().catch((e)=>{console.error('[PUSH] fcmIsSupported() хвърли грешка:',e);return false;});
+    console.log('[PUSH] fcmIsSupported() =', supported);
+    if(!supported){console.error('[PUSH] FCM не се поддържа в тази среда');showToast&&showToast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share → Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    console.log('[PUSH] Notification.permission ПРЕДИ request =', Notification.permission);
     const permission=await Notification.requestPermission();
-    if(permission!=='granted'){showToast&&showToast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    console.log('[PUSH] Notification.permission СЛЕД request =', permission);
+    if(permission!=='granted'){console.error('[PUSH] Разрешението не е granted:', permission);showToast&&showToast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
     // Използваме ЕДИНСТВЕНИЯ регистриран sw.js (v6 — вече съдържа Firebase Messaging).
     // ВАЖНО: не регистрираме отделен firebase-messaging-sw.js тук — два SW на един
     // scope се борят помежду си и печели последният, който презаписва другия при
     // всяко зареждане на страницата (точно това чупеше push известията преди).
+    console.log('[PUSH] Чакам navigator.serviceWorker.ready...');
     const fcmReg = await navigator.serviceWorker.ready;
+    console.log('[PUSH] SW ready, scriptURL =', fcmReg.active ? fcmReg.active.scriptURL : '(няма active)');
     const messaging=getMessaging(fb);
+    console.log('[PUSH] getMessaging() ОК, vapidKey длъж. =', (window._fcmVapidKey||'').length);
     const token=await getToken(messaging,{vapidKey:window._fcmVapidKey,serviceWorkerRegistration:fcmReg});
+    console.log('[PUSH] getToken() резултат, token дължина =', token ? token.length : '(null/undefined)');
+    console.log('[PUSH] window._user наличен =', !!window._user, window._user ? window._user.uid : '(няма user)');
     if(token&&window._user){
+      console.log('[PUSH] Пиша fcmToken в Firestore за uid:', window._user.uid);
       await setDoc(doc(db,'users',window._user.uid),{fcmToken:token,fcmTokenUpdatedAt:new Date().toISOString()},{merge:true});
+      console.log('[PUSH] Firestore setDoc УСПЕШЕН ✓');
       showToast&&showToast('Известията са включени ✓');
       if(typeof window.trackEvent==='function')window.trackEvent('push_enabled',{});
+    } else {
+      console.error('[PUSH] НЕ записах в Firestore — token или window._user липсват. token=',!!token,'user=',!!window._user);
     }
     if(!window._fcmForegroundBound){
       onMessage(messaging,payload=>{showToast&&showToast(payload.notification?.title||'Ново известие от GlowTrack');});
       window._fcmForegroundBound=true;
     }
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();
+    console.log('[PUSH] Край на initPushNotifications, връщам token');
     return token;
-  }catch(e){console.error('Push init error:',e);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+  }catch(e){console.error('[PUSH] ИЗКЛЮЧЕНИЕ хванато:',e,e&&e.code,e&&e.message,e&&e.stack);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
 window._authMode='login';
 window.setAuthMode=function(mode){
