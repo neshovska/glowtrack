@@ -897,42 +897,19 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   }
 </script>
 <style>
-#gt-debug-panel{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:rgba(0,0,0,.96);color:#0f0;font-family:monospace;font-size:12px;line-height:1.5;padding:60px 10px 20px;z-index:999999;white-space:pre-wrap;word-break:break-all;display:none}
-#gt-debug-panel.show{display:block}
-#gt-debug-toggle{position:fixed;bottom:8px;right:8px;z-index:1000000;background:#0f0;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;font-weight:bold}
-#gt-debug-bar{position:fixed;top:0;left:0;right:0;z-index:1000001;background:#111;display:none;padding:8px;gap:8px;align-items:center;border-bottom:2px solid #0f0}
-#gt-debug-bar.show{display:flex}
-#gt-debug-bar button{font-family:monospace;font-size:14px;padding:8px 14px;border-radius:8px;border:none;font-weight:bold}
-#gt-debug-copy{background:#0af;color:#fff}
-#gt-debug-close{background:#f55;color:#fff}
-#gt-debug-clear{background:#888;color:#fff}
 </style>
 </head>
 <body>
-<div id="gt-debug-bar">
-  <button id="gt-debug-copy">📋 Копирай</button>
-  <button id="gt-debug-clear">🗑 Изчисти</button>
-  <button id="gt-debug-close">✕ Затвори</button>
-</div>
-<div id="gt-debug-panel"></div>
-<button id="gt-debug-toggle" onclick="
-  document.getElementById('gt-debug-panel').classList.toggle('show');
-  document.getElementById('gt-debug-bar').classList.toggle('show');
-">🐞</button>
+<button id="gt-debug-toggle" style="position:fixed;bottom:8px;right:8px;z-index:1000000;background:#0f0;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;font-weight:bold">🐞</button>
 <script>
 (function(){
-  var panel = document.getElementById('gt-debug-panel');
+  var logs = [];
   function log(type, args){
     try{
-      var line = document.createElement('div');
-      var color = type==='error' ? '#f55' : type==='warn' ? '#fd5' : '#0f0';
-      line.style.color = color;
       var parts = Array.prototype.map.call(args, function(a){
         try{ return typeof a==='object' ? JSON.stringify(a) : String(a); }catch(e){ return String(a); }
       });
-      line.textContent = '['+type+'] ' + parts.join(' ');
-      panel.appendChild(line);
-      panel.scrollTop = panel.scrollHeight;
+      logs.push('['+type+'] ' + parts.join(' '));
     }catch(e){}
   }
   var origLog = console.log, origErr = console.error, origWarn = console.warn;
@@ -947,34 +924,11 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   });
   log('log', ['Debug panel ready.']);
 
-  document.getElementById('gt-debug-copy').addEventListener('click', function(){
-    var text = panel.innerText;
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(function(){
-        alert('Копирано! Постави го в чата.');
-      }).catch(function(){
-        fallbackCopy(text);
-      });
-    } else {
-      fallbackCopy(text);
-    }
-  });
-  function fallbackCopy(text){
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    try{ document.execCommand('copy'); alert('Копирано! Постави го в чата.'); }
-    catch(e){ alert('Копирането не проработи — направи снимка вместо това.'); }
-    document.body.removeChild(ta);
-  }
-  document.getElementById('gt-debug-clear').addEventListener('click', function(){
-    panel.innerHTML = '';
-  });
-  document.getElementById('gt-debug-close').addEventListener('click', function(){
-    panel.classList.remove('show');
-    document.getElementById('gt-debug-bar').classList.remove('show');
+  // window.prompt показва нативен диалог с текст поле — работи гарантирано
+  // на всеки браузър/устройство, без CSS/overlay проблеми. Текстът вътре
+  // е директно избираем — Select All (или long-press) + Copy.
+  document.getElementById('gt-debug-toggle').addEventListener('click', function(){
+    window.prompt('Debug log (Select All → Copy):', logs.join('\n'));
   });
 })();
 </script>
