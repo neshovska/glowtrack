@@ -896,8 +896,44 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     });
   }
 </script>
+<style>
+#gt-debug-panel{position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow-y:auto;background:rgba(0,0,0,.92);color:#0f0;font-family:monospace;font-size:11px;line-height:1.4;padding:8px;z-index:999999;white-space:pre-wrap;word-break:break-all;border-top:2px solid #0f0;display:none}
+#gt-debug-panel.show{display:block}
+#gt-debug-toggle{position:fixed;bottom:8px;right:8px;z-index:1000000;background:#0f0;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;font-weight:bold}
+</style>
 </head>
 <body>
+<div id="gt-debug-panel"></div>
+<button id="gt-debug-toggle" onclick="document.getElementById('gt-debug-panel').classList.toggle('show')">🐞</button>
+<script>
+(function(){
+  var panel = document.getElementById('gt-debug-panel');
+  function log(type, args){
+    try{
+      var line = document.createElement('div');
+      var color = type==='error' ? '#f55' : type==='warn' ? '#fd5' : '#0f0';
+      line.style.color = color;
+      var parts = Array.prototype.map.call(args, function(a){
+        try{ return typeof a==='object' ? JSON.stringify(a) : String(a); }catch(e){ return String(a); }
+      });
+      line.textContent = '['+type+'] ' + parts.join(' ');
+      panel.appendChild(line);
+      panel.scrollTop = panel.scrollHeight;
+    }catch(e){}
+  }
+  var origLog = console.log, origErr = console.error, origWarn = console.warn;
+  console.log = function(){ origLog.apply(console, arguments); log('log', arguments); };
+  console.error = function(){ origErr.apply(console, arguments); log('error', arguments); };
+  console.warn = function(){ origWarn.apply(console, arguments); log('warn', arguments); };
+  window.addEventListener('error', function(e){
+    log('error', ['Uncaught: '+e.message+' @ '+e.filename+':'+e.lineno]);
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    log('error', ['Unhandled promise rejection: '+(e.reason&&e.reason.message||e.reason)]);
+  });
+  log('log', ['Debug panel ready.']);
+})();
+</script>
 <script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
 <div class="bg"></div>
 <div class="desktop-deco desktop-deco-left" aria-hidden="true">Know<br>your<br>glow.</div>
@@ -1781,15 +1817,11 @@ window.initPushNotifications=async function(){
     if(!supported){showToast&&showToast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share → Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
     const permission=await Notification.requestPermission();
     if(permission!=='granted'){showToast&&showToast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
-    // Register firebase-messaging-sw.js specifically for FCM (required for background push)
-    let fcmReg;
-    try{
-      fcmReg=await navigator.serviceWorker.register('/firebase-messaging-sw.js',{scope:'/'});
-      await fcmReg.update();
-    }catch(swErr){
-      console.warn('firebase-messaging-sw.js registration failed, using sw.js:',swErr);
-      fcmReg=await navigator.serviceWorker.ready;
-    }
+    // Използваме ЕДИНСТВЕНИЯ регистриран sw.js (v6 — вече съдържа Firebase Messaging).
+    // ВАЖНО: не регистрираме отделен firebase-messaging-sw.js тук — два SW на един
+    // scope се борят помежду си и печели последният, който презаписва другия при
+    // всяко зареждане на страницата (точно това чупеше push известията преди).
+    const fcmReg = await navigator.serviceWorker.ready;
     const messaging=getMessaging(fb);
     const token=await getToken(messaging,{vapidKey:window._fcmVapidKey,serviceWorkerRegistration:fcmReg});
     if(token&&window._user){
