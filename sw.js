@@ -11,6 +11,14 @@
 // Причина: когато payload има `notification` поле, Firebase Web SDK автоматично
 // показва системно известие САМ, паралелно с нашия onBackgroundMessage handler
 // по-долу — 1 сървърно съобщение се превръщаше в 2 показани известия.
+//
+// v8 — ПОПРАВКА НА ДВОЙНИ ИЗВЕСТИЯ: премахнато clients.claim() от activate handler.
+// Причина: clients.claim() кара новия SW веднага да поеме контрол над всички
+// клиенти. При push доставка обаче може и старият SW (все още жив на устройството)
+// да обработи същото събитие паралелно → 1 push от сървъра → 2 показани известия.
+// Без clients.claim() новият SW чака страницата да се презареди, за да поеме
+// контрол, и push събитията се обработват само от един активен SW.
+// Firebase auth сесията се запазва коректно (именно затова е махнато).
 
 const CACHE = 'glowtrack-v8';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
@@ -30,7 +38,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-console.log('[sw.js] v8 активен — data-only + постоянна дедупликация през Cache Storage.');
+console.log('[sw.js] v8 активен — data-only + постоянна дедупликация през Cache Storage. NO clients.claim()');
 
 // ── ПОСТОЯННА ДЕДУПЛИКАЦИЯ ──
 // Cache Storage (за разлика от обикновена променлива) оцелява дори ако service
@@ -111,12 +119,17 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
+  // ВАЖНО: clients.claim() е умишлено махнато.
+  // Причина: при push доставка докато новият SW се активира, clients.claim()
+  // може да доведе до ситуация в която и старият и новият SW обработват
+  // едно и също push събитие → двойни известия на устройството.
+  // Без claim() новият SW поема контрол при следващото зареждане на страницата,
+  // а Firebase auth сесията се запазва коректно.
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+        keys.filter(k => k !== CACHE && k !== 'glowtrack-seen-notifs').map(k => caches.delete(k))
       ))
-      .then(() => clients.claim())
   );
 });
 
