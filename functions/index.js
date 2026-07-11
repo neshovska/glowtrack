@@ -1,5 +1,5 @@
 // functions/index.js
-// GlowTrack — Cloud Function: изпраща push точно за записаните напомняния
+// GlowTrack — Cloud Functions
 // (users/{uid}.notifs = [{id, procId, procName, date, time, type, sent?}])
 // Деплой: firebase deploy --only functions
 //
@@ -8,10 +8,13 @@
 // (Cloud Scheduler / Pub/Sub имат at-least-once delivery — може да гръмне 2 пъти).
 
 const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
 const db = admin.firestore();
+const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
 function sofiaWallTimeToUTC(dateStr, timeStr) {
   const naive = new Date(`${dateStr}T${timeStr}:00Z`);
@@ -99,5 +102,94 @@ exports.sendScheduledReminders = onSchedule(
       }
 
       return null;
+    },
+);
+
+
+// ═══════════════════════════════════════════════════════════
+// AI АСИСТЕНТ
+// ═══════════════════════════════════════════════════════════
+
+const AI_DAILY_LIMIT = 5;
+const AI_MODEL = "claude-haiku-4-5-20251001";
+
+function todaySofiaDateStr() {
+  return new Intl.DateTimeFormat("en-CA", {timeZone: "Europe/Sofia"}).format(new Date());
+}
+
+exports.askAiAssistant = onCall(
+    {secrets: [anthropicApiKey]},
+    async (request) => {
+      if (!request.auth) {
+        throw new HttpsError("unauthenticated", "Трябва да си логната.");
+      }
+      const uid = request.auth.uid;
+      const data = request.data || {};
+
+      const systemPrompt = (data.systemPrompt || "").toString().slice(0, 2000);
+      const messages = Array.isArray(data.messages) ? data.messages.slice(-20) : [];
+      if (!messages.length) {
+        throw new HttpsError("invalid-argument", "Липсва съобщение.");
+      }
+
+      const userRef = db.collection("users").doc(uid);
+      const today = todaySofiaDateStr();
+
+      const txResult = await db.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const usage = snap.exists ? (snap.data().aiUsage || {}) : {};
+        const currentCount = usage.date === today ? (usage.count || 0) : 0;
+
+        if (currentCount >= AI_DAILY_LIMIT) {
+          return {allowed: false, newCount: currentCount};
+        }
+        const newCount = currentCount + 1;
+        tx.set(userRef, {
+          aiUsage: {date: today, count: newCount},
+        }, {merge: true});
+        return {allowed: true, newCount};
+      });
+
+      if (!txResult.allowed) {
+        throw new HttpsError(
+            "resource-exhausted",
+            `Достигнахте дневния лимит от ${AI_DAILY_LIMIT} въпроса. Опитайте пак утре.`,
+        );
+      }
+
+      try {
+        const resp = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": anthropicApiKey.value(),
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: AI_MODEL,
+            max_tokens: 1000,
+            system: systemPrompt,
+            messages: messages,
+          }),
+        });
+
+        if (!resp.ok) {
+          const errText = await resp.text();
+          console.error("Anthropic API грешка:", resp.status, errText);
+          throw new HttpsError("internal", "Грешка при връзка с AI.");
+        }
+
+        const result = await resp.json();
+        const reply = result?.content?.[0]?.text || "Нещо се обърка. Опитай пак.";
+
+        return {
+          reply,
+          remaining: AI_DAILY_LIMIT - txResult.newCount,
+        };
+      } catch (e) {
+        if (e instanceof HttpsError) throw e;
+        console.error("askAiAssistant грешка:", e);
+        throw new HttpsError("internal", "Грешка при връзка с AI.");
+      }
     },
 );
