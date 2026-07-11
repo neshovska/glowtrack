@@ -1,43 +1,10 @@
-// GlowTrack Service Worker v4
-const CACHE = 'glowtrack-v4';
+// GlowTrack Service Worker v5
+// ЗАБЕЛЕЖКА: Firebase Messaging / push известия НЕ се обработват тук.
+// Това се прави изцяло от firebase-messaging-sw.js, за да няма два SW,
+// конкуриращи се за push събития на едно и също scope (причина за
+// дублирани известия - виж git history за контекст).
+const CACHE = 'glowtrack-v5';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
-
-importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
-
-firebase.initializeApp({
-  apiKey: "AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",
-  authDomain: "after-care-treatment.firebaseapp.com",
-  projectId: "after-care-treatment",
-  storageBucket: "after-care-treatment.firebasestorage.app",
-  messagingSenderId: "771928458805",
-  appId: "1:771928458805:web:770106c907426147d1137c"
-});
-
-const messaging = firebase.messaging();
-
-messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification?.title || 'GlowTrack';
-  const notificationOptions = {
-    body: payload.notification?.body || '',
-    icon: './icon-192.png',
-    badge: './icon-192.png',
-    data: payload.data || {}
-  };
-  self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if ('focus' in client) return client.focus();
-      }
-      if (clients.openWindow) return clients.openWindow('./');
-    })
-  );
-});
 
 self.addEventListener('install', e => {
   e.waitUntil(
