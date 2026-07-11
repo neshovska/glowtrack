@@ -210,7 +210,10 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
   try {
     await admin.messaging().send({
       token: adminToken,
-      notification: {
+      // Data-only, за да е консистентно с sendScheduledReminders и да не
+      // задейства автоматичния показвач на Firebase Web SDK-а успоредно
+      // с ръчния ни onBackgroundMessage handler в sw.js.
+      data: {
         title: "GlowTrack — нов milestone",
         body: `Достигнахте ${milestoneReached} регистрирани потребители!`,
       },
