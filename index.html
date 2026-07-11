@@ -1788,7 +1788,7 @@ window.initPushNotifications=async function(){
     const permission=await Notification.requestPermission();
     console.log('[PUSH] Notification.permission СЛЕД request =', permission);
     if(permission!=='granted'){console.error('[PUSH] Разрешението не е granted:', permission);showToast&&showToast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
-    // Използваме ЕДИНСТВЕНИЯ регистриран sw.js (v6 — вече съдържа Firebase Messaging).
+    // Използваме ЕДИНСТВЕНИЯ регистриран sw.js (вече съдържа Firebase Messaging).
     // ВАЖНО: не регистрираме отделен firebase-messaging-sw.js тук — два SW на един
     // scope се борят помежду си и печели последният, който презаписва другия при
     // всяко зареждане на страницата (точно това чупеше push известията преди).
@@ -1801,17 +1801,34 @@ window.initPushNotifications=async function(){
     console.log('[PUSH] getToken() резултат, token дължина =', token ? token.length : '(null/undefined)');
     console.log('[PUSH] window._user наличен =', !!window._user, window._user ? window._user.uid : '(няма user)');
     if(token&&window._user){
-      console.log('[PUSH] Пиша fcmToken в Firestore за uid:', window._user.uid);
-      await setDoc(doc(db,'users',window._user.uid),{fcmToken:token,fcmTokenUpdatedAt:new Date().toISOString()},{merge:true});
-      console.log('[PUSH] Firestore setDoc УСПЕШЕН ✓');
-      showToast&&showToast('Известията са включени ✓');
-      if(typeof window.trackEvent==='function')window.trackEvent('push_enabled',{});
+      // ЗАЩИТА СРЕЩУ ИЗЛИШНИ ЗАПИСИ: пиши в Firestore само ако токенът се е сменил.
+      // При всяко зареждане на страницата onAuthStateChanged → initPushNotifications() се
+      // вика автоматично. Без тази проверка всеки pageload прави Firestore write (безвреден,
+      // но ненужен). По-важно: предотвратява race condition при бързо reload когато два
+      // паралелни извиквания могат да запишат различни стойности в кратък интервал.
+      const cachedToken = window._lastFcmToken;
+      if(token !== cachedToken){
+        console.log('[PUSH] Токенът е нов/сменен — пиша fcmToken в Firestore за uid:', window._user.uid);
+        await setDoc(doc(db,'users',window._user.uid),{fcmToken:token,fcmTokenUpdatedAt:new Date().toISOString()},{merge:true});
+        console.log('[PUSH] Firestore setDoc УСПЕШЕН ✓');
+        window._lastFcmToken = token;
+        if(cachedToken === undefined){
+          // Първи път за тази сесия — показваме toast само тогава
+          showToast&&showToast('Известията са включени ✓');
+          if(typeof window.trackEvent==='function')window.trackEvent('push_enabled',{});
+        }
+      } else {
+        console.log('[PUSH] Токенът е непроменен — Firestore write пропуснат.');
+      }
     } else {
       console.error('[PUSH] НЕ записах в Firestore — token или window._user липсват. token=',!!token,'user=',!!window._user);
     }
+    // onMessage се bind-ва само ВЕДНЪЖ за целия живот на страницата.
+    // _fcmForegroundBound пази от двойно свързване при logout → login цикъл.
     if(!window._fcmForegroundBound){
       onMessage(messaging,payload=>{const d=payload.data||{};showToast&&showToast(d.title||'Ново известие от GlowTrack');});
       window._fcmForegroundBound=true;
+      console.log('[PUSH] onMessage foreground handler регистриран.');
     }
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();
     console.log('[PUSH] Край на initPushNotifications, връщам token');
@@ -1879,17 +1896,33 @@ window.doAuthUnified=async function(){
     btn.disabled=false;btn.textContent=window._authMode==='register' ? (window._lang==='en'?'Sign up':'Регистрирай се') : (window._lang==='en'?'Log in':'Влез');
   }
 };
-window.doLogout=async function(){await signOut(auth);window.showToast&&window.showToast(t('toastLogout'));};
+window.doLogout=async function(){
+  // Изчистваме FCM кеша при изход — при следващ login push ще се инициализира наново.
+  window._lastFcmToken=undefined;
+  window._lastPushUid=undefined;
+  window._fcmForegroundBound=false;
+  await signOut(auth);
+  window.showToast&&window.showToast(t('toastLogout'));
+};
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
     window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
-    // Ако браузърът вече е дал push разрешение, но токънът не е бил успешно
-    // запазен преди (напр. window._user не е бил готов при първия опит) —
-    // пробвай пак сега, когато потребителят е сигурно логнат.
+    // Ако браузърът вече е дал push разрешение, инициализираме push само ако:
+    // а) токенът все още не е кеширан (_lastFcmToken липсва) — т.е. първи login
+    // б) или UID-ът се е сменил (различен потребител)
+    // Без тази проверка при всеки pageload/auth refresh се правеше излишен getToken()
+    // и потенциален Firestore write, което при race condition можеше да доведе до
+    // регистриране на стар токен или двойни FCM съобщения.
     try{
-      if(typeof Notification!=='undefined' && Notification.permission==='granted' && typeof window.initPushNotifications==='function'){
+      const uidChanged = window._lastPushUid && window._lastPushUid !== user.uid;
+      const neverInited = !window._lastFcmToken;
+      if((neverInited || uidChanged) && typeof Notification!=='undefined' && Notification.permission==='granted' && typeof window.initPushNotifications==='function'){
+        if(uidChanged){ window._lastFcmToken=undefined; window._fcmForegroundBound=false; }
+        window._lastPushUid = user.uid;
         window.initPushNotifications().catch(()=>{});
+      } else if(!window._lastPushUid){
+        window._lastPushUid = user.uid;
       }
     }catch(e){}
     try{ if(typeof Sentry!=='undefined') Sentry.setUser({id:user.uid,email:user.email}); }catch(e){}
