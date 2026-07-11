@@ -152,55 +152,6 @@ exports.sendScheduledReminders = onSchedule(
 
 
 // ═══════════════════════════════════════════════════════════
-// ВРЕМЕННА BACKFILL ФУНКЦИЯ (Част Б, миграция)
-// Изчислява nextReminderAt за всички съществуващи потребители, регистрирани
-// преди въвеждането на полето. Само за ADMIN_UID. Веднага след успешно
-// изпълнение — трие се от кода заедно с временния helper в index.html.
-// ═══════════════════════════════════════════════════════════
-
-exports.backfillNextReminderAt = onCall(async (request) => {
-  if (!request.auth || request.auth.uid !== ADMIN_UID) {
-    throw new HttpsError("permission-denied", "Само админ може да изпълни тази операция.");
-  }
-
-  const now = new Date();
-  const usersSnapshot = await db.collection("users").get();
-
-  let updated = 0;
-  let skipped = 0;
-  const BATCH_SIZE = 400; // под лимита от 500 операции за Firestore batch write
-  let batch = db.batch();
-  let opsInBatch = 0;
-
-  for (const userDoc of usersSnapshot.docs) {
-    const data = userDoc.data();
-    const notifs = Array.isArray(data.notifs) ? data.notifs : [];
-    const newNextReminderAt = computeNextReminderAtServer(notifs, now);
-
-    if (newNextReminderAt !== (data.nextReminderAt || null)) {
-      batch.update(userDoc.ref, {nextReminderAt: newNextReminderAt});
-      updated++;
-      opsInBatch++;
-      if (opsInBatch >= BATCH_SIZE) {
-        await batch.commit();
-        batch = db.batch();
-        opsInBatch = 0;
-      }
-    } else {
-      skipped++;
-    }
-  }
-
-  if (opsInBatch > 0) {
-    await batch.commit();
-  }
-
-  console.log(`Backfill завършен: ${updated} обновени, ${skipped} без промяна, ${usersSnapshot.size} общо.`);
-  return {updated, skipped, total: usersSnapshot.size};
-});
-
-
-// ═══════════════════════════════════════════════════════════
 // MILESTONE УВЕДОМЛЕНИЯ
 // ═══════════════════════════════════════════════════════════
 
