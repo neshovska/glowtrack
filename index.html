@@ -7595,12 +7595,25 @@ function selectEditNotifProc(id, name){
 
 
 // ── NOTIFICATIONS PAGE ──
+function showPwaInstallHelp(){
+  const isBG = window._lang !== 'en';
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const msg = isIOS
+    ? (isBG?'На iPhone: натисни бутона Share (квадратче със стрелка нагоре) → "Add to Home Screen" → Add.':'On iPhone: tap the Share button (square with an arrow) → "Add to Home Screen" → Add.')
+    : (isBG?'На Android: отвори менюто на браузъра (три точки) → "Add to Home Screen" или "Install app".':'On Android: open the browser menu (three dots) → "Add to Home Screen" or "Install app".');
+  alert(msg);
+}
 function loadNotifsPage(){
   const content = document.getElementById('notifs-page-content');
   if(!content) return;
   const notifs = (_lsGet('gt_notifs')||[]);
   const now = new Date();
   const isBG = window._lang !== 'en';
+
+  const pwaNote = `<div style="display:flex;align-items:flex-start;gap:8px;background:var(--goldlt);border:1px solid var(--gold);border-radius:12px;padding:9px 12px;margin-bottom:10px">
+    <span style="font-size:13px;line-height:1;flex-shrink:0;margin-top:1px">✦</span>
+    <div style="font-size:12px;line-height:1.5;color:var(--ink2)">${isBG?'За push известия добави GlowTrack на началния екран.':'For push notifications, add GlowTrack to your home screen.'} <a href="#" onclick="showPwaInstallHelp();return false;" style="color:var(--gold);font-weight:600;text-decoration:underline">${isBG?'Как?':'How?'}</a></div>
+  </div>`;
 
   const getNotifTime = n => {
     const dt = new Date(n.date);
@@ -7618,7 +7631,7 @@ function loadNotifsPage(){
   updateNotifBadge(reminders.length + bookings.length);
 
   if(!notifs.length){
-    content.innerHTML=`<div class="empty-state"><div class="empty-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+    content.innerHTML=pwaNote+`<div class="empty-state"><div class="empty-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
       <div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div>
       <div class="empty-sub">${isBG?'Натисни \'+ Добави\' по-горе':'Tap \'+ Add\' above'}</div>
     </div>`;
@@ -7721,7 +7734,7 @@ function loadNotifsPage(){
     </div>`;
   }
 
-  content.innerHTML = html || `<div class="empty-state"><div class="empty-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`;
+  content.innerHTML = pwaNote + (html || `<div class="empty-state"><div class="empty-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="empty-title">${isBG?'Няма напомняния':'No reminders'}</div></div>`);
 }
 
 function openCalForDate(dateStr){
