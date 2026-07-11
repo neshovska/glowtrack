@@ -1810,7 +1810,7 @@ window.initPushNotifications=async function(){
       console.error('[PUSH] НЕ записах в Firestore — token или window._user липсват. token=',!!token,'user=',!!window._user);
     }
     if(!window._fcmForegroundBound){
-      onMessage(messaging,payload=>{showToast&&showToast(payload.notification?.title||'Ново известие от GlowTrack');});
+      onMessage(messaging,payload=>{const d=payload.data||{};showToast&&showToast(d.title||'Ново известие от GlowTrack');});
       window._fcmForegroundBound=true;
     }
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();

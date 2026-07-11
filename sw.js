@@ -1,12 +1,18 @@
-// GlowTrack Service Worker v6
+// GlowTrack Service Worker v7
 // ЕДИН файл за кеширане + Firebase Messaging (push известия).
 // ВАЖНО: не регистрирай отделен firebase-messaging-sw.js на същия scope —
 // браузърът позволява само един активен SW на scope, и всяка автоматична
 // re-регистрация на този файл (при всяко зареждане на страницата) би
 // изместила отделен push-worker и push известията биха спрели да работят
 // без грешка (точно това се случи във v5 — виж git history).
+//
+// v7 — ПОПРАВКА: сървърът вече праща DATA-ONLY payload (виж functions/index.js),
+// затова title/body се четат от payload.data, не от payload.notification.
+// Причина: когато payload има `notification` поле, Firebase Web SDK автоматично
+// показва системно известие САМ, паралелно с нашия onBackgroundMessage handler
+// по-долу — 1 сървърно съобщение се превръщаше в 2 показани известия.
 
-const CACHE = 'glowtrack-v6';
+const CACHE = 'glowtrack-v7';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
@@ -24,21 +30,23 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+console.log('[sw.js] v7 активен — data-only dedup handler зареден.');
+
 // Background message handler — показва notification когато app-ът е затворен/на заден план
 messaging.onBackgroundMessage(payload => {
-  console.log('[sw.js] Background message:', payload);
-  const { title, body, icon } = payload.notification || {};
-  // ВАЖНО: tag-ът трябва да е УНИКАЛЕН за всяко напомняне (по notifId), не еднакъв
-  // за всички. iOS Safari понякога доставя едно и също push събитие два пъти
-  // (at-least-once поведение на APNs web push) — с еднакъв tag браузърът просто
-  // "събира" двете в едно вместо да показва два отделни banner-а. С renotify:false
-  // второто показване не праща нов звук/тласък — тихо се слива с първото.
-  const notifId = (payload.data && payload.data.notifId) || ('t' + Date.now());
-  self.registration.showNotification(title || 'GlowTrack', {
-    body: body || '',
-    icon: icon || './icon-192.png',
+  console.log('[sw.js] Background message (data-only):', payload);
+  const data = payload.data || {};
+  const title = data.title || 'GlowTrack';
+  const body = data.body || '';
+  // tag-ът е уникален по notifId — ако въпреки всичко същото push събитие
+  // пристигне повторно (напр. iOS at-least-once доставка), браузърът "събира"
+  // двете показвания в едно вместо да покаже два отделни banner-а.
+  const notifId = data.notifId || ('t' + Date.now());
+  self.registration.showNotification(title, {
+    body: body,
+    icon: './icon-192.png',
     badge: './favicon-32.png',
-    data: payload.data || {},
+    data: data,
     tag: 'glowtrack-' + notifId,
     renotify: false,
     requireInteraction: false,
