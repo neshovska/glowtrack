@@ -1,10 +1,65 @@
-// GlowTrack Service Worker v5
-// ЗАБЕЛЕЖКА: Firebase Messaging / push известия НЕ се обработват тук.
-// Това се прави изцяло от firebase-messaging-sw.js, за да няма два SW,
-// конкуриращи се за push събития на едно и също scope (причина за
-// дублирани известия - виж git history за контекст).
-const CACHE = 'glowtrack-v5';
+// GlowTrack Service Worker v6
+// ЕДИН файл за кеширане + Firebase Messaging (push известия).
+// ВАЖНО: не регистрирай отделен firebase-messaging-sw.js на същия scope —
+// браузърът позволява само един активен SW на scope, и всяка автоматична
+// re-регистрация на този файл (при всяко зареждане на страницата) би
+// изместила отделен push-worker и push известията биха спрели да работят
+// без грешка (точно това се случи във v5 — виж git history).
+
+const CACHE = 'glowtrack-v6';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
+
+importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: "AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",
+  authDomain: "after-care-treatment.firebaseapp.com",
+  projectId: "after-care-treatment",
+  storageBucket: "after-care-treatment.firebasestorage.app",
+  messagingSenderId: "771928458805",
+  appId: "1:771928458805:web:770106c907426147d1137c",
+  measurementId: "G-XZFJ8ZK6B9"
+});
+
+const messaging = firebase.messaging();
+
+// Background message handler — показва notification когато app-ът е затворен/на заден план
+messaging.onBackgroundMessage(payload => {
+  console.log('[sw.js] Background message:', payload);
+  const { title, body, icon } = payload.notification || {};
+  self.registration.showNotification(title || 'GlowTrack', {
+    body: body || '',
+    icon: icon || './icon-192.png',
+    badge: './favicon-32.png',
+    data: payload.data || {},
+    tag: 'glowtrack-notif',
+    renotify: true,
+    requireInteraction: false,
+  });
+
+  // Показва червена точка върху PWA иконата (iOS 16.4+/поддържани браузъри)
+  if (self.registration && 'setAppBadge' in self.registration) {
+    self.registration.setAppBadge(1).catch(err => console.warn('setAppBadge failed:', err));
+  }
+});
+
+// При клик на notification — отваря app-а
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes('glowtrack') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow('https://glowtrack.eu/');
+      }
+    })
+  );
+});
 
 self.addEventListener('install', e => {
   e.waitUntil(
