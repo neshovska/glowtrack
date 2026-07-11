@@ -2076,6 +2076,11 @@ async function saveProcRemind(procId,procName){
   const yyyy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
   const dateStr=`${yyyy}-${mm}-${dd}`;
   const saved=_lsGet('gt_notifs')||[];
+  // Защита срещу двоен клик — вж. коментара в saveNotifDate() по-долу за контекст.
+  if(saved.find(n=>n.procId===procId && n.date===dateStr && n.time==='10:00' && n.type==='reminder')){
+    showToast(window._lang==='en'?'Reminder saved ✓':'Напомнянето е запазено ✓');
+    return;
+  }
   saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:'10:00', type:'reminder'});
   _lsSet('gt_notifs', saved);
   if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
@@ -6031,15 +6036,26 @@ function setNotifType(type){
     }
   }
 }
+let _savingNotif = false;
 function saveNotifDate(){
+  // Защита #1: блокира втори клик, докато първият още се обработва
+  // (лесен инцидентен double-tap на 💾 създаваше две отделни, реално различни
+  // напомняния — сървърът ги пращаше коректно, изглеждаше като "дублирано" push).
+  if(_savingNotif) return;
   const d = document.getElementById('notif-date').value;
   const procId = document.getElementById('notif-proc')?.value;
   const procName = document.getElementById('notif-proc-search')?.value || '';
   if(!d){showToast(t('toastSelectDate'));return;}
   if(!procId){showToast(t('toastSelectProc'));return;}
   const time = document.getElementById('notif-time')?.value || '10:00';
+  const type = _notifType||'reminder';
   const saved = _lsGet('gt_notifs')||[];
-  saved.push({id:'n_'+Date.now(), procId, procName, date:d, time, type:_notifType||'reminder'});
+  // Защита #2: не създавай нов запис, ако вече съществува идентичен
+  // (същата процедура, дата, час и тип) — типично при двоен клик.
+  const dup = saved.find(n => n.procId===procId && n.date===d && n.time===time && n.type===type);
+  if(dup){ showToast(t('toastNotifSaved')); return; }
+  _savingNotif = true;
+  saved.push({id:'n_'+Date.now(), procId, procName, date:d, time, type}); 
   _lsSet('gt_notifs', saved);
   if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   const dt = new Date(d + 'T' + time);
@@ -6048,6 +6064,7 @@ function saveNotifDate(){
   if(diff >= 0) info.textContent = '✅ ' + procName + ' — ' + fmtDate(new Date(d)) + (window._lang==='en'?' at ':' в ') + time;
   else info.textContent = '⚠️ Датата е в миналото';
   showToast(t('toastNotifSaved'));
+  setTimeout(()=>{ _savingNotif = false; }, 1200);
   document.getElementById('notif-date').value = '';
   document.getElementById('notif-proc-search').value = '';
   document.getElementById('notif-proc').value = '';
@@ -8399,6 +8416,11 @@ function suggestReminder(lastDate, minDays, maxDays){
   const procName = (proc?.icon||'🔔')+' '+(proc?.name||'Процедура');
   
   const saved = _lsGet('gt_notifs')||[];
+  if(saved.find(n=>n.procId===window.currentProcId && n.date===dateStr && n.time==='10:00')){
+    showToast(t('toastNotifSaved'));
+    document.getElementById('calc-result').querySelector('button')?.remove();
+    return;
+  }
   saved.push({id:'n_'+Date.now(), procId:window.currentProcId, procName, date:dateStr, time:'10:00'});
   _lsSet('gt_notifs', saved);
   if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
