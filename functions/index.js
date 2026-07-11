@@ -172,7 +172,10 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
     const currentCount = counterSnap.exists ? (counterSnap.data().count || 0) : 0;
     const newCount = currentCount + 1;
 
-    tx.set(processedRef, {ts: admin.firestore.FieldValue.serverTimestamp()});
+    // TTL полето пази бъдещ момент на изтичане (сега + 30 дни), не момента на
+    // създаване — Firestore TTL policy трие документа автоматично след тази дата.
+    const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    tx.set(processedRef, {expiresAt});
     tx.set(counterRef, {count: newCount}, {merge: true});
 
     if (newCount % MILESTONE_STEP === 0) {
