@@ -28,13 +28,19 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(payload => {
   console.log('[sw.js] Background message:', payload);
   const { title, body, icon } = payload.notification || {};
+  // ВАЖНО: tag-ът трябва да е УНИКАЛЕН за всяко напомняне (по notifId), не еднакъв
+  // за всички. iOS Safari понякога доставя едно и също push събитие два пъти
+  // (at-least-once поведение на APNs web push) — с еднакъв tag браузърът просто
+  // "събира" двете в едно вместо да показва два отделни banner-а. С renotify:false
+  // второто показване не праща нов звук/тласък — тихо се слива с първото.
+  const notifId = (payload.data && payload.data.notifId) || ('t' + Date.now());
   self.registration.showNotification(title || 'GlowTrack', {
     body: body || '',
     icon: icon || './icon-192.png',
     badge: './favicon-32.png',
     data: payload.data || {},
-    tag: 'glowtrack-notif',
-    renotify: true,
+    tag: 'glowtrack-' + notifId,
+    renotify: false,
     requireInteraction: false,
   });
 
