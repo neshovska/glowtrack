@@ -51,11 +51,6 @@ messaging.onBackgroundMessage(payload => {
     renotify: false,
     requireInteraction: false,
   });
-
-  // Показва червена точка върху PWA иконата (iOS 16.4+/поддържани браузъри)
-  if (self.registration && 'setAppBadge' in self.registration) {
-    self.registration.setAppBadge(1).catch(err => console.warn('setAppBadge failed:', err));
-  }
 });
 
 // При клик на notification — отваря app-а
