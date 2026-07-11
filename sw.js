@@ -12,7 +12,7 @@
 // показва системно известие САМ, паралелно с нашия onBackgroundMessage handler
 // по-долу — 1 сървърно съобщение се превръщаше в 2 показани известия.
 
-const CACHE = 'glowtrack-v7';
+const CACHE = 'glowtrack-v8';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
@@ -30,18 +30,50 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-console.log('[sw.js] v7 активен — data-only dedup handler зареден.');
+console.log('[sw.js] v8 активен — data-only + постоянна дедупликация през Cache Storage.');
+
+// ── ПОСТОЯННА ДЕДУПЛИКАЦИЯ ──
+// Cache Storage (за разлика от обикновена променлива) оцелява дори ако service
+// worker-ът се рестартира между две доставки на едно и също push събитие —
+// затова е по-сигурна защита от tag-based collapsing, който зависи от браузъра.
+const SEEN_CACHE = 'glowtrack-seen-notifs';
+async function alreadyShown(notifId) {
+  try {
+    const cache = await caches.open(SEEN_CACHE);
+    const match = await cache.match('/seen/' + notifId);
+    return !!match;
+  } catch (e) { return false; }
+}
+async function markShown(notifId) {
+  try {
+    const cache = await caches.open(SEEN_CACHE);
+    await cache.put('/seen/' + notifId, new Response(String(Date.now())));
+  } catch (e) {}
+}
+
+// Сурово броене на всяко физическо push събитие, преди Firebase SDK да го
+// обработи — ако тук се задейства 2 пъти за едно известие, дублирането идва
+// от самата операционна система/APNs доставка, не от нашия JS код.
+let _rawPushCount = 0;
+self.addEventListener('push', () => {
+  _rawPushCount++;
+  console.log('[sw.js] СУРОВО push събитие #' + _rawPushCount + ' получено от браузъра.');
+});
 
 // Background message handler — показва notification когато app-ът е затворен/на заден план
-messaging.onBackgroundMessage(payload => {
+messaging.onBackgroundMessage(async payload => {
   console.log('[sw.js] Background message (data-only):', payload);
   const data = payload.data || {};
   const title = data.title || 'GlowTrack';
   const body = data.body || '';
-  // tag-ът е уникален по notifId — ако въпреки всичко същото push събитие
-  // пристигне повторно (напр. iOS at-least-once доставка), браузърът "събира"
-  // двете показвания в едно вместо да покаже два отделни banner-а.
   const notifId = data.notifId || ('t' + Date.now());
+
+  if (await alreadyShown(notifId)) {
+    console.log('[sw.js] ПРОПУСНАТО — известие с notifId=' + notifId + ' вече е показано преди.');
+    return;
+  }
+  await markShown(notifId);
+
   self.registration.showNotification(title, {
     body: body,
     icon: './icon-192.png',
