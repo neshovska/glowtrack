@@ -900,38 +900,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </style>
 </head>
 <body>
-<button id="gt-debug-toggle" style="position:fixed;bottom:8px;right:8px;z-index:1000000;background:#0f0;color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;font-weight:bold">🐞</button>
-<script>
-(function(){
-  var logs = [];
-  function log(type, args){
-    try{
-      var parts = Array.prototype.map.call(args, function(a){
-        try{ return typeof a==='object' ? JSON.stringify(a) : String(a); }catch(e){ return String(a); }
-      });
-      logs.push('['+type+'] ' + parts.join(' '));
-    }catch(e){}
-  }
-  var origLog = console.log, origErr = console.error, origWarn = console.warn;
-  console.log = function(){ origLog.apply(console, arguments); log('log', arguments); };
-  console.error = function(){ origErr.apply(console, arguments); log('error', arguments); };
-  console.warn = function(){ origWarn.apply(console, arguments); log('warn', arguments); };
-  window.addEventListener('error', function(e){
-    log('error', ['Uncaught: '+e.message+' @ '+e.filename+':'+e.lineno]);
-  });
-  window.addEventListener('unhandledrejection', function(e){
-    log('error', ['Unhandled promise rejection: '+(e.reason&&e.reason.message||e.reason)]);
-  });
-  log('log', ['Debug panel ready.']);
-
-  // window.prompt показва нативен диалог с текст поле — работи гарантирано
-  // на всеки браузър/устройство, без CSS/overlay проблеми. Текстът вътре
-  // е директно избираем — Select All (или long-press) + Copy.
-  document.getElementById('gt-debug-toggle').addEventListener('click', function(){
-    window.prompt('Debug log (Select All → Copy):', logs.join('\n'));
-  });
-})();
-</script>
 <script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
 <div class="bg"></div>
 <div class="desktop-deco desktop-deco-left" aria-hidden="true">Know<br>your<br>glow.</div>
