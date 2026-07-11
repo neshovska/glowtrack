@@ -1699,6 +1699,7 @@ const fnInstance=getFunctions(fb,'us-central1'); // смени региона т
 // ── AI АСИСТЕНТ — feature flag (управлява се от Firestore app_config, вижда се в admin таблото) ──
 window._aiAssistantEnabled = false; // безопасна стойност по подразбиране, докато се зареди реалната
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
+window._callBackfill = httpsCallable(fnInstance, 'backfillNextReminderAt'); // ВРЕМЕННО — Част Б миграция, ще се премахне след еднократна употреба
 (async function(){
   try{
     const snap = await getDoc(doc(db,'app_config','settings'));
