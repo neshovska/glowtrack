@@ -196,7 +196,7 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
     await admin.messaging().send({
       token: adminToken,
       notification: {
-        title: "GlowTrack — нов milestone 🎉",
+        title: "GlowTrack — нов milestone",
         body: `Достигнахте ${milestoneReached} регистрирани потребители!`,
       },
     });
