@@ -25,5 +25,10 @@ jobs:
         working-directory: functions
         run: npm ci
 
+      - name: Debug token (safe, no leak)
+        run: echo "Token length is ${#FIREBASE_TOKEN} characters"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
       - name: Deploy to Firebase
         run: npx firebase-tools@13.29.1 deploy --only functions --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
