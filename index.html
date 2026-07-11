@@ -1279,6 +1279,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
                 <div class="stat-box"><div class="stat-num" id="adm-affiliate-today">—</div><div class="stat-lbl">Афил. кликове днес</div></div>
                 <div class="stat-box"><div class="stat-num" id="adm-affiliate-total">—</div><div class="stat-lbl">Афил. общо</div></div>
               </div>
+              <div id="adm-cloudtasks-warning" style="display:none;margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(184,150,106,0.15);border:1px solid var(--goldlt);font-size:12.5px;line-height:1.5;color:var(--gold)">
+                ⚠️ <b>Бележка за мащабиране:</b> достигнахте <span id="adm-cloudtasks-count">—</span> потребители. Cloud Function-ът за напомняния сканира всички потребители при всяко изпълнение — при този обем е добра идея да преминете към Cloud Tasks архитектура (индивидуален таймер за всяко напомняне), за да пазите разходите ниски и времето за изпращане точно.
+              </div>
               <div style="margin-top:12px">
                 <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Най-търсени (последните 7 дни)</div>
                 <div id="adm-top-searches" style="font-size:12px;color:var(--ink1)">—</div>
@@ -1735,6 +1738,38 @@ window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,upd
 
 // ── PUSH NOTIFICATIONS (Firebase Cloud Messaging) ──
 window._fcmVapidKey='BAj74mUgR7VEdH6-YL000hXSuzFmqe6Y7WZ5acrnJi3fxMZejJg-GRLwvYHgAw5-T6LMW5YlDX5iMFnT-nF-ZrA'; // Firebase Console → Project Settings → Cloud Messaging → Web Push certificates (Key pair, публичен ключ)
+
+// ── nextReminderAt helpers ──
+// Изчислява UTC момента на най-близкото непратено напомняне, за да може Cloud Function-ът
+// да прави евтина range заявка (users где nextReminderAt<=now) вместо да сканира всички.
+window._sofiaWallTimeToUTC=function(dateStr,timeStr){
+  const naive=new Date(`${dateStr}T${timeStr}:00Z`);
+  const fmt=new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Sofia',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const parts=fmt.formatToParts(naive).reduce((a,p)=>{a[p.type]=p.value;return a;},{});
+  const sofiaDisplayedAsUTC=Date.UTC(parts.year,parts.month-1,parts.day,parts.hour==='24'?0:parts.hour,parts.minute,parts.second);
+  const offsetMs=sofiaDisplayedAsUTC-naive.getTime();
+  return new Date(naive.getTime()-offsetMs);
+};
+window._computeNextReminderAt=function(notifs){
+  if(!Array.isArray(notifs)||!notifs.length)return null;
+  let soonest=null;
+  for(const n of notifs){
+    if(n.sent||!n.date)continue;
+    try{
+      const dt=window._sofiaWallTimeToUTC(n.date,n.time||'10:00');
+      if(!soonest||dt<soonest)soonest=dt;
+    }catch(e){}
+  }
+  return soonest?soonest.toISOString():null;
+};
+// Централизиран запис на notifs + nextReminderAt в Firestore. Използвайте това вместо
+// директен setDoc(...,{notifs:...}), за да поддържаме nextReminderAt винаги синхронизирано.
+window.syncNotifsFS=function(notifsArr){
+  if(!window._user)return;
+  try{
+    F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:notifsArr,nextReminderAt:window._computeNextReminderAt(notifsArr)},{merge:true}).catch(()=>{});
+  }catch(e){}
+};
 window.pushNotifStatus=function(){
   if(!('Notification' in window))return 'unsupported';
   return Notification.permission; // 'default' | 'granted' | 'denied'
@@ -2030,7 +2065,7 @@ async function saveProcRemind(procId,procName){
   const saved=_lsGet('gt_notifs')||[];
   saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:'10:00', type:'reminder'});
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}); }catch(e){} }
+  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(saved.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
   showToast(window._lang==='en'?'Reminder saved ✓':'Напомнянето е запазено ✓');
   // Close the accordion menu after saving
@@ -4411,7 +4446,7 @@ async function saveDiaryEntry(procId){
       _lsSet('gt_notifs', saved2);
       // Sync to Firestore
       if(window._user){
-        try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:saved2},{merge:true}).catch(()=>{}); }catch(e){}
+        try{ window.syncNotifsFS(saved2); }catch(e){}
       }
       updateNotifBadge(saved2.filter(n=>{
         const dt=new Date(n.date);
@@ -5993,7 +6028,7 @@ function saveNotifDate(){
   const saved = _lsGet('gt_notifs')||[];
   saved.push({id:'n_'+Date.now(), procId, procName, date:d, time, type:_notifType||'reminder'});
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}).catch(()=>{}); }catch(e){} }
+  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   const dt = new Date(d + 'T' + time);
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
@@ -6348,7 +6383,7 @@ async function onCycleDayTap(dateStr){
       isCycleReminder:true
     });
     if(typeof _lsSet==='function') _lsSet('gt_notifs',_filtered);
-    if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_filtered},{merge:true});}catch(e){} }
+    if(window._user){ try{window.syncNotifsFS(_filtered);}catch(e){} }
   }catch(e){}
   showToast(window._lang==='en'?'Period logged ✓':'Записано ✓');
   renderCycleTracker();
@@ -7025,6 +7060,17 @@ async function loadAdminDashboard(){
     setText('adm-push-enabled', pushEnabled);
     setText('adm-ai-today', aiToday);
 
+    // Напомняне за преминаване към Cloud Tasks при по-голям обем потребители
+    const ctWarnEl = document.getElementById('adm-cloudtasks-warning');
+    if(ctWarnEl){
+      if(total >= 500){
+        ctWarnEl.style.display='block';
+        setText('adm-cloudtasks-count', total);
+      } else {
+        ctWarnEl.style.display='none';
+      }
+    }
+
     // Афилиейт кликове
     try{
       const clicksSnap = await F().getDocs(F().collection(DB(),'affiliate_clicks'));
@@ -7268,7 +7314,7 @@ function loadNotifProcSelector(){
 function deleteNotif(id){
   const saved = (_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}).catch(()=>{}); }catch(e){} }
+  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   loadNotifProcSelector();
   loadNotifsPage();
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
@@ -7519,7 +7565,7 @@ function saveEditNotif(){
   const idx = saved.findIndex(x=>x.id===id);
   if(idx>-1) saved[idx] = {...saved[idx], procId, procName, date, time};
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}).catch(()=>{}); }catch(e){} }
+  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   closeEditNotif();
   loadNotifProcSelector();
   if(typeof _diaryView!=='undefined' && _diaryView==='cal' && typeof renderDiaryCal==='function') renderDiaryCal();
@@ -8025,7 +8071,7 @@ function toggleNewEntry(){
 function deleteNotifFromPage(id){
   const saved = (_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}).catch(()=>{}); }catch(e){} }
+  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
   loadNotifsPage();
   if(typeof _diaryView!=='undefined' && _diaryView==='cal' && typeof renderDiaryCal==='function') renderDiaryCal();
@@ -8286,7 +8332,7 @@ function suggestReminder(lastDate, minDays, maxDays){
   const saved = _lsGet('gt_notifs')||[];
   saved.push({id:'n_'+Date.now(), procId:window.currentProcId, procName, date:dateStr, time:'10:00'});
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:_lsGet('gt_notifs')||[]},{merge:true}).catch(()=>{}); }catch(e){} }
+  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   const upcoming = saved.filter(n=>new Date(n.date)>=new Date()).length;
   updateNotifBadge(upcoming);
   showToast(t('toastNotifSaved'));
