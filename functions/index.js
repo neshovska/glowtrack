@@ -415,8 +415,17 @@ exports.notifyOnClinicInquiry = onDocumentCreated(
         auth: {user: smtpUser.value(), pass: smtpPass.value()},
       });
 
+      const PARTNER_TYPE_LABELS = {
+        clinics: "Клиника",
+        distributors: "Дистрибутор",
+        brands: "Козметичен бранд",
+        training: "Обучителен център",
+      };
+      const partnerTypeLabel = PARTNER_TYPE_LABELS[data.partnerType] || data.partnerType || "—";
+
       const summary = [
-        `Клиника: ${data.clinicName || "—"}`,
+        `Тип партньор: ${partnerTypeLabel}`,
+        `Име: ${data.clinicName || "—"}`,
         `Град: ${data.city || "—"}`,
         `Имейл: ${data.email || "—"}`,
         `Телефон: ${data.phone || "—"}`,
@@ -428,8 +437,8 @@ exports.notifyOnClinicInquiry = onDocumentCreated(
           from: `"GlowTrack" <${smtpUser.value()}>`,
           to: CLINIC_NOTIFICATION_EMAIL,
           replyTo: data.email || undefined,
-          subject: `Ново B2B запитване — ${data.clinicName || "клиника"} (${data.plan || "—"})`,
-          text: `Получено е ново запитване от клиника през glowtrack.eu/#for-clinics:\n\n${summary}`,
+          subject: `Ново B2B запитване (${partnerTypeLabel}) — ${data.clinicName || "—"} (${data.plan || "—"})`,
+          text: `Получено е ново запитване от партньор през glowtrack.eu/#for-clinics:\n\n${summary}`,
         });
         console.log("Имейл известие за клиника изпратено:", data.clinicName);
       } catch (e) {

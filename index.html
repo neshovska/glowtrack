@@ -6851,12 +6851,168 @@ window._cycleCalDate = null; // Date object, day=1, representing displayed month
 // ══ FOR CLINICS (B2B landing) ══
 // Достъпна през #for-clinics hash или скрит линк в Поверителност — не е част
 // от bnav/goPage системата, тъй като е самостоятелна маркетингова страница.
+// Собствен език (window._clinicsLang), независим от основния window._lang на
+// приложението — превключва се с БГ/EN бутоните горе-дясно на страницата.
+const CT_ICONS = {
+  search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/>',
+  chart:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/>',
+  tag:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l-1 6 4 12 4-12-1-6"/>',
+};
+const CT_CHECK = '<svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>';
+const CT = {
+  bg:{kicker:'· за бизнеса',heroTitlePre:'Партнирайте се с ',heroSub:'Свържете се с вашите клиенти по нов начин',heroBtn:'Свържете се с нас',
+    howKicker:'Как работи',howTitle:'Три прости стъпки',
+    step1Title:'Получавате QR код или листинг',step1Desc:'Уникален код или листинг за вашия бизнес.',
+    step2Title:'Клиентите ви откриват в приложението',step2Desc:'През търсачката с 220+ козметични процедури в GlowTrack.',
+    step3Title:'Връзката се проследява автоматично',step3Desc:'Клиентите виждат вас в дневника и напомнянията си.',
+    benefitsKicker:'Предимства',benefitsTitle:'Защо GlowTrack',pricingKicker:'Планове',pricingTitle:'Изберете своя план',
+    recommended:'Препоръчан',perMonth:'/месец',allFrom:'Всичко от ',
+    contactKicker:'Контакт',contactTitle:'Свържете се с нас',successMsg:'Изпратено! Ще се свържем с вас скоро.',
+    labelPartnerType:'Тип партньор',labelName:'Име на бизнеса',phName:'Вашият бизнес',labelCity:'Град',phCity:'София',
+    labelEmail:'Имейл',phEmail:'office@business.bg',labelPhone:'Телефон',phPhone:'+359 ...',labelPlan:'План',submitBtn:'Изпрати запитване',
+    errFillAll:'Моля, попълни всички полета',errEmail:'Моля, въведи валиден имейл адрес',
+    errGeneric:'Нещо се обърка. Опитай пак или ни пиши директно.'},
+  en:{kicker:'· for business',heroTitlePre:'Partner with ',heroSub:'Reach your clients in a new way',heroBtn:'Get in touch',
+    howKicker:'How it works',howTitle:'Three simple steps',
+    step1Title:'You get a QR code or listing',step1Desc:'A unique code or listing for your business.',
+    step2Title:'Customers discover you in the app',step2Desc:'Through the search with 220+ beauty procedures in GlowTrack.',
+    step3Title:'The connection is tracked automatically',step3Desc:'Clients see you in their diary and reminders.',
+    benefitsKicker:'Benefits',benefitsTitle:'Why GlowTrack',pricingKicker:'Plans',pricingTitle:'Choose your plan',
+    recommended:'Recommended',perMonth:'/month',allFrom:'Everything from ',
+    contactKicker:'Contact',contactTitle:'Get in touch',successMsg:"Sent! We'll be in touch soon.",
+    labelPartnerType:'Partner type',labelName:'Business name',phName:'Your business',labelCity:'City',phCity:'Sofia',
+    labelEmail:'Email',phEmail:'office@business.bg',labelPhone:'Phone',phPhone:'+359 ...',labelPlan:'Plan',submitBtn:'Send inquiry',
+    errFillAll:'Please fill in all fields',errEmail:'Please enter a valid email address',
+    errGeneric:'Something went wrong. Please try again or email us directly.'},
+};
+const PARTNER_TYPES = [
+  {key:'clinics',label:{bg:'Клиники',en:'Clinics'},icon:'<path d="M12 2v20M2 12h20"/>',
+    benefits:[
+      {icon:'search',t:{bg:'Видимост в процедурната енциклопедия',en:'Visibility in the procedure encyclopedia'},d:{bg:'Клиниката ви до всяка релевантна процедура.',en:'Your clinic next to every relevant procedure.'}},
+      {icon:'chart',t:{bg:'Статистика',en:'Statistics'},d:{bg:'Сканирания, уникални потребители, топ процедури, задържане.',en:'Scans, unique users, top procedures, retention.'}},
+      {icon:'qr',t:{bg:'QR код за рецепцията',en:'QR code for your front desk'},d:{bg:'Готов за печат, работи веднага след активация.',en:'Ready to print, works right after activation.'}},
+      {icon:'tag',t:{bg:'Брандирано присъствие в приложението',en:'Branded presence in the app'},d:{bg:'Лого, снимки и информация за клиниката ви.',en:'Your logo, photos and clinic info.'}},
+    ],
+    plans:[
+      {name:{bg:'Старт',en:'Start'},price:'79€',features:{bg:['QR код за клиниката','Базова статистика','Видимост в енциклопедията'],en:['QR code for your clinic','Basic statistics','Visibility in the encyclopedia']}},
+      {name:{bg:'Про',en:'Pro'},price:'199€',recommended:true,allFromPrev:true,features:{bg:['Push известия към клиенти','Детайлна статистика','Приоритетна поддръжка'],en:['Push notifications to clients','Detailed statistics','Priority support']}},
+      {name:{bg:'Премиум',en:'Premium'},price:'399€',allFromPrev:true,features:{bg:['White label','Dedicated account manager','Custom интеграции'],en:['White label','Dedicated account manager','Custom integrations']}},
+    ]},
+  {key:'distributors',label:{bg:'Дистрибутори',en:'Distributors'},icon:'<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
+    benefits:[
+      {icon:'search',t:{bg:'Препоръчани продукти в енциклопедията',en:'Recommended products in the encyclopedia'},d:{bg:'Продуктите ви се появяват при релевантни процедури.',en:'Your products appear next to relevant procedures.'}},
+      {icon:'tag',t:{bg:'Реклама до релевантни процедури',en:'Advertising next to relevant procedures'},d:{bg:'Достигате точната аудитория в точния момент.',en:'Reach the right audience at the right moment.'}},
+    ],
+    plans:[
+      {name:{bg:'Старт',en:'Start'},price:'99€',features:{bg:['Реклама до релевантни процедури','Базова статистика'],en:['Advertising next to relevant procedures','Basic statistics']}},
+      {name:{bg:'Про',en:'Pro'},price:'249€',recommended:true,allFromPrev:true,features:{bg:['Препоръчани продукти в енциклопедията','Приоритетна поддръжка'],en:['Recommended products in the encyclopedia','Priority support']}},
+    ]},
+  {key:'brands',label:{bg:'Козметични брандове',en:'Beauty brands'},icon:'<path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.24L3 3v6.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82z"/><circle cx="7" cy="7" r="1"/>',
+    benefits:[
+      {icon:'tag',t:{bg:'Branded присъствие в приложението',en:'Branded presence in the app'},d:{bg:'Лого, продуктова информация и връзка към процедурите ви.',en:'Logo, product info and links to your procedures.'}},
+      {icon:'search',t:{bg:'Продуктови препоръки до процедури',en:'Product recommendations next to procedures'},d:{bg:'Клиентите виждат продуктите ви точно когато търсят решение.',en:'Clients see your products exactly when searching for a solution.'}},
+    ],
+    plans:[
+      {name:{bg:'Старт',en:'Start'},price:'149€',features:{bg:['Branded присъствие в приложението','Базова статистика'],en:['Branded presence in the app','Basic statistics']}},
+      {name:{bg:'Про',en:'Pro'},price:'349€',recommended:true,allFromPrev:true,features:{bg:['Продуктови препоръки до процедури','Приоритетна поддръжка'],en:['Product recommendations next to procedures','Priority support']}},
+    ]},
+  {key:'training',label:{bg:'Обучителни центрове',en:'Training centers'},icon:'<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>',
+    benefits:[
+      {icon:'qr',t:{bg:'Курсове и сертификации видими в приложението',en:'Courses and certifications visible in the app'},d:{bg:'Достигате специалисти и ентусиасти, търсещи обучение.',en:'Reach specialists and enthusiasts looking for training.'}},
+    ],
+    plans:[
+      {name:{bg:'Старт',en:'Start'},price:'79€',features:{bg:['Курсове и сертификации видими в app-а','Базова статистика'],en:['Courses and certifications visible in the app','Basic statistics']}},
+      {name:{bg:'Про',en:'Pro'},price:'179€',recommended:true,allFromPrev:true,features:{bg:['Приоритетно позициониране','Приоритетна поддръжка'],en:['Priority placement','Priority support']}},
+    ]},
+];
+window._clinicsLang = (function(){ try{ return localStorage.getItem('gt_clinics_lang')||'bg'; }catch(e){ return 'bg'; } })();
+window._clinicsPartnerType = 'clinics';
+
+window.renderPartnerContent=function(){
+  const lang = window._clinicsLang;
+  const type = PARTNER_TYPES.find(p=>p.key===window._clinicsPartnerType) || PARTNER_TYPES[0];
+  const ct = CT[lang];
+
+  const tabsEl = document.getElementById('clinics-partner-tabs');
+  if(tabsEl){
+    tabsEl.innerHTML = PARTNER_TYPES.map(pt=>{
+      const active = pt.key===type.key;
+      return `<button onclick="selectPartnerType('${pt.key}')" style="flex-shrink:0;padding:9px 14px;border-radius:20px;border:1.5px solid ${active?'var(--gold)':'var(--roselt)'};background:${active?'var(--goldlt)':'var(--card)'};color:${active?'var(--gold)':'var(--ink2)'};font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><svg width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${pt.icon}</svg>${pt.label[lang]}</button>`;
+    }).join('');
+  }
+
+  const benEl = document.getElementById('clinics-benefits-list');
+  if(benEl){
+    benEl.innerHTML = type.benefits.map(b=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CT_ICONS[b.icon]||''}</svg></div>
+        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">${b.t[lang]}</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">${b.d[lang]}</div></div>
+      </div>`).join('');
+  }
+
+  const planEl = document.getElementById('clinics-plans-list');
+  if(planEl){
+    planEl.innerHTML = type.plans.map((p,i)=>{
+      const isRec = !!p.recommended;
+      const allFromTxt = p.allFromPrev ? `${CT_CHECK} ${ct.allFrom}${type.plans[i-1].name[lang]}<br>` : '';
+      const feats = p.features[lang].map(f=>`${CT_CHECK} ${f}`).join('<br>');
+      return `<div class="clinic-plan-card" data-plan="${p.name.bg}" onclick="selectClinicPlan('${p.name.bg}',this)" style="border:${isRec?'2px solid var(--gold)':'1.5px solid var(--roselt)'};border-radius:16px;padding:20px;background:var(--card);cursor:pointer;position:relative;${isRec?'box-shadow:0 8px 24px rgba(184,150,106,.18)':''}">
+        ${isRec?`<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:20px">${ct.recommended}</div>`:''}
+        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">${p.name[lang]}</div>
+        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">${p.price}<span style="font-size:11px;font-weight:500;color:var(--ink2)">${ct.perMonth}</span></div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9">${allFromTxt}${feats}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const planSel = document.getElementById('clinic-plan-select');
+  if(planSel){
+    planSel.innerHTML = type.plans.map(p=>`<option value="${p.name.bg}"${p.recommended?' selected':''}>${p.name[lang]} — ${p.price}${ct.perMonth}</option>`).join('');
+  }
+
+  const typeSel = document.getElementById('clinic-partner-type-select');
+  if(typeSel){
+    typeSel.innerHTML = PARTNER_TYPES.map(pt=>`<option value="${pt.key}">${pt.label[lang]}</option>`).join('');
+    typeSel.value = type.key;
+  }
+};
+
+window.selectPartnerType=function(key){
+  window._clinicsPartnerType = key;
+  window.renderPartnerContent();
+};
+
+window.applyClinicsLang=function(lang){
+  window._clinicsLang = lang;
+  try{ localStorage.setItem('gt_clinics_lang', lang); }catch(e){}
+  const ct = CT[lang];
+  document.querySelectorAll('#page-for-clinics [data-ct]').forEach(el=>{
+    const key = el.getAttribute('data-ct');
+    if(ct[key]!=null) el.textContent = ct[key];
+  });
+  document.querySelectorAll('#page-for-clinics [data-ct-ph]').forEach(el=>{
+    const key = el.getAttribute('data-ct-ph');
+    if(ct[key]!=null) el.placeholder = ct[key];
+  });
+  const bgBtn = document.getElementById('clinics-lang-bg');
+  const enBtn = document.getElementById('clinics-lang-en');
+  if(bgBtn && enBtn){
+    bgBtn.style.background = lang==='bg' ? 'rgba(212,169,106,.9)' : 'transparent';
+    bgBtn.style.color = lang==='bg' ? '#1a1a2e' : 'rgba(255,255,255,.65)';
+    enBtn.style.background = lang==='en' ? 'rgba(212,169,106,.9)' : 'transparent';
+    enBtn.style.color = lang==='en' ? '#1a1a2e' : 'rgba(255,255,255,.65)';
+  }
+  window.renderPartnerContent();
+};
+
 window.openForClinics=function(){
   const el = document.getElementById('page-for-clinics');
   if(el) el.style.display='block';
   document.body.style.overflow='hidden';
   window.scrollTo({top:0,left:0,behavior:'instant'});
   try{ history.replaceState(null,'','#for-clinics'); }catch(e){}
+  window.applyClinicsLang(window._clinicsLang);
   if(typeof window.trackEvent==='function') window.trackEvent('for_clinics_view',{});
 };
 window.closeForClinics=function(){
@@ -6877,23 +7033,24 @@ window.submitClinicInquiry=async function(){
   const email=(document.getElementById('clinic-email').value||'').trim();
   const phone=(document.getElementById('clinic-phone').value||'').trim();
   const plan=document.getElementById('clinic-plan-select').value;
+  const partnerType=document.getElementById('clinic-partner-type-select').value;
   const errEl=document.getElementById('clinic-form-error');
-  const isEN = window._lang==='en';
+  const ct = CT[window._clinicsLang];
   const showErr=(m)=>{ if(errEl){errEl.textContent=m; errEl.classList.add('show');} };
   if(errEl){errEl.classList.remove('show'); errEl.textContent='';}
   if(!name||!city||!email||!phone){
-    showErr(isEN?'Please fill in all fields':'Моля, попълни всички полета');
+    showErr(ct.errFillAll);
     return;
   }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    showErr(isEN?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
+    showErr(ct.errEmail);
     return;
   }
   const btn=document.getElementById('clinic-submit-btn');
   if(btn){btn.disabled=true;btn.textContent='...';}
   try{
     await F().addDoc(F().collection(DB(),'clinic_inquiries'),{
-      clinicName:name, city, email, phone, plan,
+      clinicName:name, city, email, phone, plan, partnerType,
       status:'new',
       createdAt:F().serverTimestamp(),
     });
@@ -6901,11 +7058,11 @@ window.submitClinicInquiry=async function(){
     const success=document.getElementById('clinic-form-success');
     if(fields) fields.style.display='none';
     if(success) success.style.display='block';
-    if(typeof window.trackEvent==='function') window.trackEvent('clinic_inquiry_submitted',{plan});
+    if(typeof window.trackEvent==='function') window.trackEvent('clinic_inquiry_submitted',{plan,partnerType});
   }catch(e){
     console.error('[clinic-inquiry] грешка:', e);
-    showErr(isEN?'Something went wrong. Please try again or email us directly.':'Нещо се обърка. Опитай пак или ни пиши директно.');
-    if(btn){btn.disabled=false; btn.textContent=isEN?'Send inquiry':'Изпрати запитване';}
+    showErr(ct.errGeneric);
+    if(btn){btn.disabled=false; btn.textContent=ct.submitBtn;}
   }
 };
 (function(){
@@ -9476,43 +9633,50 @@ function refreshProfilePage(){
     </div>
 
 <div id="page-for-clinics" style="display:none;position:fixed;inset:0;z-index:700;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:58px;z-index:2;display:flex;gap:4px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:3px">
+    <button id="clinics-lang-bg" onclick="applyClinicsLang('bg')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">БГ</button>
+    <button id="clinics-lang-en" onclick="applyClinicsLang('en')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">EN</button>
+  </div>
   <button onclick="closeForClinics()" aria-label="Затвори" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
 
   <!-- HERO -->
   <div style="background:linear-gradient(160deg,#14141f 0%,#1f1c2e 45%,#1a1a2e 100%);padding:64px 22px 54px;text-align:center;position:relative;overflow:hidden">
     <div style="position:absolute;inset:0;background:radial-gradient(60% 55% at 50% 0%,rgba(212,169,106,.28),transparent 70%);pointer-events:none"></div>
     <div style="position:relative;max-width:420px;margin:0 auto">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.28em;text-transform:uppercase;color:rgba(212,169,106,.85);margin-bottom:22px">Glow<span style="color:#fff">Track</span> · за бизнеса</div>
-      <h1 style="font-family:'Cormorant Garamond',serif;font-size:36px;line-height:1.15;font-weight:600;color:#fff;margin:0 0 14px">Партнирайте се с <span style="background:linear-gradient(120deg,#d4a96a,#f0dcae);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">GlowTrack</span></h1>
-      <p style="font-size:14.5px;color:rgba(255,255,255,.72);line-height:1.6;margin:0 0 30px">Свържете се с вашите клиенти по нов начин</p>
-      <button onclick="document.getElementById('clinic-contact-form').scrollIntoView({behavior:'smooth',block:'start'})" style="padding:14px 34px;border-radius:50px;border:none;background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.02em;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 8px 24px rgba(184,150,106,.35)">Свържете се с нас</button>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.28em;text-transform:uppercase;color:rgba(212,169,106,.85);margin-bottom:22px">Glow<span style="color:#fff">Track</span> <span data-ct="kicker">· за бизнеса</span></div>
+      <h1 style="font-family:'Cormorant Garamond',serif;font-size:36px;line-height:1.15;font-weight:600;color:#fff;margin:0 0 14px"><span data-ct="heroTitlePre">Партнирайте се с </span><span style="background:linear-gradient(120deg,#d4a96a,#f0dcae);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent">GlowTrack</span></h1>
+      <p data-ct="heroSub" style="font-size:14.5px;color:rgba(255,255,255,.72);line-height:1.6;margin:0 0 30px">Свържете се с вашите клиенти по нов начин</p>
+      <button data-ct="heroBtn" onclick="document.getElementById('clinic-contact-form').scrollIntoView({behavior:'smooth',block:'start'})" style="padding:14px 34px;border-radius:50px;border:none;background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.02em;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 8px 24px rgba(184,150,106,.35)">Свържете се с нас</button>
     </div>
   </div>
 
+  <!-- PARTNER TYPE TABS -->
+  <div id="clinics-partner-tabs" style="max-width:480px;margin:0 auto;padding:20px 20px 0;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch"></div>
+
   <!-- HOW IT WORKS -->
-  <div style="padding:44px 20px 8px;max-width:480px;margin:0 auto">
-    <div style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Как работи</div>
-    <h2 style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 28px">Три прости стъпки</h2>
+  <div style="padding:32px 20px 8px;max-width:480px;margin:0 auto">
+    <div data-ct="howKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Как работи</div>
+    <h2 data-ct="howTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 28px">Три прости стъпки</h2>
     <div style="display:flex;flex-direction:column;gap:18px;margin-bottom:12px">
       <div style="display:flex;align-items:flex-start;gap:14px">
         <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">1</div>
         <div style="flex:1;padding-top:4px">
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg></span>Клиниката получава QR код</div>
-          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">Уникален код за рецепцията, витрината или визитките ви.</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg></span><span data-ct="step1Title">Получавате QR код или листинг</span></div>
+          <div data-ct="step1Desc" style="font-size:12.5px;color:var(--ink2);line-height:1.5">Уникален код или листинг за вашия бизнес.</div>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px">
         <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">2</div>
         <div style="flex:1;padding-top:4px">
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></span>Клиентът сканира и избира процедура</div>
-          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">От търсачката с 220+ козметични процедури в GlowTrack.</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></span><span data-ct="step2Title">Клиентите ви откриват в приложението</span></div>
+          <div data-ct="step2Desc" style="font-size:12.5px;color:var(--ink2);line-height:1.5">През търсачката с 220+ козметични процедури в GlowTrack.</div>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px">
         <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">3</div>
         <div style="flex:1;padding-top:4px">
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span>Записва се автоматично в дневника</div>
-          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">Процедурата остава в личния дневник на клиента за напомняния и история.</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span><span data-ct="step3Title">Връзката се проследява автоматично</span></div>
+          <div data-ct="step3Desc" style="font-size:12.5px;color:var(--ink2);line-height:1.5">Клиентите виждат вас в дневника и напомнянията си.</div>
         </div>
       </div>
     </div>
@@ -9520,72 +9684,35 @@ function refreshProfilePage(){
 
   <!-- BENEFITS -->
   <div style="padding:36px 20px 8px;max-width:480px;margin:0 auto">
-    <div style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Предимства</div>
-    <h2 style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Защо GlowTrack</h2>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></div>
-        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Видимост в процедурната енциклопедия</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">Клиниката ви до всяка релевантна процедура.</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
-        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Статистика</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">Сканирания, уникални потребители, топ процедури, задържане.</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg></div>
-        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">QR код за рецепцията</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">Готов за печат, работи веднага след активация.</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l-1 6 4 12 4-12-1-6"/></svg></div>
-        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Брандирано присъствие в приложението</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">Лого, снимки и информация за клиниката ви.</div></div>
-      </div>
-    </div>
+    <div data-ct="benefitsKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Предимства</div>
+    <h2 data-ct="benefitsTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Защо GlowTrack</h2>
+    <div id="clinics-benefits-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
 
   <!-- PRICING -->
   <div style="padding:36px 20px 8px;max-width:480px;margin:0 auto">
-    <div style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Планове</div>
-    <h2 style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Изберете своя план</h2>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="clinic-plan-card" data-plan="Старт" onclick="selectClinicPlan('Старт',this)" style="border:1.5px solid var(--roselt);border-radius:16px;padding:20px;background:var(--card);cursor:pointer">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">Старт</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">79€<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> QR код за клиниката<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Базова статистика<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Видимост в енциклопедията</div>
-      </div>
-      <div class="clinic-plan-card" data-plan="Про" onclick="selectClinicPlan('Про',this)" style="border:2px solid var(--gold);border-radius:16px;padding:20px;background:var(--card);cursor:pointer;position:relative;box-shadow:0 8px 24px rgba(184,150,106,.18)">
-        <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:20px">Препоръчан</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">Про</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">199€<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Всичко от Старт<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Push известия към клиенти<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Детайлна статистика<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Приоритетна поддръжка</div>
-      </div>
-      <div class="clinic-plan-card" data-plan="Премиум" onclick="selectClinicPlan('Премиум',this)" style="border:1.5px solid var(--roselt);border-radius:16px;padding:20px;background:var(--card);cursor:pointer">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">Премиум</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">399€<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Всичко от Про<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> White label<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Dedicated account manager<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Custom интеграции</div>
-      </div>
-    </div>
+    <div data-ct="pricingKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Планове</div>
+    <h2 data-ct="pricingTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Изберете своя план</h2>
+    <div id="clinics-plans-list" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
 
   <!-- CONTACT FORM -->
   <div id="clinic-contact-form" style="padding:40px 20px 60px;max-width:420px;margin:0 auto">
-    <div style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Контакт</div>
-    <h2 style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Свържете се с нас</h2>
+    <div data-ct="contactKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Контакт</div>
+    <h2 data-ct="contactTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Свържете се с нас</h2>
     <div class="auth-error" id="clinic-form-error"></div>
-    <div id="clinic-form-success" style="display:none;background:rgba(122,155,126,.1);border:1px solid rgba(122,155,126,.3);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--sage);margin-bottom:14px;text-align:center"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Изпратено! Ще се свържем с вас скоро.</div>
+    <div id="clinic-form-success" style="display:none;background:rgba(122,155,126,.1);border:1px solid rgba(122,155,126,.3);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--sage);margin-bottom:14px;text-align:center"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span data-ct="successMsg">Изпратено! Ще се свържем с вас скоро.</span></div>
     <div id="clinic-contact-fields">
-      <div class="auth-field"><label class="auth-label">Име на клиника</label><input class="form-input" id="clinic-name" placeholder="Клиника ..."></div>
-      <div class="auth-field"><label class="auth-label">Град</label><input class="form-input" id="clinic-city" placeholder="София"></div>
-      <div class="auth-field"><label class="auth-label">Имейл</label><input class="form-input" type="email" id="clinic-email" placeholder="office@clinic.bg"></div>
-      <div class="auth-field"><label class="auth-label">Телефон</label><input class="form-input" type="tel" id="clinic-phone" placeholder="+359 ..."></div>
+      <div class="auth-field"><label class="auth-label" data-ct="labelPartnerType">Тип партньор</label><select class="form-input" id="clinic-partner-type-select" onchange="selectPartnerType(this.value)"></select></div>
+      <div class="auth-field"><label class="auth-label" data-ct="labelName">Име на бизнеса</label><input class="form-input" id="clinic-name" data-ct-ph="phName" placeholder="Вашият бизнес"></div>
+      <div class="auth-field"><label class="auth-label" data-ct="labelCity">Град</label><input class="form-input" id="clinic-city" data-ct-ph="phCity" placeholder="София"></div>
+      <div class="auth-field"><label class="auth-label" data-ct="labelEmail">Имейл</label><input class="form-input" type="email" id="clinic-email" data-ct-ph="phEmail" placeholder="office@business.bg"></div>
+      <div class="auth-field"><label class="auth-label" data-ct="labelPhone">Телефон</label><input class="form-input" type="tel" id="clinic-phone" data-ct-ph="phPhone" placeholder="+359 ..."></div>
       <div class="auth-field">
-        <label class="auth-label">План</label>
-        <select class="form-input" id="clinic-plan-select">
-          <option value="Старт">Старт — 79€/месец</option>
-          <option value="Про" selected>Про — 199€/месец</option>
-          <option value="Премиум">Премиум — 399€/месец</option>
-        </select>
+        <label class="auth-label" data-ct="labelPlan">План</label>
+        <select class="form-input" id="clinic-plan-select"></select>
       </div>
-      <button class="auth-btn" onclick="submitClinicInquiry()" id="clinic-submit-btn" style="margin-top:6px">Изпрати запитване</button>
+      <button class="auth-btn" data-ct="submitBtn" onclick="submitClinicInquiry()" id="clinic-submit-btn" style="margin-top:6px">Изпрати запитване</button>
     </div>
   </div>
 </div>
