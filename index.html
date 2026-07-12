@@ -284,6 +284,13 @@ body.dark #topbar-profile-btn{animation-name:profilePulseDark !important}
 @media (prefers-reduced-motion:reduce){
   #topbar-profile-btn{animation:none !important}
 }
+/* PROFILE AVATAR FIRST-FLIP — еднократен 3D flip на инициалите при съвсем
+   първото тапване (виж toggleProfilePage() -> localStorage gt_profile_first_flip_done). */
+@keyframes avatarFirstFlip{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+#topbar-avatar.first-flip{animation:avatarFirstFlip .5s ease-in-out}
+@media (prefers-reduced-motion:reduce){
+  #topbar-avatar.first-flip{animation:none}
+}
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
 .logo span{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .page{display:none;animation:fadeIn .18s ease}
@@ -3556,10 +3563,27 @@ function toggleProfilePage(){
   const isOpen = pg && pg.classList.contains('active');
   if(isOpen){
     goPage(window._preProfilePage || 'home');
-  } else {
-    window._preProfilePage = _currentActivePageName();
-    goPage('profile');
+    return;
   }
+  window._preProfilePage = _currentActivePageName();
+  // Еднократен 3D flip на инициалите при СЪВСЕМ първото тапване на бутона
+  // (localStorage-заключен — не при последващи отваряния), преди да се
+  // отвори страницата с профила.
+  let didFirstFlip = false;
+  try{
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduceMotion && localStorage.getItem('gt_profile_first_flip_done')!=='1'){
+      localStorage.setItem('gt_profile_first_flip_done','1');
+      const avatar = document.getElementById('topbar-avatar');
+      if(avatar){
+        didFirstFlip = true;
+        avatar.classList.add('first-flip');
+        avatar.addEventListener('animationend', ()=>avatar.classList.remove('first-flip'), {once:true});
+      }
+    }
+  }catch(e){}
+  if(didFirstFlip){ setTimeout(()=>goPage('profile'), 500); }
+  else { goPage('profile'); }
 }
 window.toggleProfilePage=toggleProfilePage;
 
