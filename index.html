@@ -2690,6 +2690,12 @@ const T = {
     notifProc: 'Процедура',
     newName: 'Ново име',
     newPass: 'Нова парола (по желание)',
+    dobLabel: 'Дата на раждане (по желание)',
+    genderLabel: 'Пол (по желание)',
+    genderUnset: 'Предпочитам да не казвам',
+    genderFemale: 'Жена',
+    genderMale: 'Мъж',
+    genderOther: 'Друго',
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
     addReminder: 'Добави напомняне / резервация',
@@ -2960,6 +2966,12 @@ const T = {
     notifProc: 'Procedure',
     newName: 'New name',
     newPass: 'New password (optional)',
+    dobLabel: 'Date of birth (optional)',
+    genderLabel: 'Gender (optional)',
+    genderUnset: 'Prefer not to say',
+    genderFemale: 'Female',
+    genderMale: 'Male',
+    genderOther: 'Other',
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
     addReminder: 'Add reminder / booking',
@@ -8637,19 +8649,32 @@ async function exportDiaryCSV(){
   }catch(e){ showToast(t('toastErr')); }
 }
 
-function showEditProfile(){
+async function showEditProfile(){
   const modal = document.getElementById('edit-profile-modal');
   if(!modal) return;
   const nameEl = document.getElementById('ep-name');
   if(nameEl) nameEl.value = window._user?.displayName || '';
   document.getElementById('ep-pass').value = '';
+  document.getElementById('ep-dob').value = '';
+  document.getElementById('ep-gender').value = '';
   document.getElementById('ep-error').style.display = 'none';
   modal.style.display = 'flex';
+  // DOB/пол не са във Firebase Auth профила — зареждат се отделно от Firestore
+  if(window._user){
+    try{
+      const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+      const data = snap.exists() ? snap.data() : {};
+      if(data.dob) document.getElementById('ep-dob').value = data.dob;
+      if(data.gender) document.getElementById('ep-gender').value = data.gender;
+    }catch(e){}
+  }
 }
 
 async function saveEditProfile(){
   const name = document.getElementById('ep-name')?.value.trim();
   const pass = document.getElementById('ep-pass')?.value;
+  const dob = document.getElementById('ep-dob')?.value || '';
+  const gender = document.getElementById('ep-gender')?.value || '';
   const errEl = document.getElementById('ep-error');
   errEl.style.display = 'none';
   if(!name){ errEl.textContent = window._lang==='en'?'Enter a name':'Въведи име'; errEl.style.display='block'; return; }
@@ -8658,12 +8683,13 @@ async function saveEditProfile(){
     if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent=window._lang==='en'?'Saving...':'Запазване...'; }
     const updates = [];
     if(name !== window._user.displayName){
-      updates.push(updateProfile(window._user, {displayName: name}));
+      updates.push(F().updateProfile(window._user, {displayName: name}));
     }
     if(pass){
       if(pass.length < 6){ errEl.textContent = window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа'; errEl.style.display='block'; return; }
-      updates.push(updatePassword(window._user, pass));
+      updates.push(F().updatePassword(window._user, pass));
     }
+    updates.push(F().setDoc(F().doc(DB(),'users',window._user.uid), {dob, gender}, {merge:true}));
     await Promise.all(updates);
     // Update UI
     const _pnEl=document.getElementById('prof-name'); if(_pnEl) _pnEl.textContent = name;
@@ -9363,6 +9389,15 @@ function refreshProfilePage(){
     <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
     <div class="form-row"><label class="form-lbl" data-t="newName">Ново име</label><input class="form-input" id="ep-name" placeholder="Твоето име"></div>
     <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="newPass">Нова парола (по желание)</label><input class="form-input" type="password" id="ep-pass" placeholder="Минимум 6 символа"></div>
+    <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="dobLabel">Дата на раждане (по желание)</label><input class="form-input" type="date" id="ep-dob"></div>
+    <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="genderLabel">Пол (по желание)</label>
+      <select class="form-input" id="ep-gender">
+        <option value="" data-t="genderUnset">Предпочитам да не казвам</option>
+        <option value="female" data-t="genderFemale">Жена</option>
+        <option value="male" data-t="genderMale">Мъж</option>
+        <option value="other" data-t="genderOther">Друго</option>
+      </select>
+    </div>
     <div id="ep-error" style="font-size:11px;color:#e85d5d;margin-top:6px;display:none"></div>
     <div style="display:flex;gap:8px;margin-top:16px">
       <button onclick="saveEditProfile()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" data-t="saveBtn2">Запази</button>

@@ -172,6 +172,69 @@ exports.sendScheduledReminders = onSchedule(
 
 
 // ═══════════════════════════════════════════════════════════
+// РОЖДЕНИ ДНИ
+// ═══════════════════════════════════════════════════════════
+
+// Веднъж дневно (не всяка минута като напомнянията) — пълно сканиране на
+// users е приемливо тук заради ниската честота на изпълнение. lastBirthdayYear
+// пази годината, в която последно е пратено поздравление, за да не се
+// дублира при retry на Cloud Scheduler (at-least-once delivery) или ако
+// рожденият ден се провери повторно в рамките на същата година.
+exports.sendBirthdayNotifications = onSchedule(
+    {
+      schedule: "every day 09:00",
+      timeZone: "Europe/Sofia",
+    },
+    async (event) => {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Sofia",
+        year: "numeric", month: "2-digit", day: "2-digit",
+      }).formatToParts(now).reduce((a, p) => {
+        a[p.type] = p.value; return a;
+      }, {});
+      const todayMMDD = `${parts.month}-${parts.day}`;
+      const currentYear = parseInt(parts.year, 10);
+
+      const usersSnapshot = await db.collection("users").get();
+      const messages = [];
+      const claimed = [];
+
+      for (const userDoc of usersSnapshot.docs) {
+        const data = userDoc.data();
+        if (!data.dob || !data.fcmToken) continue;
+        if (typeof data.dob !== "string" || data.dob.length < 10) continue;
+        const dobMMDD = data.dob.slice(5, 10); // "YYYY-MM-DD" -> "MM-DD"
+        if (dobMMDD !== todayMMDD) continue;
+        if (data.lastBirthdayYear === currentYear) continue; // вече поздравен тази година
+
+        claimed.push(userDoc.ref);
+        messages.push({
+          token: data.fcmToken,
+          data: {
+            title: "GlowTrack",
+            body: "Честит рожден ден! Пожелаваме ти красива и сияйна година напред.",
+            type: "birthday",
+          },
+        });
+      }
+
+      if (messages.length > 0) {
+        const response = await admin.messaging().sendEach(messages);
+        console.log(`Рожденодневни известия: ${response.successCount}/${messages.length}`);
+        await Promise.all(claimed.map((ref) =>
+          ref.update({lastBirthdayYear: currentYear}).catch(() => {}),
+        ));
+      } else {
+        console.log("Няма рождени дни днес.");
+      }
+
+      return null;
+    },
+);
+
+
+// ═══════════════════════════════════════════════════════════
 // MILESTONE УВЕДОМЛЕНИЯ
 // ═══════════════════════════════════════════════════════════
 
