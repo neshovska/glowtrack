@@ -262,14 +262,20 @@ body.dark .desktop-deco-right{color:rgba(212,169,106,.32)}
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 body.dark .topbar{background:radial-gradient(120% 100% at 12% 0%,rgba(212,169,106,.10),transparent 55%),radial-gradient(120% 100% at 90% 0%,rgba(212,169,106,.08),transparent 55%),rgba(18,18,42,.9)}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
-/* PROFILE PULSE — лек, бавен gold pulse около бутона за профил в topbar-а.
+/* PROFILE PULSE — бавен gold pulse около бутона за профил в topbar-а.
    Спира завинаги след първо тапване (виж toggleProfilePage() -> body.pulse-seen,
-   плюс синхронния early-init скрипт до gt_dark за persisted state преди paint). */
+   плюс синхронния early-init скрипт до gt_dark за persisted state преди paint).
+   Отделен keyframes за dark mode, защото --gold е различен нюанс на тъмно. */
 @keyframes profilePulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(184,150,106,.35)}
-  50%{box-shadow:0 0 0 5px rgba(184,150,106,0)}
+  0%,100%{box-shadow:0 0 0 0 rgba(184,150,106,.55)}
+  50%{box-shadow:0 0 0 9px rgba(184,150,106,0)}
+}
+@keyframes profilePulseDark{
+  0%,100%{box-shadow:0 0 0 0 rgba(212,169,106,.6)}
+  50%{box-shadow:0 0 0 9px rgba(212,169,106,0)}
 }
 body:not(.pulse-seen) #topbar-profile-btn{animation:profilePulse 3s ease-in-out infinite}
+body.dark:not(.pulse-seen) #topbar-profile-btn{animation-name:profilePulseDark}
 @media (prefers-reduced-motion:reduce){
   #topbar-profile-btn{animation:none}
 }
@@ -747,22 +753,26 @@ body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,
 .nb.active .nl{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:600}
 .ni{font-size:16px;color:#c5bdb4;transition:color .15s}
 .nl{font-size:7.5px;font-weight:500;color:#c5bdb4;letter-spacing:.03em;white-space:nowrap}
-/* NAV WAVE-IN — бутоните "изплуват" един по един само при първото зареждане
-   на страницата (виж скрипта до <nav class="bnav"> за html.nav-animated gate-а),
-   не и при последващо превключване на табове. */
+/* NAV WAVE-IN — бутоните "изплуват" един по един само при първото зареждане.
+   Буквите/иконите остават нормално видими до 400ms след paint (класът
+   html.nav-wave-go се добавя тогава от скрипта до <nav class="bnav">) — така
+   съдържанието на страницата се показва първо, а вълната идва като flourish
+   върху него, не като скриване на nav-а. html.nav-animated спира повтарянето
+   при следващи табове. */
 @keyframes navWaveIn{
-  0%{opacity:0;transform:translateY(10px) scale(.8)}
-  60%{opacity:1;transform:translateY(-2px) scale(1.08)}
+  0%{opacity:0;transform:translateY(40px) scale(.7)}
+  55%{opacity:1;transform:translateY(-10px) scale(1.18)}
+  75%{transform:translateY(4px) scale(.96)}
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
-html:not(.nav-animated) .bnav .nb{animation:navWaveIn .5s cubic-bezier(.34,1.56,.64,1) both}
-html:not(.nav-animated) .bnav .nb:nth-child(1){animation-delay:0ms}
-html:not(.nav-animated) .bnav .nb:nth-child(2){animation-delay:80ms}
-html:not(.nav-animated) .bnav .nb:nth-child(3){animation-delay:160ms}
-html:not(.nav-animated) .bnav .nb:nth-child(4){animation-delay:240ms}
-html:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:320ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb{animation:navWaveIn .5s cubic-bezier(.34,1.56,.64,1) both}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(1){animation-delay:0ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(2){animation-delay:150ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(3){animation-delay:300ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(4){animation-delay:450ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:600ms}
 @media (prefers-reduced-motion:reduce){
-  html:not(.nav-animated) .bnav .nb{animation:none}
+  html.nav-wave-go:not(.nav-animated) .bnav .nb{animation:none}
 }
 /* LANG TOGGLE */
 .lang-btn{background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
@@ -1600,16 +1610,21 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <button class="nb" onclick="window._calFromProfile=false;goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
   </nav>
   <script>
-  // Еднократен nav wave-in gate: маркира html.nav-animated веднага след като
-  // последният (най-забавен) бутон приключи своя entrance keyframe, за да не
-  // се повтаря анимацията при последващи табове/reflow-и.
+  // Еднократен nav wave-in gate: изчаква 400ms (за да се покаже първо
+  // съдържанието на страницата), после стартира вълната чрез html.nav-wave-go,
+  // и маркира html.nav-animated веднага след като последният (най-забавен)
+  // бутон приключи своя entrance keyframe, за да не се повтаря анимацията
+  // при последващи табове/reflow-и.
   (function(){
     var btns = document.querySelectorAll('.bnav .nb');
     var last = btns[btns.length-1];
     if(!last){ document.documentElement.classList.add('nav-animated'); return; }
     var done = function(){ document.documentElement.classList.add('nav-animated'); };
     last.addEventListener('animationend', done, {once:true});
-    setTimeout(done, 1000); // резервен таймаут, ако animationend не гръмне (напр. reduced-motion)
+    setTimeout(function(){
+      document.documentElement.classList.add('nav-wave-go');
+      setTimeout(done, 1200); // резервен таймаут, ако animationend не гръмне (напр. reduced-motion)
+    }, 400);
   })();
   </script>
 </div>
@@ -1824,18 +1839,23 @@ window.pushNotifStatus=function(){
   if(!('Notification' in window))return 'unsupported';
   return Notification.permission; // 'default' | 'granted' | 'denied'
 };
-window.initPushNotifications=async function(){
-  console.log('[PUSH] Старт на initPushNotifications');
+window.initPushNotifications=async function(silent){
+  // silent=true при автоматичното извикване от onAuthStateChanged (виж по-долу) —
+  // не показва toast-ове (нито грешки, нито успех), защото потребителят не е
+  // предприел никакво явно действие. Само изричен тап на бутона "Включи" (silent
+  // не е зададен) показва toast-ове.
+  const toast=silent?function(){}:function(m){showToast&&showToast(m);};
+  console.log('[PUSH] Старт на initPushNotifications, silent =', !!silent);
   try{
-    if(!('serviceWorker' in navigator)||!('Notification' in window)){console.error('[PUSH] serviceWorker или Notification не се поддържат');showToast&&showToast('Известията не се поддържат на това устройство');return null;}
+    if(!('serviceWorker' in navigator)||!('Notification' in window)){console.error('[PUSH] serviceWorker или Notification не се поддържат');toast('Известията не се поддържат на това устройство');return null;}
     console.log('[PUSH] serviceWorker + Notification API налични');
     const supported=await fcmIsSupported().catch((e)=>{console.error('[PUSH] fcmIsSupported() хвърли грешка:',e);return false;});
     console.log('[PUSH] fcmIsSupported() =', supported);
-    if(!supported){console.error('[PUSH] FCM не се поддържа в тази среда');showToast&&showToast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share › Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    if(!supported){console.error('[PUSH] FCM не се поддържа в тази среда');toast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share › Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
     console.log('[PUSH] Notification.permission ПРЕДИ request =', Notification.permission);
     const permission=await Notification.requestPermission();
     console.log('[PUSH] Notification.permission СЛЕД request =', permission);
-    if(permission!=='granted'){console.error('[PUSH] Разрешението не е granted:', permission);showToast&&showToast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    if(permission!=='granted'){console.error('[PUSH] Разрешението не е granted:', permission);toast('Разрешението за известия е отказано');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
     // Използваме ЕДИНСТВЕНИЯ регистриран sw.js (вече съдържа Firebase Messaging).
     // ВАЖНО: не регистрираме отделен firebase-messaging-sw.js тук — два SW на един
     // scope се борят помежду си и печели последният, който презаписва другия при
@@ -1861,8 +1881,8 @@ window.initPushNotifications=async function(){
         console.log('[PUSH] Firestore setDoc УСПЕШЕН');
         window._lastFcmToken = token;
         if(cachedToken === undefined){
-          // Първи път за тази сесия — показваме toast само тогава
-          showToast&&showToast('Известията са включени');
+          // Първи път за тази сесия — показваме toast само тогава (и само ако не е silent)
+          toast('Известията са включени');
           if(typeof window.trackEvent==='function')window.trackEvent('push_enabled',{});
         }
       } else {
@@ -1881,7 +1901,7 @@ window.initPushNotifications=async function(){
     if(typeof updatePushToggleUI==='function')updatePushToggleUI();
     console.log('[PUSH] Край на initPushNotifications, връщам token');
     return token;
-  }catch(e){console.error('[PUSH] ИЗКЛЮЧЕНИЕ хванато:',e,e&&e.code,e&&e.message,e&&e.stack);showToast&&showToast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+  }catch(e){console.error('[PUSH] ИЗКЛЮЧЕНИЕ хванато:',e,e&&e.code,e&&e.message,e&&e.stack);toast('Грешка: '+(e.code||e.message||'неизвестна'));if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
 };
 window._authMode='login';
 window.setAuthMode=function(mode){
@@ -1968,7 +1988,7 @@ onAuthStateChanged(auth,async user=>{
       if((neverInited || uidChanged) && typeof Notification!=='undefined' && Notification.permission==='granted' && typeof window.initPushNotifications==='function'){
         if(uidChanged){ window._lastFcmToken=undefined; window._fcmForegroundBound=false; }
         window._lastPushUid = user.uid;
-        window.initPushNotifications().catch(()=>{});
+        window.initPushNotifications(true).catch(()=>{});
       } else if(!window._lastPushUid){
         window._lastPushUid = user.uid;
       }
