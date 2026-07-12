@@ -14,6 +14,9 @@
 // съобщение → 2 показани известия на устройството (реален корен на "дублиране",
 // не грешка в claimNotif — сървърът винаги е пращал точно по едно съобщение).
 // С data-only payload показването е изцяло под наш контрол, само от sw.js.
+//
+// v5 — ПОПРАВКА: премахнато notification: {} от sendScheduledReminders И от
+// notifyOnUserMilestone. И двете функции вече пращат САМО data поле.
 
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
@@ -25,7 +28,6 @@ admin.initializeApp();
 const db = admin.firestore();
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
-// Админ на GlowTrack — получава push при всеки milestone от +100 нови регистрации.
 const ADMIN_UID = "7lNa6gWSDxb7kgR1AR8VEeKPgap2";
 const MILESTONE_STEP = 100;
 
@@ -48,9 +50,6 @@ function sofiaWallTimeToUTC(dateStr, timeStr) {
   return new Date(naive.getTime() - offsetMs);
 }
 
-// Огледален вариант на window._computeNextReminderAt от index.html — трябва двете
-// да остават синхронизирани по логика. Пропуска notifs, по-стари от 48ч прозореца
-// за изпращане, за да не остане nextReminderAt "заклещено" в миналото завинаги.
 function computeNextReminderAtServer(notifs, now) {
   if (!Array.isArray(notifs) || !notifs.length) return null;
   let soonest = null;
@@ -59,23 +58,20 @@ function computeNextReminderAtServer(notifs, now) {
     try {
       const dt = sofiaWallTimeToUTC(n.date, n.time || "10:00");
       const diffMinutes = (dt - now) / 60000;
-      if (diffMinutes <= -60 * 48) continue; // твърде остаряло, никога няма да се прати
+      if (diffMinutes <= -60 * 48) continue;
       if (!soonest || dt < soonest) soonest = dt;
     } catch (e) {}
   }
   return soonest ? soonest.toISOString() : null;
 }
 
-// Атомарно "заявява" право да прати push за конкретно напомняне.
-// Връща true само ако успешно е маркирало notif.sent=true (никой друг не го е взел преди него).
-// Обновява и nextReminderAt в същата transaction, за да остане полето винаги точно.
 async function claimNotif(userRef, notifId, now) {
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(userRef);
     const notifs = snap.data()?.notifs || [];
     const idx = notifs.findIndex((n) => n.id === notifId);
-    if (idx === -1) return false;          // изтрито междувременно
-    if (notifs[idx].sent) return false;    // вече е взето/пратено от друго изпълнение
+    if (idx === -1) return false;
+    if (notifs[idx].sent) return false;
     const updated = [...notifs];
     updated[idx] = {...updated[idx], sent: true};
     const nextReminderAt = computeNextReminderAtServer(updated, now);
@@ -91,10 +87,6 @@ exports.sendScheduledReminders = onSchedule(
     },
     async (event) => {
       const now = new Date();
-      // v3: заявяваме само "назрели" потребители по nextReminderAt, вместо цялата
-      // users колекция. nextReminderAt се пази като ISO string (виж
-      // computeNextReminderAtServer / window._computeNextReminderAt), затова
-      // лексикографското <= сравнение съвпада с хронологичното.
       const usersSnapshot = await db.collection("users")
           .where("nextReminderAt", "<=", now.toISOString())
           .get();
@@ -115,8 +107,6 @@ exports.sendScheduledReminders = onSchedule(
           const diffMinutes = (notifDateTime - now) / 60000;
 
           if (diffMinutes <= 0 && diffMinutes > -60 * 48) {
-            // Атомарно "заявяваме" правото да пратим точно тази нотификация.
-            // Ако друго паралелно/повторно изпълнение вече го е взело — прескачаме.
             const claimed = await claimNotif(userDoc.ref, n.id, now);
             if (!claimed) continue;
             anyClaimed = true;
@@ -126,11 +116,12 @@ exports.sendScheduledReminders = onSchedule(
             const body = n.procName ?
               `${isBooking ? "Резервация за" : "Наближава"}: ${n.procName}` :
               "Имаш предстояща процедура.";
+
+            // DATA-ONLY — без notification поле!
+            // notification поле кара Firebase SDK автоматично да показва известие,
+            // паралелно с onBackgroundMessage в sw.js → двойни известия.
             messages.push({
               token: fcmToken,
-              // DATA-ONLY payload — виж коментара в началото на файла за причината.
-              // Всички полета, включително title/body, се пращат в `data`, за да
-              // не задейства FCM Web SDK-ът автоматичен вграден показвач.
               data: {
                 title,
                 body,
@@ -142,10 +133,6 @@ exports.sendScheduledReminders = onSchedule(
           }
         }
 
-        // Self-healing: ако в този цикъл не сме claim-нали нищо за потребителя
-        // (напр. всички останали notifs вече са извън 48ч прозореца за изпращане),
-        // nextReminderAt няма да се обнови от claimNotif. Преизчисляваме го тук ръчно,
-        // за да не влиза потребителят в заявката отново и отново завинаги.
         if (!anyClaimed) {
           const newNextReminderAt = computeNextReminderAtServer(notifs, now);
           if (newNextReminderAt !== (userData.nextReminderAt || null)) {
@@ -166,29 +153,20 @@ exports.sendScheduledReminders = onSchedule(
 );
 
 
-// ═══════════════════════════════════════════════════════════
-// MILESTONE УВЕДОМЛЕНИЯ
-// ═══════════════════════════════════════════════════════════
-
 exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) => {
   const counterRef = db.collection("meta").doc("userCounter");
-  // Идемпотентност: Firestore Eventarc тригерите имат at-least-once доставка —
-  // едно и също събитие може да пристигне повторно при retry. Пазим event.id,
-  // за да не преброим един и същ нов потребител два пъти.
   const processedRef = counterRef.collection("processedEvents").doc(event.id);
 
   let milestoneReached = null;
 
   await db.runTransaction(async (tx) => {
     const processedSnap = await tx.get(processedRef);
-    if (processedSnap.exists) return; // вече обработено — дублирана доставка на събитието
+    if (processedSnap.exists) return;
 
     const counterSnap = await tx.get(counterRef);
     const currentCount = counterSnap.exists ? (counterSnap.data().count || 0) : 0;
     const newCount = currentCount + 1;
 
-    // TTL полето пази бъдещ момент на изтичане (сега + 30 дни), не момента на
-    // създаване — Firestore TTL policy трие документа автоматично след тази дата.
     const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000);
     tx.set(processedRef, {expiresAt});
     tx.set(counterRef, {count: newCount}, {merge: true});
@@ -208,11 +186,9 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
   }
 
   try {
+    // DATA-ONLY — без notification поле!
     await admin.messaging().send({
       token: adminToken,
-      // Data-only, за да е консистентно с sendScheduledReminders и да не
-      // задейства автоматичния показвач на Firebase Web SDK-а успоредно
-      // с ръчния ни onBackgroundMessage handler в sw.js.
       data: {
         title: "GlowTrack — нов milestone",
         body: `Достигнахте ${milestoneReached} регистрирани потребители!`,
@@ -226,10 +202,6 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
   return null;
 });
 
-
-// ═══════════════════════════════════════════════════════════
-// AI АСИСТЕНТ
-// ═══════════════════════════════════════════════════════════
 
 const AI_DAILY_LIMIT = 5;
 const AI_MODEL = "claude-haiku-4-5-20251001";
