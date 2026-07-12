@@ -262,19 +262,20 @@ body.dark .desktop-deco-right{color:rgba(212,169,106,.32)}
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 body.dark .topbar{background:radial-gradient(120% 100% at 12% 0%,rgba(212,169,106,.10),transparent 55%),radial-gradient(120% 100% at 90% 0%,rgba(212,169,106,.08),transparent 55%),rgba(18,18,42,.9)}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
-/* PROFILE PULSE — бавен gold pulse около бутона за профил в topbar-а.
+/* PROFILE PULSE — мек "breathing" pulse около бутона за профил в topbar-а:
+   леко нарастване (scale 1 -> 1.05) едновременно със златист glow, 3s цикъл.
    Спира завинаги след първо тапване (виж toggleProfilePage() -> body.pulse-seen,
    плюс синхронния early-init скрипт до gt_dark за persisted state преди paint).
    Отделен keyframes за dark mode, защото --gold е различен нюанс на тъмно. */
 @keyframes profilePulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(184,150,106,.55)}
-  50%{box-shadow:0 0 0 9px rgba(184,150,106,0)}
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(184,150,106,.5)}
+  50%{transform:scale(1.05);box-shadow:0 0 10px 6px rgba(184,150,106,.18)}
 }
 @keyframes profilePulseDark{
-  0%,100%{box-shadow:0 0 0 0 rgba(212,169,106,.6)}
-  50%{box-shadow:0 0 0 9px rgba(212,169,106,0)}
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(212,169,106,.55)}
+  50%{transform:scale(1.05);box-shadow:0 0 10px 6px rgba(212,169,106,.22)}
 }
-body:not(.pulse-seen) #topbar-profile-btn{animation:profilePulse 3s ease-in-out infinite}
+body:not(.pulse-seen) #topbar-profile-btn{animation:profilePulse 3s cubic-bezier(0.4,0,0.6,1) infinite}
 body.dark:not(.pulse-seen) #topbar-profile-btn{animation-name:profilePulseDark}
 @media (prefers-reduced-motion:reduce){
   #topbar-profile-btn{animation:none}
@@ -285,6 +286,36 @@ body.dark:not(.pulse-seen) #topbar-profile-btn{animation-name:profilePulseDark}
 #page-profile{overflow:visible}
 .page.active{display:block;min-height:100%;overflow-y:visible}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* PAGE TRANSITIONS — по-изразени, специфични за всеки таб анимации, върху
+   базовия .page fadeIn. Реиграват се всеки път при отваряне на съответния
+   таб (естествено, чрез display:none->block, както fadeIn по-горе) — гладки,
+   luxury, без bounce. */
+@keyframes homeHeroIn{0%{opacity:0;transform:translateY(-15px)}100%{opacity:1;transform:translateY(0)}}
+#page-home.active #home-hero-wrap{animation:homeHeroIn .6s cubic-bezier(0.25,0.46,0.45,0.94)}
+@keyframes procCardIn{0%{opacity:0;transform:translateY(18px)}100%{opacity:1;transform:translateY(0)}}
+#page-procs.active .proc-row{animation:procCardIn .5s cubic-bezier(0.25,0.46,0.45,0.94) both}
+#page-procs.active .proc-row:nth-of-type(1){animation-delay:0ms}
+#page-procs.active .proc-row:nth-of-type(2){animation-delay:80ms}
+#page-procs.active .proc-row:nth-of-type(3){animation-delay:160ms}
+#page-procs.active .proc-row:nth-of-type(4){animation-delay:240ms}
+#page-procs.active .proc-row:nth-of-type(5){animation-delay:320ms}
+#page-procs.active .proc-row:nth-of-type(6){animation-delay:400ms}
+#page-procs.active .proc-row:nth-of-type(7){animation-delay:480ms}
+#page-procs.active .proc-row:nth-of-type(8){animation-delay:560ms}
+#page-procs.active .proc-row:nth-of-type(n+9){animation-delay:640ms}
+@keyframes notifsSlideIn{0%{opacity:0;transform:translateX(20px)}100%{opacity:1;transform:translateX(0)}}
+#page-notifs.active #notifs-page-content{animation:notifsSlideIn .5s cubic-bezier(0.25,0.46,0.45,0.94)}
+@keyframes diaryCalIn{0%{opacity:0;transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
+#page-diary.active #diary-cal-view{animation:diaryCalIn .5s cubic-bezier(0.25,0.46,0.45,0.94)}
+@keyframes soonFadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+#page-soon.active #soon-content{animation:soonFadeUp .6s cubic-bezier(0.25,0.46,0.45,0.94)}
+@media (prefers-reduced-motion:reduce){
+  #page-home.active #home-hero-wrap,
+  #page-procs.active .proc-row,
+  #page-notifs.active #notifs-page-content,
+  #page-diary.active #diary-cal-view,
+  #page-soon.active #soon-content{animation:none}
+}
 .page-hdr{padding:20px 18px 14px}
 .page-hdr-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;
   background:linear-gradient(100deg,var(--gold) 0%,#8a6a4a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
@@ -753,24 +784,24 @@ body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,
 .nb.active .nl{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:600}
 .ni{font-size:16px;color:#c5bdb4;transition:color .15s}
 .nl{font-size:7.5px;font-weight:500;color:#c5bdb4;letter-spacing:.03em;white-space:nowrap}
-/* NAV WAVE-IN — бутоните "изплуват" един по един само при първото зареждане.
-   Буквите/иконите остават нормално видими до 400ms след paint (класът
-   html.nav-wave-go се добавя тогава от скрипта до <nav class="bnav">) — така
+/* NAV WAVE-IN — бутоните "изплуват" един по един: веднъж при първото зареждане
+   и отново веднага след успешен login, когато home страницата се рендира
+   (виж triggerNavWave() до <nav class="bnav">). Буквите/иконите остават
+   нормално видими до момента, в който JS добави html.nav-wave-go — така
    съдържанието на страницата се показва първо, а вълната идва като flourish
    върху него, не като скриване на nav-а. html.nav-animated спира повтарянето
-   при следващи табове. */
+   при обикновени табове между двата тригера. Бавна, гладка крива — luxury,
+   не bouncy. */
 @keyframes navWaveIn{
-  0%{opacity:0;transform:translateY(40px) scale(.7)}
-  55%{opacity:1;transform:translateY(-10px) scale(1.18)}
-  75%{transform:translateY(4px) scale(.96)}
+  0%{opacity:0;transform:translateY(40px) scale(.85)}
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
-html.nav-wave-go:not(.nav-animated) .bnav .nb{animation:navWaveIn .5s cubic-bezier(.34,1.56,.64,1) both}
+html.nav-wave-go:not(.nav-animated) .bnav .nb{animation:navWaveIn .8s cubic-bezier(0.25,0.46,0.45,0.94) both}
 html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(1){animation-delay:0ms}
-html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(2){animation-delay:150ms}
-html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(3){animation-delay:300ms}
-html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(4){animation-delay:450ms}
-html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:600ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(2){animation-delay:200ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(3){animation-delay:400ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(4){animation-delay:600ms}
+html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:800ms}
 @media (prefers-reduced-motion:reduce){
   html.nav-wave-go:not(.nav-animated) .bnav .nb{animation:none}
 }
@@ -1456,7 +1487,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr-title" id="soon-page-title">Очак<em style="color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic">вайте</em></div>
     <div class="page-hdr-sub" style="text-transform:uppercase;letter-spacing:.07em;font-size:11px" data-t="soonSub">Скоро в GlowTrack</div>
   </div>
-  <div style="padding:0 16px 24px">
+  <div id="soon-content" style="padding:0 16px 24px">
     <!-- Hero -->
     <div id="soon-hero" style="background:linear-gradient(135deg,#c9a87a,#e8c99a,#b8966a);border-radius:20px;padding:26px 22px;text-align:center;margin-bottom:16px">
       <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
@@ -1610,22 +1641,28 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <button class="nb" onclick="window._calFromProfile=false;goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
   </nav>
   <script>
-  // Еднократен nav wave-in gate: изчаква 400ms (за да се покаже първо
-  // съдържанието на страницата), после стартира вълната чрез html.nav-wave-go,
-  // и маркира html.nav-animated веднага след като последният (най-забавен)
-  // бутон приключи своя entrance keyframe, за да не се повтаря анимацията
-  // при последващи табове/reflow-и.
-  (function(){
+  // Nav wave-in gate: изчаква `wait`ms (за да се покаже първо съдържанието на
+  // страницата), после стартира вълната чрез html.nav-wave-go, и маркира
+  // html.nav-animated веднага след като последният (най-забавен) бутон
+  // приключи своя entrance keyframe, за да не се повтаря анимацията при
+  // обикновени табове. Извиква се веднъж при първо зареждане (тук долу) и
+  // отново след успешен login, когато home страницата се рендира (виж
+  // onAuthStateChanged -> triggerNavWave() по-долу в основния скрипт).
+  window.triggerNavWave = function(wait){
+    var html = document.documentElement;
     var btns = document.querySelectorAll('.bnav .nb');
     var last = btns[btns.length-1];
-    if(!last){ document.documentElement.classList.add('nav-animated'); return; }
-    var done = function(){ document.documentElement.classList.add('nav-animated'); };
+    html.classList.remove('nav-animated', 'nav-wave-go');
+    if(!last){ html.classList.add('nav-animated'); return; }
+    void html.offsetWidth; // force reflow, за да "рестартира" анимацията при повторен тригер
+    var done = function(){ html.classList.add('nav-animated'); };
     last.addEventListener('animationend', done, {once:true});
     setTimeout(function(){
-      document.documentElement.classList.add('nav-wave-go');
-      setTimeout(done, 1200); // резервен таймаут, ако animationend не гръмне (напр. reduced-motion)
-    }, 400);
-  })();
+      html.classList.add('nav-wave-go');
+      setTimeout(done, 1900); // резервен таймаут, ако animationend не гръмне (напр. reduced-motion)
+    }, wait==null ? 400 : wait);
+  };
+  window.triggerNavWave(400);
   </script>
 </div>
 
@@ -2125,9 +2162,11 @@ onAuthStateChanged(auth,async user=>{
   }
   if(document.getElementById('page-home')?.classList.contains('active')){
     if(typeof renderHomePage==='function') setTimeout(renderHomePage, 50);
+    if(user && typeof window.triggerNavWave==='function') window.triggerNavWave(150);
   } else if(window._pendingHomeGoPage){
     window._pendingHomeGoPage=false;
     if(typeof renderHomePage==='function') setTimeout(renderHomePage, 50);
+    if(user && typeof window.triggerNavWave==='function') window.triggerNavWave(150);
   }
 });
 window.openAuthScreen=function(){
