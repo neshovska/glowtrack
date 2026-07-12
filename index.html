@@ -328,6 +328,16 @@ body.dark #topbar-profile-btn{animation-name:profilePulseDark !important}
 }
 @keyframes soonFadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
 #page-soon.active #soon-content{animation:soonFadeUp .6s cubic-bezier(0.25,0.46,0.45,0.94)}
+/* SUCCESS CONFETTI — къс gold particle burst при успешен запис в дневника
+   (виж window._confettiBurst() до saveDiaryEntry()). */
+.confetti-dot{position:absolute;top:-10px;border-radius:50%;opacity:0;animation:confettiFall ease-in forwards}
+@keyframes confettiFall{
+  0%{opacity:1;transform:translateY(0) translateX(0) rotate(0deg)}
+  100%{opacity:0;transform:translateY(100vh) translateX(var(--drift,0px)) rotate(360deg)}
+}
+@media (prefers-reduced-motion:reduce){
+  .confetti-dot{display:none}
+}
 @media (prefers-reduced-motion:reduce){
   #page-home.active #home-hero-wrap,
   #page-procs.active .proc-row,
@@ -2674,6 +2684,35 @@ const BG_D=['нед','пон','вт','ср','чет','пет','съб'];
 function fmtDate(d){const dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=d.getFullYear();return`${dd}.${mm}.${yyyy}`;}
 function fmtFull(d){return fmtDate(d);}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+// Кратък gold confetti burst — CSS-driven (само keyframes), JS-ът само
+// създава/чисти елементите. Извиква се напр. при успешен запис в дневника.
+function _confettiBurst(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const colors=['#b8966a','#d4a96a','#e8c99a'];
+  const container=document.createElement('div');
+  container.style.cssText='position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden';
+  const COUNT=24;
+  for(let i=0;i<COUNT;i++){
+    const dot=document.createElement('span');
+    dot.className='confetti-dot';
+    const left=Math.random()*100;
+    const delay=Math.random()*300;
+    const duration=550+Math.random()*400;
+    const size=4+Math.random()*4;
+    const drift=(Math.random()-0.5)*70;
+    dot.style.left=left+'%';
+    dot.style.width=size+'px';
+    dot.style.height=size+'px';
+    dot.style.background=colors[i%colors.length];
+    dot.style.setProperty('--drift', drift+'px');
+    dot.style.animationDuration=duration+'ms';
+    dot.style.animationDelay=delay+'ms';
+    container.appendChild(dot);
+  }
+  document.body.appendChild(container);
+  setTimeout(()=>container.remove(), 1100);
+}
+window._confettiBurst=_confettiBurst;
 const F=()=>window._f;const DB=()=>window._db;const AU=()=>window._auth;
 
 
@@ -4791,6 +4830,7 @@ async function saveDiaryEntry(procId){
       createdAt:F().serverTimestamp()
     });
     showToast(t('toastSaved')||'Запазено!');
+    if(typeof window._confettiBurst==='function') window._confettiBurst();
     if(typeof trackEvent==='function')trackEvent('diary_entry_created',{procedure_id:procId,rating:rating});
     // Save reminder/booking if date is filled
     const deReminderDate = document.getElementById('de-reminder-date')?.value;
@@ -8456,6 +8496,7 @@ async function saveRoutine(type){
         });
         localStorage.setItem(savedKey, '1');
         showToast('Запазено в дневника!');
+        if(typeof window._confettiBurst==='function') window._confettiBurst();
         if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
         // Auto-close accordion
         const accBody = document.getElementById('routine-acc-body') || document.querySelector('.acc-body.open');
