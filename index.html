@@ -377,23 +377,23 @@ body:not(.dark) #home-hero-img{display:none}
    умножение, за да не се "удвоява" затихването. */
 #home-logo-glow-core,#home-logo-glow-halo{position:absolute;pointer-events:none;border-radius:50%}
 #home-logo-glow-core{z-index:7;
-  background:radial-gradient(circle,rgba(255,215,100,.9) 0%,rgba(255,215,100,.5) 32%,rgba(255,215,100,0) 68%);
+  background:radial-gradient(circle,rgba(255,215,100,.55) 0%,rgba(255,215,100,.3) 32%,rgba(255,215,100,0) 68%);
   animation:logoGlowCore 4s ease-in-out forwards}
 #home-logo-glow-halo{z-index:6;
-  background:radial-gradient(circle,rgba(212,168,48,.4) 0%,rgba(212,168,48,.2) 45%,rgba(212,168,48,0) 78%);
+  background:radial-gradient(circle,rgba(212,168,48,.25) 0%,rgba(212,168,48,.12) 45%,rgba(212,168,48,0) 78%);
   animation:logoGlowHalo 4s ease-in-out .15s forwards}
 @keyframes logoGlowCore{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
-  37.5%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}
-  50%{opacity:.92;transform:translate(-50%,-50%) scale(1.22)}
-  62.5%{opacity:1;transform:translate(-50%,-50%) scale(1.3)}
+  37.5%{opacity:.6;transform:translate(-50%,-50%) scale(1.3)}
+  50%{opacity:.55;transform:translate(-50%,-50%) scale(1.22)}
+  62.5%{opacity:.6;transform:translate(-50%,-50%) scale(1.3)}
   100%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
 }
 @keyframes logoGlowHalo{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}
-  37.5%{opacity:1;transform:translate(-50%,-50%) scale(1.6)}
-  50%{opacity:.85;transform:translate(-50%,-50%) scale(1.48)}
-  62.5%{opacity:1;transform:translate(-50%,-50%) scale(1.6)}
+  37.5%{opacity:.6;transform:translate(-50%,-50%) scale(1.6)}
+  50%{opacity:.5;transform:translate(-50%,-50%) scale(1.48)}
+  62.5%{opacity:.6;transform:translate(-50%,-50%) scale(1.6)}
   100%{opacity:0;transform:translate(-50%,-50%) scale(.6)}
 }
 .topbar{opacity:0;animation:topbarIntroFade .3s ease forwards;animation-delay:4.15s}
