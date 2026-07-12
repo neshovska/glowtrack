@@ -114,15 +114,19 @@ exports.sendScheduledReminders = onSchedule(
             anyClaimed = true;
 
             const isBooking = n.type === "booking";
+            const title = isBooking ? "GlowTrack — резервация" : "GlowTrack напомняне";
+            const body = n.procName ?
+              `${isBooking ? "Резервация за" : "Наближава"}: ${n.procName}` :
+              "Имаш предстояща процедура.";
             messages.push({
               token: fcmToken,
-              notification: {
-                title: isBooking ? "GlowTrack — резервация" : "GlowTrack напомняне",
-                body: n.procName ?
-                  `${isBooking ? "Резервация за" : "Наближава"}: ${n.procName}` :
-                  "Имаш предстояща процедура.",
+              data: {
+                title,
+                body,
+                notifId: n.id,
+                procId: n.procId || "",
+                type: n.type || "reminder",
               },
-              data: {notifId: n.id, procId: n.procId || "", type: n.type || "reminder"},
             });
           }
         }
@@ -195,7 +199,7 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
   try {
     await admin.messaging().send({
       token: adminToken,
-      notification: {
+      data: {
         title: "GlowTrack — нов milestone",
         body: `Достигнахте ${milestoneReached} регистрирани потребители!`,
       },

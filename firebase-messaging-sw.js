@@ -20,7 +20,7 @@ const messaging = firebase.messaging();
 // Background message handler — показва notification когато app-ът е затворен/на заден план
 messaging.onBackgroundMessage(payload => {
   console.log('[firebase-messaging-sw.js] Background message:', payload);
-  const { title, body, icon } = payload.notification || {};
+  const { title, body, icon } = payload.data || {};
   self.registration.showNotification(title || 'GlowTrack', {
     body: body || '',
     icon: icon || '/icon-192.png',
