@@ -365,27 +365,22 @@ body.dark .page-hdr-title{background:linear-gradient(100deg,#e0b789 0%,#f0dcae 1
 #home-hero-img,#home-hero-img-light{width:100%;height:100%;object-fit:cover;object-position:center;display:block;transform:none}
 #home-hero-img-light{display:none}
 body:not(.dark) #home-hero-img{display:none}
-/* LOGO OVERLAY — transparent PNG overlay (glowtrack_dark/light_logo_overlay.png)
-   се позиционира pixel-perfect върху златното лого, което вече е "изпечено" в
-   hero снимката, напълно статично (без анимация). Позицията/размерът се
-   изчисляват в JS (виж positionHomeLogoOverlay) спрямо реалния render на
-   #home-hero-wrap (object-fit:cover). Hero снимката отдолу не мърда изобщо
-   (transform:none по-горе).
-   LOGO GLOW PULSE INTRO — веднъж на всяко зареждане: едно малко, деликатно
-   "сърцебиене" от топла златна светлина в точната точка на звездата в
-   центъра на символа, после елементът се премахва изцяло (виж JS). */
-#home-logo-overlay-dark,#home-logo-overlay-light{position:absolute;z-index:5;pointer-events:none;display:block}
-body:not(.dark) #home-logo-overlay-dark{display:none}
-body.dark #home-logo-overlay-light{display:none}
+/* LOGO GLOW PULSE INTRO — веднъж на всяко зареждане: едно бавно, топло
+   "разсъмване" от златна светлина в точната точка на звездата в центъра на
+   символа (вече изчислена в photo-пиксели, виж positionHomeLogoGlow), после
+   елементът се премахва изцяло от DOM (виж JS). Hero снимката отдолу не
+   мърда изобщо — никакъв overlay PNG, само светлината диша. */
 #home-logo-glow-pulse{position:absolute;z-index:6;pointer-events:none;border-radius:50%;
   background:radial-gradient(circle,rgba(212,168,48,.6) 0%,rgba(212,168,48,.32) 40%,rgba(212,168,48,0) 72%);
-  animation:logoGlowPulse 2s cubic-bezier(0.22,1,0.36,1) forwards}
+  animation:logoGlowPulse 4s ease-in-out forwards}
 @keyframes logoGlowPulse{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.8)}
-  50%{opacity:.8;transform:translate(-50%,-50%) scale(1.4)}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(.8)}
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  37.5%{opacity:.6;transform:translate(-50%,-50%) scale(1.2)}
+  50%{opacity:.55;transform:translate(-50%,-50%) scale(1.15)}
+  62.5%{opacity:.6;transform:translate(-50%,-50%) scale(1.2)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
 }
-.topbar{opacity:0;animation:topbarIntroFade .3s ease forwards;animation-delay:2s}
+.topbar{opacity:0;animation:topbarIntroFade .3s ease forwards;animation-delay:4s}
 @keyframes topbarIntroFade{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){
   #home-logo-glow-pulse{display:none}
@@ -1723,21 +1718,18 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page active" id="page-home">
     <div id="home-hero-wrap">
-      <img id="home-logo-overlay-dark" src="glowtrack_dark_logo_overlay.png" alt="" aria-hidden="true">
-      <img id="home-logo-overlay-light" src="glowtrack_light_logo_overlay.png" alt="" aria-hidden="true">
       <div id="home-logo-glow-pulse" style="width:56px;height:56px" aria-hidden="true"></div>
       <script>(function(){
         // star = пикселна позиция на светлинната точка (кръстовището на
-        // символа) в самия overlay PNG canvas (648x461) — измерена веднъж
+        // символа) в оригиналната 853x1844 hero снимка — изчислена веднъж
         // офлайн (peak-brightness след Gaussian blur, за да хване широкото
-        // сияние, не тънкия връх на вертикалната линия).
-        var CFG = {
-          dark:  {id:'home-logo-overlay-dark',  bbox:[122,592,731,977], content:[26,59,625,449], canvas:[648,461], star:[324,288]},
-          light: {id:'home-logo-overlay-light', bbox:[112,553,747,974], content:[15,13,640,449], canvas:[648,461], star:[329,252]}
-        };
-        function positionHomeLogoOverlay(){
+        // сияние, не тънкия връх на вертикалната линия), различна за
+        // dark/light снимката.
+        var STAR = { dark: [425, 818], light: [431, 784] };
+        function positionHomeLogoGlow(){
           var wrap = document.getElementById('home-hero-wrap');
-          if(!wrap) return;
+          var glow = document.getElementById('home-logo-glow-pulse');
+          if(!wrap || !glow) return;
           var rect = wrap.getBoundingClientRect();
           var cw = rect.width, ch = rect.height;
           if(!cw || !ch) return;
@@ -1750,35 +1742,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             scale = ch/IMG_H;
             offX = (IMG_W*scale - cw)/2;
           }
-          var activeKey = document.body.classList.contains('dark') ? 'dark' : 'light';
-          var starPos = null;
-          Object.keys(CFG).forEach(function(key){
-            var c = CFG[key], el = document.getElementById(c.id);
-            if(!el) return;
-            var tx0 = c.bbox[0]*scale - offX, ty0 = c.bbox[1]*scale - offY;
-            var tx1 = c.bbox[2]*scale - offX, ty1 = c.bbox[3]*scale - offY;
-            var cx0 = c.content[0], cy0 = c.content[1], cx1 = c.content[2], cy1 = c.content[3];
-            var sx = (tx1-tx0)/(cx1-cx0), sy = (ty1-ty0)/(cy1-cy0);
-            var left = tx0 - cx0*sx, top = ty0 - cy0*sy;
-            el.style.left = left+'px';
-            el.style.top = top+'px';
-            el.style.width = (c.canvas[0]*sx)+'px';
-            el.style.height = (c.canvas[1]*sy)+'px';
-            if(key === activeKey){
-              starPos = { x: left + c.star[0]*sx, y: top + c.star[1]*sy };
-            }
-          });
-          if(starPos){
-            var glow = document.getElementById('home-logo-glow-pulse');
-            if(glow){
-              glow.style.left = starPos.x+'px';
-              glow.style.top = starPos.y+'px';
-            }
-          }
+          var star = document.body.classList.contains('dark') ? STAR.dark : STAR.light;
+          glow.style.left = (star[0]*scale - offX)+'px';
+          glow.style.top = (star[1]*scale - offY)+'px';
         }
-        positionHomeLogoOverlay();
-        window.addEventListener('resize', positionHomeLogoOverlay);
-        window.addEventListener('orientationchange', positionHomeLogoOverlay);
+        positionHomeLogoGlow();
+        window.addEventListener('resize', positionHomeLogoGlow);
+        window.addEventListener('orientationchange', positionHomeLogoGlow);
         var glowEl = document.getElementById('home-logo-glow-pulse');
         if(glowEl){
           glowEl.addEventListener('animationend', function(){ glowEl.remove(); }, {once:true});

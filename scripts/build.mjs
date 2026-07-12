@@ -25,8 +25,6 @@ const PASSTHROUGH_FILES = [
   'laser-diode.jpeg',
   'og-image.png',
   'profile-shadow-leaves.jpeg',
-  'glowtrack_dark_logo_overlay.png',
-  'glowtrack_light_logo_overlay.png',
   'manifest.json',
   'sw.js',
 ];
