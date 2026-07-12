@@ -262,6 +262,9 @@ body.dark .desktop-deco-right{color:rgba(212,169,106,.32)}
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 body.dark .topbar{background:radial-gradient(120% 100% at 12% 0%,rgba(212,169,106,.10),transparent 55%),radial-gradient(120% 100% at 90% 0%,rgba(212,169,106,.08),transparent 55%),rgba(18,18,42,.9)}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
+/* OFFLINE BANNER — постоянна лента (не toast), показва се докато няма мрежа,
+   позволява четене на последно кешираните данни (виж _cachePersist/_cacheRestore). */
+#offline-banner{position:sticky;top:0;z-index:49;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 14px;background:linear-gradient(135deg,#8a6a4a,#b8966a);color:#fff;font-size:11.5px;font-weight:600;text-align:center}
 /* PROFILE PULSE — постоянен gold pulsing glow/ring около бутона за профил в
    topbar-а. Винаги активен (не спира след тап). !important, защото на реално
    устройство анимацията не се показваше — вероятно заради стария
@@ -1070,6 +1073,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <button class="lang-btn" id="app-lang-btn" onclick="toggleLang()">EN</button>
   </div>
 </div><div id="topbar-right" style="display:none"></div></div>
+<div id="offline-banner" style="display:none"><span style="display:inline-flex;flex-shrink:0"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg></span><span id="offline-banner-text">Офлайн режим — показват се последно заредените данни</span></div>
   <div class="page" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
     <div class="search-wrap">
@@ -2388,6 +2392,34 @@ window._cache = {
 function cacheInvalid(ts){ return !ts || (Date.now() - ts) > window._cache.CACHE_TTL; }
 function invalidateCache(){ window._cache.diary=null; window._cache.diaryTs=0; window._cache.clinicAds=null; window._cache.productAds=null; window._cache.adsTs=0; }
 
+// ── OFFLINE PERSISTENCE ──
+// Огледава последно заредените Firestore резултати в localStorage (само plain
+// данни), за да могат дневникът/рекламите да се покажат offline след
+// презареждане на страницата, не само в рамките на същата сесия.
+// _cachePersistDocs() е за суров snap.docs масив (Firestore QueryDocumentSnapshot,
+// има .data()); _cachePersist() е за масиви, вече превърнати в plain обекти.
+// _cacheRestoreDocs() връща обекти с .data() метод обратно, за съвместимост с
+// кода надолу по веригата, който вика d.data(); _cacheRestore() връща чист plain.
+function _cachePersistDocs(key, docsArr){
+  _cachePersist(key, (docsArr||[]).map(d=>({id:d.id,...d.data()})));
+}
+function _cachePersist(key, plainArr){
+  try{ localStorage.setItem(_lsKey('gt_offcache_'+key), JSON.stringify(plainArr||[])); }catch(e){}
+}
+function _cacheRestoreDocs(key){
+  const arr = _cacheRestore(key);
+  return arr ? arr.map(obj=>({id:obj.id, data:()=>obj})) : null;
+}
+function _cacheRestore(key){
+  try{
+    const raw = localStorage.getItem(_lsKey('gt_offcache_'+key));
+    if(!raw) return null;
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr) || !arr.length) return null;
+    return arr;
+  }catch(e){ return null; }
+}
+
 const PROCS=[
 {id:'le-alex-face',cat:'hair',subcat:"Александритен лазер",icon:'flame',bg:'#eeeaf8',fg:'#9b8ec4',img:'./laser-alexandrite.jpeg',name:"Александритен лазер — Лице",sub:"755nm · Светла кожа, тъмен косъм",what:"Александритеният лазер (755nm) е най-ефективен за светла до средно тъмна кожа с тъмен косъм. Прецизно таргетира меланина в фоликула. Бърз и ефективен при по-малки зони.",devices:['Candela GentleLase Pro','Syneron-Candela Alexandrite 755nm','Cynosure Elite+'],zones:'Горна устна, брадичка, скули, бакенбарди, ареоли, оформяне на вежди/линия на косата',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['razor',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['sun',"Без слънце и солариум <strong>2–4 седмици</strong>"],['bottle',"Без автобронзанти 2 седмици"],['pill',"Уведоми специалиста за всички медикаменти"]],after:[['bottle',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['bottle',"<strong>SPF 50+</strong> — задължително при излагане"],['droplet',"<strong>Хладки</strong> душове 24–48ч"],['forbidden',"НЕ сауна, джакузи, басейн 24–48ч"],['exercise',"НЕ интензивен спорт в деня"],['scissors',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'6–10 сесии',reactions:{normal:['Зачервяване и оток около косъмчетата 24-48ч','Усещане за топлина','Временна чувствителност на кожата'],abnormal:['Мехури или коричка след 48ч','Хипо/хиперпигментация','Силно парене над 72ч','Признаци на инфекция']},tags:{prob:['Пигментации'],zone:['Лице','Брадичка'],goal:[],tech:[],age:['18–25 години','25–35 години'],gender:['Унисекс'],occ:['Преди лято','Преди отпуска'],preg:[],rec:['До 24 часа'],dur:['До 3 месеца'],pain:['Интензивна'],sea:['Изисква избягване на слънце'],inv:['Неинвазивна']}},
 {id:'le-alex-body',cat:'hair',subcat:"Александритен лазер",icon:'flame',bg:'#eeeaf8',fg:'#9b8ec4',img:'./laser-alexandrite.jpeg',name:"Александритен лазер — Тяло",sub:"755nm · Подмишници, ръце, крака, интимна зона",what:"Александритеният лазер работи отлично на по-светли типове кожа. Особено ефективен при фини до средни косъмчета. По-бърз при покриване на по-обширни зони.",devices:['Candela GentleLase Pro','Cynosure Elite+','Syneron Alexandrite'],zones:'Подмишници, ръце (1/2 или цели), крака (1/2 или цели), интимна зона, корем, гръб, гърди, седалище, рамене',results:['70–90% трайно намаляване след пълен курс от 6–10 сесии','Космите падат <strong>10–14 дни</strong> след сесията','Постепенно изтъняване от 2–3 сесия нататък','Пълна оценка на резултата 3 месеца след последната сесия'],contra:['Бременност и кърмене','Активен тен или скорошно слънцегарене','Активни кожни инфекции или херпес','Фоточувствителни медикаменти (Roaccutane, антибиотици)','Татуировки в третираната зона'],before:[['razor',"Обръсни зоната <strong>24–48ч преди</strong> — не скубай, не използвай кола маска"],['sun',"Без слънце и солариум <strong>2–4 седмици</strong>"],['bottle',"Без автобронзанти 2 седмици"],['pill',"Уведоми специалиста за всички медикаменти"]],after:[['bottle',"Нанасяй <strong>Алое Вера 100%</strong> или успокояващ крем"],['bottle',"<strong>SPF 50+</strong> — задължително при излагане"],['droplet',"<strong>Хладки</strong> душове 24–48ч"],['forbidden',"НЕ сауна, джакузи, басейн 24–48ч"],['exercise',"НЕ интензивен спорт в деня"],['scissors',"Между сесиите — само бръснене"]],interval:'Лице: 30–40 дни · Торс: 45–60 дни · Крака: 60–90 дни',sessions:'6–10 сесии — интервалът се разширява с напредването по препоръка на терапевт',reactions:{normal:['Зачервяване 24-48ч','Усещане за топлина','Временна чувствителност'],abnormal:['Мехури или коричка','Хипо/хиперпигментация','Обрив или уртикария','Признаци на инфекция']},tags:{prob:['Пигментации'],zone:['Ръце','Подмишници','Корем','Гръб','Седалище','Крака','Интимна зона'],goal:[],tech:[],age:['18–25 години','25–35 години'],gender:['Унисекс'],occ:['Преди лято','Преди отпуска'],preg:[],rec:['До 24 часа'],dur:['До 3 месеца'],pain:['Лека'],sea:['Изисква избягване на слънце'],inv:['Неинвазивна']}},
@@ -3178,6 +3210,7 @@ function applyLang(){
   const btn = l === 'bg' ? 'EN' : 'БГ';
   document.querySelectorAll('.lang-btn').forEach(b => b.textContent = btn);
   document.documentElement.lang = l === 'bg' ? 'bg' : 'en';
+  if(typeof _updateOfflineBanner==='function') _updateOfflineBanner();
 
   // Auth
   const uf = document.getElementById('unified-auth-form');
@@ -4191,7 +4224,7 @@ async function openSheet(id){
 
   let clinicAdsHTML='',productAdsHTML='',diaryEntriesHTML='';
 
-  // ── FETCH ADS (cached) ──
+  // ── FETCH ADS (cached, с offline fallback) ──
   try{
     if(cacheInvalid(window._cache.adsTs)){
       const [cSnap,pSnap]=await Promise.all([
@@ -4201,6 +4234,8 @@ async function openSheet(id){
       window._cache.clinicAds=cSnap.docs.map(d=>({id:d.id,...d.data()}));
       window._cache.productAds=pSnap.docs.map(d=>({id:d.id,...d.data()}));
       window._cache.adsTs=Date.now();
+      _cachePersist('clinicAds', window._cache.clinicAds);
+      _cachePersist('productAds', window._cache.productAds);
     }
     const clinicsForProc=(window._cache.clinicAds||[]).filter(a=>a.active!==false&&(a.procIds||[]).includes(id));
     const productsForProc=(window._cache.productAds||[]).filter(a=>a.active!==false&&(a.procIds||[]).includes(id));
@@ -4228,7 +4263,12 @@ async function openSheet(id){
         ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:2px;opacity:.7">${ic('link','12px')} Съдържа афилиейт линк</div>`:''}</div>
         <span class="ad-label">Реклама</span></${tag}>`;
       }).join('')}</div>`;
-  }catch(e){}
+  }catch(e){
+    if(!window._cache.clinicAds){
+      const c=_cacheRestore('clinicAds'), p=_cacheRestore('productAds');
+      if(c||p){ window._cache.clinicAds=c||[]; window._cache.productAds=p||[]; window._cache.adsTs=Date.now(); }
+    }
+  }
 
   // ── FETCH DIARY (cached) ──
   let entries=[];
@@ -5516,6 +5556,7 @@ async function loadDiaryTab(){
       const snap=await F().getDocs(F().query(F().collection(DB(),'diary_entries'),F().where('userId','==',window._user.uid)));
       window._cache.diary=snap.docs;
       window._cache.diaryTs=Date.now();
+      _cachePersistDocs('diary', snap.docs);
     }
     const docs=window._cache.diary||[];
     if(!docs.length){
@@ -5661,7 +5702,15 @@ async function loadDiaryTab(){
     if(_diarySortMode && _diarySortMode!=='default') setTimeout(()=>sortDiary(_diarySortMode), 50);
   }catch(e){
     console.error('Diary error:',e);
-    el.innerHTML=`<div class="empty-state"><div class="empty-ic">${ic('warning','13px')}</div><div class="empty-title">${window._lang==='en'?'Error loading':'Грешка при зареждане'}</div></div>`;
+    if(!window._cache.diary){
+      const cached=_cacheRestoreDocs('diary');
+      if(cached){
+        window._cache.diary=cached;
+        window._cache.diaryTs=Date.now();
+        return loadDiaryTab(); // повторен опит — вече рендира от кеша, без нова мрежова заявка
+      }
+    }
+    el.innerHTML=`<div class="empty-state"><div class="empty-ic">${ic('warning','13px')}</div><div class="empty-title">${window._lang==='en'?'Error loading':'Грешка при зареждане'}</div><div class="empty-sub">${window._lang==='en'?'No cached data available — check your connection.':'Няма кеширани данни — провери връзката си.'}</div></div>`;
   }
 }
 
@@ -5813,10 +5862,21 @@ async function loadClinicsTab(){
       window._cache.clinicAds=cSnap.docs.map(d=>({id:d.id,...d.data()}));
       window._cache.productAds=pSnap.docs.map(d=>({id:d.id,...d.data()}));
       window._cache.adsTs=Date.now();
+      _cachePersist('clinicAds', window._cache.clinicAds);
+      _cachePersist('productAds', window._cache.productAds);
     }
     allClinics=window._cache.clinicAds||[];
     renderClinics();
-  }catch(e){}
+  }catch(e){
+    if(!window._cache.clinicAds){
+      const c=_cacheRestore('clinicAds'), p=_cacheRestore('productAds');
+      if(c||p){
+        window._cache.clinicAds=c||[]; window._cache.productAds=p||[]; window._cache.adsTs=Date.now();
+        allClinics=window._cache.clinicAds||[];
+        renderClinics();
+      }
+    }
+  }
 }
 function filterClinics(){renderClinics();}
 function renderClinics(){
@@ -6274,13 +6334,7 @@ window.addEventListener('load', () => {
   if ('clearAppBadge' in navigator) {
     navigator.clearAppBadge().catch(()=>{});
   }
-  // Offline/online detection
-  window.addEventListener('online', () => {
-    if(typeof showToast==='function') showToast(window._lang==='en'?'Connection restored':'Връзката е възстановена');
-  });
-  window.addEventListener('offline', () => {
-    if(typeof showToast==='function') showToast(window._lang==='en'?'Offline mode':'Офлайн режим');
-  });
+  // Offline/online detection consolidated in one place — виж "OFFLINE DETECTION" по-долу.
   // Force hide splash after 1.5s regardless of Firebase
   setTimeout(()=>{
     const sp=document.getElementById('splash');
@@ -8881,9 +8935,23 @@ document.addEventListener('click',e=>{
 });
 
 // ── OFFLINE DETECTION ──
-window.addEventListener('online', ()=>showToast(t('online')));
-window.addEventListener('offline', ()=>showToast(t('offline'), 4000));
-if(!navigator.onLine) showToast(t('offline'), 4000);
+// Постоянна лента (не toast, който изчезва) — остава видима докато няма мрежа,
+// за да е ясно, че показаните дневник/реклами са последно кешираните данни.
+function _updateOfflineBanner(){
+  const banner = document.getElementById('offline-banner');
+  const textEl = document.getElementById('offline-banner-text');
+  if(!banner) return;
+  const isBG = window._lang!=='en';
+  if(!navigator.onLine){
+    if(textEl) textEl.textContent = isBG?'Офлайн режим — показват се последно заредените данни':'Offline mode — showing last loaded data';
+    banner.style.display='flex';
+  } else {
+    banner.style.display='none';
+  }
+}
+window.addEventListener('online', ()=>{ _updateOfflineBanner(); showToast(t('online')); });
+window.addEventListener('offline', ()=>{ _updateOfflineBanner(); });
+_updateOfflineBanner();
 
 // ── SERVICE WORKER ──
 // Note: blob: URL registration not supported in Safari
