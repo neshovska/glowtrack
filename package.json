@@ -1,0 +1,13 @@
+{
+  "name": "glowtrack",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "html-minifier-terser": "^7.2.0",
+    "terser": "^5.36.0"
+  }
+}
