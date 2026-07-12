@@ -40,6 +40,21 @@ function sofiaWallTimeToUTC(dateStr, timeStr) {
   return new Date(naive.getTime() - offsetMs);
 }
 
+// Форматира UTC момент като дата/час по Sofia стенен час, за текста на push
+// известието (напр. "15.07.2026" / "10:00").
+function formatSofiaDateTime(date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Sofia",
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(date).reduce((a, p) => {
+    a[p.type] = p.value; return a;
+  }, {});
+  const dateStr = `${parts.day}.${parts.month}.${parts.year}`;
+  const timeStr = `${parts.hour === "24" ? "00" : parts.hour}:${parts.minute}`;
+  return {dateStr, timeStr};
+}
+
 // Огледален вариант на window._computeNextReminderAt от index.html — трябва двете
 // да остават синхронизирани по логика. Пропуска notifs, по-стари от 48ч прозореца
 // за изпращане, за да не остане nextReminderAt "заклещено" в миналото завинаги.
@@ -115,8 +130,9 @@ exports.sendScheduledReminders = onSchedule(
 
             const isBooking = n.type === "booking";
             const title = isBooking ? "GlowTrack — резервация" : "GlowTrack напомняне";
+            const {dateStr, timeStr} = formatSofiaDateTime(notifDateTime);
             const body = n.procName ?
-              `${isBooking ? "Резервация за" : "Наближава"}: ${n.procName}` :
+              `${isBooking ? "Резервация за" : "Наближава"}: ${n.procName} — ${dateStr} в ${timeStr}` :
               "Имаш предстояща процедура.";
             messages.push({
               token: fcmToken,
