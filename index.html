@@ -262,6 +262,17 @@ body.dark .desktop-deco-right{color:rgba(212,169,106,.32)}
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 body.dark .topbar{background:radial-gradient(120% 100% at 12% 0%,rgba(212,169,106,.10),transparent 55%),radial-gradient(120% 100% at 90% 0%,rgba(212,169,106,.08),transparent 55%),rgba(18,18,42,.9)}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
+/* PROFILE PULSE — лек, бавен gold pulse около бутона за профил в topbar-а.
+   Спира завинаги след първо тапване (виж toggleProfilePage() -> body.pulse-seen,
+   плюс синхронния early-init скрипт до gt_dark за persisted state преди paint). */
+@keyframes profilePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(184,150,106,.35)}
+  50%{box-shadow:0 0 0 5px rgba(184,150,106,0)}
+}
+body:not(.pulse-seen) #topbar-profile-btn{animation:profilePulse 3s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  #topbar-profile-btn{animation:none}
+}
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
 .logo span{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .page{display:none;animation:fadeIn .18s ease}
@@ -730,6 +741,23 @@ body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,
 .nb.active .nl{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-weight:600}
 .ni{font-size:16px;color:#c5bdb4;transition:color .15s}
 .nl{font-size:7.5px;font-weight:500;color:#c5bdb4;letter-spacing:.03em;white-space:nowrap}
+/* NAV WAVE-IN — бутоните "изплуват" един по един само при първото зареждане
+   на страницата (виж скрипта до <nav class="bnav"> за html.nav-animated gate-а),
+   не и при последващо превключване на табове. */
+@keyframes navWaveIn{
+  0%{opacity:0;transform:translateY(10px) scale(.8)}
+  60%{opacity:1;transform:translateY(-2px) scale(1.08)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+html:not(.nav-animated) .bnav .nb{animation:navWaveIn .5s cubic-bezier(.34,1.56,.64,1) both}
+html:not(.nav-animated) .bnav .nb:nth-child(1){animation-delay:0ms}
+html:not(.nav-animated) .bnav .nb:nth-child(2){animation-delay:80ms}
+html:not(.nav-animated) .bnav .nb:nth-child(3){animation-delay:160ms}
+html:not(.nav-animated) .bnav .nb:nth-child(4){animation-delay:240ms}
+html:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:320ms}
+@media (prefers-reduced-motion:reduce){
+  html:not(.nav-animated) .bnav .nb{animation:none}
+}
 /* LANG TOGGLE */
 .lang-btn{background:none;border:1.5px solid rgba(184,150,106,.35);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--gold);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
 .lang-btn:hover{background:rgba(184,150,106,.12)}
@@ -901,7 +929,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </style>
 </head>
 <body>
-<script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
+<script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}try{if(localStorage.getItem('gt_profile_pulse_seen')==='1')document.body.classList.add('pulse-seen');}catch(e){}})();</script>
 <div class="bg"></div>
 <div class="desktop-deco desktop-deco-left" aria-hidden="true">Know<br>your<br>glow.</div>
 <div class="desktop-deco desktop-deco-right" id="desktop-deco-right" aria-hidden="true">220+ козметични процедури<br>твоят личен beauty дневник<br>напомняния навреме</div>
@@ -1148,7 +1176,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <div id="push-notif-status-text" style="flex:1;min-width:0;color:var(--ink2);font-size:9.5px;line-height:1.5;padding-top:2px">Позволи известия за навременни напомняния. На iPhone добави на началния екран.</div>
           </div>
           <div style="position:relative;overflow:visible;margin-bottom:10px">
-            <input type="text" id="notif-proc-search" placeholder="<svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg> Процедура..." data-ph="searchProcs" class="form-input" style="width:100%;font-size:14px;box-sizing:border-box" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
+            <input type="text" id="notif-proc-search" placeholder="Търси процедура..." data-ph="searchProcs" class="form-input" style="width:100%;font-size:14px;box-sizing:border-box" oninput="filterNotifProcs()" onfocus="showNotifProcs()">
             <input type="hidden" id="notif-proc">
             <div id="notif-proc-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid rgba(184,150,106,.3);border-radius:10px;max-height:200px;overflow-y:auto;z-index:9999;box-shadow:var(--shadow);margin-top:4px"></div>
           </div>
@@ -1331,7 +1359,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
               <input class="form-input" id="ac-phone" placeholder="Телефон" style="font-size:16px;margin-bottom:6px">
               <input class="form-input" id="ac-url" placeholder="Линк (сайт/резервация)" style="font-size:16px;margin-bottom:6px">
               <div id="admin-clinic-picker" style="position:relative">
-                <input class="form-input" id="ac-proc-search" placeholder="<svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg> Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px;width:100%;box-sizing:border-box">
+                <input class="form-input" id="ac-proc-search" placeholder="Свържи с процедура..." oninput="filterAdminPicker('clinic')" style="font-size:16px;margin-bottom:4px;width:100%;box-sizing:border-box">
                 <div id="ac-proc-results" class="proc-picker-results"></div>
               </div>
               <div id="ac-chips" style="margin:6px 0"></div>
@@ -1357,7 +1385,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
               <textarea class="form-input" id="ap-desc" placeholder="Кратко описание" rows="2" style="font-size:16px;margin-bottom:6px"></textarea>
               <input class="form-input" id="ap-url" placeholder="Афилиейт линк" style="font-size:16px;margin-bottom:6px">
               <div id="admin-product-picker" style="position:relative">
-                <input class="form-input" id="ap-proc-search" placeholder="<svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg> Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px;width:100%;box-sizing:border-box">
+                <input class="form-input" id="ap-proc-search" placeholder="Свържи с процедура..." oninput="filterAdminPicker('product')" style="font-size:16px;margin-bottom:4px;width:100%;box-sizing:border-box">
                 <div id="ap-proc-results" class="proc-picker-results"></div>
               </div>
               <div id="ap-chips" style="margin:6px 0"></div>
@@ -1565,6 +1593,19 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <button class="nb" onclick="goPage('soon',this)"><span class="ni" style="display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2L18 8L11 20L4 8L11 2Z" fill="rgba(184,150,106,.35)" stroke="var(--gold)" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 8H18" stroke="var(--gold)" stroke-width="1.5"/><path d="M7 8L11 2L15 8" stroke="var(--gold)" stroke-width="1.2" stroke-linejoin="round"/></svg></span><span class="nl" id="nav-soon-lbl">Очаквайте</span></button>
     <button class="nb" onclick="window._calFromProfile=false;goPage('diary',this)"><span class="ni"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="8" cy="15" r="1" fill="var(--gold)"/><circle cx="12" cy="15" r="1" fill="var(--gold)"/><circle cx="16" cy="15" r="1" fill="var(--gold)"/></svg></span><span class="nl" id="nav-diary-lbl">Дневник</span></button>
   </nav>
+  <script>
+  // Еднократен nav wave-in gate: маркира html.nav-animated веднага след като
+  // последният (най-забавен) бутон приключи своя entrance keyframe, за да не
+  // се повтаря анимацията при последващи табове/reflow-и.
+  (function(){
+    var btns = document.querySelectorAll('.bnav .nb');
+    var last = btns[btns.length-1];
+    if(!last){ document.documentElement.classList.add('nav-animated'); return; }
+    var done = function(){ document.documentElement.classList.add('nav-animated'); };
+    last.addEventListener('animationend', done, {once:true});
+    setTimeout(done, 1000); // резервен таймаут, ако animationend не гръмне (напр. reduced-motion)
+  })();
+  </script>
 </div>
 
 
@@ -1611,7 +1652,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <input type="hidden" id="edit-notif-id">
     <div style="margin-bottom:10px">
       <div style="font-size:11px;color:var(--ink2);margin-bottom:5px" data-t="notifProc">Процедура</div>
-      <input type="text" id="edit-notif-proc-search" class="form-input" data-ph="procsSearch" placeholder="<svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg> Търси процедура..." style="font-size:16px" oninput="filterEditNotifProcs()" onfocus="showEditNotifProcs()">
+      <input type="text" id="edit-notif-proc-search" class="form-input" data-ph="procsSearch" placeholder="Търси процедура..." style="font-size:16px" oninput="filterEditNotifProcs()" onfocus="showEditNotifProcs()">
       <input type="hidden" id="edit-notif-proc-id">
       <div id="edit-notif-dropdown" style="display:none;background:var(--card);border:1px solid var(--goldlt);border-radius:10px;max-height:150px;overflow-y:auto;margin-top:4px;box-shadow:0 4px 12px rgba(26,26,46,.1)"></div>
     </div>
@@ -3281,6 +3322,11 @@ function _currentActivePageName(){
   return active.id.replace('page-','');
 }
 function toggleProfilePage(){
+  // Спира permanentно gold pulse-а на профилния бутон след първо тапване.
+  try{
+    document.body.classList.add('pulse-seen');
+    localStorage.setItem('gt_profile_pulse_seen','1');
+  }catch(e){}
   const pg = document.getElementById('page-profile');
   const isOpen = pg && pg.classList.contains('active');
   if(isOpen){
@@ -7764,7 +7810,7 @@ function loadNotifsPage(){
           <span style="font-size:13px;color:var(--ink2)">${isBG?'Натисни бутона за споделяне долу':'Tap the share button below'}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;opacity:.6">
-          <div style="width:20px;height:20px;border-radius:50%;border:1.3px dashed var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0">?</div>
+          <div style="width:20px;height:20px;border-radius:50%;border:1.3px dashed var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="display:inline-block;transform:rotate(90deg)">${ic('arrow','10px')}</span></div>
           <span style="font-size:11.5px;color:var(--ink2);font-style:italic">${isBG?'На някои устройства първо се показва бутон "Виж повече"':'Some devices show a "View More" button first'}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
@@ -8741,7 +8787,7 @@ function refreshProfilePage(){
     <div id="adv-filter-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(480px,100vw);background:#f7f5f2;border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;max-height:88dvh;display:flex;flex-direction:column">
       <div style="width:38px;height:4px;background:var(--roselt);border-radius:2px;margin:10px auto 0;flex-shrink:0"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0">
-        <button onclick="closeAdvFilter()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:15px;line-height:1;flex-shrink:0;padding:0">${ic('close','14px')}</button>
+        <button onclick="closeAdvFilter()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:15px;line-height:1;flex-shrink:0;padding:0"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <span style="font-size:16px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Филтри</span>
         <span onclick="advResetAll()" style="font-size:11px;color:var(--gold);cursor:pointer;font-weight:500;flex-shrink:0">Изчисти всички</span>
       </div>
@@ -8937,15 +8983,15 @@ function refreshProfilePage(){
 
 <div id="cycle-tracker-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;z-index:1">
-    <div style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" data-t="profileCycle">${ic('sparkle','12px')} Месечен цикъл</div>
-    <button onclick="closeCycleTracker()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">${ic('close','14px')}</button>
+    <div style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg></span><span data-t="profileCycle">Месечен цикъл</span></div>
+    <button onclick="closeCycleTracker()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div id="cycle-tracker-body" style="padding:16px 16px 40px"></div>
 </div>
 <div id="skin-quiz-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;z-index:1">
     <div id="skin-quiz-title" style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Тест за типа кожа</div>
-    <button onclick="closeSkinQuiz()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0">${ic('close','14px')}</button>
+    <button onclick="closeSkinQuiz()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div id="skin-quiz-body" style="padding:16px 16px 40px"></div>
 </div>
