@@ -19,13 +19,11 @@ const db = admin.firestore();
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
 // SMTP за админ имейл известия (напр. B2B запитвания от клиники).
-// info@glowtrack.eu е хоствана в Superhosting.bg (cPanel) — стандартният
-// SMTP host там е mail.<домейн> с SSL порт 465. Провери в Client Area на
-// Superhosting > Имейли > Настройки за клиент, ако това не проработи.
-// USER/PASS са тайни — задават се веднъж през:
+// info@glowtrack.eu е хоствана в Zoho Mail (EU регион) — smtp.zoho.eu,
+// SSL порт 465. USER/PASS са тайни — задават се веднъж през:
 //   firebase functions:secrets:set SMTP_USER   (пълният имейл: info@glowtrack.eu)
-//   firebase functions:secrets:set SMTP_PASS   (паролата на пощенската кутия)
-const smtpHost = defineString("SMTP_HOST", {default: "mail.glowtrack.eu"});
+//   firebase functions:secrets:set SMTP_PASS   (Zoho паролата / app-specific password)
+const smtpHost = defineString("SMTP_HOST", {default: "smtp.zoho.eu"});
 const smtpPort = defineString("SMTP_PORT", {default: "465"});
 const smtpUser = defineSecret("SMTP_USER");
 const smtpPass = defineSecret("SMTP_PASS");
