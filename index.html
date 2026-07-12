@@ -262,23 +262,24 @@ body.dark .desktop-deco-right{color:rgba(212,169,106,.32)}
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid rgba(184,150,106,.15);padding:env(safe-area-inset-top,0) 18px 0}
 body.dark .topbar{background:radial-gradient(120% 100% at 12% 0%,rgba(212,169,106,.10),transparent 55%),radial-gradient(120% 100% at 90% 0%,rgba(212,169,106,.08),transparent 55%),rgba(18,18,42,.9)}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;padding:11px 0 9px}
-/* PROFILE PULSE — мек "breathing" pulse около бутона за профил в topbar-а:
-   леко нарастване (scale 1 -> 1.05) едновременно със златист glow, 3s цикъл.
-   Спира завинаги след първо тапване (виж toggleProfilePage() -> body.pulse-seen,
-   плюс синхронния early-init скрипт до gt_dark за persisted state преди paint).
+/* PROFILE PULSE — постоянен gold pulsing glow/ring около бутона за профил в
+   topbar-а. Винаги активен (не спира след тап). !important, защото на реално
+   устройство анимацията не се показваше — вероятно заради стария
+   body:not(.pulse-seen) gate, който можеше да остане "заключен" от localStorage
+   (gt_profile_pulse_seen) от предишен тест; вече е премахнат изцяло.
    Отделен keyframes за dark mode, защото --gold е различен нюанс на тъмно. */
 @keyframes profilePulse{
-  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(184,150,106,.5)}
-  50%{transform:scale(1.05);box-shadow:0 0 10px 6px rgba(184,150,106,.18)}
+  0%,100%{box-shadow:0 0 0 0 rgba(184,150,106,.6)}
+  50%{box-shadow:0 0 0 8px rgba(184,150,106,0)}
 }
 @keyframes profilePulseDark{
-  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(212,169,106,.55)}
-  50%{transform:scale(1.05);box-shadow:0 0 10px 6px rgba(212,169,106,.22)}
+  0%,100%{box-shadow:0 0 0 0 rgba(212,169,106,.6)}
+  50%{box-shadow:0 0 0 8px rgba(212,169,106,0)}
 }
-body:not(.pulse-seen) #topbar-profile-btn{animation:profilePulse 3s cubic-bezier(0.4,0,0.6,1) infinite}
-body.dark:not(.pulse-seen) #topbar-profile-btn{animation-name:profilePulseDark}
+#topbar-profile-btn{animation:profilePulse 2.5s ease-in-out infinite !important}
+body.dark #topbar-profile-btn{animation-name:profilePulseDark !important}
 @media (prefers-reduced-motion:reduce){
-  #topbar-profile-btn{animation:none}
+  #topbar-profile-btn{animation:none !important}
 }
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
 .logo span{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
@@ -976,7 +977,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </style>
 </head>
 <body>
-<script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}try{if(localStorage.getItem('gt_profile_pulse_seen')==='1')document.body.classList.add('pulse-seen');}catch(e){}})();</script>
+<script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
 <div class="bg"></div>
 <div class="desktop-deco desktop-deco-left" aria-hidden="true">Know<br>your<br>glow.</div>
 <div class="desktop-deco desktop-deco-right" id="desktop-deco-right" aria-hidden="true">220+ козметични процедури<br>твоят личен beauty дневник<br>напомняния навреме</div>
@@ -3387,11 +3388,6 @@ function _currentActivePageName(){
   return active.id.replace('page-','');
 }
 function toggleProfilePage(){
-  // Спира permanentно gold pulse-а на профилния бутон след първо тапване.
-  try{
-    document.body.classList.add('pulse-seen');
-    localStorage.setItem('gt_profile_pulse_seen','1');
-  }catch(e){}
   const pg = document.getElementById('page-profile');
   const isOpen = pg && pg.classList.contains('active');
   if(isOpen){
