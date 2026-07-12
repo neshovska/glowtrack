@@ -662,6 +662,12 @@ body.dark .dv2-year-chip{background:#1a1a2e;border-color:rgba(212,169,106,.2);co
 .dc-sub{font-size:11px;color:var(--ink2);margin-top:1px}
 .dc-del{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--roselt);font-size:20px;padding:0 2px;line-height:1;flex-shrink:0}
 .dc-del:hover{color:#e85d5d}
+/* Upcoming-cycle card — theme-aware pink tint (border stays pink, background subtle in both themes) */
+.cycle-upcoming{background:rgba(212,120,154,.1)}
+.cycle-upcoming-ic{background:rgba(212,120,154,.18)}
+body.dark .cycle-upcoming{background:rgba(232,160,160,.12)}
+body.dark .cycle-upcoming-ic{background:rgba(232,160,160,.18)}
+body.dark .cycle-upcoming .dc-name{color:#e8a0a0}
 /* Add form */
 .dc-form{background:var(--roselt);border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid rgba(184,150,106,.2)}
 .dc-form input{width:100%;padding:9px 11px;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:10px;font-size:13px;color:var(--ink);font-family:'DM Sans',sans-serif;outline:none;margin-top:4px}
@@ -5180,8 +5186,8 @@ function showCalDetailV2(entries,dateStr){
       // Special style for cycle reminders
       if(e.isCycleReminder){
         const cycCol='#d4789a';
-        html+=`<div class="dc-card" style="background:#fde8ef;border-left:3px solid ${cycCol};border-radius:12px">
-          <div class="dc-icon" style="background:#fbd0df;border-radius:10px">
+        html+=`<div class="dc-card cycle-upcoming" style="border-left:3px solid ${cycCol};border-radius:12px">
+          <div class="dc-icon cycle-upcoming-ic">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${cycCol}" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
           </div>
           <div style="flex:1;min-width:0">
@@ -6347,18 +6353,31 @@ function renderSkinResult(skinType, fototype){
   const recIds = [...(SKIN_TYPE_RECS[skinType]||[]), ...(PHOTOTYPE_RECS[fototype]||[])];
   const recProcs = recIds.map(id=>PROCS.find(p=>p.id===id)).filter(Boolean);
   document.getElementById('skin-quiz-title').textContent = isBGq?'Твоят резултат':'Your result';
+  const romanNum = ['','I','II','III','IV','V','VI'];
+  const photoShades = ['#fdf1e3','#f3dcc0','#e0bd93','#c99b6a','#9c7047','#6b4a30'];
   document.getElementById('skin-quiz-body').innerHTML = `
-    <div style="text-align:center;padding:20px 12px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);margin-bottom:14px">
-      <div style="font-size:38px;margin-bottom:8px;color:var(--gold)">${ic(ti.icon,'38px')}</div>
-      <div style="font-size:19px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:6px">${isBGq?ti.bg:ti.en}</div>
-      <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">${isBGq?ti.descBg:ti.descEn}</div>
+    <div style="text-align:center;padding:24px 16px;border-radius:18px;background:var(--card);margin-bottom:14px;position:relative;overflow:hidden;border:1.5px solid #b8966a33">
+      <div style="position:absolute;inset:0;background:radial-gradient(120% 100% at 50% 0%,rgba(184,150,106,.12),transparent 60%);pointer-events:none"></div>
+      <div style="position:relative">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--goldlt),rgba(212,169,106,.3));display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--gold)">${ic(ti.icon,'28px')}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:6px">${isBGq?ti.bg:ti.en}</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.6;max-width:300px;margin:0 auto">${isBGq?ti.descBg:ti.descEn}</div>
+      </div>
     </div>
-    <div style="text-align:center;padding:16px 12px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);margin-bottom:18px">
-      <div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:6px">${isBGq?pi.bg:pi.en} <span style="color:var(--ink2);font-weight:400">(${['','I','II','III','IV','V','VI'][fototype]})</span></div>
-      <div style="font-size:12px;color:var(--ink2);line-height:1.5">${isBGq?pi.descBg:pi.descEn}</div>
+    <div style="padding:16px 14px;border:1.5px solid #b8966a33;border-radius:16px;background:var(--card);margin-bottom:18px">
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;text-align:center">${isBGq?'Твоят фототип':'Your phototype'}</div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:7px;margin-bottom:14px">
+        ${[1,2,3,4,5,6].map(n=>{
+          const active = n===fototype;
+          const size = active ? 30 : 20;
+          return `<div style="width:${size}px;height:${size}px;flex-shrink:0;border-radius:50%;background:${photoShades[n-1]};border:${active?'2.5px solid var(--gold)':'1.5px solid rgba(0,0,0,.08)'};box-shadow:${active?'0 2px 8px rgba(184,150,106,.35)':'none'};transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${n<=2?'#8a7358':'#fff'}">${active?romanNum[n]:''}</div>`;
+        }).join('')}
+      </div>
+      <div style="text-align:center;font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:4px">${isBGq?pi.bg:pi.en}</div>
+      <div style="text-align:center;font-size:12px;color:var(--ink2);line-height:1.5;max-width:300px;margin:0 auto">${isBGq?pi.descBg:pi.descEn}</div>
     </div>
     ${recProcs.length?`
-    <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">${ic('sparkle','12px')} ${isBGq?'Препоръчани за теб':'Recommended for you'}</div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px"><span style="color:var(--gold);display:inline-flex">${ic('sparkle','13px')}</span>${isBGq?'Препоръчани за теб':'Recommended for you'}</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
       ${recProcs.map(p=>{const lp=procL(p);return `<div onclick="closeSkinQuiz();openSheet('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
         ${p.img?`<img src="${p.img}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0">`:procCircleIcon(lp.name,'#b8966a',38)}
@@ -6366,7 +6385,7 @@ function renderSkinResult(skinType, fototype){
         <div style="color:var(--gold);font-size:16px">›</div>
       </div>`;}).join('')}
     </div>`:''}
-    <button onclick="openSkinQuiz()" style="width:100%;padding:12px;background:none;border:1.5px solid var(--roselt);border-radius:12px;color:var(--ink2);font-size:13px;cursor:pointer;font-family:inherit">${ic('refresh','11px')} ${isBGq?'Направи теста отново':'Retake test'}</button>
+    <button onclick="openSkinQuiz()" style="width:100%;padding:12px;background:none;border:1.5px solid var(--roselt);border-radius:12px;color:var(--ink2);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">${ic('refresh','11px')} ${isBGq?'Направи теста отново':'Retake test'}</button>
   `;
   renderSkinTestCard();
 }
@@ -6381,13 +6400,13 @@ function renderSkinTestCard(){
     const pi = PHOTOTYPE_INFO[saved.fototype];
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="font-size:28px;color:var(--gold)">${ic(ti.icon,'28px')}</div>
+        <div style="width:40px;height:40px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--goldlt),rgba(212,169,106,.3));display:flex;align-items:center;justify-content:center;color:var(--gold)">${ic(ti.icon,'19px')}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${isBGq?'Твоят тип кожа':'Your skin type'}</div>
           <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?ti.bg:ti.en} · ${['','I','II','III','IV','V','VI'][saved.fototype]}</div>
         </div>
       </div>
-      <button onclick="viewSkinResult()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${ic('sparkle','12px')} ${isBGq?'Виж резултата и препоръките':'View result and recommendations'}</button>
+      <button onclick="viewSkinResult()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">${ic('sparkle','12px')} ${isBGq?'Виж резултата и препоръките':'View result and recommendations'}</button>
       <button onclick="openSkinQuiz()" style="width:100%;margin-top:8px;padding:8px;background:none;border:none;color:var(--ink2);font-size:11.5px;cursor:pointer;font-family:inherit;text-decoration:underline">${ic('refresh','11px')} ${isBGq?'Направи теста отново':'Retake test'}</button>`;
   } else {
     el.innerHTML = `
