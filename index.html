@@ -2036,7 +2036,7 @@ window.initPushNotifications=async function(silent){
     console.log('[PUSH] serviceWorker + Notification API налични');
     const supported=await fcmIsSupported().catch((e)=>{console.error('[PUSH] fcmIsSupported() хвърли грешка:',e);return false;});
     console.log('[PUSH] fcmIsSupported() =', supported);
-    if(!supported){console.error('[PUSH] FCM не се поддържа в тази среда');toast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share › Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
+    if(!supported){console.error('[PUSH] FCM не се поддържа в тази среда');toast('Push известията работят само от Home Screen на iPhone. Добави GlowTrack от Share → Add to Home Screen.');if(typeof updatePushToggleUI==='function')updatePushToggleUI();return null;}
     console.log('[PUSH] Notification.permission ПРЕДИ request =', Notification.permission);
     const permission=await Notification.requestPermission();
     console.log('[PUSH] Notification.permission СЛЕД request =', permission);
@@ -2067,7 +2067,7 @@ window.initPushNotifications=async function(silent){
         window._lastFcmToken = token;
         if(cachedToken === undefined){
           // Първи път за тази сесия — показваме toast само тогава (и само ако не е silent)
-          toast('Известията са включени');
+          toast('Известията са включени ✓');
           if(typeof window.trackEvent==='function')window.trackEvent('push_enabled',{});
         }
       } else {
@@ -6537,8 +6537,8 @@ function saveNotifDate(){
   const dt = new Date(d + 'T' + time);
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
-  if(diff >= 0) info.textContent = procName + ' — ' + fmtDate(new Date(d)) + (window._lang==='en'?' at ':' в ') + time;
-  else info.textContent = 'Датата е в миналото';
+  if(diff >= 0) info.textContent = '✅ ' + procName + ' — ' + fmtDate(new Date(d)) + (window._lang==='en'?' at ':' в ') + time;
+  else info.textContent = '⚠️ Датата е в миналото';
   showToast(t('toastNotifSaved'));
   setTimeout(()=>{ _savingNotif = false; }, 1200);
   document.getElementById('notif-date').value = '';
@@ -9269,7 +9269,10 @@ _updateOfflineBanner();
 // or in a subdirectory (e.g. GitHub Pages project page /glowtrack/)
 if('serviceWorker' in navigator && location.protocol === 'https:'){
   try{
-    navigator.serviceWorker.register('./sw.js').then(reg=>{
+    // ?v=8 форсира браузъра (особено iOS Safari, известен с упорито кеширане на
+    // SW файлове) да третира това като физически различен ресурс и да го дръпне
+    // наново, вместо да сервира стара кеширана версия на sw.js.
+    navigator.serviceWorker.register('./sw.js?v=8').then(reg=>{
       // Force update check on every load
       reg.update();
       if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
