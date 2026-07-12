@@ -10,12 +10,25 @@
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
-const {defineSecret} = require("firebase-functions/params");
+const {defineSecret, defineString} = require("firebase-functions/params");
+const nodemailer = require("nodemailer");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
 const db = admin.firestore();
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
+
+// SMTP за админ имейл известия (напр. B2B запитвания от клиники). HOST/PORT
+// имат разумни default-и (Gmail SMTP) — сменете ги през `firebase functions:
+// config` / Console, ако glowtrack.eu ползва друг доставчик. USER/PASS са
+// тайни — задават се веднъж през:
+//   firebase functions:secrets:set SMTP_USER
+//   firebase functions:secrets:set SMTP_PASS
+const smtpHost = defineString("SMTP_HOST", {default: "smtp.gmail.com"});
+const smtpPort = defineString("SMTP_PORT", {default: "465"});
+const smtpUser = defineSecret("SMTP_USER");
+const smtpPass = defineSecret("SMTP_PASS");
+const CLINIC_NOTIFICATION_EMAIL = "info@glowtrack.eu";
 
 // Админ на GlowTrack — получава push при всеки milestone от +100 нови регистрации.
 const ADMIN_UID = "7lNa6gWSDxb7kgR1AR8VEeKPgap2";
@@ -377,5 +390,51 @@ exports.askAiAssistant = onCall(
         console.error("askAiAssistant грешка:", e);
         throw new HttpsError("internal", "Грешка при връзка с AI.");
       }
+    },
+);
+
+
+// ═══════════════════════════════════════════════════════════
+// B2B КЛИНИКИ — ИМЕЙЛ ИЗВЕСТИЕ ПРИ НОВО ЗАПИТВАНЕ
+// ═══════════════════════════════════════════════════════════
+
+// Landing страницата (#for-clinics в index.html) пише директно в тази
+// колекция от клиента (window.submitClinicInquiry). Тук само известяваме
+// администратора по имейл — самият запис вече е направен.
+exports.notifyOnClinicInquiry = onDocumentCreated(
+    {document: "clinic_inquiries/{docId}", secrets: [smtpUser, smtpPass]},
+    async (event) => {
+      const data = event.data?.data();
+      if (!data) return null;
+
+      const port = parseInt(smtpPort.value(), 10) || 465;
+      const transporter = nodemailer.createTransport({
+        host: smtpHost.value(),
+        port,
+        secure: port === 465,
+        auth: {user: smtpUser.value(), pass: smtpPass.value()},
+      });
+
+      const summary = [
+        `Клиника: ${data.clinicName || "—"}`,
+        `Град: ${data.city || "—"}`,
+        `Имейл: ${data.email || "—"}`,
+        `Телефон: ${data.phone || "—"}`,
+        `План: ${data.plan || "—"}`,
+      ].join("\n");
+
+      try {
+        await transporter.sendMail({
+          from: `"GlowTrack" <${smtpUser.value()}>`,
+          to: CLINIC_NOTIFICATION_EMAIL,
+          replyTo: data.email || undefined,
+          subject: `Ново B2B запитване — ${data.clinicName || "клиника"} (${data.plan || "—"})`,
+          text: `Получено е ново запитване от клиника през glowtrack.eu/#for-clinics:\n\n${summary}`,
+        });
+        console.log("Имейл известие за клиника изпратено:", data.clinicName);
+      } catch (e) {
+        console.error("Грешка при изпращане на имейл известие за клиника:", e);
+      }
+      return null;
     },
 );

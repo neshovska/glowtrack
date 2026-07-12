@@ -335,15 +335,17 @@ body.dark #topbar-profile-btn{animation-name:profilePulseDark !important}
 }
 @keyframes soonFadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
 #page-soon.active #soon-content{animation:soonFadeUp .6s cubic-bezier(0.25,0.46,0.45,0.94)}
-/* SUCCESS CONFETTI — къс gold particle burst при успешен запис в дневника
-   (виж window._confettiBurst() до saveDiaryEntry()). */
-.confetti-dot{position:absolute;top:-10px;border-radius:50%;opacity:0;animation:confettiFall ease-in forwards}
-@keyframes confettiFall{
-  0%{opacity:1;transform:translateY(0) translateX(0) rotate(0deg)}
-  100%{opacity:0;transform:translateY(100vh) translateX(var(--drift,0px)) rotate(360deg)}
+/* SUCCESS GLOW BURST — кратък gold glow + лек scale на бутона "Запази" при
+   успешен запис в дневника (виж window._glowBurst() до saveDiaryEntry()/
+   saveRoutine()). */
+@keyframes glowBurstBtn{
+  0%{box-shadow:0 0 0 0 rgba(212,168,48,0);transform:scale(1)}
+  50%{box-shadow:0 0 10px 20px rgba(212,168,48,.7);transform:scale(1.05)}
+  100%{box-shadow:0 0 0 0 rgba(212,168,48,0);transform:scale(1)}
 }
+.glow-burst-btn{animation:glowBurstBtn .6s ease-in-out}
 @media (prefers-reduced-motion:reduce){
-  .confetti-dot{display:none}
+  .glow-burst-btn{animation:none}
 }
 @media (prefers-reduced-motion:reduce){
   #page-home.active #home-hero-wrap,
@@ -1179,7 +1181,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="saveRoutine('morning')" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning">Запази</button>
+            <button onclick="saveRoutine('morning',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning">Запази</button>
             <button onclick="toggleCarePanel('morning')" style="padding:10px 16px;background:none;border:1.5px solid var(--roselt);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2)">Отмени</button>
           </div>
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
@@ -1210,7 +1212,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="saveRoutine('evening')" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening">Запази</button>
+            <button onclick="saveRoutine('evening',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening">Запази</button>
             <button onclick="toggleCarePanel('evening')" style="padding:10px 16px;background:none;border:1.5px solid var(--roselt);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2)">Отмени</button>
           </div>
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
@@ -2755,35 +2757,20 @@ const BG_D=['нед','пон','вт','ср','чет','пет','съб'];
 function fmtDate(d){const dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=d.getFullYear();return`${dd}.${mm}.${yyyy}`;}
 function fmtFull(d){return fmtDate(d);}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
-// Кратък gold confetti burst — CSS-driven (само keyframes), JS-ът само
-// създава/чисти елементите. Извиква се напр. при успешен запис в дневника.
-function _confettiBurst(){
+// Кратък gold glow burst върху бутона "Запази" при успешен запис в дневника —
+// CSS-driven (само keyframes), JS-ът само (пре)прилага класа.
+function _glowBurst(btn){
+  if(!btn) return;
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const colors=['#b8966a','#d4a96a','#e8c99a'];
-  const container=document.createElement('div');
-  container.style.cssText='position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden';
-  const COUNT=24;
-  for(let i=0;i<COUNT;i++){
-    const dot=document.createElement('span');
-    dot.className='confetti-dot';
-    const left=Math.random()*100;
-    const delay=Math.random()*300;
-    const duration=550+Math.random()*400;
-    const size=4+Math.random()*4;
-    const drift=(Math.random()-0.5)*70;
-    dot.style.left=left+'%';
-    dot.style.width=size+'px';
-    dot.style.height=size+'px';
-    dot.style.background=colors[i%colors.length];
-    dot.style.setProperty('--drift', drift+'px');
-    dot.style.animationDuration=duration+'ms';
-    dot.style.animationDelay=delay+'ms';
-    container.appendChild(dot);
-  }
-  document.body.appendChild(container);
-  setTimeout(()=>container.remove(), 1100);
+  btn.classList.remove('glow-burst-btn');
+  void btn.offsetWidth; // force reflow, за да преиграе анимацията при повторен запис
+  btn.classList.add('glow-burst-btn');
+  btn.addEventListener('animationend', function handler(){
+    btn.classList.remove('glow-burst-btn');
+    btn.removeEventListener('animationend', handler);
+  }, {once:true});
 }
-window._confettiBurst=_confettiBurst;
+window._glowBurst=_glowBurst;
 const F=()=>window._f;const DB=()=>window._db;const AU=()=>window._auth;
 
 
@@ -4919,7 +4906,7 @@ async function saveDiaryEntry(procId){
       createdAt:F().serverTimestamp()
     });
     showToast(t('toastSaved')||'Запазено!');
-    if(typeof window._confettiBurst==='function') window._confettiBurst();
+    if(typeof window._glowBurst==='function') window._glowBurst(btn);
     if(typeof trackEvent==='function')trackEvent('diary_entry_created',{procedure_id:procId,rating:rating});
     // Save reminder/booking if date is filled
     const deReminderDate = document.getElementById('de-reminder-date')?.value;
@@ -8328,6 +8315,15 @@ function loadNotifsPage(){
     const diff = daysUntil(dtExact);
     const isBooking = n.type === 'booking';
 
+    // "преди N дни"/"месеца" бадж, само за минали събития.
+    const daysAgoTxt = (()=>{
+      if(!isPast) return '';
+      const days = Math.max(1, -diff);
+      if(days<=30) return isBG?`преди ${days} ${days===1?'ден':'дни'}`:`${days} day${days===1?'':'s'} ago`;
+      const months = Math.round(days/30);
+      return isBG?`преди ${months} ${months===1?'месец':'месеца'}`:`${months} month${months===1?'':'s'} ago`;
+    })();
+
     const diffTxt = isPast ? (isBG?'Минало':'Past') :
       diff===0 ? (isBG?'Днес':'Today') :
       diff===1 ? (isBG?'Утре':'Tomorrow') :
@@ -8354,6 +8350,7 @@ function loadNotifsPage(){
       <div style="font-size:24px;flex-shrink:0">${icon}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:700;color:${isBooking?'var(--gold)':'var(--ink)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${procName}</div>
+        ${isPast?`<div style="font-size:10px;font-family:'DM Sans',sans-serif;color:var(--gold);opacity:.7;margin-top:1px">${daysAgoTxt}</div>`:''}
         <div style="font-size:11px;color:var(--ink2);margin-top:2px">${fmtDate(dtExact)}${n.time?' · '+n.time:''}</div>
         <div style="font-size:10px;font-weight:600;color:${isPast?'#c5bdb4':isBooking?'var(--gold)':'var(--sage)'};margin-top:2px">${typeLabel} · ${diffTxt}</div>
       </div>
@@ -8555,7 +8552,7 @@ function deleteCustomStep(type, id){
   renderCustomSteps(type);
 }
 
-async function saveRoutine(type){
+async function saveRoutine(type, btnEl){
   const today = new Date().toDateString();
   const checked = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(c=>c.dataset.r);
   const customChecked = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(c=>c.dataset.r);
@@ -8586,7 +8583,7 @@ async function saveRoutine(type){
         });
         localStorage.setItem(savedKey, '1');
         showToast('Запазено в дневника!');
-        if(typeof window._confettiBurst==='function') window._confettiBurst();
+        if(typeof window._glowBurst==='function') window._glowBurst(btnEl);
         if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
         // Auto-close accordion
         const accBody = document.getElementById('routine-acc-body') || document.querySelector('.acc-body.open');
@@ -9515,7 +9512,7 @@ function refreshProfilePage(){
         <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">3</div>
         <div style="flex:1;padding-top:4px">
           <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span>Записва се автоматично в дневника</div>
-          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">Процедурата остава в личния дневник на клиента за напомняния и history.</div>
+          <div style="font-size:12.5px;color:var(--ink2);line-height:1.5">Процедурата остава в личния дневник на клиента за напомняния и история.</div>
         </div>
       </div>
     </div>
@@ -9540,7 +9537,7 @@ function refreshProfilePage(){
       </div>
       <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
         <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l-1 6 4 12 4-12-1-6"/></svg></div>
-        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Branded присъствие в приложението</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">Лого, снимки и информация за клиниката ви.</div></div>
+        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">Брандирано присъствие в приложението</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">Лого, снимки и информация за клиниката ви.</div></div>
       </div>
     </div>
   </div>
@@ -9552,19 +9549,19 @@ function refreshProfilePage(){
     <div style="display:flex;flex-direction:column;gap:14px">
       <div class="clinic-plan-card" data-plan="Старт" onclick="selectClinicPlan('Старт',this)" style="border:1.5px solid var(--roselt);border-radius:16px;padding:20px;background:var(--card);cursor:pointer">
         <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">Старт</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">99 лв<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> QR код за клиниката<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Базова статистика</div>
+        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">79€<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> QR код за клиниката<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Базова статистика<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Видимост в енциклопедията</div>
       </div>
       <div class="clinic-plan-card" data-plan="Про" onclick="selectClinicPlan('Про',this)" style="border:2px solid var(--gold);border-radius:16px;padding:20px;background:var(--card);cursor:pointer;position:relative;box-shadow:0 8px 24px rgba(184,150,106,.18)">
         <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:20px">Препоръчан</div>
         <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">Про</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">249 лв<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Всичко от Старт<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Видимост в енциклопедията<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Push известия</div>
+        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">199€<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Всичко от Старт<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Push известия към клиенти<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Детайлна статистика<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Приоритетна поддръжка</div>
       </div>
       <div class="clinic-plan-card" data-plan="Премиум" onclick="selectClinicPlan('Премиум',this)" style="border:1.5px solid var(--roselt);border-radius:16px;padding:20px;background:var(--card);cursor:pointer">
         <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">Премиум</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">499 лв<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Всичко от Про<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> White label<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Приоритетна поддръжка</div>
+        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">399€<span style="font-size:11px;font-weight:500;color:var(--ink2)">/месец</span></div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Всичко от Про<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> White label<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Dedicated account manager<br><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Custom интеграции</div>
       </div>
     </div>
   </div>
@@ -9583,9 +9580,9 @@ function refreshProfilePage(){
       <div class="auth-field">
         <label class="auth-label">План</label>
         <select class="form-input" id="clinic-plan-select">
-          <option value="Старт">Старт — 99 лв/месец</option>
-          <option value="Про" selected>Про — 249 лв/месец</option>
-          <option value="Премиум">Премиум — 499 лв/месец</option>
+          <option value="Старт">Старт — 79€/месец</option>
+          <option value="Про" selected>Про — 199€/месец</option>
+          <option value="Премиум">Премиум — 399€/месец</option>
         </select>
       </div>
       <button class="auth-btn" onclick="submitClinicInquiry()" id="clinic-submit-btn" style="margin-top:6px">Изпрати запитване</button>
