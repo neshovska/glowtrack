@@ -309,8 +309,23 @@ body.dark #topbar-profile-btn{animation-name:profilePulseDark !important}
 #page-procs.active .proc-row:nth-of-type(n+9){animation-delay:640ms}
 @keyframes notifsSlideIn{0%{opacity:0;transform:translateX(20px)}100%{opacity:1;transform:translateX(0)}}
 #page-notifs.active #notifs-page-content{animation:notifsSlideIn .5s cubic-bezier(0.25,0.46,0.45,0.94)}
-@keyframes diaryCalIn{0%{opacity:0;transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
-#page-diary.active #diary-cal-view{animation:diaryCalIn .5s cubic-bezier(0.25,0.46,0.45,0.94)}
+@keyframes diaryCalIn{0%{opacity:0;transform:scale(.96)}100%{opacity:1;transform:scale(1)}}
+#page-diary.active #diary-cal-view{animation:diaryCalIn .35s cubic-bezier(0.25,0.46,0.45,0.94)}
+/* Diary view-toggle buttons: slide in from left/right, converge to center */
+@keyframes diaryViewBtnLeft{0%{opacity:0;transform:translateX(-20px) scale(.85)}100%{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes diaryViewBtnRight{0%{opacity:0;transform:translateX(20px) scale(.85)}100%{opacity:1;transform:translateX(0) scale(1)}}
+#page-diary.active #diary-view-list{animation:diaryViewBtnLeft .4s ease-out both}
+#page-diary.active #diary-view-cal{animation:diaryViewBtnRight .4s ease-out both;animation-delay:80ms}
+/* Diary sort buttons: cascade down, starting 200ms after the buttons appear */
+@keyframes diarySortCascade{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
+#page-diary.active #diary-sort-btns .dsort-btn{animation:diarySortCascade .35s ease-out both}
+#page-diary.active #dsort-default{animation-delay:200ms}
+#page-diary.active #dsort-name{animation-delay:260ms}
+#page-diary.active #dsort-count{animation-delay:320ms}
+#page-diary.active #dsort-manual{animation-delay:380ms}
+@media (prefers-reduced-motion:reduce){
+  #page-diary.active #diary-view-list,#page-diary.active #diary-view-cal,#page-diary.active #diary-sort-btns .dsort-btn{animation:none}
+}
 @keyframes soonFadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
 #page-soon.active #soon-content{animation:soonFadeUp .6s cubic-bezier(0.25,0.46,0.45,0.94)}
 @media (prefers-reduced-motion:reduce){
