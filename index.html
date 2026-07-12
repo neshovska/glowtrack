@@ -995,6 +995,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="auth-field" id="auth-name-field" style="display:none"><label class="auth-label">Име</label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
       <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
       <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+      <div class="auth-field" id="auth-confirm-field" style="display:none"><label class="auth-label">Потвърди паролата</label><input class="auth-input" type="password" id="auth-confirm" placeholder="Въведи паролата отново" autocomplete="new-password"></div>
       <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Влез</button>
       <div style="text-align:center;margin-top:12px">
         <a onclick="showForgotPassword()" id="auth-forgot-link" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
@@ -1274,6 +1275,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div class="auth-field" id="ps-auth-name-field" style="display:none"><label class="auth-label">Име</label><input class="auth-input" type="text" id="ps-auth-name" placeholder="Твоето име" autocomplete="name"></div>
         <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="ps-auth-email" placeholder="example@mail.com" autocomplete="email"></div>
         <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="ps-auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+        <div class="auth-field" id="ps-auth-confirm-field" style="display:none"><label class="auth-label">Потвърди паролата</label><input class="auth-input" type="password" id="ps-auth-confirm" placeholder="Въведи паролата отново" autocomplete="new-password"></div>
         <button class="auth-btn" id="ps-auth-btn" onclick="doPsAuthUnified()">Влез</button>
         <div style="text-align:center;margin-top:12px">
           <a onclick="showForgotPassword()" id="ps-auth-forgot-link" style="display:block;font-size:12px;color:var(--gold);text-decoration:none;cursor:pointer;margin-bottom:10px">Забравена парола?</a>
@@ -1950,6 +1952,10 @@ window.setAuthMode=function(mode){
   if(tabReg) tabReg.classList.toggle('active', mode==='register');
   const nameField=document.getElementById('auth-name-field');
   if(nameField) nameField.style.display = mode==='register' ? 'block' : 'none';
+  const confirmField=document.getElementById('auth-confirm-field');
+  if(confirmField) confirmField.style.display = mode==='register' ? 'block' : 'none';
+  const confirmInput=document.getElementById('auth-confirm');
+  if(confirmInput) confirmInput.value='';
   const btn=document.getElementById('auth-btn');
   if(btn) btn.textContent = mode==='register' ? (isEN?'Sign up':'Регистрирай се') : (isEN?'Log in':'Влез');
   const forgotLink=document.getElementById('auth-forgot-link');
@@ -1966,9 +1972,16 @@ window.setAuthMode=function(mode){
 window.doAuthUnified=async function(){
   const name=document.getElementById('auth-name').value.trim();
   const email=document.getElementById('auth-email').value.trim();
-  const pass=document.getElementById('auth-pass').value;
+  const passEl=document.getElementById('auth-pass');
+  const confirmEl=document.getElementById('auth-confirm');
+  const pass=passEl.value;
   if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}
   if(window._authMode==='register' && pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
+  if(window._authMode==='register' && pass!==confirmEl.value){
+    window.showAuthError(window._lang==='en'?'Passwords do not match':'Паролите не съвпадат');
+    passEl.value=''; confirmEl.value='';
+    return;
+  }
   const btn=document.getElementById('auth-btn');btn.disabled=true;btn.textContent='...';
   try{
     if(window._authMode==='register'){
@@ -3127,10 +3140,13 @@ function applyLang(){
     if(labs[0]) labs[0].textContent = (window._lang==='en'?'Name':'Име');
     if(labs[1]) labs[1].textContent = t('email');
     if(labs[2]) labs[2].textContent = t('password');
+    if(labs[3]) labs[3].textContent = (window._lang==='en'?'Confirm password':'Потвърди паролата');
     const ni = document.getElementById('auth-name');
     if(ni) ni.placeholder = t('namePh');
     const pi = document.getElementById('auth-pass');
     if(pi) pi.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
+    const ci = document.getElementById('auth-confirm');
+    if(ci) ci.placeholder = window._lang==='en'?'Re-enter your password':'Въведи паролата отново';
     const forgotLink=document.getElementById('auth-forgot-link');
     if(forgotLink) forgotLink.textContent = window._lang==='en'?'Forgot password?':'Забравена парола?';
     if(typeof setAuthMode==='function') setAuthMode(window._authMode||'login');
@@ -3142,8 +3158,11 @@ function applyLang(){
     if(psLabs[0]) psLabs[0].textContent = (window._lang==='en'?'Name':'Име');
     if(psLabs[1]) psLabs[1].textContent = t('email');
     if(psLabs[2]) psLabs[2].textContent = t('password');
+    if(psLabs[3]) psLabs[3].textContent = (window._lang==='en'?'Confirm password':'Потвърди паролата');
     const psPass = document.getElementById('ps-auth-pass');
     if(psPass) psPass.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
+    const psConfirm = document.getElementById('ps-auth-confirm');
+    if(psConfirm) psConfirm.placeholder = window._lang==='en'?'Re-enter your password':'Въведи паролата отново';
     const psEmail = document.getElementById('ps-auth-email');
     if(psEmail) psEmail.placeholder = 'example@mail.com';
     if(typeof setPsAuthMode==='function') setPsAuthMode(window._psAuthMode||'login');
@@ -8765,6 +8784,10 @@ window.setPsAuthMode=function(mode){
   if(tabReg) tabReg.classList.toggle('active', mode==='register');
   const nameField=document.getElementById('ps-auth-name-field');
   if(nameField) nameField.style.display = mode==='register' ? 'block' : 'none';
+  const confirmField=document.getElementById('ps-auth-confirm-field');
+  if(confirmField) confirmField.style.display = mode==='register' ? 'block' : 'none';
+  const confirmInput=document.getElementById('ps-auth-confirm');
+  if(confirmInput) confirmInput.value='';
   const btn=document.getElementById('ps-auth-btn');
   if(btn) btn.textContent = mode==='register' ? (isEN?'Sign up':'Регистрирай се') : (isEN?'Log in':'Влез');
   const forgotLink=document.getElementById('ps-auth-forgot-link');
@@ -8781,11 +8804,19 @@ window.setPsAuthMode=function(mode){
 async function doPsAuthUnified(){
   const name=(document.getElementById('ps-auth-name')?.value||'').trim();
   const email=(document.getElementById('ps-auth-email')?.value||'').trim();
-  const pass=document.getElementById('ps-auth-pass')?.value||'';
+  const passEl=document.getElementById('ps-auth-pass');
+  const confirmEl=document.getElementById('ps-auth-confirm');
+  const pass=passEl?.value||'';
   const errEl=document.getElementById('ps-auth-error');
   const showErr=(msg)=>{ if(errEl){errEl.textContent=msg; errEl.classList.add('show');} };
   if(!email||!pass){ showErr(t('fillAllFields')); return; }
   if(window._psAuthMode==='register' && pass.length<6){ showErr(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа'); return; }
+  if(window._psAuthMode==='register' && pass!==(confirmEl?.value||'')){
+    showErr(window._lang==='en'?'Passwords do not match':'Паролите не съвпадат');
+    if(passEl) passEl.value='';
+    if(confirmEl) confirmEl.value='';
+    return;
+  }
   if(errEl) errEl.classList.remove('show');
   const btn=document.getElementById('ps-auth-btn'); if(btn){btn.disabled=true;btn.textContent='...';}
   try{
