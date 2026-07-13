@@ -608,7 +608,7 @@ body.dark .notif-acc-hdr{background:linear-gradient(135deg,#1e1e38 0%,#2a2444 10
 /* SHEET */
 .overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(18,18,42,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .overlay.open{display:block}
-.sheet{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);max-height:88vh;background:var(--mist);border-radius:22px 22px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
+.sheet{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);max-height:88vh;max-height:88dvh;background:var(--mist);border-radius:22px 22px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
 @keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
 /* SPOTLIGHT SHIMMER — тънка gold ивица преминава веднъж отляво надясно при
    отваряне на sheet-а (всеки път, тъй като .overlay минава display:none->block
@@ -1737,6 +1737,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div id="home-logo-glow-halo" style="width:200px;height:200px" aria-hidden="true"></div>
       <div id="home-logo-glow-core" style="width:90px;height:90px" aria-hidden="true"></div>
       <script>(function(){
+        // gt_intro_seen: помни дали потребителят вече е гледал intro анимациите
+        // (това лого сияние + login splash-а по-долу) поне веднъж. Изчислява се
+        // ТУК — първият inline script, който се изпълнява синхронно при parse на
+        // страницата, преди onAuthStateChanged да успее да гръмне асинхронно —
+        // и се излага през window._gtIntroSeen за splash логиката по-долу в
+        // основния script. Записваме флага веднага, за да не се пусне анимацията
+        // повторно дори при друго събитие в рамките на същото зареждане.
+        window._gtIntroSeen = (function(){
+          try{
+            var seen = !!localStorage.getItem('gt_intro_seen');
+            localStorage.setItem('gt_intro_seen','1');
+            return seen;
+          }catch(e){ return false; }
+        })();
         // star = пикселна позиция на светлинната точка (кръстовището на
         // символа) в оригиналната 853x1844 hero снимка — изчислена веднъж
         // офлайн (peak-brightness след Gaussian blur, за да хване широкото
@@ -1744,6 +1758,14 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         // dark/light снимката.
         var STAR = { dark: [425, 818], light: [431, 784] };
         var GLOW_IDS = ['home-logo-glow-core', 'home-logo-glow-halo'];
+        if(window._gtIntroSeen){
+          // Вече видяно и преди — премахваме елементите веднага, без анимация.
+          GLOW_IDS.forEach(function(id){
+            var el = document.getElementById(id);
+            if(el) el.remove();
+          });
+          return;
+        }
         function positionHomeLogoGlow(){
           var wrap = document.getElementById('home-hero-wrap');
           if(!wrap) return;
@@ -2212,11 +2234,18 @@ onAuthStateChanged(auth,async user=>{
       document.querySelector('meta[name="viewport"]').setAttribute('content',
         'width=device-width, initial-scale=1.0, viewport-fit=cover');
     }, 300);
-    // Splash overlay is now purely decorative — fades on top while the app underneath is already live.
-    if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
-    if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
-    setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
-    setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
+    // Splash overlay е decorative — но само на истинско първо зареждане (виж
+    // window._gtIntroSeen, зададен синхронно в home-hero-wrap inline script-а
+    // по-горе). При презагряне/повторно отваряне на приложението го скриваме
+    // веднага, без да пускаме показването/fade цикъла отново.
+    if(window._gtIntroSeen){
+      if(loginSplash){loginSplash.style.display='none';}
+    } else {
+      if(loginSplash){loginSplash.style.display='flex';loginSplash.style.opacity='1';}
+      if(loginLogo){loginLogo.style.transform='scale(0.3)';loginLogo.style.opacity='0';}
+      setTimeout(()=>{if(loginLogo){loginLogo.style.transform='scale(1)';loginLogo.style.opacity='1';}},100);
+      setTimeout(()=>{if(loginSplash){loginSplash.style.opacity='0';setTimeout(()=>{loginSplash.style.display='none';},600);}},900);
+    }
     const _profNameEl=document.getElementById('prof-name'); if(_profNameEl) _profNameEl.textContent=user.displayName||user.email.split('@')[0];
     const _profEmailEl=document.getElementById('prof-email'); if(_profEmailEl) _profEmailEl.textContent=user.email;
     // Update topbar avatar
@@ -4312,9 +4341,19 @@ function renderProcs(){
         renderCats();
         renderProcs();
       }
-      // Always open on Начало (Home) when the app launches
+      // Отваряме последно активния основен таб (запазен от goPage() в
+      // localStorage 'gt_last_page'), ако е валиден таб от долната навигация;
+      // иначе (напр. истинско първо зареждане, когато няма запис) — Начало.
       if(typeof goPage==='function'){
-        goPage('home');
+        var _validTabs = ['home','procs','notifs','soon','diary'];
+        var _lastTab = null;
+        try{ _lastTab = localStorage.getItem('gt_last_page'); }catch(e){}
+        var _openTab = (_lastTab && _validTabs.indexOf(_lastTab) !== -1) ? _lastTab : 'home';
+        var _openBtn = null;
+        document.querySelectorAll('.bnav .nb').forEach(function(b){
+          if((b.getAttribute('onclick')||'').indexOf("goPage('"+_openTab+"'") !== -1) _openBtn = b;
+        });
+        goPage(_openTab, _openBtn);
       }
       setTimeout(()=>{ window.scrollTo(0,0); document.querySelector('.page.active')?.scrollTo(0,0); }, 100);
     }catch(e){console.error('Render error:',e);}
