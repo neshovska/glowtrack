@@ -572,6 +572,17 @@ body.dark #page-profile .p-avatar-lg{border-color:#1e1e38}
 #page-profile .p-edit-btn{margin-top:13px;display:inline-flex;align-items:center;gap:6px;padding:7px 16px;
   background:var(--card);border:1.5px solid rgba(184,150,106,.4);border-radius:20px;font-size:11.5px;
   font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit}
+.birthday-banner{margin:14px auto 0;max-width:280px;padding:10px 16px;border-radius:14px;
+  background:var(--goldlt);border:1.5px solid var(--gold);color:var(--ink);font-size:13px;
+  font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
+#home-birthday-greeting{position:absolute;left:0;right:0;top:58px;text-align:center;padding:10px 16px;
+  font-size:13px;font-weight:700;color:var(--ink);background:var(--goldlt);border-bottom:1.5px solid var(--gold);
+  z-index:8;display:flex;align-items:center;justify-content:center;gap:6px;
+  animation:homeBirthdayFade 3s ease-in-out forwards}
+@keyframes homeBirthdayFade{0%{opacity:0}15%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  #home-birthday-greeting{animation:none}
+}
 #page-profile .p-eyebrow{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
   color:var(--gold);margin:0 0 8px 2px}
 #page-profile .p-stats-row{display:flex;gap:7px;margin-bottom:8px}
@@ -1379,6 +1390,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div class="p-name-lg" id="ps-name">—</div>
       <div class="p-email-lg" id="ps-email">—</div>
       <div class="p-edit-btn" id="ps-edit-btn" onclick="showEditProfile()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:-1px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span data-t="editProfileBtn">Редактирай профила</span></div>
+      <div class="birthday-banner" id="ps-birthday-banner" style="display:none">🎂 <span id="ps-birthday-text"></span></div>
       </div>
 
       <!-- Guest login (shown when not signed in) -->
@@ -1748,6 +1760,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page active" id="page-home">
     <div id="home-hero-wrap">
+      <div id="home-birthday-greeting" style="display:none"></div>
       <div id="home-logo-glow-halo" style="width:200px;height:200px" aria-hidden="true"></div>
       <div id="home-logo-glow-core" style="width:90px;height:90px" aria-hidden="true"></div>
       <script>(function(){
@@ -2537,10 +2550,27 @@ window._cache = {
   clinicAds: null,     // all clinic ads
   productAds: null,    // all product ads
   adsTs: 0,
+  dob: undefined,      // cached users/{uid}.dob ('' if none set, undefined if not fetched yet)
   CACHE_TTL: 2 * 60 * 1000  // 5 minutes
 };
 function cacheInvalid(ts){ return !ts || (Date.now() - ts) > window._cache.CACHE_TTL; }
-function invalidateCache(){ window._cache.diary=null; window._cache.diaryTs=0; window._cache.clinicAds=null; window._cache.productAds=null; window._cache.adsTs=0; }
+function invalidateCache(){ window._cache.diary=null; window._cache.diaryTs=0; window._cache.clinicAds=null; window._cache.productAds=null; window._cache.adsTs=0; window._cache.dob=undefined; }
+
+// Връща true, ако днес е рожденият ден на текущия потребител (users/{uid}.dob, формат YYYY-MM-DD).
+async function _isBirthdayToday(){
+  if(!window._user) return false;
+  try{
+    if(window._cache.dob===undefined){
+      const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+      window._cache.dob = (snap.exists() && snap.data().dob) ? snap.data().dob : '';
+    }
+    if(!window._cache.dob) return false;
+    const parts = window._cache.dob.split('-');
+    const m = parseInt(parts[1],10), d = parseInt(parts[2],10);
+    const today = new Date();
+    return (today.getMonth()+1)===m && today.getDate()===d;
+  }catch(e){ return false; }
+}
 
 // ── OFFLINE PERSISTENCE ──
 // Огледава последно заредените Firestore резултати в localStorage (само plain
@@ -7568,6 +7598,28 @@ function renderHomePage(){
   if(guestEl) guestEl.style.display='none';
   if(clientEl) clientEl.style.display='block';
 
+  // Birthday greeting — кратък banner отгоре на hero снимката, изчезва сам (виж CSS homeBirthdayFade)
+  try{
+    if(typeof _isBirthdayToday==='function'){
+      _isBirthdayToday().then(function(isBday){
+        const bEl = document.getElementById('home-birthday-greeting');
+        if(!bEl) return;
+        if(isBday){
+          const dn2 = window._user.displayName||(window._user.email?window._user.email.split('@')[0]:'')||'';
+          const fn = dn2.trim().split(/\s+/)[0] || '';
+          bEl.textContent = (isBG ? ('Честит рожден ден'+(fn?', '+fn:'')+'!') : ('Happy birthday'+(fn?', '+fn:'')+'!')) + ' 🎉';
+          bEl.style.display='flex';
+          bEl.style.animation='none';
+          void bEl.offsetWidth;
+          bEl.style.animation='';
+          bEl.addEventListener('animationend', function(){ bEl.style.display='none'; }, {once:true});
+        } else {
+          bEl.style.display='none';
+        }
+      });
+    }
+  }catch(e){}
+
   // Cycle phase — feeds the eyebrow, the orb icon, and the phase line in the hero
   try{
     const phaseWrapEl = document.getElementById('home-phase-wrap');
@@ -9140,6 +9192,7 @@ async function saveEditProfile(){
     }
     updates.push(F().setDoc(F().doc(DB(),'users',window._user.uid), {dob, gender}, {merge:true}));
     await Promise.all(updates);
+    window._cache.dob = dob;
     // Update UI
     const _pnEl=document.getElementById('prof-name'); if(_pnEl) _pnEl.textContent = name;
     const _psnEl=document.getElementById('ps-name'); if(_psnEl) _psnEl.textContent = name;
@@ -9506,6 +9559,20 @@ function refreshProfilePage(){
     if(editBtn) editBtn.style.display='inline-flex';
     if(typeof loadFavsList==='function') loadFavsList();
     if(typeof loadProfileStats==='function') loadProfileStats();
+    if(typeof _isBirthdayToday==='function'){
+      _isBirthdayToday().then(function(isBday){
+        const bEl = document.getElementById('ps-birthday-banner');
+        const bTxt = document.getElementById('ps-birthday-text');
+        if(!bEl || !bTxt) return;
+        if(isBday){
+          const fn = dn.trim().split(/\s+/)[0] || '';
+          bTxt.textContent = window._lang==='en' ? ('Happy birthday'+(fn?', '+fn:'')+'!') : ('Честит рожден ден'+(fn?', '+fn:'')+'!');
+          bEl.style.display='flex';
+        } else {
+          bEl.style.display='none';
+        }
+      });
+    }
   } else {
     if(av) av.textContent='?';
     if(nm) nm.textContent='—';
@@ -9514,6 +9581,8 @@ function refreshProfilePage(){
     if(typeof setPsAuthMode==='function') setPsAuthMode('login');
     if(clientSections) clientSections.style.display='none';
     if(editBtn) editBtn.style.display='none';
+    const bEl = document.getElementById('ps-birthday-banner');
+    if(bEl) bEl.style.display='none';
   }
 }
 </script>
