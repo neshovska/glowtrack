@@ -3544,6 +3544,7 @@ function applyLang(){
   // Advanced filter panel translations
   const isEN = window._lang === 'en';
   const filterLbls = {
+    onlyFavs:  isEN ? 'Favourites only' : 'Само любими',
     byProblem: isEN ? 'By concern' : 'По проблем',
     byZone:    isEN ? 'By zone' : 'По зона',
     byGoal:    isEN ? 'By desired effect' : 'По търсен ефект',
@@ -4346,8 +4347,11 @@ function renderProcs(){
   const s=searchTerm.toLowerCase().trim();
   const sWordsRaw = s ? s.split(/\s+/).filter(Boolean) : [];
   const advGrouped=typeof getAdvActiveGrouped==='function'?getAdvActiveGrouped():{};
+  const favIds = (typeof getFavs==='function') ? getFavs() : [];
+  const favsOnly = document.getElementById('adv-favs-chip')?.classList.contains('active');
   const filtered=PROCS.filter(p=>{
     const catOk=activeCat==='all'||p.cat===activeCat;
+    if(favsOnly && !favIds.includes(p.id)) return false;
     // AND across facet groups, OR within each facet group
     const advOk=ADV_GROUPS.every(g=>procMatchesAdvGroup(p,g,advGrouped[g]));
     if(!advOk) return false;
@@ -4358,8 +4362,6 @@ function renderProcs(){
     return catOk&&allWordsMatch;
   });
   document.getElementById('no-results').style.display=filtered.length?'none':'block';
-
-  const favIds = (typeof getFavs==='function') ? getFavs() : [];
   const procRow = (p) => {
     const lp=procL(p);
     const isFav=favIds.includes(p.id);
@@ -9618,6 +9620,15 @@ function refreshProfilePage(){
         <span onclick="advResetAll()" style="font-size:11px;color:var(--gold);cursor:pointer;font-weight:500;flex-shrink:0">Изчисти всички</span>
       </div>
       <div id="adv-bs-body" style="overflow-y:auto;padding:0 14px 8px;flex:1">
+
+        <!-- 0. Само любими -->
+        <div style="border-bottom:1px solid var(--roselt);padding:11px 2px 12px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:10px;background:rgba(184,150,106,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg></div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink)" data-flt-lbl="onlyFavs">Само любими</div>
+          </div>
+          <span class="adv-chip" id="adv-favs-chip" data-bg="Любими" data-en="Favourites" onclick="advToggleChip(this,'favs')">Любими</span>
+        </div>
 
         <!-- 1. По проблем -->
         <div style="border-bottom:1px solid var(--roselt)">
