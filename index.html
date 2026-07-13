@@ -676,6 +676,15 @@ body.dark .notif-acc-hdr{background:linear-gradient(135deg,#1e1e38 0%,#2a2444 10
 body.dark .form-input:focus{background:#1a1a2e!important;color:#f0ede8!important;border-color:var(--gold)!important}
 .form-input::placeholder{color:#bbb4a8}
 textarea.form-input{resize:none}
+/* #for-clinics landing е самостоятелна маркетингова страница с фиксирана
+   тъмна палитра (виж коментара при #page-for-clinics), независима от
+   body.dark toggle-а на основното приложение — затова .auth-label/.form-input
+   (споделени класове с login/profile екраните) се override-ват тук само в
+   неин обхват, вместо да се пипа глобалната им дефиниция. */
+#page-for-clinics .auth-label{color:#a09890!important}
+#page-for-clinics .form-input{background:#1e1e38!important;color:#f0ede8!important;border-color:rgba(212,169,106,.25)!important}
+#page-for-clinics .form-input:focus{background:#242444!important;border-color:#d4a96a!important}
+#page-for-clinics .form-input::placeholder{color:#6b6878!important}
 .photo-previews{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .photo-preview-wrap{position:relative}
 .photo-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--roselt)}
@@ -7001,16 +7010,16 @@ window.renderPartnerContent=function(){
   if(tabsEl){
     tabsEl.innerHTML = PARTNER_TYPES.map(pt=>{
       const active = pt.key===type.key;
-      return `<button onclick="selectPartnerType('${pt.key}')" style="flex-shrink:0;padding:9px 14px;border-radius:20px;border:1.5px solid ${active?'var(--gold)':'var(--roselt)'};background:${active?'var(--goldlt)':'var(--card)'};color:${active?'var(--gold)':'var(--ink2)'};font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><svg width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${pt.icon}</svg>${pt.label[lang]}</button>`;
+      return `<button onclick="selectPartnerType('${pt.key}')" style="flex-shrink:0;padding:9px 14px;border-radius:20px;border:1.5px solid ${active?'#d4a96a':'#1e1e38'};background:${active?'rgba(212,169,106,.15)':'#1e1e38'};color:${active?'#d4a96a':'#a09890'};font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap"><svg width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${pt.icon}</svg>${pt.label[lang]}</button>`;
     }).join('');
   }
 
   const benEl = document.getElementById('clinics-benefits-list');
   if(benEl){
     benEl.innerHTML = type.benefits.map(b=>`
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--roselt);border-radius:14px;background:var(--card)">
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold)"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CT_ICONS[b.icon]||''}</svg></div>
-        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:var(--ink)">${b.t[lang]}</div><div style="font-size:11.5px;color:var(--ink2);margin-top:1px">${b.d[lang]}</div></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid #1e1e38;border-radius:14px;background:#1e1e38">
+        <div style="width:38px;height:38px;border-radius:50%;background:rgba(212,169,106,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#d4a96a"><svg class="gt-ico" width="17px" height="17px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CT_ICONS[b.icon]||''}</svg></div>
+        <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700;color:#f0ede8">${b.t[lang]}</div><div style="font-size:11.5px;color:#a09890;margin-top:1px">${b.d[lang]}</div></div>
       </div>`).join('');
   }
 
@@ -7020,11 +7029,11 @@ window.renderPartnerContent=function(){
       const isRec = !!p.recommended;
       const allFromTxt = p.allFromPrev ? `${CT_CHECK} ${ct.allFrom}${type.plans[i-1].name[lang]}<br>` : '';
       const feats = p.features[lang].map(f=>`${CT_CHECK} ${f}`).join('<br>');
-      return `<div class="clinic-plan-card" data-plan="${p.name.bg}" onclick="selectClinicPlan('${p.name.bg}',this)" style="border:${isRec?'2px solid var(--gold)':'1.5px solid var(--roselt)'};border-radius:16px;padding:20px;background:var(--card);cursor:pointer;position:relative;${isRec?'box-shadow:0 8px 24px rgba(184,150,106,.18)':''}">
+      return `<div class="clinic-plan-card" data-plan="${p.name.bg}" onclick="selectClinicPlan('${p.name.bg}',this)" style="border:${isRec?'2px solid #d4a96a':'1.5px solid #1e1e38'};border-radius:16px;padding:20px;background:#1e1e38;cursor:pointer;position:relative;${isRec?'box-shadow:0 8px 24px rgba(0,0,0,.4)':''}">
         ${isRec?`<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#c9a96e,#b8966a);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 14px;border-radius:20px">${ct.recommended}</div>`:''}
-        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:var(--ink);margin-bottom:2px">${p.name[lang]}</div>
-        <div style="font-size:22px;font-weight:700;color:var(--gold);margin-bottom:10px">${p.price}<span style="font-size:11px;font-weight:500;color:var(--ink2)">${ct.perMonth}</span></div>
-        <div style="font-size:12.5px;color:var(--ink2);line-height:1.9">${allFromTxt}${feats}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#f0ede8;margin-bottom:2px">${p.name[lang]}</div>
+        <div style="font-size:22px;font-weight:700;color:#d4a96a;margin-bottom:10px">${p.price}<span style="font-size:11px;font-weight:500;color:#a09890">${ct.perMonth}</span></div>
+        <div style="font-size:12.5px;color:#a09890;line-height:1.9">${allFromTxt}${feats}</div>
       </div>`;
     }).join('');
   }
@@ -9699,7 +9708,7 @@ function refreshProfilePage(){
       </div>
     </div>
 
-<div id="page-for-clinics" style="display:none;position:fixed;inset:0;z-index:700;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="page-for-clinics" style="display:none;position:fixed;inset:0;z-index:700;background:#12122a;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:58px;z-index:2;display:flex;gap:4px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:3px">
     <button id="clinics-lang-bg" onclick="applyClinicsLang('bg')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">БГ</button>
     <button id="clinics-lang-en" onclick="applyClinicsLang('en')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">EN</button>
@@ -9724,28 +9733,28 @@ function refreshProfilePage(){
 
   <!-- HOW IT WORKS -->
   <div style="padding:32px 20px 8px;max-width:480px;margin:0 auto">
-    <div data-ct="howKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Как работи</div>
-    <h2 data-ct="howTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 28px">Три прости стъпки</h2>
+    <div data-ct="howKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#d4a96a;margin-bottom:8px">Как работи</div>
+    <h2 data-ct="howTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:#f0ede8;margin:0 0 28px">Три прости стъпки</h2>
     <div style="display:flex;flex-direction:column;gap:18px;margin-bottom:12px">
       <div style="display:flex;align-items:flex-start;gap:14px">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">1</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#d4a96a;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">1</div>
         <div style="flex:1;padding-top:4px">
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg></span><span data-ct="step1Title">Получавате QR код или листинг</span></div>
-          <div data-ct="step1Desc" style="font-size:12.5px;color:var(--ink2);line-height:1.5">Уникален код или листинг за вашия бизнес.</div>
+          <div style="font-size:14px;font-weight:700;color:#f0ede8;margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:#d4a96a;display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg></span><span data-ct="step1Title">Получавате QR код или листинг</span></div>
+          <div data-ct="step1Desc" style="font-size:12.5px;color:#a09890;line-height:1.5">Уникален код или листинг за вашия бизнес.</div>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">2</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#d4a96a;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">2</div>
         <div style="flex:1;padding-top:4px">
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></span><span data-ct="step2Title">Клиентите ви откриват в приложението</span></div>
-          <div data-ct="step2Desc" style="font-size:12.5px;color:var(--ink2);line-height:1.5">През търсачката с 220+ козметични процедури в GlowTrack.</div>
+          <div style="font-size:14px;font-weight:700;color:#f0ede8;margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:#d4a96a;display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></span><span data-ct="step2Title">Клиентите ви откриват в приложението</span></div>
+          <div data-ct="step2Desc" style="font-size:12.5px;color:#a09890;line-height:1.5">През търсачката с 220+ козметични процедури в GlowTrack.</div>
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:14px">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">3</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:#d4a96a;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;flex-shrink:0">3</div>
         <div style="flex:1;padding-top:4px">
-          <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:var(--gold);display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span><span data-ct="step3Title">Връзката се проследява автоматично</span></div>
-          <div data-ct="step3Desc" style="font-size:12.5px;color:var(--ink2);line-height:1.5">Клиентите виждат вас в дневника и напомнянията си.</div>
+          <div style="font-size:14px;font-weight:700;color:#f0ede8;margin-bottom:3px;display:flex;align-items:center;gap:6px"><span style="color:#d4a96a;display:inline-flex"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></span><span data-ct="step3Title">Връзката се проследява автоматично</span></div>
+          <div data-ct="step3Desc" style="font-size:12.5px;color:#a09890;line-height:1.5">Клиентите виждат вас в дневника и напомнянията си.</div>
         </div>
       </div>
     </div>
@@ -9753,24 +9762,24 @@ function refreshProfilePage(){
 
   <!-- BENEFITS -->
   <div style="padding:36px 20px 8px;max-width:480px;margin:0 auto">
-    <div data-ct="benefitsKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Предимства</div>
-    <h2 data-ct="benefitsTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Защо GlowTrack</h2>
+    <div data-ct="benefitsKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#d4a96a;margin-bottom:8px">Предимства</div>
+    <h2 data-ct="benefitsTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:#f0ede8;margin:0 0 22px">Защо GlowTrack</h2>
     <div id="clinics-benefits-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </div>
 
   <!-- PRICING -->
   <div style="padding:36px 20px 8px;max-width:480px;margin:0 auto">
-    <div data-ct="pricingKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Планове</div>
-    <h2 data-ct="pricingTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Изберете своя план</h2>
+    <div data-ct="pricingKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#d4a96a;margin-bottom:8px">Планове</div>
+    <h2 data-ct="pricingTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:#f0ede8;margin:0 0 22px">Изберете своя план</h2>
     <div id="clinics-plans-list" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
 
   <!-- CONTACT FORM -->
   <div id="clinic-contact-form" style="padding:40px 20px 60px;max-width:420px;margin:0 auto">
-    <div data-ct="contactKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Контакт</div>
-    <h2 data-ct="contactTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--ink);margin:0 0 22px">Свържете се с нас</h2>
+    <div data-ct="contactKicker" style="text-align:center;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#d4a96a;margin-bottom:8px">Контакт</div>
+    <h2 data-ct="contactTitle" style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:#f0ede8;margin:0 0 22px">Свържете се с нас</h2>
     <div class="auth-error" id="clinic-form-error"></div>
-    <div id="clinic-form-success" style="display:none;background:rgba(122,155,126,.1);border:1px solid rgba(122,155,126,.3);border-radius:8px;padding:12px 14px;font-size:12.5px;color:var(--sage);margin-bottom:14px;text-align:center"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span data-ct="successMsg">Изпратено! Ще се свържем с вас скоро.</span></div>
+    <div id="clinic-form-success" style="display:none;background:rgba(138,184,154,.12);border:1px solid rgba(138,184,154,.35);border-radius:8px;padding:12px 14px;font-size:12.5px;color:#8ab89a;margin-bottom:14px;text-align:center"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> <span data-ct="successMsg">Изпратено! Ще се свържем с вас скоро.</span></div>
     <div id="clinic-contact-fields">
       <div class="auth-field"><label class="auth-label" data-ct="labelPartnerType">Тип партньор</label><select class="form-input" id="clinic-partner-type-select" onchange="selectPartnerType(this.value)"></select></div>
       <div class="auth-field"><label class="auth-label" data-ct="labelName">Име на бизнеса</label><input class="form-input" id="clinic-name" data-ct-ph="phName" placeholder="Вашият бизнес"></div>
