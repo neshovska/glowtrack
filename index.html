@@ -6885,45 +6885,57 @@ const CT = {
     labelEmail:'Email',phEmail:'office@business.bg',labelPhone:'Phone',phPhone:'+359 ...',labelPlan:'Plan',submitBtn:'Send inquiry',
     errFillAll:'Please fill in all fields',errEmail:'Please enter a valid email address',
     errGeneric:'Something went wrong. Please try again or email us directly.'},
+  de:{kicker:'· für Unternehmen',heroTitlePre:'Werden Sie Partner von ',heroSub:'Erreichen Sie Ihre Kunden auf eine neue Art',heroBtn:'Kontaktieren Sie uns',
+    howKicker:'So funktioniert es',howTitle:'Drei einfache Schritte',
+    step1Title:'Sie erhalten einen QR-Code oder Eintrag',step1Desc:'Ein einzigartiger Code oder Eintrag für Ihr Unternehmen.',
+    step2Title:'Kunden entdecken Sie in der App',step2Desc:'Über die Suche mit 220+ Kosmetikbehandlungen in GlowTrack.',
+    step3Title:'Die Verbindung wird automatisch nachverfolgt',step3Desc:'Kunden sehen Sie in ihrem Tagebuch und ihren Erinnerungen.',
+    benefitsKicker:'Vorteile',benefitsTitle:'Warum GlowTrack',pricingKicker:'Pläne',pricingTitle:'Wählen Sie Ihren Plan',
+    recommended:'Empfohlen',perMonth:'/Monat',allFrom:'Alles aus ',
+    contactKicker:'Kontakt',contactTitle:'Kontaktieren Sie uns',successMsg:'Gesendet! Wir melden uns in Kürze bei Ihnen.',
+    labelPartnerType:'Partnertyp',labelName:'Name des Unternehmens',phName:'Ihr Unternehmen',labelCity:'Stadt',phCity:'Sofia',
+    labelEmail:'E-Mail',phEmail:'office@business.bg',labelPhone:'Telefon',phPhone:'+359 ...',labelPlan:'Plan',submitBtn:'Anfrage senden',
+    errFillAll:'Bitte füllen Sie alle Felder aus',errEmail:'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+    errGeneric:'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.'},
 };
 const PARTNER_TYPES = [
-  {key:'clinics',label:{bg:'Клиники',en:'Clinics'},icon:'<path d="M12 2v20M2 12h20"/>',
+  {key:'clinics',label:{bg:'Клиники',en:'Clinics',de:'Kliniken'},icon:'<path d="M12 2v20M2 12h20"/>',
     benefits:[
-      {icon:'search',t:{bg:'Видимост в процедурната енциклопедия',en:'Visibility in the procedure encyclopedia'},d:{bg:'Клиниката ви до всяка релевантна процедура.',en:'Your clinic next to every relevant procedure.'}},
-      {icon:'chart',t:{bg:'Статистика',en:'Statistics'},d:{bg:'Сканирания, уникални потребители, топ процедури, задържане.',en:'Scans, unique users, top procedures, retention.'}},
-      {icon:'qr',t:{bg:'QR код за рецепцията',en:'QR code for your front desk'},d:{bg:'Готов за печат, работи веднага след активация.',en:'Ready to print, works right after activation.'}},
-      {icon:'tag',t:{bg:'Брандирано присъствие в приложението',en:'Branded presence in the app'},d:{bg:'Лого, снимки и информация за клиниката ви.',en:'Your logo, photos and clinic info.'}},
+      {icon:'search',t:{bg:'Видимост в процедурната енциклопедия',en:'Visibility in the procedure encyclopedia',de:'Sichtbarkeit in der Behandlungs-Enzyklopädie'},d:{bg:'Клиниката ви до всяка релевантна процедура.',en:'Your clinic next to every relevant procedure.',de:'Ihre Klinik neben jeder relevanten Behandlung.'}},
+      {icon:'chart',t:{bg:'Статистика',en:'Statistics',de:'Statistiken'},d:{bg:'Сканирания, уникални потребители, топ процедури, задържане.',en:'Scans, unique users, top procedures, retention.',de:'Scans, eindeutige Nutzer, Top-Behandlungen, Kundenbindung.'}},
+      {icon:'qr',t:{bg:'QR код за рецепцията',en:'QR code for your front desk',de:'QR-Code für Ihren Empfang'},d:{bg:'Готов за печат, работи веднага след активация.',en:'Ready to print, works right after activation.',de:'Druckfertig, funktioniert sofort nach Aktivierung.'}},
+      {icon:'tag',t:{bg:'Брандирано присъствие в приложението',en:'Branded presence in the app',de:'Gebrandete Präsenz in der App'},d:{bg:'Лого, снимки и информация за клиниката ви.',en:'Your logo, photos and clinic info.',de:'Ihr Logo, Fotos und Klinikinformationen.'}},
     ],
     plans:[
-      {name:{bg:'Старт',en:'Start'},price:'79€',features:{bg:['QR код за клиниката','Базова статистика','Видимост в енциклопедията'],en:['QR code for your clinic','Basic statistics','Visibility in the encyclopedia']}},
-      {name:{bg:'Про',en:'Pro'},price:'199€',recommended:true,allFromPrev:true,features:{bg:['Push известия към клиенти','Детайлна статистика','Приоритетна поддръжка'],en:['Push notifications to clients','Detailed statistics','Priority support']}},
-      {name:{bg:'Премиум',en:'Premium'},price:'399€',allFromPrev:true,features:{bg:['White label','Dedicated account manager','Custom интеграции'],en:['White label','Dedicated account manager','Custom integrations']}},
+      {name:{bg:'Старт',en:'Start',de:'Start'},price:'79€',features:{bg:['QR код за клиниката','Базова статистика','Видимост в енциклопедията'],en:['QR code for your clinic','Basic statistics','Visibility in the encyclopedia'],de:['QR-Code für Ihre Klinik','Basisstatistiken','Sichtbarkeit in der Enzyklopädie']}},
+      {name:{bg:'Про',en:'Pro',de:'Pro'},price:'199€',recommended:true,allFromPrev:true,features:{bg:['Push известия към клиенти','Детайлна статистика','Приоритетна поддръжка'],en:['Push notifications to clients','Detailed statistics','Priority support'],de:['Push-Benachrichtigungen an Kunden','Detaillierte Statistiken','Priority-Support']}},
+      {name:{bg:'Премиум',en:'Premium',de:'Premium'},price:'399€',allFromPrev:true,features:{bg:['White label','Dedicated account manager','Custom интеграции'],en:['White label','Dedicated account manager','Custom integrations'],de:['White Label','Persönlicher Account Manager','Individuelle Integrationen']}},
     ]},
-  {key:'distributors',label:{bg:'Дистрибутори',en:'Distributors'},icon:'<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
+  {key:'distributors',label:{bg:'Дистрибутори',en:'Distributors',de:'Vertriebspartner'},icon:'<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/>',
     benefits:[
-      {icon:'search',t:{bg:'Препоръчани продукти в енциклопедията',en:'Recommended products in the encyclopedia'},d:{bg:'Продуктите ви се появяват при релевантни процедури.',en:'Your products appear next to relevant procedures.'}},
-      {icon:'tag',t:{bg:'Реклама до релевантни процедури',en:'Advertising next to relevant procedures'},d:{bg:'Достигате точната аудитория в точния момент.',en:'Reach the right audience at the right moment.'}},
+      {icon:'search',t:{bg:'Препоръчани продукти в енциклопедията',en:'Recommended products in the encyclopedia',de:'Empfohlene Produkte in der Enzyklopädie'},d:{bg:'Продуктите ви се появяват при релевантни процедури.',en:'Your products appear next to relevant procedures.',de:'Ihre Produkte erscheinen neben relevanten Behandlungen.'}},
+      {icon:'tag',t:{bg:'Реклама до релевантни процедури',en:'Advertising next to relevant procedures',de:'Werbung neben relevanten Behandlungen'},d:{bg:'Достигате точната аудитория в точния момент.',en:'Reach the right audience at the right moment.',de:'Erreichen Sie die richtige Zielgruppe im richtigen Moment.'}},
     ],
     plans:[
-      {name:{bg:'Старт',en:'Start'},price:'99€',features:{bg:['Реклама до релевантни процедури','Базова статистика'],en:['Advertising next to relevant procedures','Basic statistics']}},
-      {name:{bg:'Про',en:'Pro'},price:'249€',recommended:true,allFromPrev:true,features:{bg:['Препоръчани продукти в енциклопедията','Приоритетна поддръжка'],en:['Recommended products in the encyclopedia','Priority support']}},
+      {name:{bg:'Старт',en:'Start',de:'Start'},price:'99€',features:{bg:['Реклама до релевантни процедури','Базова статистика'],en:['Advertising next to relevant procedures','Basic statistics'],de:['Werbung neben relevanten Behandlungen','Basisstatistiken']}},
+      {name:{bg:'Про',en:'Pro',de:'Pro'},price:'249€',recommended:true,allFromPrev:true,features:{bg:['Препоръчани продукти в енциклопедията','Приоритетна поддръжка'],en:['Recommended products in the encyclopedia','Priority support'],de:['Empfohlene Produkte in der Enzyklopädie','Priority-Support']}},
     ]},
-  {key:'brands',label:{bg:'Козметични брандове',en:'Beauty brands'},icon:'<path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.24L3 3v6.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82z"/><circle cx="7" cy="7" r="1"/>',
+  {key:'brands',label:{bg:'Козметични брандове',en:'Beauty brands',de:'Kosmetikmarken'},icon:'<path d="M20.59 13.41L11 3.83A2 2 0 0 0 9.59 3.24L3 3v6.59a2 2 0 0 0 .59 1.41l9.58 9.58a2 2 0 0 0 2.82 0l4.6-4.6a2 2 0 0 0 0-2.82z"/><circle cx="7" cy="7" r="1"/>',
     benefits:[
-      {icon:'tag',t:{bg:'Branded присъствие в приложението',en:'Branded presence in the app'},d:{bg:'Лого, продуктова информация и връзка към процедурите ви.',en:'Logo, product info and links to your procedures.'}},
-      {icon:'search',t:{bg:'Продуктови препоръки до процедури',en:'Product recommendations next to procedures'},d:{bg:'Клиентите виждат продуктите ви точно когато търсят решение.',en:'Clients see your products exactly when searching for a solution.'}},
+      {icon:'tag',t:{bg:'Branded присъствие в приложението',en:'Branded presence in the app',de:'Gebrandete Präsenz in der App'},d:{bg:'Лого, продуктова информация и връзка към процедурите ви.',en:'Logo, product info and links to your procedures.',de:'Logo, Produktinfos und Verlinkung zu Ihren Behandlungen.'}},
+      {icon:'search',t:{bg:'Продуктови препоръки до процедури',en:'Product recommendations next to procedures',de:'Produktempfehlungen neben Behandlungen'},d:{bg:'Клиентите виждат продуктите ви точно когато търсят решение.',en:'Clients see your products exactly when searching for a solution.',de:'Kunden sehen Ihre Produkte genau dann, wenn sie nach einer Lösung suchen.'}},
     ],
     plans:[
-      {name:{bg:'Старт',en:'Start'},price:'149€',features:{bg:['Branded присъствие в приложението','Базова статистика'],en:['Branded presence in the app','Basic statistics']}},
-      {name:{bg:'Про',en:'Pro'},price:'349€',recommended:true,allFromPrev:true,features:{bg:['Продуктови препоръки до процедури','Приоритетна поддръжка'],en:['Product recommendations next to procedures','Priority support']}},
+      {name:{bg:'Старт',en:'Start',de:'Start'},price:'149€',features:{bg:['Branded присъствие в приложението','Базова статистика'],en:['Branded presence in the app','Basic statistics'],de:['Gebrandete Präsenz in der App','Basisstatistiken']}},
+      {name:{bg:'Про',en:'Pro',de:'Pro'},price:'349€',recommended:true,allFromPrev:true,features:{bg:['Продуктови препоръки до процедури','Приоритетна поддръжка'],en:['Product recommendations next to procedures','Priority support'],de:['Produktempfehlungen neben Behandlungen','Priority-Support']}},
     ]},
-  {key:'training',label:{bg:'Обучителни центрове',en:'Training centers'},icon:'<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>',
+  {key:'training',label:{bg:'Обучителни центрове',en:'Training centers',de:'Ausbildungszentren'},icon:'<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/>',
     benefits:[
-      {icon:'qr',t:{bg:'Курсове и сертификации видими в приложението',en:'Courses and certifications visible in the app'},d:{bg:'Достигате специалисти и ентусиасти, търсещи обучение.',en:'Reach specialists and enthusiasts looking for training.'}},
+      {icon:'qr',t:{bg:'Курсове и сертификации видими в приложението',en:'Courses and certifications visible in the app',de:'Kurse und Zertifizierungen sichtbar in der App'},d:{bg:'Достигате специалисти и ентусиасти, търсещи обучение.',en:'Reach specialists and enthusiasts looking for training.',de:'Erreichen Sie Fachleute und Interessierte, die eine Ausbildung suchen.'}},
     ],
     plans:[
-      {name:{bg:'Старт',en:'Start'},price:'79€',features:{bg:['Курсове и сертификации видими в app-а','Базова статистика'],en:['Courses and certifications visible in the app','Basic statistics']}},
-      {name:{bg:'Про',en:'Pro'},price:'179€',recommended:true,allFromPrev:true,features:{bg:['Приоритетно позициониране','Приоритетна поддръжка'],en:['Priority placement','Priority support']}},
+      {name:{bg:'Старт',en:'Start',de:'Start'},price:'79€',features:{bg:['Курсове и сертификации видими в app-а','Базова статистика'],en:['Courses and certifications visible in the app','Basic statistics'],de:['Kurse und Zertifizierungen sichtbar in der App','Basisstatistiken']}},
+      {name:{bg:'Про',en:'Pro',de:'Pro'},price:'179€',recommended:true,allFromPrev:true,features:{bg:['Приоритетно позициониране','Приоритетна поддръжка'],en:['Priority placement','Priority support'],de:['Priorisierte Platzierung','Priority-Support']}},
     ]},
 ];
 window._clinicsLang = (function(){ try{ return localStorage.getItem('gt_clinics_lang')||'bg'; }catch(e){ return 'bg'; } })();
@@ -6995,14 +7007,15 @@ window.applyClinicsLang=function(lang){
     const key = el.getAttribute('data-ct-ph');
     if(ct[key]!=null) el.placeholder = ct[key];
   });
-  const bgBtn = document.getElementById('clinics-lang-bg');
-  const enBtn = document.getElementById('clinics-lang-en');
-  if(bgBtn && enBtn){
-    bgBtn.style.background = lang==='bg' ? 'rgba(212,169,106,.9)' : 'transparent';
-    bgBtn.style.color = lang==='bg' ? '#1a1a2e' : 'rgba(255,255,255,.65)';
-    enBtn.style.background = lang==='en' ? 'rgba(212,169,106,.9)' : 'transparent';
-    enBtn.style.color = lang==='en' ? '#1a1a2e' : 'rgba(255,255,255,.65)';
-  }
+  // Изведено от Object.keys(CT), не hardcoded списък — добавянето на нов език
+  // изисква само нов CT.xx блок с данни + съответния бутон в маркъпа, без да се
+  // пипа тази логика отново.
+  Object.keys(CT).forEach(function(code){
+    const btn = document.getElementById('clinics-lang-'+code);
+    if(!btn) return;
+    btn.style.background = lang===code ? 'rgba(212,169,106,.9)' : 'transparent';
+    btn.style.color = lang===code ? '#1a1a2e' : 'rgba(255,255,255,.65)';
+  });
   window.renderPartnerContent();
 };
 
@@ -9639,6 +9652,7 @@ function refreshProfilePage(){
   <div style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:58px;z-index:2;display:flex;gap:4px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:3px">
     <button id="clinics-lang-bg" onclick="applyClinicsLang('bg')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">БГ</button>
     <button id="clinics-lang-en" onclick="applyClinicsLang('en')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">EN</button>
+    <button id="clinics-lang-de" onclick="applyClinicsLang('de')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">DE</button>
   </div>
   <button onclick="closeForClinics()" aria-label="Затвори" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
 
