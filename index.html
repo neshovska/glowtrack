@@ -2199,7 +2199,7 @@ window.doLogout=async function(){
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
-    window._user=user;window._isAdmin=(user.email==='neshovska@yahoo.com');
+    window._user=user;window._isAdmin=(user.uid==='7lNa6gWSDxb7kgR1AR8VEeKPgap2');
     // Ако браузърът вече е дал push разрешение, инициализираме push само ако:
     // а) токенът все още не е кеширан (_lastFcmToken липсва) — т.е. първи login
     // б) или UID-ът се е сменил (различен потребител)
