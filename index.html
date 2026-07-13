@@ -1488,12 +1488,26 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
                 <div class="stat-box"><div class="stat-num" id="adm-affiliate-today">—</div><div class="stat-lbl">Афил. кликове днес</div></div>
                 <div class="stat-box"><div class="stat-num" id="adm-affiliate-total">—</div><div class="stat-lbl">Афил. общо</div></div>
               </div>
+              <div class="p-stats-row">
+                <div class="stat-box"><div class="stat-num" id="adm-diary-total">—</div><div class="stat-lbl">Записа общо</div></div>
+                <div class="stat-box"><div class="stat-num" id="adm-procs-used">—</div><div class="stat-lbl">Използвани процедури</div></div>
+              </div>
               <div id="adm-cloudtasks-warning" style="display:none;margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(184,150,106,0.15);border:1px solid var(--goldlt);font-size:12.5px;line-height:1.5;color:var(--gold)">
                 <svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 9v5M12 17h.01"/></svg> <b>Бележка за мащабиране:</b> достигнахте <span id="adm-cloudtasks-count">—</span> потребители. Cloud Function-ът за напомняния сканира всички потребители при всяко изпълнение — при този обем е добра идея да преминете към Cloud Tasks архитектура (индивидуален таймер за всяко напомняне), за да пазите разходите ниски и времето за изпращане точно.
               </div>
               <div style="margin-top:12px">
-                <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Най-търсени (последните 7 дни)</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em">Най-търсени</div>
+                  <div style="display:flex;gap:4px">
+                    <button id="adm-search-scope-7d" onclick="setAdmSearchScope('7d')" style="border:1px solid var(--gold);background:var(--gold);color:#fff;border-radius:8px;padding:2px 8px;font-size:10px;cursor:pointer">7 дни</button>
+                    <button id="adm-search-scope-all" onclick="setAdmSearchScope('all')" style="border:1px solid var(--goldlt);background:none;color:var(--gold);border-radius:8px;padding:2px 8px;font-size:10px;cursor:pointer">Общо</button>
+                  </div>
+                </div>
                 <div id="adm-top-searches" style="font-size:12px;color:var(--ink1)">—</div>
+              </div>
+              <div style="margin-top:12px">
+                <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Топ процедури (общо)</div>
+                <div id="adm-top-procs" style="font-size:12px;color:var(--ink1)">—</div>
               </div>
               <div id="adm-loading" style="font-size:11px;color:var(--ink2);margin-top:10px;display:none">Зареждане...</div>
               <div style="margin-top:14px;padding:10px 12px;background:var(--goldlt);border-radius:10px;font-size:11px;color:var(--ink1);line-height:1.5">
@@ -8023,26 +8037,39 @@ async function loadAdminDashboard(){
       setText('adm-affiliate-today', clicksToday);
     }catch(e){ setText('adm-affiliate-total','—'); setText('adm-affiliate-today','—'); }
 
-    // Топ търсения (последните 7 дни)
+    // Топ търсения — кешираме всички логове веднъж, после 7д/общо е само re-render (виж setAdmSearchScope)
     try{
       const searchSnap = await F().getDocs(F().collection(DB(),'search_logs'));
-      const counts={};
-      searchSnap.forEach(doc=>{
-        const d = doc.data();
-        const ts = d.ts?.toDate ? d.ts.toDate() : null;
-        if(!ts || ts < sevenDaysAgo) return;
-        const term = (d.term||'').trim().toLowerCase();
-        if(!term) return;
-        counts[term] = (counts[term]||0)+1;
+      window._admSearchLogs = searchSnap.docs.map(doc=>doc.data());
+    }catch(e){
+      window._admSearchLogs = [];
+    }
+    renderAdmTopSearches();
+
+    // Записа общо + топ процедури (all-time, изчислено от diary_entries)
+    try{
+      const diarySnap = await F().getDocs(F().collection(DB(),'diary_entries'));
+      setText('adm-diary-total', diarySnap.size);
+      const procCount = {};
+      diarySnap.forEach(doc=>{
+        const pid = doc.data().procId;
+        if(pid && !pid.startsWith('home-care') && pid !== 'skin-routine'){
+          procCount[pid] = (procCount[pid]||0) + 1;
+        }
       });
-      const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
-      const el = document.getElementById('adm-top-searches');
-      if(el) el.innerHTML = top.length
-        ? top.map(([term,cnt])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--goldlt)"><span>${term}</span><span style="color:var(--gold);font-weight:600">${cnt}×</span></div>`).join('')
+      setText('adm-procs-used', Object.keys(procCount).length);
+      const topProcs = Object.entries(procCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const procsEl = document.getElementById('adm-top-procs');
+      if(procsEl) procsEl.innerHTML = topProcs.length
+        ? topProcs.map(([pid,cnt])=>{
+            const p = window.PROCS?.find(x=>x.id===pid);
+            return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--goldlt)"><span>${p?.name||pid}</span><span style="color:var(--gold);font-weight:600">${cnt}×</span></div>`;
+          }).join('')
         : '<div style="color:var(--ink2)">Няма данни още</div>';
     }catch(e){
-      const el = document.getElementById('adm-top-searches');
-      if(el) el.innerHTML = '<div style="color:var(--ink2)">Няма данни още</div>';
+      setText('adm-diary-total','—'); setText('adm-procs-used','—');
+      const procsEl = document.getElementById('adm-top-procs');
+      if(procsEl) procsEl.innerHTML = '<div style="color:var(--ink2)">Няма данни още</div>';
     }
   }catch(e){
     console.error('loadAdminDashboard error:', e);
@@ -8050,6 +8077,37 @@ async function loadAdminDashboard(){
   if(loadingEl) loadingEl.style.display = 'none';
 }
 function setText(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+// Превключва "Топ търсения" между последните 7 дни и от началото — без ново
+// Firestore четене, само re-render от кешираните search_logs (виж loadAdminDashboard).
+function setAdmSearchScope(scope){
+  window._admSearchScope = scope;
+  const btn7d = document.getElementById('adm-search-scope-7d');
+  const btnAll = document.getElementById('adm-search-scope-all');
+  const activeStyle = 'border:1px solid var(--gold);background:var(--gold);color:#fff;border-radius:8px;padding:2px 8px;font-size:10px;cursor:pointer';
+  const inactiveStyle = 'border:1px solid var(--goldlt);background:none;color:var(--gold);border-radius:8px;padding:2px 8px;font-size:10px;cursor:pointer';
+  if(btn7d) btn7d.style.cssText = scope==='7d' ? activeStyle : inactiveStyle;
+  if(btnAll) btnAll.style.cssText = scope==='all' ? activeStyle : inactiveStyle;
+  renderAdmTopSearches();
+}
+function renderAdmTopSearches(){
+  const el = document.getElementById('adm-top-searches');
+  if(!el) return;
+  const logs = window._admSearchLogs || [];
+  const scope = window._admSearchScope || '7d';
+  const sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000);
+  const counts={};
+  logs.forEach(d=>{
+    const ts = d.ts?.toDate ? d.ts.toDate() : null;
+    if(scope==='7d' && (!ts || ts < sevenDaysAgo)) return;
+    const term = (d.term||'').trim().toLowerCase();
+    if(!term) return;
+    counts[term] = (counts[term]||0)+1;
+  });
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  el.innerHTML = top.length
+    ? top.map(([term,cnt])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--goldlt)"><span>${term}</span><span style="color:var(--gold);font-weight:600">${cnt}×</span></div>`).join('')
+    : '<div style="color:var(--ink2)">Няма данни още</div>';
+}
 
 // ── AI ВКЛ/ИЗКЛ (admin) ──
 function toggleAiAssistantAdmin(){
@@ -9246,50 +9304,6 @@ async function finishOnboarding(){
 }
 
 // ── ADMIN STATS ──
-async function loadAdminStats(){
-  if(!window._isAdmin) return;
-  const statsEl = document.getElementById('admin-stats-content');
-  if(!statsEl) return;
-  statsEl.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${window._lang==='en'?'Loading...':'Зарежда...'}</div>`;
-  try{
-    // Only count users with Firestore documents (active users)
-    const usersSnap = await F().getDocs(F().collection(DB(),'users'));
-    const activeUsers = usersSnap.docs.filter(d => d.data().email); // only real users
-    const diarySnap = await F().getDocs(F().collection(DB(),'diary_entries'));
-    
-    // Count proc occurrences
-    const procCount = {};
-    diarySnap.docs.forEach(d=>{
-      const pid = d.data().procId;
-      if(pid && !pid.startsWith('home-care') && pid !== 'skin-routine'){
-        procCount[pid] = (procCount[pid]||0) + 1;
-      }
-    });
-    
-    // Top 5 procedures
-    const topProcs = Object.entries(procCount)
-      .sort((a,b)=>b[1]-a[1])
-      .slice(0,5)
-      .map(([pid,count])=>{
-        const p = window.PROCS?.find(x=>x.id===pid);
-        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--goldlt)">
-          <span style="font-size:12px">${p?.icon?ic(p.icon):ic('sparkle')} ${p?.name||pid}</span>
-          <span style="font-size:11px;font-weight:700;color:var(--gold)">${count} ${window._lang==='en'?'entries':'записа'}</span>
-        </div>`;
-      }).join('') || '<div style="font-size:12px;color:var(--ink2)">Няма данни</div>';
-
-    statsEl.innerHTML = `
-      <div style="display:flex;gap:10px;margin-bottom:14px">
-        <div class="stat-box"><div class="stat-num" style="font-size:28px">${activeUsers.length}</div><div class="stat-lbl">Активни</div></div>
-        <div class="stat-box"><div class="stat-num" style="font-size:28px">${diarySnap.size}</div><div class="stat-lbl" data-t="statDiary">Записа</div></div>
-        <div class="stat-box"><div class="stat-num" style="font-size:28px">${Object.keys(procCount).length}</div><div class="stat-lbl" data-t="statProcs">Процедури</div></div>
-      </div>
-      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">ТОП ПРОЦЕДУРИ</div>
-      ${topProcs}`;
-  }catch(e){ statsEl.innerHTML = '<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>'; }
-}
-
-
 // ── SHARE PROCEDURE ──
 function shareProc(){
   const title = document.getElementById('sh-title')?.textContent || 'GlowTrack';
