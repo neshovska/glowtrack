@@ -776,7 +776,7 @@ body.dark .diary-view-btn:not(.active){background:#1a1a2e!important}
 .dv2-hist-item{padding:9px 12px;border-bottom:1px solid rgba(184,150,106,.06);display:flex;align-items:center;gap:8px;cursor:pointer}
 .dv2-hist-item:hover{background:rgba(184,150,106,.04)}
 .dv2-hist-item:last-child{border-bottom:none}
-.dv2-hist-date{font-size:11px;font-weight:600;color:var(--ink2);width:70px;flex-shrink:0}
+.dv2-hist-date{font-size:11px;font-weight:600;color:var(--ink2);flex-shrink:0;white-space:nowrap}
 .dv2-hist-zone{font-size:11px;color:var(--ink2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dv2-hist-stars{font-size:10px;color:var(--gold);flex-shrink:0}
 .dv2-hist-price{font-size:10px;color:var(--gold);font-weight:600;flex-shrink:0}
@@ -2829,6 +2829,17 @@ const BG_M=['яну','фев','мар','апр','май','юни','юли','ав
 const BG_D=['нед','пон','вт','ср','чет','пет','съб'];
 function fmtDate(d){const dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=d.getFullYear();return`${dd}.${mm}.${yyyy}`;}
 function fmtFull(d){return fmtDate(d);}
+// "преди X дни" / "X days ago" — за минали дневникови записи. Броим по календарни
+// дни (не по 24ч интервали), за да съвпада с очакването "вчера логнато" = 1 ден,
+// независимо от часа на деня.
+function daysAgoLabel(d){
+  const isBG=window._lang!=='en';
+  const startOfDay=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate());
+  const diffDays=Math.round((startOfDay(new Date())-startOfDay(d))/86400000);
+  if(diffDays<=0) return isBG?'днес':'today';
+  if(diffDays===1) return isBG?'преди 1 ден':'1 day ago';
+  return isBG?`преди ${diffDays} дни`:`${diffDays} days ago`;
+}
 function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 // Кратък gold glow burst върху бутона "Запази" при успешен запис в дневника —
 // CSS-driven (само keyframes), JS-ът само (пре)прилага класа.
@@ -5897,7 +5908,7 @@ async function loadDiaryTab(){
         const rowPrice = dd.price ? dd.price + '€' : '';
         const rowPhotos = [...(dd.photosBefore||[]), ...(dd.photosAfter||[]), ...(dd.photos||[])].filter(s=>s&&s.startsWith('http')).slice(0, 2);
         return `<div class="dv2-hist-item" onclick="toggleDiaryEntryDetail('ded-${eid}')">
-          <span class="dv2-hist-date">${fmtDate(dt)}</span>
+          <span class="dv2-hist-date">${daysAgoLabel(dt)} · ${fmtDate(dt)}</span>
           <span class="dv2-hist-zone">${rowZone}</span>
           <span class="dv2-hist-stars">${rowStars}</span>
           <span class="dv2-hist-price">${rowPrice}</span>
