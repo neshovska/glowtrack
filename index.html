@@ -293,6 +293,15 @@ body.dark #topbar-profile-btn{animation-name:profilePulseDark !important}
 }
 .logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;letter-spacing:.06em;color:var(--ink)}
 .logo span{background:linear-gradient(120deg,var(--gold),#e8c99a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+@keyframes logoTabPulse{
+  0%{text-shadow:0 0 0 rgba(212,168,48,0);transform:scale(1)}
+  50%{text-shadow:0 0 12px rgba(212,168,48,.75);transform:scale(1.045)}
+  100%{text-shadow:0 0 0 rgba(212,168,48,0);transform:scale(1)}
+}
+.logo.pulse{animation:logoTabPulse .5s ease-in-out}
+@media (prefers-reduced-motion:reduce){
+  .logo.pulse{animation:none}
+}
 .page{display:none;animation:fadeIn .18s ease}
 #page-profile{overflow:visible}
 .page.active{display:block;min-height:100%;overflow-y:visible}
@@ -3614,6 +3623,13 @@ function goPage(name,btn){
   const pg=document.getElementById('page-'+name);
   if(pg)pg.classList.add('active');
   if(btn)btn.classList.add('active');
+  const logoEl=document.querySelector('.logo');
+  if(logoEl){
+    logoEl.classList.remove('pulse');
+    void logoEl.offsetWidth;
+    logoEl.classList.add('pulse');
+    logoEl.addEventListener('animationend',()=>logoEl.classList.remove('pulse'),{once:true});
+  }
   // Always start a freshly opened page scrolled to the very top —
   // otherwise it can retain the previous page's scroll position, hiding
   // the header/close controls until the user manually scrolls up.
