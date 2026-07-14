@@ -6791,18 +6791,21 @@ function closeForgotModal(){
   document.getElementById('forgot-message').style.display='none';
 }
 async function sendPasswordReset(){
-  const email = document.getElementById('forgot-email').value.trim();
+  const emailInput = document.getElementById('forgot-email');
+  const email = emailInput.value.trim();
   if(!email){showToast(t('toastEnterEmail'));return;}
   const msg = document.getElementById('forgot-message');
   msg.style.display='block';
   msg.textContent='Изпращаме...';
   try{
     await F().sendPasswordResetEmail(F().getAuth(), email);
-    msg.textContent='Линк за reset е изпратен на '+email;
+    emailInput.value='';
+    msg.textContent='Линк за reset е изпратен';
     msg.style.color='#2d9d78';
     setTimeout(closeForgotModal, 2500);
   }catch(e){
-    msg.textContent='Имейла не е регистриран';
+    emailInput.value='';
+    msg.textContent='Имейлът не е регистриран';
     msg.style.color='#e85d5d';
   }
 }
