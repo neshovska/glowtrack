@@ -104,6 +104,7 @@
 :root{
   --ink:#1a1a2e;--ink2:#5a5870;--mist:#f7f5f2;
   --gold:#b8966a;--goldlt:#f5efe6;--roselt:#ede4da;
+  --rosegold:#b8757f;--rosegoldlt:#f7ebec;
   --sage:#8fa89a;--lilac:#9b8ec4;--lilaclt:#f0edf9;
   --card:#fff;--blur:blur(20px);--r:14px;--rs:10px;--red:#d95f5f;
   --shadow:0 2px 12px rgba(26,26,46,.07);
@@ -123,10 +124,14 @@ body:not(.dark) {
 body.dark{
   --ink:#f0ede8;--ink2:#a09890;--mist:#12122a;
   --gold:#d4a96a;--goldlt:rgba(212,169,106,.15);--roselt:#1e1e38;
+  --rosegold:#e0a3ab;--rosegoldlt:rgba(224,163,171,.15);
   --sage:#8ab89a;--lilac:#b8a8e0;--lilaclt:rgba(184,168,224,.1);
   --card:#1e1e38;--red:#e87070;
   --shadow:0 2px 16px rgba(0,0,0,.4);
 }
+/* ROSE-GOLD ТЕМА — предефинира --gold/--goldlt в целия документ наведнъж
+   (виж ROSEGOLD_ALLOWED_UIDS), без да пипа стотиците съществуващи var(--gold) usages. */
+body.theme-rosegold{--gold:var(--rosegold);--goldlt:var(--rosegoldlt)}
 body.dark,.dark .bg{background:#12122a}
 body.dark .bg{background:radial-gradient(ellipse 70% 50% at 15% 8%,rgba(100,80,160,.15),transparent 55%),radial-gradient(ellipse 50% 60% at 88% 92%,rgba(184,150,106,.1),transparent 50%),#12122a}
 body.dark .topbar{background:#1a1a2e!important;border-bottom:1px solid rgba(212,169,106,.12)}
@@ -1416,6 +1421,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <!-- Client-only sections -->
       <div id="ps-client-sections">
 
+        <div id="ps-rosegold-section" style="display:none">
+          <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg> Тема</div>
+          <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+              <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg></div>
+              <div style="min-width:0">
+                <div style="font-size:14px;font-weight:700;color:var(--ink)">Роз-злато тема</div>
+                <div style="font-size:11px;color:var(--ink2)">Специален визуален вариант, отключен ръчно за теб</div>
+              </div>
+            </div>
+            <button id="rosegold-toggle-btn" onclick="toggleRosegoldTheme()" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold);background:var(--goldlt);color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Изкл.</button>
+          </div>
+        </div>
+
         <div class="p-eyebrow" data-t="profileCycle"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Месечен цикъл</div>
         <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
 
@@ -2231,10 +2250,20 @@ window.doLogout=async function(){
   await signOut(auth);
   window.showToast&&window.showToast(t('toastLogout'));
 };
+// Ръчно отключена rose-gold тема — извън referral прогреса (виж unlockedRewards
+// в бъдещата referral система). Само тези UID-та виждат toggle-а в Profile,
+// независимо от referralCount/unlockedRewards.
+const ROSEGOLD_ALLOWED_UIDS = [
+  '7lNa6gWSDxb7kgR1AR8VEeKPgap2', // admin
+  'viEzZxuRVBXGYXj8f66D4yfm4dJ2',
+  'L9X9b3eVJpRPZ07U3spyFaIRNjB3',
+];
 onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
     window._user=user;window._isAdmin=(user.uid==='7lNa6gWSDxb7kgR1AR8VEeKPgap2');
+    window._rosegoldAllowed=ROSEGOLD_ALLOWED_UIDS.includes(user.uid);
+    if(typeof initRosegoldTheme==='function')initRosegoldTheme();
     // Ако браузърът вече е дал push разрешение, инициализираме push само ако:
     // а) токенът все още не е кеширан (_lastFcmToken липсва) — т.е. първи login
     // б) или UID-ът се е сменил (различен потребител)
@@ -2363,7 +2392,7 @@ onAuthStateChanged(auth,async user=>{
   }else{
     window._user=null;
     window._lastUserId=null;
-    if(typeof invalidateCache==='function')invalidateCache();window._isAdmin=false;
+    if(typeof invalidateCache==='function')invalidateCache();window._isAdmin=false;window._rosegoldAllowed=false;
     // Guests browse freely — auth-screen only opens when they tap "Влез" or
     // try a personal action (diary, reminders, profile). Keep it closed here.
     document.getElementById('auth-screen').classList.add('hidden');
@@ -2467,6 +2496,7 @@ const ICO_DEFS={
   qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/>',
   trending:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
   users:'<circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 8.5a3 3 0 1 1 0-6"/><path d="M15.5 14c2.8.4 5 2.6 5 6"/>',
+  rose:'<circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/>',
 };
 function ic(key,size){
   const d=ICO_DEFS[key];
@@ -9407,6 +9437,22 @@ function initDarkMode(){
   }
 }
 
+// ── ROSE-GOLD ТЕМА (ръчно отключена — виж ROSEGOLD_ALLOWED_UIDS) ──
+function toggleRosegoldTheme(){
+  if(!window._rosegoldAllowed) return;
+  const isRosegold = document.body.classList.toggle('theme-rosegold');
+  localStorage.setItem('gt_rosegold', isRosegold ? '1' : '0');
+  const btn = document.getElementById('rosegold-toggle-btn');
+  if(btn) btn.textContent = isRosegold ? (window._lang==='en'?'On':'Вкл.') : (window._lang==='en'?'Off':'Изкл.');
+}
+function initRosegoldTheme(){
+  if(!window._rosegoldAllowed) return;
+  const saved = localStorage.getItem('gt_rosegold');
+  if(saved==='1') document.body.classList.add('theme-rosegold');
+  const btn = document.getElementById('rosegold-toggle-btn');
+  if(btn) btn.textContent = saved==='1' ? (window._lang==='en'?'On':'Вкл.') : (window._lang==='en'?'Off':'Изкл.');
+}
+
 // close pickers on outside click
 document.addEventListener('click',e=>{
   ['admin-clinic-picker','admin-product-picker'].forEach(id=>{
@@ -9592,6 +9638,8 @@ function refreshProfilePage(){
     if(editBtn) editBtn.style.display='inline-flex';
     if(typeof loadFavsList==='function') loadFavsList();
     if(typeof loadProfileStats==='function') loadProfileStats();
+    const rgSection = document.getElementById('ps-rosegold-section');
+    if(rgSection) rgSection.style.display = window._rosegoldAllowed ? 'block' : 'none';
     if(typeof _isBirthdayToday==='function'){
       _isBirthdayToday().then(function(isBday){
         const bEl = document.getElementById('ps-birthday-banner');
