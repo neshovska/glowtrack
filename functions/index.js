@@ -305,6 +305,93 @@ exports.notifyOnUserMilestone = onDocumentCreated("users/{uid}", async (event) =
 
 
 // ═══════════════════════════════════════════════════════════
+// REFERRAL СИСТЕМА — "успешен" referral при ПЪРВИ diary entry
+// ═══════════════════════════════════════════════════════════
+
+// Кумулативни нива — трябва да остане синхронизирано с REFERRAL_MILESTONES
+// в index.html (Profile "Покани приятели" секция).
+const REFERRAL_REWARD_THRESHOLDS = [
+  {count: 1, key: "badge"},
+  {count: 2, key: "rosegold_theme"},
+  {count: 3, key: "archetype_test"},
+  {count: 5, key: "level4_locked"},
+];
+
+// Anti-fraud: регистрацията сама по себе си НЕ брои referral — само след като
+// доведеният приятел добави поне 1 запис в дневника (виж _applyReferralSignup
+// в index.html, което създава 'pending' документ в referrals при регистрация
+// през ?ref=CODE линк). Тук маркираме completed и увеличаваме referralCount на
+// referrer-а, но само при ПЪРВИЯ diary entry на доведения — проверено чрез
+// query в същата транзакция, не чрез отделен брояч на потребителя.
+exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async (event) => {
+  const data = event.data?.data();
+  if (!data || !data.userId) return null;
+  const uid = data.userId;
+
+  const processedRef = db.collection("meta").doc("referralEvents")
+      .collection("processedEvents").doc(event.id);
+
+  try {
+    await db.runTransaction(async (tx) => {
+      // ---- всички reads първо (Firestore transaction изисква reads преди writes) ----
+      const processedSnap = await tx.get(processedRef);
+      if (processedSnap.exists) return; // дублирана доставка на събитието (retry)
+
+      const entriesSnap = await tx.get(
+          db.collection("diary_entries").where("userId", "==", uid),
+      );
+      const isFirstEntry = entriesSnap.size === 1; // включва и току-що създадения документ
+
+      let referralDoc = null; let referrerRef = null;
+      let referrerData = null; let newCount = null;
+
+      if (isFirstEntry) {
+        const userSnap = await tx.get(db.collection("users").doc(uid));
+        const userData = userSnap.exists ? userSnap.data() : {};
+        if (userData.referredBy) {
+          const referralsSnap = await tx.get(
+              db.collection("referrals")
+                  .where("refereeUid", "==", uid)
+                  .where("status", "==", "pending"),
+          );
+          if (!referralsSnap.empty) {
+            referralDoc = referralsSnap.docs[0];
+            referrerRef = db.collection("users").doc(referralDoc.data().referrerUid);
+            const referrerSnap = await tx.get(referrerRef);
+            referrerData = referrerSnap.exists ? referrerSnap.data() : {};
+            newCount = (referrerData.referralCount || 0) + 1;
+          }
+        }
+      }
+
+      // ---- сега всички writes ----
+      const expiresAt = admin.firestore.Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      tx.set(processedRef, {expiresAt});
+
+      if (referralDoc && referrerRef) {
+        const unlockedRewards = new Set(referrerData.unlockedRewards || []);
+        REFERRAL_REWARD_THRESHOLDS.forEach((r) => {
+          if (newCount >= r.count) unlockedRewards.add(r.key);
+        });
+        tx.update(referralDoc.ref, {
+          status: "completed",
+          completedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        tx.set(referrerRef, {
+          referralCount: newCount,
+          unlockedRewards: Array.from(unlockedRewards),
+        }, {merge: true});
+      }
+    });
+  } catch (e) {
+    console.error("onDiaryEntryCreated (referral) грешка:", e);
+  }
+
+  return null;
+});
+
+
+// ═══════════════════════════════════════════════════════════
 // AI АСИСТЕНТ
 // ═══════════════════════════════════════════════════════════
 
