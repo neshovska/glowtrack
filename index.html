@@ -1434,9 +1434,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <!-- Client-only sections -->
       <div id="ps-client-sections">
 
-        <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 8.5a3 3 0 1 1 0-6"/><path d="M15.5 14c2.8.4 5 2.6 5 6"/></svg> Покани приятели</div>
-        <div class="profile-card-section" id="ps-referral-card" style="margin:0 0 14px;padding:14px"></div>
-
         <div id="ps-rosegold-section" style="display:none">
           <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg> Тема</div>
           <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -1469,6 +1466,17 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             </div>
           </div>
           <button onclick="openCalendarFromProfile()" style="width:100%;margin-top:10px;padding:9px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" data-t="profileCalBtn">Отвори календара</button>
+        </div>
+
+        <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 8.5a3 3 0 1 1 0-6"/><path d="M15.5 14c2.8.4 5 2.6 5 6"/></svg> Покани приятели</div>
+        <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
+          <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+            <span class="pcs-title"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="1.6" style="vertical-align:-2px"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 8.5a3 3 0 1 1 0-6"/><path d="M15.5 14c2.8.4 5 2.6 5 6"/></svg> Покани приятели</span>
+            <span class="acc-arrow">⌄</span>
+          </div>
+          <div class="acc-body">
+            <div id="ps-referral-card" style="margin-top:8px"></div>
+          </div>
         </div>
 
         <div class="p-eyebrow">Любими процедури</div>
