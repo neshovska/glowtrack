@@ -2655,6 +2655,147 @@ const REFERRAL_MILESTONES=[
   {count:5, key:'level4_locked', labelBg:'Ниво 4 — Очаквайте', labelEn:'Level 4 — Coming soon', icon:'lock'},
 ];
 
+// ── GLOW АРХЕТИП ТЕСТ — rule-based (не AI), отключва се на 3-ти referral ──
+// Всеки отговор тежи за точно един архетип; печели архетипът с най-много
+// отговори (проста мнозинствена оценка), mirror на SKIN_QUIZ_Q/computeSkinResult.
+const ARCHETYPE_QUIZ_Q=[
+  {key:'q1', bg:'Как изглежда типичната ти вечер за грижа?', en:'What does your typical evening care routine look like?',
+    opts:[
+      {v:'ritualist', bg:'Пълен ритуал — почистване, тонер, серум, крем, всичко подред', en:'Full ritual — cleanser, toner, serum, cream, in order'},
+      {v:'minimalist', bg:'Бързо и по същество — 2-3 продукта максимум', en:'Quick and to the point — 2-3 products max'},
+      {v:'innovator', bg:'Каквото и да е новото, което тествам в момента', en:"Whatever new thing I'm testing right now"},
+      {v:'natural', bg:'Естествени масла и минимална намеса', en:'Natural oils and minimal intervention'},
+    ]},
+  {key:'q2', bg:'Как избираш нова процедура?', en:'How do you pick a new procedure?',
+    opts:[
+      {v:'innovator', bg:'Първа тествам новите технологии на пазара', en:'I try the newest tech on the market first'},
+      {v:'glowchaser', bg:'Каквото дава най-видим резултат най-бързо', en:'Whatever gives the most visible results fastest'},
+      {v:'ritualist', bg:'Препоръка от специалист, с която да продължа дългосрочно', en:'A specialist recommendation I stick with long-term'},
+      {v:'natural', bg:'Нещо съобразено с естествения ритъм на кожата', en:"Something aligned with skin's natural rhythm"},
+    ]},
+  {key:'q3', bg:'Какво те мотивира най-много?', en:'What motivates you most?',
+    opts:[
+      {v:'glowchaser', bg:'Видим резултат в огледалото', en:'Visible results in the mirror'},
+      {v:'ritualist', bg:'Самото усещане за грижа и спокойствие', en:'The feeling of care and calm itself'},
+      {v:'minimalist', bg:'Ефективност — максимален резултат, минимум усилие', en:'Efficiency — max result, minimum effort'},
+      {v:'innovator', bg:'Любопитство да опитам нещо ново', en:'Curiosity to try something new'},
+    ]},
+  {key:'q4', bg:'Бюджетът ти за козметични процедури е...', en:'Your beauty procedure budget is...',
+    opts:[
+      {v:'glowchaser', bg:'Инвестирам сериозно, когато искам резултат', en:'I invest heavily when I want results'},
+      {v:'minimalist', bg:'Пестелив — само каквото наистина работи', en:'Frugal — only what actually works'},
+      {v:'natural', bg:'Предпочитам домашни и по-евтини алтернативи', en:'I prefer home & cheaper alternatives'},
+      {v:'ritualist', bg:'Разпределен за редовни, дългосрочни грижи', en:'Spread across regular, long-term care'},
+    ]},
+  {key:'q5', bg:'Приятели те питат за съвет за кожата — какво отговаряш?', en:'Friends ask you for skin advice — what do you say?',
+    opts:[
+      {v:'ritualist', bg:'Постоянството е ключът, изгради си рутина', en:'Consistency is key, build a routine'},
+      {v:'innovator', bg:'Пробвай последната технология, работи страхотно', en:'Try the latest tech, it works great'},
+      {v:'natural', bg:'По-малко продукти, повече естествени навици', en:'Fewer products, more natural habits'},
+      {v:'glowchaser', bg:'Инвестирай в процедура с бърз, видим резултат', en:'Invest in a procedure with fast visible results'},
+    ]},
+];
+const ARCHETYPE_INFO={
+  ritualist:{icon:'moon', bg:'Ритуалистката', en:'The Ritualist', descBg:'За теб грижата за кожата е свещен ритуал — обичаш последователността и дългосрочните резултати повече от бързите решения.', descEn:'For you skincare is a sacred ritual — you love consistency and long-term results over quick fixes.'},
+  minimalist:{icon:'diamond', bg:'Минималистката', en:'The Minimalist', descBg:'Обичаш ефективността — малко продукти, максимален резултат, без излишни стъпки.', descEn:'You love efficiency — few products, maximum result, no unnecessary steps.'},
+  innovator:{icon:'sparkle', bg:'Иноваторката', en:'The Innovator', descBg:'Винаги си в крак с последните технологии и процедури — любопитството те води напред.', descEn:"You're always ahead of the latest tech and procedures — curiosity drives you forward."},
+  natural:{icon:'leaf', bg:'Натуралистката', en:'The Naturalist', descBg:'Предпочиташ естествени подходи и минимална намеса — вярваш в баланса на кожата.', descEn:"You prefer natural approaches and minimal intervention — you trust your skin's balance."},
+  glowchaser:{icon:'star', bg:'Ловецът на сияние', en:'The Glow Chaser', descBg:'Резултатът е всичко — обичаш видимите промени и инвестираш в процедури с ясен ефект.', descEn:'Results are everything — you love visible change and invest in procedures with clear impact.'},
+};
+window._archetypeQuizAnswers={};
+async function openArchetypeQuiz(){
+  if(!window._user){ if(typeof showToast==='function') showToast(window._lang==='en'?'Log in to unlock this':'Влез, за да отключиш това'); return; }
+  try{
+    const snap=await F().getDoc(F().doc(DB(),'users',window._user.uid));
+    const unlocked=(snap.exists()?snap.data().unlockedRewards:[])||[];
+    if(!unlocked.includes('archetype_test')){
+      if(typeof showToast==='function') showToast(window._lang==='en'?'Invite 3 friends to unlock the Glow Archetype test':'Покани 3 приятели, за да отключиш Glow Архетип теста');
+      return;
+    }
+  }catch(e){ return; }
+  window._archetypeQuizAnswers={};
+  document.getElementById('archetype-quiz-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  renderArchetypeQuizQuestions();
+  document.getElementById('archetype-quiz-modal').scrollTop=0;
+}
+function viewArchetypeResult(){
+  let saved=null;
+  try{ saved=JSON.parse(localStorage.getItem(_lsKey('gt_archetype_test'))||'null'); }catch(e){}
+  if(!saved||!saved.archetype){ openArchetypeQuiz(); return; }
+  document.getElementById('archetype-quiz-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  renderArchetypeResult(saved.archetype);
+  document.getElementById('archetype-quiz-modal').scrollTop=0;
+}
+function closeArchetypeQuiz(){
+  document.getElementById('archetype-quiz-modal').style.display='none';
+  document.body.style.overflow='';
+}
+function renderArchetypeQuizQuestions(){
+  const isBGq=window._lang!=='en';
+  const body=document.getElementById('archetype-quiz-body');
+  document.getElementById('archetype-quiz-title').textContent=isBGq?'Glow Архетип тест':'Glow Archetype test';
+  body.innerHTML=`
+    <div style="font-size:12.5px;color:var(--ink2);margin-bottom:16px">${isBGq?'Отговори на 5 кратки въпроса, за да откриеш своя Glow Архетип.':'Answer 5 short questions to discover your Glow Archetype.'}</div>
+    ${ARCHETYPE_QUIZ_Q.map((q,qi)=>`
+      <div style="margin-bottom:18px">
+        <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:8px">${qi+1}. ${isBGq?q.bg:q.en}</div>
+        <div style="display:flex;flex-direction:column;gap:6px" id="archetype-q-${q.key}">
+          ${q.opts.map(o=>`<button type="button" onclick='selectArchetypeAnswer(${JSON.stringify(q.key)}, ${JSON.stringify(o.v)}, this)' style="text-align:left;padding:10px 12px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink1);font-size:12.5px;cursor:pointer;font-family:inherit">${isBGq?o.bg:o.en}</button>`).join('')}
+        </div>
+      </div>`).join('')}
+    <button id="archetype-quiz-submit" onclick="computeArchetypeResult()" style="width:100%;padding:13px;background:var(--gold);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.5" disabled>${isBGq?'Виж резултата':'See result'}</button>
+  `;
+}
+function selectArchetypeAnswer(qKey, val, btnEl){
+  window._archetypeQuizAnswers[qKey]=val;
+  const wrap=document.getElementById('archetype-q-'+qKey);
+  if(wrap) wrap.querySelectorAll('button').forEach(b=>{
+    b.style.borderColor='var(--roselt)'; b.style.background='var(--card)'; b.style.color='var(--ink1)'; b.style.fontWeight='400';
+  });
+  btnEl.style.borderColor='var(--gold)'; btnEl.style.background='rgba(184,150,106,.1)'; btnEl.style.color='var(--gold)'; btnEl.style.fontWeight='700';
+  const answered=Object.keys(window._archetypeQuizAnswers).length;
+  const submitBtn=document.getElementById('archetype-quiz-submit');
+  if(submitBtn){
+    submitBtn.disabled=answered<ARCHETYPE_QUIZ_Q.length;
+    submitBtn.style.opacity=answered<ARCHETYPE_QUIZ_Q.length?'.5':'1';
+  }
+}
+function computeArchetypeResult(){
+  const a=window._archetypeQuizAnswers;
+  if(Object.keys(a).length<ARCHETYPE_QUIZ_Q.length) return;
+  const tally={};
+  Object.values(a).forEach(v=>{ tally[v]=(tally[v]||0)+1; });
+  const archetype=Object.keys(tally).reduce((best,k)=>tally[k]>tally[best]?k:best, Object.keys(tally)[0]);
+  saveArchetypeResult(archetype);
+  if(typeof trackEvent==='function')trackEvent('archetype_test_completed',{archetype});
+  renderArchetypeResult(archetype);
+}
+async function saveArchetypeResult(archetype){
+  try{
+    const data={archetype, archetypeTestDate:new Date().toISOString()};
+    localStorage.setItem(_lsKey('gt_archetype_test'), JSON.stringify(data));
+    if(window._user){ await F().setDoc(F().doc(DB(),'users',window._user.uid), data, {merge:true}); }
+  }catch(e){}
+}
+function renderArchetypeResult(archetype){
+  const isBGq=window._lang!=='en';
+  const info=ARCHETYPE_INFO[archetype];
+  document.getElementById('archetype-quiz-title').textContent=isBGq?'Твоят Glow Архетип':'Your Glow Archetype';
+  document.getElementById('archetype-quiz-body').innerHTML=`
+    <div style="text-align:center;padding:24px 16px;border-radius:18px;background:var(--card);margin-bottom:14px;position:relative;overflow:hidden;border:1.5px solid #b8966a33">
+      <div style="position:absolute;inset:0;background:radial-gradient(120% 100% at 50% 0%,rgba(184,150,106,.12),transparent 60%);pointer-events:none"></div>
+      <div style="position:relative">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--goldlt),rgba(212,169,106,.3));display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--gold)">${ic(info.icon,'28px')}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif;margin-bottom:6px">${isBGq?info.bg:info.en}</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.6;max-width:300px;margin:0 auto">${isBGq?info.descBg:info.descEn}</div>
+      </div>
+    </div>
+    <button onclick="openArchetypeQuiz()" style="width:100%;padding:12px;background:none;border:1.5px solid var(--roselt);border-radius:12px;color:var(--ink2);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">${ic('refresh','11px')} ${isBGq?'Направи теста отново':'Retake test'}</button>
+  `;
+}
+
 window.PROCS=window.PROCS||[];
 
 // ── GLOBAL CACHE ──
@@ -9705,11 +9846,13 @@ async function renderReferralSection(){
       const isUnlocked = unlocked.includes(m.key);
       const label = isBG?m.labelBg:m.labelEn;
       const sub = isBG?`${m.count} ${m.count===1?'приятел':'приятели'}`:`${m.count} friend${m.count===1?'':'s'}`;
-      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;opacity:${isUnlocked?'1':'.5'}">
+      const clickable = isUnlocked && m.key==='archetype_test';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;opacity:${isUnlocked?'1':'.5'};${clickable?'cursor:pointer':''}"${clickable?' onclick="viewArchetypeResult()"':''}>
         <span style="color:var(--gold);flex-shrink:0;display:inline-flex">${ic(isUnlocked?'check':'lock','13px')}</span>
         <span style="color:var(--gold);flex-shrink:0;display:inline-flex">${ic(m.icon,'13px')}</span>
         <span style="flex:1;font-size:12.5px;color:var(--ink)">${label}</span>
         <span style="font-size:10px;color:var(--ink2);flex-shrink:0">${sub}</span>
+        ${clickable?`<span style="color:var(--gold);font-size:13px;flex-shrink:0">›</span>`:''}
       </div>`;
     }).join('');
 
@@ -10128,6 +10271,13 @@ function refreshProfilePage(){
     <button onclick="closeSkinQuiz()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div id="skin-quiz-body" style="padding:16px 16px 40px"></div>
+</div>
+<div id="archetype-quiz-modal" style="display:none;position:fixed;inset:0;z-index:650;background:var(--mist);overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div style="position:sticky;top:0;background:var(--card);border-bottom:1px solid rgba(184,150,106,.15);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 14px;display:flex;align-items:center;justify-content:space-between;z-index:1">
+    <div id="archetype-quiz-title" style="font-size:17px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif">Glow Архетип тест</div>
+    <button onclick="closeArchetypeQuiz()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:16px;line-height:1;flex-shrink:0;padding:0"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div id="archetype-quiz-body" style="padding:16px 16px 40px"></div>
 </div>
 <div id="edit-profile-modal" style="display:none;position:fixed;inset:0;z-index:700;align-items:center;justify-content:center;background:rgba(26,26,46,.5);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
