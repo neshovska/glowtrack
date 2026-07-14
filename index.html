@@ -1099,6 +1099,19 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </head>
 <body>
 <script>(function(){try{if(localStorage.getItem('gt_dark')!=='0')document.body.classList.add('dark');}catch(e){document.body.classList.add('dark');}})();</script>
+<script>(function(){
+  // Улавя ?ref=CODE от referral линк при първо зареждане и го пази до регистрация —
+  // потребителят обикновено вижда login/register екрана първо, не регистрира веднага,
+  // затова кодът трябва да преживее до момента на действителната регистрация
+  // (виж window._applyReferralSignup по-долу).
+  try{
+    const ref = new URLSearchParams(location.search).get('ref');
+    if(ref){
+      localStorage.setItem('gt_pending_ref', ref.trim().toUpperCase());
+      history.replaceState(null,'',location.pathname);
+    }
+  }catch(e){}
+})();</script>
 <div class="bg"></div>
 <div class="desktop-deco desktop-deco-left" aria-hidden="true">Know<br>your<br>glow.</div>
 <div class="desktop-deco desktop-deco-right" id="desktop-deco-right" aria-hidden="true">220+ козметични процедури<br>твоят личен beauty дневник<br>напомняния навреме</div>
@@ -2068,6 +2081,49 @@ window.uploadLogoImage=async function(file, folder){
 };
 window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 
+// ── REFERRAL СИСТЕМА: код + регистрационна логика ──
+// Детерминистичен от uid (SHA-256, пресечен до 7 символа) вместо random+retry-
+// uniqueness-loop — uid вече е гарантирано уникален (Firebase Auth), затова кодът
+// наследява тази гаранция без нужда от проверка за колизии при всяка регистрация.
+const REFERRAL_CODE_ALPHABET='23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // без 0/O, 1/I
+async function _generateReferralCode(uid){
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(uid));
+  const bytes=new Uint8Array(buf);
+  let code='';
+  for(let i=0;i<7;i++) code+=REFERRAL_CODE_ALPHABET[bytes[i]%REFERRAL_CODE_ALPHABET.length];
+  return code;
+}
+// Извиква се веднъж, веднага след успешна регистрация (виж doAuthUnified и
+// doPsAuthUnified по-долу). Генерира referralCode на новия потребител и — ако е
+// дошъл през ?ref=CODE линк (запазен в localStorage от скрипта в <body>, преди
+// login/register екрана) — създава 'pending' документ в referrals колекцията.
+// "Успешен" referral (referralCount++, unlockedRewards) се брои от Cloud Function
+// при ПЪРВИЯ diary entry на новия потребител, не тук — виж functions/index.js.
+window._applyReferralSignup=async function(uid){
+  try{
+    const referralCode=await _generateReferralCode(uid);
+    const updates={referralCode, referralCount:0, unlockedRewards:[]};
+    let referredByCode=null;
+    try{ referredByCode=localStorage.getItem('gt_pending_ref')||null; }catch(e){}
+    if(referredByCode) updates.referredBy=referredByCode;
+    await setDoc(doc(db,'users',uid), updates, {merge:true});
+    if(referredByCode){
+      const q=query(collection(db,'users'), where('referralCode','==',referredByCode));
+      const snap=await getDocs(q);
+      if(!snap.empty){
+        const referrerUid=snap.docs[0].id;
+        if(referrerUid!==uid){ // без self-referral
+          await addDoc(collection(db,'referrals'),{
+            referrerUid, refereeUid:uid, referralCode:referredByCode,
+            status:'pending', createdAt:serverTimestamp(),
+          });
+        }
+      }
+      try{ localStorage.removeItem('gt_pending_ref'); }catch(e){}
+    }
+  }catch(e){ console.error('_applyReferralSignup error:', e); }
+};
+
 // ── PUSH NOTIFICATIONS (Firebase Cloud Messaging) ──
 window._fcmVapidKey='BAj74mUgR7VEdH6-YL000hXSuzFmqe6Y7WZ5acrnJi3fxMZejJg-GRLwvYHgAw5-T6LMW5YlDX5iMFnT-nF-ZrA'; // Firebase Console -> Project Settings -> Cloud Messaging -> Web Push certificates (Key pair, публичен ключ)
 
@@ -2215,6 +2271,7 @@ window.doAuthUnified=async function(){
       const cred=await createUserWithEmailAndPassword(auth,email,pass);
       if(name)await updateProfile(cred.user,{displayName:name});
       await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
+      await window._applyReferralSignup(cred.user.uid);
       if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
     } else {
       await signInWithEmailAndPassword(auth,email,pass);
@@ -9591,6 +9648,7 @@ async function doPsAuthUnified(){
       const cred = await F().createUserWithEmailAndPassword(AU(), email, pass);
       if(name) await F().updateProfile(cred.user,{displayName:name});
       await F().setDoc(F().doc(DB(),'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:F().serverTimestamp()});
+      await window._applyReferralSignup(cred.user.uid);
       if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
     } else {
       await F().signInWithEmailAndPassword(AU(), email, pass);
