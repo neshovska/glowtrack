@@ -1434,6 +1434,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <!-- Client-only sections -->
       <div id="ps-client-sections">
 
+        <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 8.5a3 3 0 1 1 0-6"/><path d="M15.5 14c2.8.4 5 2.6 5 6"/></svg> Покани приятели</div>
+        <div class="profile-card-section" id="ps-referral-card" style="margin:0 0 14px;padding:14px"></div>
+
         <div id="ps-rosegold-section" style="display:none">
           <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg> Тема</div>
           <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -2640,6 +2643,16 @@ const CATS_LIST=[
   {id:'hw',label:'Апаратни',icon:'settings'},
   {id:'cosm',label:'Козметични',icon:'diamond'},
   {id:'inject',label:'Инжекционни',icon:'item'},
+];
+
+// Кумулативни нива на referral наградите — виж functions/index.js за логиката,
+// която реално обновява users/{uid}.unlockedRewards (при първи diary entry на
+// доведения приятел). Тук само рендираме каквото вече е записано в Firestore.
+const REFERRAL_MILESTONES=[
+  {count:1, key:'badge', labelBg:'Бадж в профила', labelEn:'Profile badge', icon:'star'},
+  {count:2, key:'rosegold_theme', labelBg:'Роз-злато тема', labelEn:'Rose-gold theme', icon:'rose'},
+  {count:3, key:'archetype_test', labelBg:'Glow Архетип тест', labelEn:'Glow Archetype test', icon:'diamond'},
+  {count:5, key:'level4_locked', labelBg:'Ниво 4 — Очаквайте', labelEn:'Level 4 — Coming soon', icon:'lock'},
 ];
 
 window.PROCS=window.PROCS||[];
@@ -9669,6 +9682,82 @@ async function doPsAuthUnified(){
     if(btn){btn.disabled=false; btn.textContent=window._psAuthMode==='register' ? (window._lang==='en'?'Sign up':'Регистрирай се') : (window._lang==='en'?'Log in':'Влез');}
   }
 }
+// ── REFERRAL UI ("Покани приятели" в Profile) ──
+async function renderReferralSection(){
+  if(!window._user) return;
+  const card = document.getElementById('ps-referral-card');
+  if(!card) return;
+  const isBG = window._lang!=='en';
+  try{
+    const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
+    const data = snap.exists() ? snap.data() : {};
+    const code = data.referralCode || '—';
+    const count = data.referralCount || 0;
+    const unlocked = data.unlockedRewards || [];
+    window._referralLink = 'https://glowtrack.eu/?ref='+code;
+
+    // Rose-gold секцията се показва и при референтно отключване, не само ROSEGOLD_ALLOWED_UIDS
+    const rgSection = document.getElementById('ps-rosegold-section');
+    if(rgSection) rgSection.style.display = (window._rosegoldAllowed || unlocked.includes('rosegold_theme')) ? 'block' : 'none';
+
+    const next = REFERRAL_MILESTONES.find(m=>!unlocked.includes(m.key));
+    const rewardsHtml = REFERRAL_MILESTONES.map(m=>{
+      const isUnlocked = unlocked.includes(m.key);
+      const label = isBG?m.labelBg:m.labelEn;
+      const sub = isBG?`${m.count} ${m.count===1?'приятел':'приятели'}`:`${m.count} friend${m.count===1?'':'s'}`;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;opacity:${isUnlocked?'1':'.5'}">
+        <span style="color:var(--gold);flex-shrink:0;display:inline-flex">${ic(isUnlocked?'check':'lock','13px')}</span>
+        <span style="color:var(--gold);flex-shrink:0;display:inline-flex">${ic(m.icon,'13px')}</span>
+        <span style="flex:1;font-size:12.5px;color:var(--ink)">${label}</span>
+        <span style="font-size:10px;color:var(--ink2);flex-shrink:0">${sub}</span>
+      </div>`;
+    }).join('');
+
+    const progressHtml = next
+      ? `<div style="margin-bottom:10px">
+          <div style="font-size:11px;color:var(--ink2);margin-bottom:4px">${isBG?`Прогрес: ${count} / ${next.count} приятели до следваща награда`:`Progress: ${count} / ${next.count} friends to next reward`}</div>
+          <div style="height:6px;border-radius:3px;background:var(--goldlt);overflow:hidden"><div style="height:100%;width:${Math.min(100,count/next.count*100)}%;background:var(--gold);border-radius:3px"></div></div>
+        </div>`
+      : `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gold);font-weight:600;margin-bottom:10px">${ic('sparkle','12px')} ${isBG?'Всички нива отключени!':'All levels unlocked!'}</div>`;
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;color:var(--ink2)">${isBG?'Твоят код':'Your code'}</div>
+          <div style="font-size:18px;font-weight:700;color:var(--gold);font-family:'Cormorant Garamond',serif;letter-spacing:.05em">${code}</div>
+        </div>
+        <button onclick="copyReferralLink()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--gold);background:var(--goldlt);color:var(--gold);font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">${isBG?'Копирай':'Copy'}</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button onclick="shareReferralLink('whatsapp')" style="flex:1;padding:9px;border-radius:12px;border:none;background:#25D366;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">${ic('message','13px')} WhatsApp</button>
+        <button onclick="shareReferralLink('viber')" style="flex:1;padding:9px;border-radius:12px;border:none;background:#7360F2;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">${ic('message','13px')} Viber</button>
+      </div>
+      ${progressHtml}
+      <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);margin-bottom:2px">${isBG?'Награди':'Rewards'}</div>
+      ${rewardsHtml}
+    `;
+  }catch(e){
+    console.error('renderReferralSection error:', e);
+    card.innerHTML = `<div style="font-size:12px;color:var(--ink2)">${isBG?'Грешка при зареждане':'Error loading'}</div>`;
+  }
+}
+function copyReferralLink(){
+  if(!window._referralLink) return;
+  navigator.clipboard?.writeText(window._referralLink).then(()=>{
+    if(typeof showToast==='function') showToast(window._lang==='en'?'Link copied!':'Линкът е копиран!');
+  });
+}
+function shareReferralLink(platform){
+  if(!window._referralLink) return;
+  const text = window._lang==='en'
+    ? `Join me on GlowTrack — track your beauty procedures! ${window._referralLink}`
+    : `Ела в GlowTrack — следи козметичните си процедури! ${window._referralLink}`;
+  const url = platform==='whatsapp'
+    ? `https://wa.me/?text=${encodeURIComponent(text)}`
+    : `viber://forward?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
 // Populates the inline Profile tab (avatar, name, email, guest-vs-client view, stats, favorites).
 // Called whenever the Profile tab becomes active, and right after login/signup.
 function refreshProfilePage(){
@@ -9698,6 +9787,7 @@ function refreshProfilePage(){
     if(typeof loadProfileStats==='function') loadProfileStats();
     const rgSection = document.getElementById('ps-rosegold-section');
     if(rgSection) rgSection.style.display = window._rosegoldAllowed ? 'block' : 'none';
+    if(typeof renderReferralSection==='function') renderReferralSection();
     if(typeof _isBirthdayToday==='function'){
       _isBirthdayToday().then(function(isBday){
         const bEl = document.getElementById('ps-birthday-banner');
