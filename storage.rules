@@ -9,6 +9,13 @@ service firebase.storage {
                    && request.resource.contentType.matches('image/.*');
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
+    // Статични app assets (процедурни снимки, home-care икони и т.н.) —
+    // публично четими за всички (включително гости), качват се ръчно през
+    // Console/CLI от админ, не от клиента.
+    match /app-assets/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
     match /{allPaths=**} {
       allow read, write: if false;
     }

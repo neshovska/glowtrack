@@ -19,12 +19,7 @@ const PASSTHROUGH_FILES = [
   'apple-touch-icon.png',
   'icon-192.png',
   'icon-512.png',
-  'home-care-evening.jpeg',
-  'home-care-morning.jpeg',
-  'laser-alexandrite.jpeg',
-  'laser-diode.jpeg',
   'og-image.png',
-  'profile-shadow-leaves.jpeg',
   'manifest.json',
   'sw.js',
 ];
