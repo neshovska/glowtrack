@@ -2043,7 +2043,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
@@ -2055,6 +2055,7 @@ const fnInstance=getFunctions(fb,'us-central1'); // смени региона т
 // ── AI АСИСТЕНТ — feature flag (управлява се от Firestore app_config, вижда се в admin таблото) ──
 window._aiAssistantEnabled = false; // безопасна стойност по подразбиране, докато се зареди реалната
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
+window._callSendPasswordReset = httpsCallable(fnInstance, 'sendBrandedPasswordReset');
 (async function(){
   try{
     const snap = await getDoc(doc(db,'app_config','settings'));
@@ -2090,7 +2091,7 @@ window.uploadLogoImage=async function(file, folder){
   await uploadBytes(sref,file,{contentType:file.type||'image/jpeg'});
   return await getDownloadURL(sref);
 };
-window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp,sendPasswordResetEmail};
+window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 
 // ── REFERRAL СИСТЕМА: код + регистрационна логика ──
 // Детерминистичен от uid (SHA-256, пресечен до 7 символа) вместо random+retry-
@@ -6802,14 +6803,18 @@ async function sendPasswordReset(){
   msg.style.display='block';
   msg.textContent='Изпращаме...';
   try{
-    await F().sendPasswordResetEmail(AU(), email);
+    // Минава през sendBrandedPasswordReset (Cloud Function) — праща брандиран
+    // имейл от info@glowtrack.eu вместо Firebase-default noreply@ адреса.
+    // Функцията винаги връща success, независимо дали имейлът съществува
+    // (anti-enumeration — не разкриваме кои имейли са регистрирани).
+    await window._callSendPasswordReset({email});
     emailInput.value='';
-    msg.textContent='Линк за reset е изпратен';
+    msg.textContent='Ако имейлът съществува в системата, изпратихме линк за нова парола.';
     msg.style.color='#2d9d78';
-    setTimeout(closeForgotModal, 2500);
+    setTimeout(closeForgotModal, 3200);
   }catch(e){
     emailInput.value='';
-    msg.textContent='Имейлът не е регистриран';
+    msg.textContent='Грешка при изпращане. Опитай пак по-късно.';
     msg.style.color='#e85d5d';
   }
 }

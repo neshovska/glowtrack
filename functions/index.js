@@ -533,3 +533,70 @@ exports.notifyOnClinicInquiry = onDocumentCreated(
       return null;
     },
 );
+
+
+// ═══════════════════════════════════════════════════════════
+// БРАНДИРАН PASSWORD RESET — праща от info@glowtrack.eu вместо
+// Firebase-default noreply@<project>.firebaseapp.com
+// ═══════════════════════════════════════════════════════════
+
+// Лек anti-spam throttle — не позволява повторно изпращане до същия имейл
+// по-често от 60с. Обикновен get+set (не транзакция) е достатъчен тук:
+// worst case при race е 2 писма вместо 1, приемливо за този risk level
+// (за разлика от claimNotif по-горе, където дублиране на push е по-лошо).
+const PASSWORD_RESET_COOLDOWN_MS = 60 * 1000;
+
+exports.sendBrandedPasswordReset = onCall(
+    {secrets: [smtpUser, smtpPass]},
+    async (request) => {
+      const email = (request.data?.email || "").trim().toLowerCase();
+      if (!email || !email.includes("@")) {
+        throw new HttpsError("invalid-argument", "Невалиден имейл адрес.");
+      }
+
+      const throttleRef = db.collection("password_reset_throttle").doc(email);
+      const throttleSnap = await throttleRef.get();
+      const now = Date.now();
+      if (throttleSnap.exists && (now - (throttleSnap.data().lastSentAt || 0)) < PASSWORD_RESET_COOLDOWN_MS) {
+        return {ok: true}; // тих no-op, не разкриваме throttle статус на клиента
+      }
+
+      let resetLink;
+      try {
+        resetLink = await admin.auth().generatePasswordResetLink(email);
+      } catch (e) {
+        // auth/user-not-found и др. — НЕ разкриваме дали имейлът съществува
+        // (anti-enumeration). Просто не пращаме нищо, но връщаме success.
+        console.log(`Password reset заявка за непознат/невалиден имейл (не се разкрива на клиента).`);
+        return {ok: true};
+      }
+
+      await throttleRef.set({lastSentAt: now});
+
+      const port = parseInt(smtpPort.value(), 10) || 465;
+      const transporter = nodemailer.createTransport({
+        host: smtpHost.value(),
+        port,
+        secure: port === 465,
+        auth: {user: smtpUser.value(), pass: smtpPass.value()},
+      });
+
+      try {
+        await transporter.sendMail({
+          from: `"GlowTrack" <${smtpUser.value()}>`,
+          to: email,
+          subject: "GlowTrack — възстановяване на парола",
+          text: `Здравей,\n\nПолучихме заявка за нова парола за твоя GlowTrack акаунт.\n\n` +
+            `Натисни линка по-долу, за да зададеш нова парола:\n${resetLink}\n\n` +
+            `Ако не си заявявала това, просто игнорирай този имейл — паролата ти няма да се промени.\n\n` +
+            `— Екипът на GlowTrack`,
+        });
+        console.log(`Branded password reset изпратен успешно.`);
+      } catch (e) {
+        console.error("Грешка при изпращане на password reset имейл:", e);
+        throw new HttpsError("internal", "Грешка при изпращане на имейла.");
+      }
+
+      return {ok: true};
+    },
+);
