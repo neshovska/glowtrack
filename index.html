@@ -2104,6 +2104,10 @@ async function _generateReferralCode(uid){
   for(let i=0;i<7;i++) code+=REFERRAL_CODE_ALPHABET[bytes[i]%REFERRAL_CODE_ALPHABET.length];
   return code;
 }
+// Изложена на window — извиква се от renderReferralSection() (класически script,
+// извън този module) за backfill на referralCode при съществуващи потребители,
+// регистрирани преди тази функция да съществува.
+window._generateReferralCode=_generateReferralCode;
 // Извиква се веднъж, веднага след успешна регистрация (виж doAuthUnified и
 // doPsAuthUnified по-долу). Генерира referralCode на новия потребител и — ако е
 // дошъл през ?ref=CODE линк (запазен в localStorage от скрипта в <body>, преди
@@ -9843,7 +9847,14 @@ async function renderReferralSection(){
   try{
     const snap = await F().getDoc(F().doc(DB(),'users',window._user.uid));
     const data = snap.exists() ? snap.data() : {};
-    const code = data.referralCode || '—';
+    let code = data.referralCode;
+    if(!code && typeof window._generateReferralCode==='function'){
+      // Съществуващ потребител, регистриран преди referral функцията — генерираме
+      // и записваме кода сега (само това поле, referralCount/unlockedRewards не
+      // се пипат, за да не занулим прогрес, ако вече има такъв по друга причина).
+      code = await window._generateReferralCode(window._user.uid);
+      try{ await F().setDoc(F().doc(DB(),'users',window._user.uid), {referralCode:code}, {merge:true}); }catch(e){}
+    }
     const count = data.referralCount || 0;
     const unlocked = data.unlockedRewards || [];
     window._referralLink = 'https://glowtrack.eu/?ref='+code;
