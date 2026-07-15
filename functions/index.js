@@ -561,9 +561,19 @@ exports.sendBrandedPasswordReset = onCall(
         return {ok: true}; // тих no-op, не разкриваме throttle статус на клиента
       }
 
+      // ВАЖНО: това контролира само continueUrl (линкът "Назад към GlowTrack" СЛЕД
+      // като потребителят си смени паролата на Firebase-хостнатата action-handler
+      // страница) — glowtrack.eu трябва да е в Authentication > Settings >
+      // Authorized domains, иначе generatePasswordResetLink хвърля
+      // auth/unauthorized-continue-uri. Самият reset ЛИНК (кликаемият в имейла)
+      // продължава да сочи към after-care-treatment.firebaseapp.com/__/auth/action,
+      // защото glowtrack.eu не е Firebase Hosting сайт (в момента е GitHub Pages) —
+      // само custom domain, свързан през Firebase Hosting, би сменил и този домейн.
+      const actionCodeSettings = {url: "https://glowtrack.eu/"};
+
       let resetLink;
       try {
-        resetLink = await admin.auth().generatePasswordResetLink(email);
+        resetLink = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
       } catch (e) {
         // auth/user-not-found и др. — НЕ разкриваме дали имейлът съществува
         // (anti-enumeration). Просто не пращаме нищо, но връщаме success.
