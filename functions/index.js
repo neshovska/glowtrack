@@ -561,14 +561,10 @@ exports.sendBrandedPasswordReset = onCall(
         return {ok: true}; // тих no-op, не разкриваме throttle статус на клиента
       }
 
-      // ВАЖНО: това контролира само continueUrl (линкът "Назад към GlowTrack" СЛЕД
-      // като потребителят си смени паролата на Firebase-хостнатата action-handler
-      // страница) — glowtrack.eu трябва да е в Authentication > Settings >
-      // Authorized domains, иначе generatePasswordResetLink хвърля
-      // auth/unauthorized-continue-uri. Самият reset ЛИНК (кликаемият в имейла)
-      // продължава да сочи към after-care-treatment.firebaseapp.com/__/auth/action,
-      // защото glowtrack.eu не е Firebase Hosting сайт (в момента е GitHub Pages) —
-      // само custom domain, свързан през Firebase Hosting, би сменил и този домейн.
+      // url тук е само continueUrl fallback — не се използва реално, защото по-долу
+      // строим собствен линк към glowtrack.eu с самия oobCode. glowtrack.eu пак
+      // трябва да е в Authentication > Settings > Authorized domains, иначе
+      // generatePasswordResetLink хвърля auth/unauthorized-continue-uri.
       const actionCodeSettings = {url: "https://glowtrack.eu/"};
 
       let resetLink;
@@ -580,6 +576,20 @@ exports.sendBrandedPasswordReset = onCall(
         console.log(`Password reset заявка за непознат/невалиден имейл (не се разкрива на клиента).`);
         return {ok: true};
       }
+
+      // Firebase-генерираният линк сочи към after-care-treatment.firebaseapp.com/__/auth/action
+      // (Firebase-хостната action-handler страница), защото glowtrack.eu не е Firebase Hosting
+      // сайт (в момента е GitHub Pages) — само custom domain, свързан през Firebase Hosting,
+      // би сменил това. Вместо да минаваме по този път (DNS промени, риск), извличаме oobCode-а
+      // от генерирания линк и строим собствен URL към glowtrack.eu — index.html сам разпознава
+      // ?mode=resetPassword&oobCode=... и показва форма за нова парола. oobCode-ът е валиден
+      // независимо от кой домейн е сервиран линкът — Firebase го проверява по стойността му.
+      const oobCode = new URL(resetLink).searchParams.get("oobCode");
+      if (!oobCode) {
+        console.error("generatePasswordResetLink не върна oobCode в линка.");
+        throw new HttpsError("internal", "Грешка при генериране на линка.");
+      }
+      const brandedResetLink = `https://glowtrack.eu/?mode=resetPassword&oobCode=${encodeURIComponent(oobCode)}`;
 
       await throttleRef.set({lastSentAt: now});
 
@@ -597,7 +607,7 @@ exports.sendBrandedPasswordReset = onCall(
           to: email,
           subject: "GlowTrack — възстановяване на парола",
           text: `Здравей,\n\nПолучихме заявка за нова парола за твоя GlowTrack акаунт.\n\n` +
-            `Натисни линка по-долу, за да зададеш нова парола:\n${resetLink}\n\n` +
+            `Натисни линка по-долу, за да зададеш нова парола:\n${brandedResetLink}\n\n` +
             `Ако не си заявявала това, просто игнорирай този имейл — паролата ти няма да се промени.\n\n` +
             `— Екипът на GlowTrack`,
         });

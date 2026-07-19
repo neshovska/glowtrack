@@ -2021,6 +2021,21 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
 </div>
 
+<!-- RESET PASSWORD MODAL (от имейл линк: ?mode=resetPassword&oobCode=...) -->
+<div id="reset-password-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:400">
+  <div style="background:white;border-radius:20px;padding:24px;width:90%;max-width:340px;box-shadow:0 8px 32px rgba(26,26,46,.2)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px" data-t="resetPassTitle">Нова парола</div>
+      <div style="font-size:12px;color:var(--ink2)" id="reset-pass-email-line"></div>
+    </div>
+    <input class="auth-input" id="reset-pass-new" type="password" placeholder="Нова парола (мин. 6 символа)" data-ph="newPassPh" autocomplete="new-password" style="margin-bottom:10px">
+    <input class="auth-input" id="reset-pass-confirm" type="password" placeholder="Потвърди новата парола" data-ph="confirmPassPh" autocomplete="new-password" style="margin-bottom:12px">
+    <button class="auth-btn" id="reset-pass-submit-btn" onclick="submitNewPassword()" style="margin-bottom:8px" data-t="resetPassBtn">Запази новата парола</button>
+    <button style="width:100%;padding:11px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" onclick="closeResetPasswordModal()" data-t="cancelBtn">Отмени</button>
+    <div id="reset-pass-message" style="margin-top:12px;font-size:12px;text-align:center;display:none"></div>
+  </div>
+</div>
+
 <!-- AI CHAT OVERLAY -->
 <div class="ai-overlay" id="ai-overlay">
   <div class="ai-panel" id="ai-panel">
@@ -2043,7 +2058,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence,verifyPasswordResetCode,confirmPasswordReset}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
@@ -2051,6 +2066,21 @@ import{getAnalytics,logEvent,isSupported as analyticsIsSupported}from"https://ww
 import{getFunctions,httpsCallable}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
 const fb=initializeApp({apiKey:"AIzaSyAssUyJ9xhc9JfDbuKWjM9GLsqdlnrkFa8",authDomain:"after-care-treatment.firebaseapp.com",projectId:"after-care-treatment",storageBucket:"after-care-treatment.firebasestorage.app",messagingSenderId:"771928458805",appId:"1:771928458805:web:770106c907426147d1137c",measurementId:"G-XZFJ8ZK6B9"});
 const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
+// ── PASSWORD RESET LINK (?mode=resetPassword&oobCode=...) ──
+// index.html сам обработва линка вместо Firebase-хостнатата action-handler страница
+// (виж sendBrandedPasswordReset в functions/index.js). Изтегляме параметрите и
+// чистим URL-а веднага, преди каквото и да е друго да ги прочете/логне.
+(function(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('mode')!=='resetPassword'||!params.get('oobCode'))return;
+  const oobCode=params.get('oobCode');
+  history.replaceState(null,'',location.pathname);
+  verifyPasswordResetCode(auth,oobCode).then(email=>{
+    if(typeof window._onPasswordResetLinkVerified==='function')window._onPasswordResetLinkVerified(oobCode,email);
+  }).catch(()=>{
+    if(typeof window._onPasswordResetLinkInvalid==='function')window._onPasswordResetLinkInvalid();
+  });
+})();
 const fnInstance=getFunctions(fb,'us-central1'); // смени региона тук ако функциите ти са в друг
 // ── AI АСИСТЕНТ — feature flag (управлява се от Firestore app_config, вижда се в admin таблото) ──
 window._aiAssistantEnabled = false; // безопасна стойност по подразбиране, докато се зареди реалната
@@ -2091,7 +2121,7 @@ window.uploadLogoImage=async function(file, folder){
   await uploadBytes(sref,file,{contentType:file.type||'image/jpeg'});
   return await getDownloadURL(sref);
 };
-window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
+window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,confirmPasswordReset,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 
 // ── REFERRAL СИСТЕМА: код + регистрационна логика ──
 // Детерминистичен от uid (SHA-256, пресечен до 7 символа) вместо random+retry-
@@ -3235,6 +3265,10 @@ const T = {
     forgotPassTitle: 'Забравена парола',
     forgotPassDesc: 'Въведи имейла си и ще получиш линк за reset',
     sendResetBtn: 'Изпрати линк',
+    resetPassTitle: 'Нова парола',
+    newPassPh: 'Нова парола (мин. 6 символа)',
+    confirmPassPh: 'Потвърди новата парола',
+    resetPassBtn: 'Запази новата парола',
     dateLbl: 'Дата',
     timeLbl: 'Час',
     saveBtnStar: 'Запази',
@@ -3511,6 +3545,10 @@ const T = {
     forgotPassTitle: 'Forgot password',
     forgotPassDesc: "Enter your email and you'll receive a reset link",
     sendResetBtn: 'Send link',
+    resetPassTitle: 'New password',
+    newPassPh: 'New password (min. 6 characters)',
+    confirmPassPh: 'Confirm new password',
+    resetPassBtn: 'Save new password',
     dateLbl: 'Date',
     timeLbl: 'Time',
     saveBtnStar: 'Save',
@@ -6816,6 +6854,60 @@ async function sendPasswordReset(){
     emailInput.value='';
     msg.textContent='Грешка при изпращане. Опитай пак по-късно.';
     msg.style.color='#e85d5d';
+  }
+}
+
+// ── RESET PASSWORD (от имейл линк) ──
+window._resetOobCode=null;
+function openResetPasswordModal(oobCode,email){
+  window._resetOobCode=oobCode;
+  const emailLine=document.getElementById('reset-pass-email-line');
+  emailLine.textContent=email?(window._lang==='en'?`For: ${email}`:`За: ${email}`):'';
+  document.getElementById('reset-password-modal').style.display='flex';
+  document.getElementById('reset-pass-new').focus();
+}
+function closeResetPasswordModal(){
+  document.getElementById('reset-password-modal').style.display='none';
+  document.getElementById('reset-pass-new').value='';
+  document.getElementById('reset-pass-confirm').value='';
+  document.getElementById('reset-pass-message').style.display='none';
+  window._resetOobCode=null;
+}
+window._onPasswordResetLinkVerified=function(oobCode,email){
+  openResetPasswordModal(oobCode,email);
+};
+window._onPasswordResetLinkInvalid=function(){
+  showToast(window._lang==='en'?'This reset link is invalid or has expired.':'Линкът за нова парола е невалиден или изтекъл.');
+};
+async function submitNewPassword(){
+  const oobCode=window._resetOobCode;
+  if(!oobCode)return;
+  const pass=document.getElementById('reset-pass-new').value;
+  const confirm=document.getElementById('reset-pass-confirm').value;
+  const msg=document.getElementById('reset-pass-message');
+  const btn=document.getElementById('reset-pass-submit-btn');
+  msg.style.display='block';
+  if(pass.length<6){msg.textContent=window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа';msg.style.color='#e85d5d';return;}
+  if(pass!==confirm){msg.textContent=window._lang==='en'?'Passwords do not match':'Паролите не съвпадат';msg.style.color='#e85d5d';return;}
+  btn.disabled=true;btn.textContent=window._lang==='en'?'Saving...':'Запазване...';
+  try{
+    await window._f.confirmPasswordReset(AU(),oobCode,pass);
+    msg.style.color='#2d9d78';
+    msg.textContent=window._lang==='en'?'Password changed successfully! Sign in with your new password.':'Паролата е сменена успешно! Влез с новата парола.';
+    setTimeout(()=>{
+      closeResetPasswordModal();
+      if(typeof window.openAuthScreen==='function')window.openAuthScreen();
+      if(typeof setAuthMode==='function')setAuthMode('login');
+    },2200);
+  }catch(e){
+    btn.disabled=false;btn.textContent=window._lang==='en'?'Save new password':'Запази новата парола';
+    msg.style.color='#e85d5d';
+    const code=e?.code||'';
+    if(code==='auth/expired-action-code')msg.textContent=window._lang==='en'?'This link has expired. Request a new one from "Forgot password".':'Линкът е изтекъл. Поискай нов от "Забравена парола".';
+    else if(code==='auth/invalid-action-code')msg.textContent=window._lang==='en'?'This link is invalid or has already been used.':'Линкът е невалиден или вече използван.';
+    else if(code==='auth/weak-password')msg.textContent=window._lang==='en'?'This password is too weak — choose a stronger one.':'Паролата е твърде слаба — избери по-силна.';
+    else if(code==='auth/user-disabled')msg.textContent=window._lang==='en'?'This account has been disabled.':'Акаунтът е деактивиран.';
+    else msg.textContent=window._lang==='en'?'Something went wrong. Please try again later.':'Грешка. Опитай пак по-късно.';
   }
 }
 
