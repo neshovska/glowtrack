@@ -7,6 +7,7 @@
 // за да не се пращат дубликати при паралелно/повторно изпълнение на cron-а
 // (Cloud Scheduler / Pub/Sub имат at-least-once delivery — може да гръмне 2 пъти).
 
+const {setGlobalOptions} = require("firebase-functions/v2");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
@@ -14,6 +15,12 @@ const {defineSecret, defineString} = require("firebase-functions/params");
 const nodemailer = require("nodemailer");
 const admin = require("firebase-admin");
 admin.initializeApp();
+
+// Всички функции в един регион — europe-west1, colocated с Firestore (eur3),
+// за да няма cross-region hop при Firestore тригери (onDocumentCreated) и по-ниска
+// latency общо. Firestore базата не може да се мести без пресъздаване, затова
+// функциите се местят към нея, не обратното.
+setGlobalOptions({region: "europe-west1"});
 
 const db = admin.firestore();
 const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");

@@ -2081,7 +2081,7 @@ const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
     if(typeof window._onPasswordResetLinkInvalid==='function')window._onPasswordResetLinkInvalid();
   });
 })();
-const fnInstance=getFunctions(fb,'us-central1'); // смени региона тук ако функциите ти са в друг
+const fnInstance=getFunctions(fb,'europe-west1'); // трябва да съвпада с region-а на функциите (виж setGlobalOptions в functions/index.js)
 // ── AI АСИСТЕНТ — feature flag (управлява се от Firestore app_config, вижда се в admin таблото) ──
 window._aiAssistantEnabled = false; // безопасна стойност по подразбиране, докато се зареди реалната
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
