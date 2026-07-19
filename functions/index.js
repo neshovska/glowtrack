@@ -6,6 +6,7 @@
 // v2 — ПОПРАВКА: атомарен "claim" на всяко напомняне през Firestore transaction,
 // за да не се пращат дубликати при паралелно/повторно изпълнение на cron-а
 // (Cloud Scheduler / Pub/Sub имат at-least-once delivery — може да гръмне 2 пъти).
+// CI test commit: проверка дали deploy-functions.yml минава след .env fix-а.
 
 const {setGlobalOptions} = require("firebase-functions/v2");
 const {onSchedule} = require("firebase-functions/v2/scheduler");

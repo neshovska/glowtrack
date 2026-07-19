@@ -25,6 +25,27 @@ jobs:
         working-directory: functions
         run: npm ci
 
+      - name: Write functions .env file
+        # firebase deploy в non-interactive режим не може да прочете defineSecret/
+        # defineString params без локален .env.<project-id> файл (виж functions/index.js
+        # defineSecret/defineString извиквания) — CI checkout-ът няма такъв файл
+        # (правилно е .gitignore-нат), затова го генерираме тук от GitHub Actions secrets.
+        working-directory: functions
+        run: |
+          cat > .env.after-care-treatment <<EOF
+          ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+          SMTP_HOST=${SMTP_HOST}
+          SMTP_PORT=${SMTP_PORT}
+          SMTP_USER=${SMTP_USER}
+          SMTP_PASS=${SMTP_PASS}
+          EOF
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+
       - name: Debug token (safe, no leak)
         run: echo "Token length is ${#FIREBASE_TOKEN} characters"
         env:
