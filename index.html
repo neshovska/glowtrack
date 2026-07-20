@@ -1202,19 +1202,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <div id="procs-homecare-section" style="padding:0 16px 8px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px" data-t="profileCare"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15z"/><path d="M5 19c3-3 7-7 11-11"/></svg> Домашна грижа</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;min-width:0;width:100%;box-sizing:border-box">
         <button onclick="toggleCarePanel('morning')" id="morning-btn"
-          style="width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit">
-          <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-morning.jpeg?alt=media" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">
-          <div style="flex:1;min-width:0;overflow:hidden">
-            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCare">Сутрешна грижа</div>
-            <div style="font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCareSub">Твоята дневна рутина</div>
-            <div style="font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500" data-t="homeCareLabel">ДОМАШНА ГРИЖА</div>
+          style="min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:12px 12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;min-height:84px">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;min-width:0">
+            <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-morning.jpeg?alt=media" loading="lazy" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">
+            <svg id="morning-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <svg id="morning-btn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+          <div style="min-width:0;width:100%;overflow:hidden">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCare">Сутрешна грижа</div>
+            <div style="font-size:10.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCareSub">Твоята дневна рутина</div>
+          </div>
         </button>
         <!-- СУТРЕШНА ГРИЖА PANEL -->
-        <div id="morning-panel" style="display:none;grid-column:1/-1;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
+        <div id="morning-panel" style="display:none;grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
           <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
@@ -1250,17 +1251,18 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
         </div>
         <button onclick="toggleCarePanel('evening')" id="evening-btn"
-          style="width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit">
-          <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-evening.jpeg?alt=media" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">
-          <div style="flex:1;min-width:0;overflow:hidden">
-            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCare">Вечерна грижа</div>
-            <div style="font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCareSub">Твоят нощен ритуал</div>
-            <div style="font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500" data-t="homeCareLabel">ДОМАШНА ГРИЖА</div>
+          style="min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:12px 12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;min-height:84px">
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;min-width:0">
+            <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-evening.jpeg?alt=media" loading="lazy" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">
+            <svg id="evening-btn-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <svg id="evening-btn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+          <div style="min-width:0;width:100%;overflow:hidden">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCare">Вечерна грижа</div>
+            <div style="font-size:10.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCareSub">Твоят нощен ритуал</div>
+          </div>
         </button>
         <!-- ВЕЧЕРНА ГРИЖА PANEL -->
-        <div id="evening-panel" style="display:none;grid-column:1/-1;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
+        <div id="evening-panel" style="display:none;grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
           <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
