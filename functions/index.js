@@ -592,11 +592,23 @@ exports.notifyOnClinicInquiry = onDocumentCreated(
 // Firebase-default noreply@<project>.firebaseapp.com
 // ═══════════════════════════════════════════════════════════
 
-// Лек anti-spam throttle — не позволява повторно изпращане до същия имейл
-// по-често от 60с. Обикновен get+set (не транзакция) е достатъчен тук:
-// worst case при race е 2 писма вместо 1, приемливо за този risk level
-// (за разлика от claimNotif по-горе, където дублиране на push е по-лошо).
-const PASSWORD_RESET_COOLDOWN_MS = 60 * 1000;
+// Anti-spam throttle — две независими граници, проверени в ЕДНА транзакция:
+// 1) per-email — max PASSWORD_RESET_PER_EMAIL_HOURLY_LIMIT заявки/час, спира
+//    targeted harassment на конкретен имейл.
+// 2) global — max PASSWORD_RESET_GLOBAL_PER_MINUTE_LIMIT заявки/минута общо,
+//    независимо от email, спира volumetric/enumeration abuse (много различни
+//    имейли). Важно е, защото тази функция споделя SMTP акаунта (smtpUser/
+//    smtpPass) с notifyOnClinicInquiry — sustained spam риск да маркира
+//    акаунта abuse при доставчика (Zoho), което би счупило и B2B известията.
+// Проверката е ПРЕДИ generatePasswordResetLink, за да важи и за несъществуващи
+// имейли (enumeration probing) — старата логика пишеше throttle-а само СЛЕД
+// успешен generatePasswordResetLink, оставяйки unknown-email заявки напълно
+// нелимитирани.
+// Fixed-window bucket-и (час/минута), не sliding window — по-прост модел,
+// същия паттърн като AI_DAILY_LIMIT по-долу; worst case позволява ~2x burst
+// близо до границата на bucket-а, приемлив компромис за простота.
+const PASSWORD_RESET_PER_EMAIL_HOURLY_LIMIT = 3;
+const PASSWORD_RESET_GLOBAL_PER_MINUTE_LIMIT = 20;
 
 exports.sendBrandedPasswordReset = onCall(
     {secrets: [smtpUser, smtpPass]},
@@ -606,11 +618,40 @@ exports.sendBrandedPasswordReset = onCall(
         throw new HttpsError("invalid-argument", "Невалиден имейл адрес.");
       }
 
-      const throttleRef = db.collection("password_reset_throttle").doc(email);
-      const throttleSnap = await throttleRef.get();
       const now = Date.now();
-      if (throttleSnap.exists && (now - (throttleSnap.data().lastSentAt || 0)) < PASSWORD_RESET_COOLDOWN_MS) {
-        return {ok: true}; // тих no-op, не разкриваме throttle статус на клиента
+      const hourBucket = Math.floor(now / (60 * 60 * 1000));
+      const minuteBucket = Math.floor(now / (60 * 1000));
+      const emailThrottleRef = db.collection("password_reset_throttle").doc(email);
+      // "_global" е reserved doc ID — не може да съвпадне с реален имейл (винаги съдържа "@").
+      const globalThrottleRef = db.collection("password_reset_throttle").doc("_global");
+
+      const throttle = await db.runTransaction(async (tx) => {
+        const [emailSnap, globalSnap] = await Promise.all([
+          tx.get(emailThrottleRef),
+          tx.get(globalThrottleRef),
+        ]);
+
+        const emailData = emailSnap.exists ? emailSnap.data() : {};
+        const emailCount = emailData.hourBucket === hourBucket ? (emailData.count || 0) : 0;
+        if (emailCount >= PASSWORD_RESET_PER_EMAIL_HOURLY_LIMIT) {
+          return {allowed: false, reason: "per-email"};
+        }
+
+        const globalData = globalSnap.exists ? globalSnap.data() : {};
+        const globalCount = globalData.minuteBucket === minuteBucket ? (globalData.count || 0) : 0;
+        if (globalCount >= PASSWORD_RESET_GLOBAL_PER_MINUTE_LIMIT) {
+          return {allowed: false, reason: "global"};
+        }
+
+        tx.set(emailThrottleRef, {hourBucket, count: emailCount + 1});
+        tx.set(globalThrottleRef, {minuteBucket, count: globalCount + 1});
+        return {allowed: true};
+      });
+
+      if (!throttle.allowed) {
+        // тих no-op, не разкриваме throttle статус на клиента (anti-enumeration)
+        console.log(`Password reset throttled (${throttle.reason}) за ${throttle.reason === "per-email" ? email : "global limit"}.`);
+        return {ok: true};
       }
 
       // url тук е само continueUrl fallback — не се използва реално, защото по-долу
@@ -642,8 +683,6 @@ exports.sendBrandedPasswordReset = onCall(
         throw new HttpsError("internal", "Грешка при генериране на линка.");
       }
       const brandedResetLink = `https://glowtrack.eu/?mode=resetPassword&oobCode=${encodeURIComponent(oobCode)}`;
-
-      await throttleRef.set({lastSentAt: now});
 
       const port = parseInt(smtpPort.value(), 10) || 465;
       const transporter = nodemailer.createTransport({
