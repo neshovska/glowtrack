@@ -603,13 +603,14 @@ body.dark #page-profile .p-avatar-lg{border-color:#1e1e38}
 .search-input:focus{border-color:var(--gold)}
 .search-input.has-value{padding-right:32px}
 .search-input::placeholder{color:#bbb4a8}
-.cats{padding:0 18px 4px;display:flex;flex-direction:column;gap:5px}
-.cats-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.cats{padding:0 14px 8px;display:block}
+.cats-row{display:none}
 .cats-row::-webkit-scrollbar{display:none}
-.cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid var(--catcol,var(--roselt));background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--catcol,var(--ink2));white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.cat-btn{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:14px 14px 12px;border-radius:14px;border:1.5px solid var(--catcol,var(--roselt));background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--catcol,var(--ink2));transition:all .15s;min-height:80px;width:100%;text-align:left;box-shadow:var(--shadow)}
 .cat-btn.active{background:linear-gradient(135deg,var(--catcol,var(--gold)),var(--catcol2,#e8c99a));color:#fff;border-color:transparent;border-width:2px;font-weight:700;box-shadow:0 4px 12px rgba(26,26,46,.16)}
 .cat-btn.fav-cat{border-color:var(--catcol,rgba(184,150,106,.55));color:var(--catcol,var(--gold))}
 .cat-btn.fav-cat.active{background:linear-gradient(135deg,var(--catcol,var(--gold)),var(--catcol2,#e8c99a));border-width:2px;color:#fff}
+.cats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .notif-acc-hdr{background:var(--card)}
 body.dark .notif-acc-hdr{background:linear-gradient(135deg,#1e1e38 0%,#2a2444 100%)}
 .cat-add-btn{flex-shrink:0;padding:5px 10px;border-radius:20px;border:1.5px dashed rgba(184,150,106,.45);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
@@ -987,7 +988,7 @@ body.dark .mini-btn{background:#12122a;border-color:rgba(212,169,106,.2);color:#
 body.dark .notif-proc-option{background:#12122a}
 body.dark #notif-proc-dropdown{background:#1a1a2e;border-color:rgba(212,169,106,.2)}
 
-body.dark .cat-btn{background:#1a1a2e;border-color:var(--catcol,rgba(212,169,106,.25));color:var(--catcol,#f0ede8)}
+body.dark .cat-btn{background:#1a1a2e;border-color:var(--catcol,rgba(212,169,106,.25));color:var(--catcol,#f0ede8);box-shadow:none}
 body.dark .cat-btn.active{background:linear-gradient(135deg,var(--catcol,var(--gold)),var(--catcol2,#e8c99a));color:#fff;border-color:transparent;border-width:2px;font-weight:700}
 body.dark .cat-btn.fav-cat{border-color:rgba(184,150,106,.5);color:var(--gold)}
 body.dark .cat-add-btn{border-color:rgba(184,150,106,.35);color:#a09080}
@@ -1050,7 +1051,7 @@ body.dark input[type="search"]{background:#12122a!important;color:#f0ede8!import
 
 
 
-.cat-btn svg { width:14px;height:14px;flex-shrink:0;transition:stroke .2s }
+.cat-btn svg { width:20px;height:20px;flex-shrink:0;transition:stroke .2s;margin-bottom:10px }
 .cat-btn.active svg circle { stroke:#fff !important; fill:#fff !important }
 body.dark .cat-btn svg { stroke:currentColor }
 .adv-chip{padding:5px 12px;border-radius:14px;border:1.5px solid var(--roselt);background:var(--card);font-size:11px;color:var(--ink2);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-block}
@@ -1195,7 +1196,6 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <span style="font-size:10px;color:var(--ink2)" id="adv-no-filters-lbl"></span>
       </div>
     </div>
-    <div class="cats" id="cats-bar"></div>
     <div id="procs-homecare-section" style="padding:0 16px 8px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px" data-t="profileCare"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15z"/><path d="M5 19c3-3 7-7 11-11"/></svg> Домашна грижа</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
@@ -1267,6 +1267,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px;display:flex;align-items:center;gap:5px"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> <span id="procs-potd-eyebrow"></span></div>
       <div id="procs-potd-card" onclick="_openProcedureOfTheDay()"></div>
     </div>
+    <div id="cats-section-label" style="padding:6px 18px 2px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)">Категории</div>
+    <div class="cats" id="cats-bar"></div>
     <div class="proc-list" id="proc-list">
       <div class="proc-row" style="pointer-events:none"><div class="skeleton-item" style="width:64px;height:48px;border-radius:10px;flex-shrink:0;margin-bottom:0"></div><div class="proc-row-info" style="flex:1;min-width:0"><div class="skeleton-item sk-row wide" style="height:13px;margin-bottom:6px"></div><div class="skeleton-item sk-row medium" style="height:11px;margin-bottom:0"></div></div></div>
       <div class="proc-row" style="pointer-events:none"><div class="skeleton-item" style="width:64px;height:48px;border-radius:10px;flex-shrink:0;margin-bottom:0"></div><div class="proc-row-info" style="flex:1;min-width:0"><div class="skeleton-item sk-row wide" style="height:13px;margin-bottom:6px"></div><div class="skeleton-item sk-row medium" style="height:11px;margin-bottom:0"></div></div></div>
@@ -4403,39 +4405,30 @@ function renderCats(){
       : `<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
     return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${isActive?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circleIcon}${lbl}</button>`;
   }).join('');
-  const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
+  const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории" style="grid-column:1/-1;margin-top:2px">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
 
-  // Row 2: remaining categories (only if there are fav cats chosen, else show all in row1)
-  let row2Html = '';
-  if(favCats.length > 0){
-    const otherCats = CATS_LIST.filter(c=>c.id!=='all' && !favCatIds.includes(c.id));
-    if(otherCats.length){
-      row2Html = `<div class="cats-row" id="cats-row2">${otherCats.map(c=>{
-        const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-        const isAct = c.id===activeCat;
-        const col = (CAT_COLORS[c.id]||CAT_COLORS.all)[0];
-        const circ = isAct
-          ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="#fff" stroke="#fff" stroke-width="1.5"/></svg>'
-          : `<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
-        return `<button class="cat-btn ${isAct?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circ}${lbl}</button>`;
-      }).join('')}</div>`;
-    }
-  } else {
-    // No fav cats — show all in row 1 (classic behaviour)
-    const allBtns = CATS_LIST.slice(1).map(c=>{
-      const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-      const isAct2 = c.id===activeCat;
-      const col = (CAT_COLORS[c.id]||CAT_COLORS.all)[0];
-      const circ2 = isAct2
-        ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="#fff" stroke="#fff" stroke-width="1.5"/></svg>'
-        : `<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
-      return `<button class="cat-btn ${isAct2?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circ2}${lbl}</button>`;
-    }).join('');
-    bar.innerHTML = `<div class="cats-row">${row1}${allBtns}${addBtn}</div>`;
-    return;
-  }
+  // All category buttons (excluding "all") — displayed in 2-col grid
+  const allCatBtns = CATS_LIST.slice(1).map(c=>{
+    const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
+    const isFavCat2 = favCatIds.includes(c.id);
+    const isAct = c.id===activeCat;
+    const col = (CAT_COLORS[c.id]||CAT_COLORS.all)[0];
+    const circ = isAct
+      ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7" fill="rgba(255,255,255,0.3)"/></svg>`
+      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/></svg>`;
+    return `<button class="cat-btn ${isFavCat2?'fav-cat':''} ${isAct?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circ}${lbl}</button>`;
+  }).join('');
 
-  bar.innerHTML = `<div class="cats-row">${row1}${addBtn}</div>${row2Html}`;
+  // "Всички" button spans full width at top
+  const allLbl = window._lang==='en' ? (CATS_EN.all||'All') : CATS_LIST[0].label;
+  const allIsActive = activeCat==='all';
+  const allCol = CAT_COLORS.all[0];
+  const allCirc = allIsActive
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7" fill="rgba(255,255,255,0.3)"/></svg>`
+    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${allCol}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7"/></svg>`;
+  const allBtn = `<button class="cat-btn ${allIsActive?'active':''}" style="${_catStyle('all')};grid-column:1/-1" onclick="setCat('all')">${allCirc}${allLbl}</button>`;
+
+  bar.innerHTML = `<div class="cats-grid">${allBtn}${allCatBtns}${addBtn}</div>`;
 }
 function setCat(c){activeCat=c;try{localStorage.setItem('gt_active_cat',c);}catch(e){}renderCats();renderProcs();}
 
