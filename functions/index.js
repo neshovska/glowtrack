@@ -8,6 +8,7 @@
 // (Cloud Scheduler / Pub/Sub имат at-least-once delivery — може да гръмне 2 пъти).
 // CI test commit: проверка дали deploy-functions.yml минава след .env fix-а.
 
+const crypto = require("crypto");
 const {setGlobalOptions} = require("firebase-functions/v2");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
@@ -325,6 +326,27 @@ const REFERRAL_REWARD_THRESHOLDS = [
   {count: 5, key: "level4_locked"},
 ];
 
+// Server-side близнак на _generateReferralCode() в index.html — byte-идентична
+// (SHA-256 hash на uid, пресечен до 7 символа през същия alphabet; crypto.createHash
+// в Node дава същия digest като браузърния crypto.subtle, само API-то е различно).
+// ВАЖНО: ако някога промениш алгоритъма в index.html, промени го синхронно и тук.
+//
+// Firestore Rules за /referrals позволяват на всеки signed-in потребител да създаде
+// 'pending' документ с произволен referrerUid (проверяват само refereeUid ==
+// request.auth.uid) — самò съвпадение между referrerUid и referralCode В ДОКУМЕНТА
+// не доказва нищо, защото атакуващият контролира и двете полета в един и същ write.
+// Затова кодът тук се преизчислява НЕЗАВИСИМО от referrerUid и се сравнява с
+// подадения referralCode, вместо да се вярва на клиентски подадени стойности.
+const REFERRAL_CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // без 0/O, 1/I
+function generateReferralCode(uid) {
+  const hash = crypto.createHash("sha256").update(uid).digest();
+  let code = "";
+  for (let i = 0; i < 7; i++) {
+    code += REFERRAL_CODE_ALPHABET[hash[i] % REFERRAL_CODE_ALPHABET.length];
+  }
+  return code;
+}
+
 // Anti-fraud: регистрацията сама по себе си НЕ брои referral — само след като
 // доведеният приятел добави поне 1 запис в дневника (виж _applyReferralSignup
 // в index.html, което създава 'pending' документ в referrals при регистрация
@@ -352,6 +374,7 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
 
       let referralDoc = null; let referrerRef = null;
       let referrerData = null; let newCount = null;
+      let invalidReferralDoc = null; let invalidReason = null;
 
       if (isFirstEntry) {
         const userSnap = await tx.get(db.collection("users").doc(uid));
@@ -363,11 +386,26 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
                   .where("status", "==", "pending"),
           );
           if (!referralsSnap.empty) {
-            referralDoc = referralsSnap.docs[0];
-            referrerRef = db.collection("users").doc(referralDoc.data().referrerUid);
-            const referrerSnap = await tx.get(referrerRef);
-            referrerData = referrerSnap.exists ? referrerSnap.data() : {};
-            newCount = (referrerData.referralCount || 0) + 1;
+            const candidateDoc = referralsSnap.docs[0];
+            const candidateData = candidateDoc.data();
+            const expectedCode = generateReferralCode(candidateData.referrerUid);
+            if (expectedCode === candidateData.referralCode) {
+              referralDoc = candidateDoc;
+              referrerRef = db.collection("users").doc(candidateData.referrerUid);
+              const referrerSnap = await tx.get(referrerRef);
+              referrerData = referrerSnap.exists ? referrerSnap.data() : {};
+              newCount = (referrerData.referralCount || 0) + 1;
+            } else {
+              // referrerUid не притежава referralCode-а в документа — подправен/
+              // невалиден referral claim. Не кредитираме нищо.
+              invalidReferralDoc = candidateDoc;
+              invalidReason = "referral_code_mismatch";
+              console.warn(
+                  `Referral fraud опит уловен: referrerUid=${candidateData.referrerUid} ` +
+                  `твърди код ${candidateData.referralCode}, реалният му код е ${expectedCode} ` +
+                  `(refereeUid=${uid}, referralId=${candidateDoc.id})`,
+              );
+            }
           }
         }
       }
@@ -389,6 +427,12 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
           referralCount: newCount,
           unlockedRewards: Array.from(unlockedRewards),
         }, {merge: true});
+      } else if (invalidReferralDoc) {
+        tx.update(invalidReferralDoc.ref, {
+          status: "rejected",
+          rejectedReason: invalidReason,
+          rejectedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
       }
     });
   } catch (e) {
