@@ -361,6 +361,18 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
   const processedRef = db.collection("meta").doc("referralEvents")
       .collection("processedEvents").doc(event.id);
 
+  // Извън транзакцията — Admin Auth API не е част от Firestore transaction
+  // модела; еднократен lookup, не искаме да се повтаря при transaction retry.
+  // Anti-abuse: mass fake/disposable-email акаунти за farming на referral
+  // rewards са по-трудни, ако наградата изисква потвърден имейл на доведения.
+  let refereeEmailVerified = false;
+  try {
+    const refereeAuthRecord = await admin.auth().getUser(uid);
+    refereeEmailVerified = !!refereeAuthRecord.emailVerified;
+  } catch (e) {
+    console.error(`Неуспешен getUser(${uid}) за referral email verification проверка:`, e);
+  }
+
   try {
     await db.runTransaction(async (tx) => {
       // ---- всички reads първо (Firestore transaction изисква reads преди writes) ----
@@ -389,13 +401,7 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
             const candidateDoc = referralsSnap.docs[0];
             const candidateData = candidateDoc.data();
             const expectedCode = generateReferralCode(candidateData.referrerUid);
-            if (expectedCode === candidateData.referralCode) {
-              referralDoc = candidateDoc;
-              referrerRef = db.collection("users").doc(candidateData.referrerUid);
-              const referrerSnap = await tx.get(referrerRef);
-              referrerData = referrerSnap.exists ? referrerSnap.data() : {};
-              newCount = (referrerData.referralCount || 0) + 1;
-            } else {
+            if (expectedCode !== candidateData.referralCode) {
               // referrerUid не притежава referralCode-а в документа — подправен/
               // невалиден referral claim. Не кредитираме нищо.
               invalidReferralDoc = candidateDoc;
@@ -405,6 +411,25 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
                   `твърди код ${candidateData.referralCode}, реалният му код е ${expectedCode} ` +
                   `(refereeUid=${uid}, referralId=${candidateDoc.id})`,
               );
+            } else if (!refereeEmailVerified) {
+              // Кодът е верен, но доведеният няма потвърден имейл — не маркираме
+              // rejected (за разлика от code mismatch): непотвърден имейл е
+              // ВРЕМЕННО състояние, не искаме перманентно да наказваме легитимен
+              // потребител, който просто още не е кликнал verification линка към
+              // момента на първия си diary entry. Оставаме на 'pending' (известно
+              // ограничение: няма re-trigger механизъм да го преоцени по-късно,
+              // ако потвърди имейла след това — приемлив compromise за defense-
+              // in-depth срещу mass fake-акаунти, не е критичен UX path).
+              console.log(
+                  `Referral не се кредитира — refereeUid=${uid} няма потвърден ` +
+                  `имейл (referralId=${candidateDoc.id}).`,
+              );
+            } else {
+              referralDoc = candidateDoc;
+              referrerRef = db.collection("users").doc(candidateData.referrerUid);
+              const referrerSnap = await tx.get(referrerRef);
+              referrerData = referrerSnap.exists ? referrerSnap.data() : {};
+              newCount = (referrerData.referralCount || 0) + 1;
             }
           }
         }

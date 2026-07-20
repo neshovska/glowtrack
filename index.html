@@ -1128,7 +1128,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       </div>
       <div class="auth-field" id="auth-name-field" style="display:none"><label class="auth-label">Име</label><input class="auth-input" type="text" id="auth-name" placeholder="Твоето име" autocomplete="name"></div>
       <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="auth-email" placeholder="example@mail.com" autocomplete="email"></div>
-      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+      <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="auth-pass" placeholder="Минимум 8 символа" autocomplete="current-password"></div>
       <div class="auth-field" id="auth-confirm-field" style="display:none"><label class="auth-label">Потвърди паролата</label><input class="auth-input" type="password" id="auth-confirm" placeholder="Въведи паролата отново" autocomplete="new-password"></div>
       <button class="auth-btn" id="auth-btn" onclick="doAuthUnified()">Влез</button>
       <div style="text-align:center;margin-top:12px">
@@ -1420,7 +1420,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         </div>
         <div class="auth-field" id="ps-auth-name-field" style="display:none"><label class="auth-label">Име</label><input class="auth-input" type="text" id="ps-auth-name" placeholder="Твоето име" autocomplete="name"></div>
         <div class="auth-field"><label class="auth-label">Имейл</label><input class="auth-input" type="email" id="ps-auth-email" placeholder="example@mail.com" autocomplete="email"></div>
-        <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="ps-auth-pass" placeholder="Минимум 6 символа" autocomplete="current-password"></div>
+        <div class="auth-field"><label class="auth-label">Парола</label><input class="auth-input" type="password" id="ps-auth-pass" placeholder="Минимум 8 символа" autocomplete="current-password"></div>
         <div class="auth-field" id="ps-auth-confirm-field" style="display:none"><label class="auth-label">Потвърди паролата</label><input class="auth-input" type="password" id="ps-auth-confirm" placeholder="Въведи паролата отново" autocomplete="new-password"></div>
         <button class="auth-btn" id="ps-auth-btn" onclick="doPsAuthUnified()">Влез</button>
         <div style="text-align:center;margin-top:12px">
@@ -2028,7 +2028,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div style="font-size:18px;font-weight:700;color:var(--ink1);margin-bottom:6px" data-t="resetPassTitle">Нова парола</div>
       <div style="font-size:12px;color:var(--ink2)" id="reset-pass-email-line"></div>
     </div>
-    <input class="auth-input" id="reset-pass-new" type="password" placeholder="Нова парола (мин. 6 символа)" data-ph="newPassPh" autocomplete="new-password" style="margin-bottom:10px">
+    <input class="auth-input" id="reset-pass-new" type="password" placeholder="Нова парола (мин. 8 символа)" data-ph="newPassPh" autocomplete="new-password" style="margin-bottom:10px">
     <input class="auth-input" id="reset-pass-confirm" type="password" placeholder="Потвърди новата парола" data-ph="confirmPassPh" autocomplete="new-password" style="margin-bottom:12px">
     <button class="auth-btn" id="reset-pass-submit-btn" onclick="submitNewPassword()" style="margin-bottom:8px" data-t="resetPassBtn">Запази новата парола</button>
     <button style="width:100%;padding:11px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" onclick="closeResetPasswordModal()" data-t="cancelBtn">Отмени</button>
@@ -2058,7 +2058,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence,verifyPasswordResetCode,confirmPasswordReset}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile,updatePassword,deleteUser,setPersistence,browserLocalPersistence,verifyPasswordResetCode,confirmPasswordReset,sendEmailVerification}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import{getFirestore,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{getMessaging,getToken,onMessage,isSupported as fcmIsSupported}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
 import{getStorage,ref as storageRef,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
@@ -2121,7 +2121,7 @@ window.uploadLogoImage=async function(file, folder){
   await uploadBytes(sref,file,{contentType:file.type||'image/jpeg'});
   return await getDownloadURL(sref);
 };
-window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,confirmPasswordReset,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
+window._f={createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile,updatePassword,deleteUser,confirmPasswordReset,sendEmailVerification,collection,addDoc,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,query,where,serverTimestamp};
 
 // ── REFERRAL СИСТЕМА: код + регистрационна логика ──
 // Детерминистичен от uid (SHA-256, пресечен до 7 символа) вместо random+retry-
@@ -2305,7 +2305,7 @@ window.doAuthUnified=async function(){
   const confirmEl=document.getElementById('auth-confirm');
   const pass=passEl.value;
   if(!email||!pass){window.showAuthError(t('fillAllFields'));return;}
-  if(window._authMode==='register' && pass.length<6){window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');return;}
+  if(window._authMode==='register' && pass.length<8){window.showAuthError(window._lang==='en'?'Password must be at least 8 characters':'Паролата трябва да е поне 8 символа');return;}
   if(window._authMode==='register' && pass!==confirmEl.value){
     window.showAuthError(window._lang==='en'?'Passwords do not match':'Паролите не съвпадат');
     passEl.value=''; confirmEl.value='';
@@ -2315,9 +2315,23 @@ window.doAuthUnified=async function(){
   try{
     if(window._authMode==='register'){
       const cred=await createUserWithEmailAndPassword(auth,email,pass);
-      if(name)await updateProfile(cred.user,{displayName:name});
-      await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
-      await window._applyReferralSignup(cred.user.uid);
+      try{
+        if(name)await updateProfile(cred.user,{displayName:name});
+        await setDoc(doc(db,'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:serverTimestamp()});
+        await window._applyReferralSignup(cred.user.uid);
+      }catch(profileErr){
+        // Auth акаунтът вече съществува, но профилният документ не се създаде —
+        // rollback, за да остане email-ът свободен за чист повторен опит, вместо
+        // потребителят да остане с "orphaned" акаунт без users/{uid} документ
+        // (auth/email-already-in-use при следващ опит, без recovery път в UI-то).
+        console.error('Регистрация: неуспешно създаване на профил, откатвам Auth акаунта:', profileErr);
+        try{ await deleteUser(cred.user); }catch(delErr){ console.error('Rollback delete грешка:', delErr); }
+        throw profileErr;
+      }
+      // Best-effort, не блокира регистрацията — не изискваме потвърден имейл за
+      // достъп до приложението (ненужно триене за casual beauty app). Само
+      // referral кредитирането го изисква сървърно — виж onDiaryEntryCreated.
+      try{ await sendEmailVerification(cred.user); }catch(veErr){ console.error('sendEmailVerification грешка:', veErr); }
       if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
     } else {
       await signInWithEmailAndPassword(auth,email,pass);
@@ -2328,7 +2342,7 @@ window.doAuthUnified=async function(){
       if(e.code==='auth/email-already-in-use'){
         window.showAuthError(window._lang==='en'?'An account with this email already exists — try logging in instead.':'Вече има акаунт с този имейл — опитай да влезеш вместо това.');
       }else if(e.code==='auth/weak-password'){
-        window.showAuthError(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
+        window.showAuthError(window._lang==='en'?'Password must be at least 8 characters':'Паролата трябва да е поне 8 символа');
       }else if(e.code==='auth/invalid-email'){
         window.showAuthError(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
       }else{
@@ -2485,6 +2499,18 @@ onAuthStateChanged(auth,async user=>{
         }
         // Apply language from Firestore — no second network call needed
         if(ud.lang){window._lang=ud.lang;localStorage.setItem('gt_lang',window._lang);}
+      } else {
+        // Self-healing: акаунт в Firebase Auth без users/{uid} документ — обичайно
+        // orphaned акаунт от регистрация, при която createUserWithEmailAndPassword
+        // е успял, но setDoc е гръмнал (виж rollback-а в doAuthUnified/
+        // doPsAuthUnified, който би трябвало да предотврати нови случаи). Тихо
+        // backfill-ваме минимален профил, вместо потребителят да остане "чупен"
+        // без recovery път. Referral attribution (gt_pending_ref) не се възстановява
+        // тук — вече е изгубено до момента на този login.
+        try{
+          await setDoc(doc(db,'users',user.uid),{uid:user.uid,name:user.displayName||'',email:user.email||'',createdAt:serverTimestamp()},{merge:true});
+          console.log('Backfill: създаден липсващ users/{uid} документ за',user.uid);
+        }catch(backfillErr){ console.error('Backfill грешка:',backfillErr); }
       }
     }catch(e){}
     // Apply language (uses localStorage fallback if Firestore read failed)
@@ -3168,7 +3194,7 @@ const T = {
     password: 'Парола',
     name: 'ИМЕ',
     namePh: 'Твоето име',
-    passPh: 'Минимум 6 символа',
+    passPh: 'Минимум 8 символа',
     loginBtn: 'Влез',
     regBtn: 'Създай акаунт',
     noAccount: 'Нямаш акаунт?',
@@ -3266,7 +3292,7 @@ const T = {
     forgotPassDesc: 'Въведи имейла си и ще получиш линк за reset',
     sendResetBtn: 'Изпрати линк',
     resetPassTitle: 'Нова парола',
-    newPassPh: 'Нова парола (мин. 6 символа)',
+    newPassPh: 'Нова парола (мин. 8 символа)',
     confirmPassPh: 'Потвърди новата парола',
     resetPassBtn: 'Запази новата парола',
     dateLbl: 'Дата',
@@ -3450,7 +3476,7 @@ const T = {
     password: 'Password',
     name: 'Name',
     namePh: 'Your name',
-    passPh: 'Minimum 6 characters',
+    passPh: 'Minimum 8 characters',
     loginBtn: 'Sign in',
     regBtn: 'Create account',
     noAccount: "Don't have an account?",
@@ -3546,7 +3572,7 @@ const T = {
     forgotPassDesc: "Enter your email and you'll receive a reset link",
     sendResetBtn: 'Send link',
     resetPassTitle: 'New password',
-    newPassPh: 'New password (min. 6 characters)',
+    newPassPh: 'New password (min. 8 characters)',
     confirmPassPh: 'Confirm new password',
     resetPassBtn: 'Save new password',
     dateLbl: 'Date',
@@ -3738,7 +3764,7 @@ function applyLang(){
     const ni = document.getElementById('auth-name');
     if(ni) ni.placeholder = t('namePh');
     const pi = document.getElementById('auth-pass');
-    if(pi) pi.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
+    if(pi) pi.placeholder = window._lang==='en'?'Minimum 8 characters':'Минимум 8 символа';
     const ci = document.getElementById('auth-confirm');
     if(ci) ci.placeholder = window._lang==='en'?'Re-enter your password':'Въведи паролата отново';
     const forgotLink=document.getElementById('auth-forgot-link');
@@ -3754,7 +3780,7 @@ function applyLang(){
     if(psLabs[2]) psLabs[2].textContent = t('password');
     if(psLabs[3]) psLabs[3].textContent = (window._lang==='en'?'Confirm password':'Потвърди паролата');
     const psPass = document.getElementById('ps-auth-pass');
-    if(psPass) psPass.placeholder = window._lang==='en'?'Minimum 6 characters':'Минимум 6 символа';
+    if(psPass) psPass.placeholder = window._lang==='en'?'Minimum 8 characters':'Минимум 8 символа';
     const psConfirm = document.getElementById('ps-auth-confirm');
     if(psConfirm) psConfirm.placeholder = window._lang==='en'?'Re-enter your password':'Въведи паролата отново';
     const psEmail = document.getElementById('ps-auth-email');
@@ -6887,7 +6913,7 @@ async function submitNewPassword(){
   const msg=document.getElementById('reset-pass-message');
   const btn=document.getElementById('reset-pass-submit-btn');
   msg.style.display='block';
-  if(pass.length<6){msg.textContent=window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа';msg.style.color='#e85d5d';return;}
+  if(pass.length<8){msg.textContent=window._lang==='en'?'Password must be at least 8 characters':'Паролата трябва да е поне 8 символа';msg.style.color='#e85d5d';return;}
   if(pass!==confirm){msg.textContent=window._lang==='en'?'Passwords do not match':'Паролите не съвпадат';msg.style.color='#e85d5d';return;}
   btn.disabled=true;btn.textContent=window._lang==='en'?'Saving...':'Запазване...';
   try{
@@ -9617,7 +9643,7 @@ async function saveEditProfile(){
       updates.push(F().updateProfile(window._user, {displayName: name}));
     }
     if(pass){
-      if(pass.length < 6){ errEl.textContent = window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа'; errEl.style.display='block'; return; }
+      if(pass.length < 8){ errEl.textContent = window._lang==='en'?'Password must be at least 8 characters':'Паролата трябва да е поне 8 символа'; errEl.style.display='block'; return; }
       updates.push(F().updatePassword(window._user, pass));
     }
     updates.push(F().setDoc(F().doc(DB(),'users',window._user.uid), {dob, gender}, {merge:true}));
@@ -9900,7 +9926,7 @@ async function doPsAuthUnified(){
   const errEl=document.getElementById('ps-auth-error');
   const showErr=(msg)=>{ if(errEl){errEl.textContent=msg; errEl.classList.add('show');} };
   if(!email||!pass){ showErr(t('fillAllFields')); return; }
-  if(window._psAuthMode==='register' && pass.length<6){ showErr(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа'); return; }
+  if(window._psAuthMode==='register' && pass.length<8){ showErr(window._lang==='en'?'Password must be at least 8 characters':'Паролата трябва да е поне 8 символа'); return; }
   if(window._psAuthMode==='register' && pass!==(confirmEl?.value||'')){
     showErr(window._lang==='en'?'Passwords do not match':'Паролите не съвпадат');
     if(passEl) passEl.value='';
@@ -9912,9 +9938,19 @@ async function doPsAuthUnified(){
   try{
     if(window._psAuthMode==='register'){
       const cred = await F().createUserWithEmailAndPassword(AU(), email, pass);
-      if(name) await F().updateProfile(cred.user,{displayName:name});
-      await F().setDoc(F().doc(DB(),'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:F().serverTimestamp()});
-      await window._applyReferralSignup(cred.user.uid);
+      try{
+        if(name) await F().updateProfile(cred.user,{displayName:name});
+        await F().setDoc(F().doc(DB(),'users',cred.user.uid),{uid:cred.user.uid,name:name||'',email,createdAt:F().serverTimestamp()});
+        await window._applyReferralSignup(cred.user.uid);
+      }catch(profileErr){
+        // Виж коментара в doAuthUnified — rollback на Auth акаунта, ако профилният
+        // документ не се създаде, за да остане email-ът свободен за чист опит пак.
+        console.error('Регистрация: неуспешно създаване на профил, откатвам Auth акаунта:', profileErr);
+        try{ await F().deleteUser(cred.user); }catch(delErr){ console.error('Rollback delete грешка:', delErr); }
+        throw profileErr;
+      }
+      // Виж коментара в doAuthUnified — best-effort, не блокира регистрацията.
+      try{ await F().sendEmailVerification(cred.user); }catch(veErr){ console.error('sendEmailVerification грешка:', veErr); }
       if(typeof window.trackEvent==='function')window.trackEvent('sign_up',{});
     } else {
       await F().signInWithEmailAndPassword(AU(), email, pass);
@@ -9924,7 +9960,7 @@ async function doPsAuthUnified(){
   }catch(e){
     if(window._psAuthMode==='register'){
       if(e.code==='auth/email-already-in-use') showErr(window._lang==='en'?'An account with this email already exists — try logging in instead.':'Вече има акаунт с този имейл — опитай да влезеш вместо това.');
-      else if(e.code==='auth/weak-password') showErr(window._lang==='en'?'Password must be at least 6 characters':'Паролата трябва да е поне 6 символа');
+      else if(e.code==='auth/weak-password') showErr(window._lang==='en'?'Password must be at least 8 characters':'Паролата трябва да е поне 8 символа');
       else if(e.code==='auth/invalid-email') showErr(window._lang==='en'?'Please enter a valid email address':'Моля, въведи валиден имейл адрес');
       else showErr(window._lang==='en'?'Something went wrong. Please try again.':'Нещо се обърка. Опитай пак.');
     } else {
@@ -10402,7 +10438,7 @@ function refreshProfilePage(){
   <div style="background:var(--card);border-radius:20px;padding:24px;margin:0 20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(26,26,46,.2)">
     <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px" data-t="editProfileTitle">Редактирай профила</div>
     <div class="form-row"><label class="form-lbl" data-t="newName">Ново име</label><input class="form-input" id="ep-name" placeholder="Твоето име"></div>
-    <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="newPass">Нова парола (по желание)</label><input class="form-input" type="password" id="ep-pass" placeholder="Минимум 6 символа"></div>
+    <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="newPass">Нова парола (по желание)</label><input class="form-input" type="password" id="ep-pass" placeholder="Минимум 8 символа"></div>
     <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="dobLabel">Дата на раждане (по желание)</label><input class="form-input" type="date" id="ep-dob"></div>
     <div class="form-row" style="margin-top:4px"><label class="form-lbl" data-t="genderLabel">Пол (по желание)</label>
       <select class="form-input" id="ep-gender">
