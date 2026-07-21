@@ -5247,19 +5247,19 @@ function startEditEntry(eid,procId){
     const routineLabel = d.procId==='home-care-morning'?t('morningCare'):t('eveningCare');
     const routineType = d.procId==='home-care-morning'?'morning':'evening';
     const defaultSteps = routineType==='morning'
-      ? [{r:'m-cleanse',l:`${ic('droplet','13px')} Почистване`},{r:'m-tone',l:`${ic('droplet','13px')} Тонер`},{r:'m-serum',l:`${ic('sparkle','13px')} Серум`},{r:'m-moisturize',l:`${ic('bottle','13px')} Хидратация`},{r:'m-spf',l:`${ic('sun','13px')} SPF`}]
-      : [{r:'e-cleanse',l:`${ic('droplet','13px')} Почистване`},{r:'e-tone',l:`${ic('droplet','13px')} Тонер/Есенция`},{r:'e-serum',l:`${ic('sparkle','13px')} Серум/Ампула`},{r:'e-eye',l:`${ic('eye','13px')} Крем за очи`},{r:'e-moisturize',l:`${ic('bottle','13px')} Нощен крем`}];
+      ? [{r:'m-cleanse',icon:'droplet',label:'Почистване'},{r:'m-tone',icon:'droplet',label:'Тонер'},{r:'m-serum',icon:'sparkle',label:'Серум'},{r:'m-moisturize',icon:'bottle',label:'Хидратация'},{r:'m-spf',icon:'sun',label:'SPF'}]
+      : [{r:'e-cleanse',icon:'droplet',label:'Почистване'},{r:'e-tone',icon:'droplet',label:'Тонер/Есенция'},{r:'e-serum',icon:'sparkle',label:'Серум/Ампула'},{r:'e-eye',icon:'eye',label:'Крем за очи'},{r:'e-moisturize',icon:'bottle',label:'Нощен крем'}];
     const savedChecked = (d.advice||'').replace('Стъпки: ','').split(', ').map(s=>s.trim());
     const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+routineType)||'[]');
     card.innerHTML=isRoutineEntry?`
       <div class="diary-date-lbl" style="color:var(--gold)">${ic('edit','13px')} Редактиране · ${routineLabel}</div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
         ${defaultSteps.map(s=>`<label class="routine-item">
-          <input type="checkbox" class="ee-step-cb" data-label="${s.l}" ${savedChecked.some(sc=>sc.includes(s.l.replace(/[^\w\s]/g,'').trim()))?'checked':''}>
-          <span>${s.l}</span>
+          <input type="checkbox" class="ee-step-cb" data-label="${s.label}" ${savedChecked.includes(s.label)?'checked':''}>
+          <span>${ic(s.icon,'13px')} ${s.label}</span>
         </label>`).join('')}
         ${customs.map(c=>`<label class="routine-item">
-          <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.some(sc=>sc.includes(c.label))?'checked':''}>
+          <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.includes(c.label)?'checked':''}>
           <span>${c.label}</span>
         </label>`).join('')}
       </div>
