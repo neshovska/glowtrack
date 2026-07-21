@@ -142,7 +142,7 @@ body.dark .auth-card{pointer-events:auto;background:rgba(30,30,56,.9)}
 body.dark .form-input,.dark input,.dark textarea,.dark select{background:#12122a!important;color:#f0ede8!important;border-color:rgba(212,169,106,.25)!important;color-scheme:dark}
 body.dark input[type="date"],body.dark input[type="time"],body.dark input[type="datetime-local"]{background:#12122a!important;color:#f0ede8!important;color-scheme:dark}
 body.dark .profile-card-section,.dark .profile-card-section{background:#1a1a2e;border-color:rgba(212,169,106,.15);overflow:visible}
-body.dark .routine-item{background:#1a1a2e}
+body.dark .routine-item-wrap{background:#1a1a2e}
 body.dark .entry-card{background:#1a1a2e;border-color:rgba(212,169,106,.2)}
 body.dark .entry-field{color:#e8e4de}
 body.dark .entry-date{color:#a09890}
@@ -943,10 +943,10 @@ html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:800ms
 .stat-box{flex:1;background:#faf8f5;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid var(--goldlt)}
 .stat-num{font-size:24px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif}
 .stat-lbl{font-size:10px;color:var(--ink2);margin-top:2px;font-weight:500}
-.routine-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#faf8f5;cursor:pointer;font-size:13px;color:var(--ink1)}
-.routine-item input{width:16px;height:16px;accent-color:var(--gold)}
-.routine-item-wrap{display:flex;flex-direction:column;gap:4px}
-.routine-product-input{font-family:inherit;font-size:12px;padding:6px 10px 6px 34px;border:1px solid rgba(184,150,106,.18);border-radius:8px;background:#fff;color:var(--ink1);width:100%;box-sizing:border-box}
+.routine-item{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.routine-item input{width:16px;height:16px;accent-color:var(--gold);flex-shrink:0}
+.routine-item-wrap{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:#faf8f5}
+.routine-product-input{font-family:inherit;font-size:11.5px;padding:6px 8px;border:1px solid rgba(184,150,106,.18);border-radius:7px;background:#fff;color:var(--ink1);flex:1;min-width:0;box-sizing:border-box}
 .routine-product-input::placeholder{color:var(--ink2)}
 body.dark .routine-product-input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,150,106,.25)}
 .routine-cb:checked ~ span{text-decoration:line-through;opacity:.5}
@@ -1236,23 +1236,23 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
-              <input type="text" class="routine-product-input" data-step="m-cleanse" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="m-cleanse" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер</span></label>
-              <input type="text" class="routine-product-input" data-step="m-tone" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="m-tone" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-serum"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Серум</span></label>
-              <input type="text" class="routine-product-input" data-step="m-serum" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="m-serum" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-moisturize"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4v3l1.5 2v13a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V7L10 5V2z"/><path d="M9 11h6"/></svg> Хидратация</span></label>
-              <input type="text" class="routine-product-input" data-step="m-moisturize" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="m-moisturize" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-spf"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg> SPF</span></label>
-              <input type="text" class="routine-product-input" data-step="m-spf" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="m-spf" placeholder="Продукт">
             </div>
           </div>
           <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
@@ -1272,23 +1272,23 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
-              <input type="text" class="routine-product-input" data-step="e-cleanse" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="e-cleanse" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер/Есенция</span></label>
-              <input type="text" class="routine-product-input" data-step="e-tone" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="e-tone" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-serum"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Серум/Ампула</span></label>
-              <input type="text" class="routine-product-input" data-step="e-serum" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="e-serum" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-eye"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> Крем за очи</span></label>
-              <input type="text" class="routine-product-input" data-step="e-eye" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="e-eye" placeholder="Продукт">
             </div>
             <div class="routine-item-wrap">
               <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-moisturize"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4v3l1.5 2v13a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V7L10 5V2z"/><path d="M9 11h6"/></svg> Нощен крем</span></label>
-              <input type="text" class="routine-product-input" data-step="e-moisturize" placeholder="Продукт (незадължително)">
+              <input type="text" class="routine-product-input" data-step="e-moisturize" placeholder="Продукт">
             </div>
           </div>
           <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
@@ -9348,14 +9348,12 @@ function renderCustomSteps(type){
   const saved = JSON.parse(localStorage.getItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today)||'[]');
   list.innerHTML = customs.map(c=>`
     <div class="routine-item-wrap">
-      <div style="display:flex;align-items:center;gap:6px">
-        <label class="routine-item" style="flex:1">
-          <input type="checkbox" class="routine-cb-${type}-custom" data-r="${c.id}" ${saved.includes(c.id)?'checked':''}>
-          <span>${c.label}</span>
-        </label>
-        <button onclick="deleteCustomStep('${type}','${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer">${ic('close','14px')}</button>
-      </div>
-      <input type="text" class="routine-product-input" data-step="${c.id}" placeholder="Продукт (незадължително)">
+      <label class="routine-item" style="max-width:38%">
+        <input type="checkbox" class="routine-cb-${type}-custom" data-r="${c.id}" ${saved.includes(c.id)?'checked':''}>
+        <span>${c.label}</span>
+      </label>
+      <input type="text" class="routine-product-input" data-step="${c.id}" placeholder="Продукт">
+      <button onclick="deleteCustomStep('${type}','${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer;flex-shrink:0;padding:0;display:flex;align-items:center">${ic('close','14px')}</button>
     </div>`).join('');
   initStepProductInputs(list);
 }
