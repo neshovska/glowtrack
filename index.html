@@ -5267,6 +5267,7 @@ function startEditEntry(eid,procId){
         <input type="text" id="ee-custom-input-${eid}" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:16px;padding:7px 10px">
         <button onclick="addEECustomStep('${eid}','${routineType}')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
       </div>
+      <div class="form-row"><label class="form-lbl">Продукти</label><textarea class="form-input" id="ee-products-${eid}" rows="2" placeholder="напр. Тонер: CeraVe...">${d.products||''}</textarea></div>
       <div class="form-row"><label class="form-lbl">Бележки</label><textarea class="form-input" id="ee-feel-${eid}" rows="2">${d.feeling||''}</textarea></div>
       <div class="entry-actions">
         <button class="save-btn" style="max-width:140px;flex:none" onclick="saveRoutineEdit('${eid}','${procId}','${routineType}')">${ic('clipboard','13px')} Запази</button>
@@ -9374,46 +9375,63 @@ function deleteCustomStep(type, id){
 
 async function saveRoutine(type, btnEl){
   const today = new Date().toDateString();
-  const checked = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(c=>c.dataset.r);
-  const customChecked = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(c=>c.dataset.r);
+  const checkedEls = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked'));
+  const customCheckedEls = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked'));
+  const checked = checkedEls.map(c=>c.dataset.r);
+  const customChecked = customCheckedEls.map(c=>c.dataset.r);
   const all = [...checked, ...customChecked];
   localStorage.setItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today, JSON.stringify(all));
   localStorage.setItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_last', today);
   updateCareStreak(type, all, today);
 
+  // Gather step labels + any manually entered product names for the checked steps
+  const steps = [];
+  const productLines = [];
+  [...checkedEls, ...customCheckedEls].forEach(cb=>{
+    const label = (cb.nextElementSibling?.textContent||'').trim();
+    if(label) steps.push(label);
+    const wrap = cb.closest('.routine-item-wrap');
+    const prodVal = wrap?.querySelector('.routine-product-input')?.value.trim();
+    if(prodVal) productLines.push(label ? `${label}: ${prodVal}` : prodVal);
+  });
+
   // Save to diary
   if(window._user && all.length > 0){
-    const savedKey = 'gt_care_diary_'+type+'_'+today;
-    if(!localStorage.getItem(savedKey)){
-      try{
-        const label = type === 'morning' ? 'Сутрешна грижа' : 'Вечерна грижа';
-        const steps = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(cb=>cb.nextElementSibling?.textContent||'');
-        const customSteps = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(cb=>cb.nextElementSibling?.textContent||'');
-        await F().addDoc(F().collection(DB(),'diary_entries'),{
+    const label = type === 'morning' ? 'Сутрешна грижа' : 'Вечерна грижа';
+    const adviceText = 'Стъпки: '+steps.join(', ');
+    const productsText = productLines.join(', ');
+    const savedKey = 'gt_care_diary_'+window._user.uid+'_'+type+'_'+today;
+    const existingDocId = localStorage.getItem(savedKey);
+    try{
+      if(existingDocId){
+        await F().updateDoc(F().doc(DB(),'diary_entries',existingDocId),{
+          advice: adviceText,
+          products: productsText
+        });
+        showToast('Обновено в дневника!');
+      } else {
+        const docRef = await F().addDoc(F().collection(DB(),'diary_entries'),{
           userId: window._user.uid,
           procId: 'home-care-'+type,
           procName: label,
           procIcon: type==='morning'?'sun':'moon',
           clinic:'', specialist:'', contact:'',
-          advice: 'Стъпки: '+[...steps,...customSteps].join(', '),
+          advice: adviceText,
           feeling: label+' завършена',
-          products:'', photos:[],
+          products: productsText, photos:[],
           isRoutine: true,
           createdAt: F().serverTimestamp()
         });
-        localStorage.setItem(savedKey, '1');
+        localStorage.setItem(savedKey, docRef.id);
         showToast('Запазено в дневника!');
-        if(typeof window._glowBurst==='function') window._glowBurst(btnEl);
-        if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
-        // Auto-close accordion
-        const accBody = document.getElementById('routine-acc-body') || document.querySelector('.acc-body.open');
-        if(accBody){ accBody.classList.remove('open'); const arr=accBody.previousElementSibling?.querySelector('.acc-arrow'); if(arr) arr.classList.remove('open'); }
-      } catch(e){}
-    } else {
-      showToast(t('toastRoutineSaved'));
+      }
+      if(typeof window._glowBurst==='function') window._glowBurst(btnEl);
+      window._cache.diary=null; window._cache.diaryTs=0;
+      if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
+      // Auto-close accordion
       const accBody = document.getElementById('routine-acc-body') || document.querySelector('.acc-body.open');
       if(accBody){ accBody.classList.remove('open'); const arr=accBody.previousElementSibling?.querySelector('.acc-arrow'); if(arr) arr.classList.remove('open'); }
-    }
+    } catch(e){ showToast(t('toastErrUpd')); }
   } else {
     showToast(t('toastSaved'));
   }
@@ -9424,6 +9442,7 @@ async function saveRoutine(type, btnEl){
   const _hcs = document.getElementById('procs-homecare-section');
   if(_hcs) _hcs.style.display = 'block';
 }
+
 
 function updateCareStreak(type, checked, today){
   const el = document.getElementById(type+'-streak');
@@ -9536,14 +9555,17 @@ function addEECustomStep(eid, type){
 
 async function saveRoutineEdit(eid, procId, type){
   const checked = Array.from(document.querySelectorAll('.ee-step-cb:checked')).map(cb=>cb.dataset.label);
+  const products = document.getElementById('ee-products-'+eid)?.value.trim()||'';
   const feeling = document.getElementById('ee-feel-'+eid)?.value.trim()||'';
   const label = type==='morning'?'Сутрешна грижа':'Вечерна грижа';
   try{
     await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
       advice: checked.length ? 'Стъпки: '+checked.join(', ') : '',
+      products: products,
       feeling: feeling,
     });
     showToast(t('toastUpdated'));
+    window._cache.diary=null; window._cache.diaryTs=0;
     loadDiaryTab();
   }catch(e){showToast(t('toastErrUpd'));}
 }
