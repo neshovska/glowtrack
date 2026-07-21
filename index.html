@@ -5208,11 +5208,15 @@ function removePhoto(i, slot){
 }
 
 function startEditEntry(eid,procId){
-  // The inline editor only exists inside a procedure sheet's entry card (id="ec-{eid}").
-  // When "Редактирай" is clicked from the calendar view, that card doesn't exist yet —
-  // open the procedure sheet first (which renders it), then retry.
-  if(!document.getElementById('ec-'+eid)){
-    if(procId && procId!=='undefined' && typeof openSheet==='function'){
+  // The inline editor lives inside either a procedure sheet's entry card (id="ec-{eid}")
+  // or, for home-care routine entries shown in the main diary tab, the entry's detail
+  // row (id="ded-{eid}"). Home-care entries have no real procedure sheet to open, so we
+  // must use whichever container already exists instead of always trying openSheet().
+  const isHomeCare = procId && procId.startsWith('home-care-');
+  let containerId = document.getElementById('ec-'+eid) ? 'ec-'+eid
+                    : (document.getElementById('ded-'+eid) ? 'ded-'+eid : null);
+  if(!containerId){
+    if(!isHomeCare && procId && procId!=='undefined' && typeof openSheet==='function'){
       Promise.resolve(openSheet(procId)).then(()=>{
         setTimeout(()=>startEditEntry(eid,procId), 150);
       });
@@ -5227,13 +5231,17 @@ function startEditEntry(eid,procId){
     window.eeOrigData[eid]={photosBefore:d.photosBefore||[],photosAfter:d.photosAfter||[]};
     if(!window._eePhotos) window._eePhotos={};
     window._eePhotos[eid]={before:[],after:[]};
-    const card=document.getElementById('ec-'+eid);if(!card)return;
-    // Ensure body is visible
-    const bodyDiv=document.getElementById('body-'+eid);
-    if(bodyDiv&&bodyDiv.style.display==='none'){
-      bodyDiv.style.display='block';
-      const arr=document.getElementById('arr-'+eid);
-      if(arr)arr.style.transform='rotate(180deg)';
+    const card=document.getElementById(containerId);if(!card)return;
+    // Ensure the surrounding container is visible/expanded
+    if(containerId.indexOf('ec-')===0){
+      const bodyDiv=document.getElementById('body-'+eid);
+      if(bodyDiv&&bodyDiv.style.display==='none'){
+        bodyDiv.style.display='block';
+        const arr=document.getElementById('arr-'+eid);
+        if(arr)arr.style.transform='rotate(180deg)';
+      }
+    } else if(containerId.indexOf('ded-')===0){
+      card.classList.add('open');
     }
     const isRoutineEntry = d.isRoutine||(d.procId||'').startsWith('home-care-');
     const routineLabel = d.procId==='home-care-morning'?t('morningCare'):t('eveningCare');
