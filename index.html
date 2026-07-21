@@ -5251,23 +5251,38 @@ function startEditEntry(eid,procId){
       : [{r:'e-cleanse',icon:'droplet',label:'Почистване'},{r:'e-tone',icon:'droplet',label:'Тонер/Есенция'},{r:'e-serum',icon:'sparkle',label:'Серум/Ампула'},{r:'e-eye',icon:'eye',label:'Крем за очи'},{r:'e-moisturize',icon:'bottle',label:'Нощен крем'}];
     const savedChecked = (d.advice||'').replace('Стъпки: ','').split(', ').map(s=>s.trim());
     const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+routineType)||'[]');
+    // Parse the saved "Label: Product, Label2: Product2" string back into a map
+    const productMap = {};
+    (d.products||'').split(', ').forEach(pair=>{
+      const idx = pair.indexOf(': ');
+      if(idx>-1){
+        const k = pair.slice(0,idx).trim();
+        const v = pair.slice(idx+2).trim();
+        if(k) productMap[k]=v;
+      }
+    });
     card.innerHTML=isRoutineEntry?`
       <div class="diary-date-lbl" style="color:var(--gold)">${ic('edit','13px')} Редактиране · ${routineLabel}</div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
-        ${defaultSteps.map(s=>`<label class="routine-item">
-          <input type="checkbox" class="ee-step-cb" data-label="${s.label}" ${savedChecked.includes(s.label)?'checked':''}>
-          <span>${ic(s.icon,'13px')} ${s.label}</span>
-        </label>`).join('')}
-        ${customs.map(c=>`<label class="routine-item">
-          <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.includes(c.label)?'checked':''}>
-          <span>${c.label}</span>
-        </label>`).join('')}
+        ${defaultSteps.map(s=>`<div class="routine-item-wrap">
+          <label class="routine-item">
+            <input type="checkbox" class="ee-step-cb" data-label="${s.label}" ${savedChecked.includes(s.label)?'checked':''}>
+            <span>${ic(s.icon,'13px')} ${s.label}</span>
+          </label>
+          <input type="text" class="routine-product-input ee-step-product" data-label="${s.label}" placeholder="Продукт" value="${(productMap[s.label]||'').replace(/"/g,'&quot;')}">
+        </div>`).join('')}
+        ${customs.map(c=>`<div class="routine-item-wrap">
+          <label class="routine-item">
+            <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.includes(c.label)?'checked':''}>
+            <span>${c.label}</span>
+          </label>
+          <input type="text" class="routine-product-input ee-step-product" data-label="${c.label}" placeholder="Продукт" value="${(productMap[c.label]||'').replace(/"/g,'&quot;')}">
+        </div>`).join('')}
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" id="ee-custom-input-${eid}" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:16px;padding:7px 10px">
         <button onclick="addEECustomStep('${eid}','${routineType}')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
       </div>
-      <div class="form-row"><label class="form-lbl">Продукти</label><textarea class="form-input" id="ee-products-${eid}" rows="2" placeholder="напр. Тонер: CeraVe...">${d.products||''}</textarea></div>
       <div class="form-row"><label class="form-lbl">Бележки</label><textarea class="form-input" id="ee-feel-${eid}" rows="2">${d.feeling||''}</textarea></div>
       <div class="entry-actions">
         <button class="save-btn" style="max-width:140px;flex:none" onclick="saveRoutineEdit('${eid}','${procId}','${routineType}')">${ic('clipboard','13px')} Запази</button>
@@ -9545,23 +9560,29 @@ function addEECustomStep(eid, type){
   const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+type)||'[]');
   customs.push({id:'c_'+Date.now(), label:val});
   localStorage.setItem('gt_care_custom_'+type, JSON.stringify(customs));
-  // Add checkbox to form
-  const newLabel = document.createElement('label');
-  newLabel.className = 'routine-item';
-  newLabel.innerHTML = `<input type="checkbox" class="ee-step-cb" data-label="${val}" checked><span>${val}</span>`;
-  inp.parentElement.before(newLabel);
+  // Add checkbox+product row to form
+  const newWrap = document.createElement('div');
+  newWrap.className = 'routine-item-wrap';
+  newWrap.innerHTML = `<label class="routine-item"><input type="checkbox" class="ee-step-cb" data-label="${val}" checked><span>${val}</span></label><input type="text" class="routine-product-input ee-step-product" data-label="${val}" placeholder="Продукт">`;
+  inp.parentElement.before(newWrap);
   inp.value = '';
 }
 
 async function saveRoutineEdit(eid, procId, type){
-  const checked = Array.from(document.querySelectorAll('.ee-step-cb:checked')).map(cb=>cb.dataset.label);
-  const products = document.getElementById('ee-products-'+eid)?.value.trim()||'';
+  const checkedCbs = Array.from(document.querySelectorAll('.ee-step-cb:checked'));
+  const checked = checkedCbs.map(cb=>cb.dataset.label);
+  const productLines = checkedCbs.map(cb=>{
+    const label = cb.dataset.label;
+    const wrap = cb.closest('.routine-item-wrap');
+    const val = wrap?.querySelector('.ee-step-product')?.value.trim();
+    return val ? `${label}: ${val}` : null;
+  }).filter(Boolean);
   const feeling = document.getElementById('ee-feel-'+eid)?.value.trim()||'';
   const label = type==='morning'?'Сутрешна грижа':'Вечерна грижа';
   try{
     await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
       advice: checked.length ? 'Стъпки: '+checked.join(', ') : '',
-      products: products,
+      products: productLines.join(', '),
       feeling: feeling,
     });
     showToast(t('toastUpdated'));
