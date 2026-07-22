@@ -5986,6 +5986,41 @@ function calSelectColor(el){
   el.classList.add('dc-col-sel');el.innerHTML=ic('check','12px');
   _calSelColor=el.getAttribute('data-color');
 }
+// Свързва календарно събитие (gt_cal_events) с push механизма (gt_notifs) —
+// предвидим id 'n_cal_'+ev.id, за да могат upsert/delete да го открият
+// еднозначно. Формат на date/time е идентичен с този, който saveNotifDate()
+// вече пише (date: YYYY-MM-DD от _calSelected — строи се от _calYear/_calMonth/
+// day със същия padStart паттърн като нативен <input type="date">; time: HH:MM
+// от <input type="time">) — потвърдено, не риск от несъвпадение на формати.
+// Замяна на целия notif обект при update (не merge/spread) е нарочна — маха
+// стар 'sent' флаг, ако е имало преди, за да получи преместено събитие ново
+// push вместо да остане тихо занапред "вече изпратено".
+function _syncCalEventNotif(ev){
+  const notifId='n_cal_'+ev.id;
+  const notifs=_lsGet('gt_notifs')||[];
+  const idx=notifs.findIndex(n=>n.id===notifId);
+  if(!ev.time){
+    // Без зададен час няма какво да се push-не; ако преди е имало notif, маха се.
+    if(idx===-1) return;
+    notifs.splice(idx,1);
+  } else {
+    const notif={id:notifId, procId:null, procName:ev.title, date:ev.date, time:ev.time, type:'calendar'};
+    if(idx!==-1) notifs[idx]=notif; else notifs.push(notif);
+  }
+  _lsSet('gt_notifs',notifs);
+  if(window._user){ try{ window.syncNotifsFS(notifs); }catch(e){} }
+  if(typeof updateNotifBadge==='function') updateNotifBadge(notifs.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
+}
+function _removeCalEventNotif(evId){
+  const notifId='n_cal_'+evId;
+  const notifs=_lsGet('gt_notifs')||[];
+  const idx=notifs.findIndex(n=>n.id===notifId);
+  if(idx===-1) return;
+  notifs.splice(idx,1);
+  _lsSet('gt_notifs',notifs);
+  if(window._user){ try{ window.syncNotifsFS(notifs); }catch(e){} }
+  if(typeof updateNotifBadge==='function') updateNotifBadge(notifs.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
+}
 async function saveCalEvent(){
   const title=document.getElementById('cal-evt-title')?.value.trim();
   if(!title) return;
@@ -6000,6 +6035,7 @@ async function saveCalEvent(){
   if(window._user){
     try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
   }
+  _syncCalEventNotif(ev);
   hideCalAddForm();
   renderDiaryCal();
 }
@@ -6029,9 +6065,11 @@ async function editCalEvent(evId){
     saveBtn.onclick=async function(){
       const title=ti?.value.trim();
       if(!title) return;
-      const updated=saved.map(e=>e.id===evId?{...e,title,time:tm?.value||'',note:no?.value.trim()||'',color:_calSelColor}:e);
+      const updatedEv={...ev,title,time:tm?.value||'',note:no?.value.trim()||'',color:_calSelColor};
+      const updated=saved.map(e=>e.id===evId?updatedEv:e);
       if(typeof _lsSet==='function') _lsSet('gt_cal_events',updated);
       if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:updated},{merge:true});}catch(e){} }
+      _syncCalEventNotif(updatedEv);
       saveBtn.onclick=saveCalEvent; // restore
       hideCalAddForm();
       renderDiaryCal();
@@ -6050,6 +6088,7 @@ async function deleteCalEvent(evId){
   if(window._user){
     try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
   }
+  _removeCalEventNotif(evId);
   renderDiaryCal();
 }
 
