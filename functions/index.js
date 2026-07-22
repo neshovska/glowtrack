@@ -736,3 +736,37 @@ exports.sendBrandedPasswordReset = onCall(
       return {ok: true};
     },
 );
+
+// ═══════════════════════════════════════════════════════════
+// ИЗТРИВАНЕ НА АКАУНТ (server-side)
+// ═══════════════════════════════════════════════════════════
+
+// Server-side изтриване вместо клиентско — admin.auth().deleteUser() (Admin SDK)
+// няма "recent login" изискване, за разлика от клиентския deleteUser(), затова
+// не съществува вариант диарито/профилът да се изтрият, а Auth акаунтът да
+// оцелее в "празна черупка" заради изтекла сесия (виж стария confirmDeleteAccount
+// в index.html — точно този ред на операции беше рисков).
+// region-ът идва от setGlobalOptions по-горе, не се задава изрично тук.
+exports.deleteAccountData = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Трябва да си логнат.");
+  }
+  const uid = request.auth.uid;
+  const bucket = admin.storage().bucket();
+
+  const diarySnap = await db.collection("diary_entries").where("userId", "==", uid).get();
+  await Promise.all(diarySnap.docs.map((doc) => doc.ref.delete()));
+
+  await bucket.deleteFiles({prefix: `diary-photos/${uid}/`}).catch(() => {});
+
+  // refereeUid — виж референс схемата в onDiaryEntryCreated по-горе (не referredUid).
+  const refSnap = await db.collection("referrals").where("refereeUid", "==", uid).get().catch(() => null);
+  if (refSnap) await Promise.all(refSnap.docs.map((doc) => doc.ref.delete()));
+
+  await db.collection("users").doc(uid).delete().catch(() => {});
+
+  // Последна стъпка — Admin SDK, без "recent login" риск.
+  await admin.auth().deleteUser(uid);
+
+  return {success: true};
+});
