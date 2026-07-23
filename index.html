@@ -604,12 +604,18 @@ body.dark #page-profile .p-avatar-lg{border-color:#1e1e38}
 .search-input.has-value{padding-right:32px}
 .search-input::placeholder{color:#bbb4a8}
 .cats{padding:0 18px 4px;display:flex;flex-direction:column;gap:5px}
-.cats-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.cats-row{display:none}
 .cats-row::-webkit-scrollbar{display:none}
-.cat-btn{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1.5px solid var(--catcol,var(--roselt));background:var(--card);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--catcol,var(--ink2));white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
-.cat-btn.active{background:linear-gradient(135deg,var(--catcol,var(--gold)),var(--catcol2,#e8c99a));color:#fff;border-color:transparent;border-width:2px;font-weight:700;box-shadow:0 4px 12px rgba(26,26,46,.16)}
-.cat-btn.fav-cat{border-color:var(--catcol,rgba(184,150,106,.55));color:var(--catcol,var(--gold))}
-.cat-btn.fav-cat.active{background:linear-gradient(135deg,var(--catcol,var(--gold)),var(--catcol2,#e8c99a));border-width:2px;color:#fff}
+.cat-btn{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;padding:14px 14px 12px;border-radius:14px;border:1.5px solid rgba(255,255,255,.28);background-size:cover;background-position:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5);transition:all .15s;min-height:112px;width:100%;text-align:left;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.cat-btn.active{border-color:var(--catcol,var(--gold));border-width:2px;box-shadow:0 4px 14px rgba(26,26,46,.28)}
+.cat-btn.fav-cat{border-color:rgba(255,255,255,.4)}
+.cat-btn.fav-cat.active{border-color:var(--catcol,var(--gold));border-width:2px}
+.cat-btn-icon{position:absolute;top:10px;left:10px;width:28px;height:28px;border-radius:50%;background:rgba(20,16,10,.35);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.6)}
+.cat-btn-icon svg{width:14px;height:14px;stroke:#fff !important;margin-bottom:0 !important}
+.cat-btn.active .cat-btn-icon{background:var(--catcol,var(--gold));border-color:#fff}
+.cat-btn-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--catcol,var(--gold));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.cat-btn-check svg{width:11px;height:11px;stroke:#fff !important}
+.cats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .notif-acc-hdr{background:var(--card)}
 body.dark .notif-acc-hdr{background:linear-gradient(135deg,#1e1e38 0%,#2a2444 100%)}
 .cat-add-btn{flex-shrink:0;padding:5px 10px;border-radius:20px;border:1.5px dashed rgba(184,150,106,.45);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
@@ -987,9 +993,9 @@ body.dark .mini-btn{background:#12122a;border-color:rgba(212,169,106,.2);color:#
 body.dark .notif-proc-option{background:#12122a}
 body.dark #notif-proc-dropdown{background:#1a1a2e;border-color:rgba(212,169,106,.2)}
 
-body.dark .cat-btn{background:#1a1a2e;border-color:var(--catcol,rgba(212,169,106,.25));color:var(--catcol,#f0ede8)}
-body.dark .cat-btn.active{background:linear-gradient(135deg,var(--catcol,var(--gold)),var(--catcol2,#e8c99a));color:#fff;border-color:transparent;border-width:2px;font-weight:700}
-body.dark .cat-btn.fav-cat{border-color:rgba(184,150,106,.5);color:var(--gold)}
+body.dark .cat-btn{border-color:rgba(255,255,255,.18)}
+body.dark .cat-btn.active{border-color:var(--catcol,var(--gold));border-width:2px}
+body.dark .cat-btn.fav-cat{border-color:rgba(255,255,255,.3)}
 body.dark .cat-add-btn{border-color:rgba(184,150,106,.35);color:#a09080}
 
 body.dark #search-suggestions{background:#12122a!important;border-color:rgba(212,169,106,.4)!important}
@@ -1195,22 +1201,24 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <span style="font-size:10px;color:var(--ink2)" id="adv-no-filters-lbl"></span>
       </div>
     </div>
-    <div class="cats" id="cats-bar"></div>
     <div id="procs-homecare-section" style="padding:0 16px 8px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px" data-t="profileCare"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15z"/><path d="M5 19c3-3 7-7 11-11"/></svg> Домашна грижа</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;min-width:0;width:100%;box-sizing:border-box">
         <button onclick="toggleCarePanel('morning')" id="morning-btn"
-          style="width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit">
-          <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-morning.jpeg?alt=media" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">
-          <div style="flex:1;min-width:0;overflow:hidden">
-            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCare">Сутрешна грижа</div>
-            <div style="font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCareSub">Твоята дневна рутина</div>
-            <div style="font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500" data-t="homeCareLabel">ДОМАШНА ГРИЖА</div>
+          style="min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:0;display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;overflow:hidden">
+          <div style="position:relative;width:100%;height:80px;flex-shrink:0">
+            <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-morning.jpeg?alt=media" loading="lazy" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">
+              <svg id="morning-btn-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
-          <svg id="morning-btn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+          <div style="min-width:0;width:100%;overflow:hidden;box-sizing:border-box;padding:8px 10px 10px">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCare">Сутрешна грижа</div>
+            <div style="font-size:10.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="morningCareSub">Твоята дневна рутина</div>
+          </div>
         </button>
         <!-- СУТРЕШНА ГРИЖА PANEL -->
-        <div id="morning-panel" style="display:none;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
+        <div id="morning-panel" style="display:none;grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
           <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
             <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
             <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер</span></label>
@@ -1231,17 +1239,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
         </div>
         <button onclick="toggleCarePanel('evening')" id="evening-btn"
-          style="width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:var(--r);border:1px solid rgba(184,150,106,.15);padding:12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit">
-          <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-evening.jpeg?alt=media" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">
-          <div style="flex:1;min-width:0;overflow:hidden">
-            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCare">Вечерна грижа</div>
-            <div style="font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCareSub">Твоят нощен ритуал</div>
-            <div style="font-size:9.5px;color:var(--sage);margin-top:1px;font-weight:500" data-t="homeCareLabel">ДОМАШНА ГРИЖА</div>
+          style="min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:0;display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;overflow:hidden">
+          <div style="position:relative;width:100%;height:80px;flex-shrink:0">
+            <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-evening.jpeg?alt=media" loading="lazy" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">
+              <svg id="evening-btn-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.6" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
-          <svg id="evening-btn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2.3" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+          <div style="min-width:0;width:100%;overflow:hidden;box-sizing:border-box;padding:8px 10px 10px">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCare">Вечерна грижа</div>
+            <div style="font-size:10.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-t="eveningCareSub">Твоят нощен ритуал</div>
+          </div>
         </button>
         <!-- ВЕЧЕРНА ГРИЖА PANEL -->
-        <div id="evening-panel" style="display:none;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
+        <div id="evening-panel" style="display:none;grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
           <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
             <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
             <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер/Есенция</span></label>
@@ -1267,6 +1278,8 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px;display:flex;align-items:center;gap:5px"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> <span id="procs-potd-eyebrow"></span></div>
       <div id="procs-potd-card" onclick="_openProcedureOfTheDay()"></div>
     </div>
+    <div id="cats-section-label" style="padding:6px 18px 2px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)">Категории</div>
+    <div class="cats" id="cats-bar"></div>
     <div class="proc-list" id="proc-list">
       <div class="proc-row" style="pointer-events:none"><div class="skeleton-item" style="width:64px;height:48px;border-radius:10px;flex-shrink:0;margin-bottom:0"></div><div class="proc-row-info" style="flex:1;min-width:0"><div class="skeleton-item sk-row wide" style="height:13px;margin-bottom:6px"></div><div class="skeleton-item sk-row medium" style="height:11px;margin-bottom:0"></div></div></div>
       <div class="proc-row" style="pointer-events:none"><div class="skeleton-item" style="width:64px;height:48px;border-radius:10px;flex-shrink:0;margin-bottom:0"></div><div class="proc-row-info" style="flex:1;min-width:0"><div class="skeleton-item sk-row wide" style="height:13px;margin-bottom:6px"></div><div class="skeleton-item sk-row medium" style="height:11px;margin-bottom:0"></div></div></div>
@@ -2709,11 +2722,21 @@ const CATS_LIST=[
   {id:'all',label:'Всички',icon:'sparkle'},
   {id:'face',label:'Лице',icon:'eye'},
   {id:'body',label:'Тяло',icon:'person'},
-  {id:'hair',label:'Коса',icon:'scissors'},
+  {id:'hair',label:'Коса и нокти',icon:'scissors'},
   {id:'hw',label:'Апаратни',icon:'settings'},
   {id:'cosm',label:'Козметични',icon:'diamond'},
   {id:'inject',label:'Инжекционни',icon:'item'},
 ];
+
+const CAT_IMAGES={
+  all:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-all.jpeg?alt=media',
+  face:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-face.jpeg?alt=media',
+  body:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-body.jpeg?alt=media',
+  hair:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-hair.jpeg?alt=media',
+  hw:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-hw.jpeg?alt=media',
+  cosm:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-cosm.jpeg?alt=media',
+  inject:'https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fcat-inject.jpeg?alt=media',
+};
 
 // Кумулативни нива на referral наградите — виж functions/index.js за логиката,
 // която реално обновява users/{uid}.unlockedRewards (при първи diary entry на
@@ -4579,54 +4602,26 @@ const CAT_COLORS = {
 function _catStyle(id){ const c=CAT_COLORS[id]||CAT_COLORS.all; return `--catcol:${c[0]};--catcol2:${c[1]}`; }
 function renderCats(){
   const favCatIds = getFavCats();
-  const favCats = CATS_LIST.filter(c=>c.id!=='all' && favCatIds.includes(c.id));
   const bar = document.getElementById('cats-bar');
+  const checkBadge = `<span class="cat-btn-check">${ic('check','11px')}</span>`;
 
-  // Row 1: Всички + favourite categories + add button
-  const row1Items = [CATS_LIST[0], ...favCats];
-  const row1 = row1Items.map(c=>{
+  // Категорийни карти (без "Всички") — 2-колонна снимкова мрежа
+  const allCatBtns = CATS_LIST.slice(1).map(c=>{
     const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
     const isFavCat = favCatIds.includes(c.id);
     const isActive = c.id===activeCat;
-    const col = (CAT_COLORS[c.id]||CAT_COLORS.all)[0];
-    const circleIcon = isActive
-      ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="#fff" stroke="#fff" stroke-width="1.5"/></svg>'
-      : `<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
-    return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${isActive?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circleIcon}${lbl}</button>`;
+    const bg = CAT_IMAGES[c.id] || '';
+    return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${isActive?'active':''}" style="${_catStyle(c.id)};background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${bg}')" onclick="setCat('${c.id}')"><span class="cat-btn-icon">${ic(c.icon,'14px')}</span>${isActive?checkBadge:''}${lbl}</button>`;
   }).join('');
-  const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
+  const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории" style="grid-column:1/-1;margin-top:2px">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
 
-  // Row 2: remaining categories (only if there are fav cats chosen, else show all in row1)
-  let row2Html = '';
-  if(favCats.length > 0){
-    const otherCats = CATS_LIST.filter(c=>c.id!=='all' && !favCatIds.includes(c.id));
-    if(otherCats.length){
-      row2Html = `<div class="cats-row" id="cats-row2">${otherCats.map(c=>{
-        const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-        const isAct = c.id===activeCat;
-        const col = (CAT_COLORS[c.id]||CAT_COLORS.all)[0];
-        const circ = isAct
-          ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="#fff" stroke="#fff" stroke-width="1.5"/></svg>'
-          : `<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
-        return `<button class="cat-btn ${isAct?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circ}${lbl}</button>`;
-      }).join('')}</div>`;
-    }
-  } else {
-    // No fav cats — show all in row 1 (classic behaviour)
-    const allBtns = CATS_LIST.slice(1).map(c=>{
-      const lbl = (window._lang==='en' && CATS_EN[c.id]) ? CATS_EN[c.id] : c.label;
-      const isAct2 = c.id===activeCat;
-      const col = (CAT_COLORS[c.id]||CAT_COLORS.all)[0];
-      const circ2 = isAct2
-        ? '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="#fff" stroke="#fff" stroke-width="1.5"/></svg>'
-        : `<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3.5" fill="none" stroke="${col}" stroke-width="1.5"/></svg>`;
-      return `<button class="cat-btn ${isAct2?'active':''}" style="${_catStyle(c.id)}" onclick="setCat('${c.id}')">${circ2}${lbl}</button>`;
-    }).join('');
-    bar.innerHTML = `<div class="cats-row">${row1}${allBtns}${addBtn}</div>`;
-    return;
-  }
+  // "Всички" — hero карта на цяла ширина отгоре
+  const allLbl = window._lang==='en' ? (CATS_EN.all||'All') : CATS_LIST[0].label;
+  const allIsActive = activeCat==='all';
+  const allBg = CAT_IMAGES.all || '';
+  const allBtn = `<button class="cat-btn ${allIsActive?'active':''}" style="${_catStyle('all')};grid-column:1/-1;background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${allBg}')" onclick="setCat('all')"><span class="cat-btn-icon">${ic(CATS_LIST[0].icon,'14px')}</span>${allIsActive?checkBadge:''}${allLbl}</button>`;
 
-  bar.innerHTML = `<div class="cats-row">${row1}${addBtn}</div>${row2Html}`;
+  bar.innerHTML = `<div class="cats-grid">${allBtn}${allCatBtns}${addBtn}</div>`;
 }
 function setCat(c){activeCat=c;try{localStorage.setItem('gt_active_cat',c);}catch(e){}renderCats();renderProcs();}
 
