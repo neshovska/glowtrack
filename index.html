@@ -5801,6 +5801,11 @@ async function renderDiaryCal(){
     const saved=typeof _lsGet==='function'?(_lsGet('gt_notifs')||[]):JSON.parse(localStorage.getItem('gt_notifs')||'[]');
     saved.forEach(n=>{
       if(!n.date) return;
+      // type:'calendar' notif-и са само push-scheduling "сянка" на gt_cal_events
+      // записи (виж _syncCalEventNotif) — самото календарно събитие вече се
+      // показва през customDates по-долу, затова тук се пропускат нарочно,
+      // за да не се дублира един и същ ред в детайла на деня.
+      if(n.type==='calendar') return;
       const ds=n.date.slice(0,10);
       if(!notifDates[ds]) notifDates[ds]=[];
       const _nc = n.isCycleReminder ? '#e8a0a0' : (n.type==='booking' ? '#6ab89a' : '#6a8fb8');
