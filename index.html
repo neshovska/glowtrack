@@ -1233,7 +1233,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
           <div style="display:flex;gap:8px;margin-top:8px">
             <input type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
-            <button onclick="addCustomStep('morning')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
+            <button onclick="addCustomStep('morning')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button onclick="saveRoutine('morning',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning">Запази</button>
@@ -1267,7 +1267,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
           <div style="display:flex;gap:8px;margin-top:8px">
             <input type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
-            <button onclick="addCustomStep('evening')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
+            <button onclick="addCustomStep('evening')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button onclick="saveRoutine('evening',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening">Запази</button>
@@ -1294,7 +1294,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div id="no-results" style="display:none;text-align:center;padding:30px;color:var(--ink2);font-size:13px">Няма намерени процедури</div>
   </div>
   <div class="page" id="page-diary">
-    <button id="diary-back-to-profile" onclick="closeDiaryBackToProfile()" title="Затвори" style="display:none;position:fixed;top:calc(env(safe-area-inset-top,0px) + 66px);right:16px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid rgba(184,150,106,.3);align-items:center;justify-content:center;font-size:15px;color:var(--ink2);cursor:pointer;z-index:55;box-shadow:0 2px 8px rgba(26,26,46,.12);backdrop-filter:blur(6px)"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button id="diary-back-to-profile" onclick="closeDiaryBackToProfile()" title="Затвори" aria-label="Затвори" style="display:none;position:fixed;top:calc(env(safe-area-inset-top,0px) + 66px);right:16px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid rgba(184,150,106,.3);align-items:center;justify-content:center;font-size:15px;color:var(--ink2);cursor:pointer;z-index:55;box-shadow:0 2px 8px rgba(26,26,46,.12);backdrop-filter:blur(6px)"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="page-hdr" style="display:flex;align-items:flex-start;justify-content:space-between">
       <div><div class="page-hdr-title" data-diary-hdr="1">Моят <em>дневник</em></div><div class="page-hdr-sub">Красотата има история. Запази я.</div></div>
       <div style="display:flex;border:1.5px solid var(--roselt);border-radius:10px;overflow:hidden;flex-shrink:0;margin-top:4px">
@@ -1310,7 +1310,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           data-ph="diarySearch"
           oninput="filterDiaryGroups(this.value)"
           style="font-size:16px;padding-left:36px;padding-right:36px;width:100%;box-sizing:border-box">
-        <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')"
+        <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')" aria-label="Изчисти търсенето"
           style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <!-- Stats row -->
@@ -1329,9 +1329,9 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <div id="diary-cal-view" style="display:none;padding:0 16px 16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <button onclick="diaryCalPrev()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">‹</button>
+        <button onclick="diaryCalPrev()" aria-label="Предишен месец" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">‹</button>
         <span id="diary-cal-month-lbl" style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink)"></span>
-        <button onclick="diaryCalNext()" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">›</button>
+        <button onclick="diaryCalNext()" aria-label="Следващ месец" style="background:none;border:1.5px solid var(--roselt);border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--ink2)">›</button>
       </div>
       <div id="diary-cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px"></div>
       <div id="diary-cal-detail" style="display:none"></div>
@@ -1417,7 +1417,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page" id="page-profile">
     <div class="p-hero">
-      <div class="p-close" onclick="toggleProfilePage()" title="Затвори"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+      <div class="p-close" onclick="toggleProfilePage()" title="Затвори" role="button" tabindex="0" aria-label="Затвори"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
       <div style="position:relative;z-index:1">
       <div style="display:flex;align-items:center;justify-content:center;margin-bottom:10px">
         <div class="p-avatar-lg" id="ps-avatar-wrap">?</div>
@@ -2016,13 +2016,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </svg>
 </button>
         <button id="fav-btn" onclick="toggleFav()" style="background:none;border:none;font-size:22px;cursor:pointer;padding:4px;line-height:1;color:var(--gold)"><svg class="gt-ico" width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.5L12 17.2l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.8L12 2.5z"/></svg></button>
-        <button class="close-btn" onclick="closeSheet()"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button class="close-btn" onclick="closeSheet()" aria-label="Затвори"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
     </div>
     <div class="sheet-body" id="sh-body"></div>
   </div>
 </div>
-<div class="lightbox" id="lightbox" onclick="closeLightbox()"><button class="lb-close" onclick="closeLightbox()"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="lb-img" src=""></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><button class="lb-close" onclick="closeLightbox()" aria-label="Затвори снимка"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="lb-img" src="" alt=""></div>
 
 <!-- FORGOT PASSWORD MODAL -->
 <div id="forgot-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:400">
@@ -2061,13 +2061,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <div class="ai-proc-title" style="font-size:13px;font-weight:700" id="ai-proc-title">AI Асистент</div>
         <div style="font-size:10px;color:var(--ink2)"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Powered by GlowTrack AI</div>
       </div>
-      <button onclick="closeAiChat()" style="width:32px;height:32px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(184,150,106,.4)"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button onclick="closeAiChat()" aria-label="Затвори чата" style="width:32px;height:32px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(184,150,106,.4)"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="ai-messages" id="ai-messages"></div>
     <div class="ai-suggestions" id="ai-suggestions"></div>
     <div class="ai-input-row">
       <input class="ai-input" id="ai-input" type="text" placeholder="Задай въпрос..." data-ph="aiQuestionPh" onkeydown="if(event.key==='Enter')sendAiMsg()">
-      <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMsg()">›</button>
+      <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMsg()" aria-label="Изпрати">›</button>
     </div>
   </div>
 </div>
@@ -5426,7 +5426,7 @@ function startEditEntry(eid,procId){
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" id="ee-custom-input-${eid}" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:16px;padding:7px 10px">
-        <button onclick="addEECustomStep('${eid}','${routineType}')" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
+        <button onclick="addEECustomStep('${eid}','${routineType}')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
       </div>
       <div class="form-row"><label class="form-lbl">Бележки</label><textarea class="form-input" id="ee-feel-${eid}" rows="2">${d.feeling||''}</textarea></div>
       <div class="entry-actions">
@@ -6156,14 +6156,14 @@ function showCalDetailV2(entries,dateStr){
     <div style="margin-bottom:12px">
       <label class="dc-flbl">${isBG?'Цвят':'Color'}</label>
       <div class="dc-colors">
-        <div class="dc-col dc-col-sel" data-color="#b8966a" style="background:#b8966a" onclick="calSelectColor(this)">${ic('check','12px')}</div>
-        <div class="dc-col" data-color="#6a8fb8" style="background:#6a8fb8" onclick="calSelectColor(this)"></div>
-        <div class="dc-col" data-color="#e8a0a0" style="background:#e8a0a0" onclick="calSelectColor(this)"></div>
-        <div class="dc-col" data-color="#7ab87a" style="background:#7ab87a" onclick="calSelectColor(this)"></div>
-        <div class="dc-col" data-color="#9b7ab8" style="background:#9b7ab8" onclick="calSelectColor(this)"></div>
-        <div class="dc-col" data-color="#e8c87a" style="background:#e8c87a" onclick="calSelectColor(this)"></div>
-        <div class="dc-col" data-color="#7ab8b8" style="background:#7ab8b8" onclick="calSelectColor(this)"></div>
-        <div class="dc-col" data-color="#e89a6a" style="background:#e89a6a" onclick="calSelectColor(this)"></div>
+        <div class="dc-col dc-col-sel" data-color="#b8966a" style="background:#b8966a" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: златист">${ic('check','12px')}</div>
+        <div class="dc-col" data-color="#6a8fb8" style="background:#6a8fb8" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: синьо"></div>
+        <div class="dc-col" data-color="#e8a0a0" style="background:#e8a0a0" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: розово"></div>
+        <div class="dc-col" data-color="#7ab87a" style="background:#7ab87a" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: зелено"></div>
+        <div class="dc-col" data-color="#9b7ab8" style="background:#9b7ab8" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: лилаво"></div>
+        <div class="dc-col" data-color="#e8c87a" style="background:#e8c87a" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: жълто"></div>
+        <div class="dc-col" data-color="#7ab8b8" style="background:#7ab8b8" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: тюркоазено"></div>
+        <div class="dc-col" data-color="#e89a6a" style="background:#e89a6a" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: оранжево"></div>
       </div>
     </div>
     <div style="display:flex;gap:8px">
@@ -6226,8 +6226,8 @@ function showCalDetailV2(entries,dateStr){
           <div class="dc-name">${e.title||e.name}</div>
           ${e.time||e.note?`<div class="dc-sub">${[e.time,e.note].filter(Boolean).join(' · ')}</div>`:''}
         </div>
-        <button onclick="editCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gold);display:flex;align-items:center" title="Редактирай"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button onclick="deleteCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:#e85d5d;display:flex;align-items:center" title="Изтрий"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+        <button onclick="editCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gold);display:flex;align-items:center" title="Редактирай" aria-label="Редактирай събитие"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button onclick="deleteCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:#e85d5d;display:flex;align-items:center" title="Изтрий" aria-label="Изтрий събитие"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
       </div>`;
       return;
     }
@@ -6829,7 +6829,7 @@ function removeAdminProc(type,procId){
 function renderAdminChips(type){
   const arr=type==='clinic'?acSelProcs:apSelProcs;
   const el=document.getElementById(type==='clinic'?'ac-chips':'ap-chips');
-  el.innerHTML=arr.map(id=>{const p=PROCS.find(x=>x.id===id);return`<span class="chip">${p?ic(p.icon)+' '+p.name:id}<button onclick="removeAdminProc('${type}','${id}')">${ic('close')}</button></span>`;}).join('');
+  el.innerHTML=arr.map(id=>{const p=PROCS.find(x=>x.id===id);return`<span class="chip">${p?ic(p.icon)+' '+p.name:id}<button onclick="removeAdminProc('${type}','${id}')" aria-label="Премахни">${ic('close')}</button></span>`;}).join('');
 }
 async function handleLogoUpload(inputEl, hiddenFieldId, previewId){
   const file = inputEl.files && inputEl.files[0];
@@ -6905,18 +6905,18 @@ async function loadAdminLists(){
       const isActive = a.active !== false;
       return`<div class="admin-list-item" style="${isActive?'':'opacity:.45'}">
         <span style="flex:1">${adIco(a.icon,'medical')} ${a.name}${isActive?'':' <em style=\"font-size:10px\">(скрита)</em>'}</span>
-        <button class="admin-btn sm" style="margin-right:4px" onclick="editClinicAd('${a.id}')">${ic('edit')}</button>
-        <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('clinic_ads','${a.id}',${isActive})">${isActive?ic('eye'):ic('forbidden')}</button>
-        <button class="admin-btn sm red" onclick="deleteAdminItem('clinic_ads','${a.id}')">${ic('close')}</button>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="editClinicAd('${a.id}')" aria-label="Редактирай клиника">${ic('edit')}</button>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('clinic_ads','${a.id}',${isActive})" aria-label="${isActive?'Скрий клиника':'Покажи клиника'}">${isActive?ic('eye'):ic('forbidden')}</button>
+        <button class="admin-btn sm red" onclick="deleteAdminItem('clinic_ads','${a.id}')" aria-label="Изтрий клиника">${ic('close')}</button>
       </div>`;
     }).join('');
     document.getElementById('admin-products-list').innerHTML=!window._adminProductsCache.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма продукти</div>':window._adminProductsCache.map(a=>{
       const isActive = a.active !== false;
       return`<div class="admin-list-item" style="${isActive?'':'opacity:.45'}">
         <span style="flex:1">${adIco(a.icon,'bottle')} ${a.brand?a.brand+' — ':''}${a.name}${isActive?'':' <em style=\"font-size:10px\">(скрит)</em>'}</span>
-        <button class="admin-btn sm" style="margin-right:4px" onclick="editProductAd('${a.id}')">${ic('edit')}</button>
-        <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('product_ads','${a.id}',${isActive})">${isActive?ic('eye'):ic('forbidden')}</button>
-        <button class="admin-btn sm red" onclick="deleteAdminItem('product_ads','${a.id}')">${ic('close','14px')}</button>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="editProductAd('${a.id}')" aria-label="Редактирай продукт">${ic('edit')}</button>
+        <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('product_ads','${a.id}',${isActive})" aria-label="${isActive?'Скрий продукт':'Покажи продукт'}">${isActive?ic('eye'):ic('forbidden')}</button>
+        <button class="admin-btn sm red" onclick="deleteAdminItem('product_ads','${a.id}')" aria-label="Изтрий продукт">${ic('close','14px')}</button>
       </div>`;
     }).join('');
   }catch(e){}
@@ -8846,7 +8846,7 @@ function renderCustomRoutine(){
         <input type="checkbox" class="routine-cb-custom" data-r="${c.id}" ${checked.includes(c.id)?'checked':''}>
         <span>${c.label}</span>
       </label>
-      <button onclick="deleteCustomRoutine('${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:16px;padding:4px">${ic('close','14px')}</button>
+      <button onclick="deleteCustomRoutine('${c.id}')" aria-label="Изтрий стъпка" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:16px;padding:4px">${ic('close','14px')}</button>
     </div>`).join('');
   
   // Add listeners
@@ -9560,7 +9560,7 @@ function renderCustomSteps(type){
         <span>${c.label}</span>
       </label>
       <input type="text" class="routine-product-input" data-step="${c.id}" placeholder="Продукт">
-      <button onclick="deleteCustomStep('${type}','${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer;flex-shrink:0;padding:0;display:flex;align-items:center">${ic('close','14px')}</button>
+      <button onclick="deleteCustomStep('${type}','${c.id}')" aria-label="Изтрий стъпка" style="background:none;border:none;color:var(--ink2);cursor:pointer;flex-shrink:0;padding:0;display:flex;align-items:center">${ic('close','14px')}</button>
     </div>`).join('');
   initStepProductInputs(list);
 }
