@@ -1,4 +1,4 @@
-// GlowTrack Service Worker v7
+// GlowTrack Service Worker v9
 // ЕДИН файл за кеширане + Firebase Messaging (push известия).
 // ВАЖНО: не регистрирай отделен firebase-messaging-sw.js на същия scope —
 // браузърът позволява само един активен SW на scope, и всяка автоматична
@@ -19,8 +19,12 @@
 // Без clients.claim() новият SW чака страницата да се презареди, за да поеме
 // контрол, и push събитията се обработват само от един активен SW.
 // Firebase auth сесията се запазва коректно (именно затова е махнато).
+//
+// v9 — ПОПРАВКА: badge иконата сочеше към './favicon-32.png', файл който
+// никога не е съществувал в repo-то (404 при всяко показване на известие).
+// Сменено да сочи към './icon-192.png', реален съществуващ файл.
 
-const CACHE = 'glowtrack-v8';
+const CACHE = 'glowtrack-v9';
 const STATIC = ['./manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
@@ -85,7 +89,7 @@ messaging.onBackgroundMessage(async payload => {
   self.registration.showNotification(title, {
     body: body,
     icon: './icon-192.png',
-    badge: './favicon-32.png',
+    badge: './icon-192.png',
     data: data,
     tag: 'glowtrack-' + notifId,
     renotify: false,

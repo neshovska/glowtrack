@@ -183,6 +183,19 @@ exports.sendScheduledReminders = onSchedule(
       if (messages.length > 0) {
         const response = await admin.messaging().sendEach(messages);
         console.log(`Изпратени ${response.successCount}/${messages.length} напомняния.`);
+        // Пълен per-message детайл — response.responses[i] отговаря на messages[i]
+        // по индекс (гарантирано от sendEach). "successCount" сам по себе си казва
+        // само дали FCM е приел съобщението за доставка, не дали физически е
+        // пристигнало на устройството — но messageId/error тук поне дават с какво
+        // точно да се работи при следващо разследване, вместо повторно гадаене.
+        response.responses.forEach((r, i) => {
+          const notifId = messages[i].data.notifId;
+          if (r.success) {
+            console.log(`  ✓ notifId=${notifId} messageId=${r.messageId}`);
+          } else {
+            console.log(`  ✗ notifId=${notifId} error=${r.error?.code} ${r.error?.message}`);
+          }
+        });
       } else {
         console.log("Няма напомняния за изпращане в този цикъл.");
       }
