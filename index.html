@@ -7454,7 +7454,7 @@ function renderSkinResult(skinType, fototype){
     <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px"><span style="color:var(--gold);display:inline-flex">${ic('sparkle','13px')}</span>${isBGq?'Препоръчани за теб':'Recommended for you'}</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
       ${recProcs.map(p=>{const lp=procL(p);return `<div onclick="closeSkinQuiz();openSheet('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
-        ${p.img?`<img src="${p.img}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0">`:procCircleIcon(lp.name,'#b8966a',38)}
+        ${p.img?`<img src="${p.img}" loading="lazy" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0">`:procCircleIcon(lp.name,'#b8966a',38)}
         <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lp.name}</div></div>
         <div style="color:var(--gold);font-size:16px">›</div>
       </div>`;}).join('')}
@@ -8023,7 +8023,7 @@ function renderCycleTracker(){
       <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">${ic('sparkle','12px')} ${isBGq?'Подходящо сега':'Suitable right now'}</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
         ${recProcs.map(p=>{const lp=procL(p);return `<div onclick="closeCycleTracker();openSheet('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--roselt);border-radius:12px;background:var(--card);cursor:pointer">
-          ${p.img?`<img src="${p.img}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0">`:procCircleIcon(lp.name,'#b8966a',38)}
+          ${p.img?`<img src="${p.img}" loading="lazy" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0">`:procCircleIcon(lp.name,'#b8966a',38)}
           <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:600;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lp.name}</div></div>
           <div style="color:var(--gold);font-size:16px">›</div>
         </div>`;}).join('')}
