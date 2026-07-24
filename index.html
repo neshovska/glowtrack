@@ -6000,6 +6000,8 @@ function hideCalAddForm(){
   if(ti) ti.value='';
   const no=document.getElementById('cal-evt-note');
   if(no) no.value='';
+  const nf=document.getElementById('cal-evt-notify');
+  if(nf) nf.checked=true;
 }
 function calSelectColor(el){
   document.querySelectorAll('.dc-col').forEach(c=>c.classList.remove('dc-col-sel'));
@@ -6055,7 +6057,8 @@ async function saveCalEvent(){
   if(window._user){
     try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
   }
-  _syncCalEventNotif(ev);
+  const notify=document.getElementById('cal-evt-notify')?.checked!==false;
+  if(notify) _syncCalEventNotif(ev); else _removeCalEventNotif(ev.id);
   hideCalAddForm();
   renderDiaryCal();
 }
@@ -6073,6 +6076,11 @@ async function editCalEvent(evId){
   if(ti) ti.value=ev.title||'';
   if(tm) tm.value=ev.time||'10:00';
   if(no) no.value=ev.note||'';
+  const nf=document.getElementById('cal-evt-notify');
+  if(nf){
+    const notifs=_lsGet('gt_notifs')||[];
+    nf.checked=notifs.some(n=>n.id==='n_cal_'+evId);
+  }
   // Set color
   _calSelColor=ev.color||'#b8966a';
   document.querySelectorAll('.dc-col').forEach(c=>{
@@ -6089,7 +6097,8 @@ async function editCalEvent(evId){
       const updated=saved.map(e=>e.id===evId?updatedEv:e);
       if(typeof _lsSet==='function') _lsSet('gt_cal_events',updated);
       if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:updated},{merge:true});}catch(e){} }
-      _syncCalEventNotif(updatedEv);
+      const notifyEdit=nf?nf.checked:true;
+      if(notifyEdit) _syncCalEventNotif(updatedEv); else _removeCalEventNotif(evId);
       saveBtn.onclick=saveCalEvent; // restore
       hideCalAddForm();
       renderDiaryCal();
@@ -6166,6 +6175,10 @@ function showCalDetailV2(entries,dateStr){
         <div class="dc-col" data-color="#e89a6a" style="background:#e89a6a" onclick="calSelectColor(this)" role="button" tabindex="0" aria-label="Цвят: оранжево"></div>
       </div>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;font-size:12px;color:var(--ink)">
+      <input type="checkbox" id="cal-evt-notify" checked style="width:16px;height:16px;accent-color:var(--gold);flex-shrink:0">
+      <span style="display:inline-flex;align-items:center;gap:5px;color:var(--gold)">${ic('bell','13px')}</span>${isBG?'Изпрати ми напомняне':'Send me a reminder'}
+    </label>
     <div style="display:flex;gap:8px">
       <button onclick="hideCalAddForm()" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);font-size:12px;color:var(--ink2);cursor:pointer;font-family:inherit">${isBG?'Откажи':'Cancel'}</button>
       <button onclick="saveCalEvent()" style="flex:2;padding:9px;border-radius:10px;border:none;background:var(--gold);font-size:12px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit">${isBG?'Запази':'Save'}</button>
