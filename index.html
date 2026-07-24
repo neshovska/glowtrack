@@ -142,7 +142,7 @@ body.dark .auth-card{pointer-events:auto;background:rgba(30,30,56,.9)}
 body.dark .form-input,.dark input,.dark textarea,.dark select{background:#12122a!important;color:#f0ede8!important;border-color:rgba(212,169,106,.25)!important;color-scheme:dark}
 body.dark input[type="date"],body.dark input[type="time"],body.dark input[type="datetime-local"]{background:#12122a!important;color:#f0ede8!important;color-scheme:dark}
 body.dark .profile-card-section,.dark .profile-card-section{background:#1a1a2e;border-color:rgba(212,169,106,.15);overflow:visible}
-body.dark .routine-item{background:#1a1a2e}
+body.dark .routine-item-wrap{background:#1a1a2e}
 body.dark .entry-card{background:#1a1a2e;border-color:rgba(212,169,106,.2)}
 body.dark .entry-field{color:#e8e4de}
 body.dark .entry-date{color:#a09890}
@@ -943,9 +943,13 @@ html.nav-wave-go:not(.nav-animated) .bnav .nb:nth-child(5){animation-delay:800ms
 .stat-box{flex:1;background:#faf8f5;border-radius:12px;padding:12px 8px;text-align:center;border:1px solid var(--goldlt)}
 .stat-num{font-size:24px;font-weight:800;color:var(--gold);font-family:'Cormorant Garamond',serif}
 .stat-lbl{font-size:10px;color:var(--ink2);margin-top:2px;font-weight:500}
-.routine-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#faf8f5;cursor:pointer;font-size:13px;color:var(--ink1)}
-.routine-item input{width:16px;height:16px;accent-color:var(--gold)}
+.routine-item{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--ink1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.routine-item input{width:16px;height:16px;accent-color:var(--gold);flex-shrink:0}
 .routine-cb:checked ~ span{text-decoration:line-through;opacity:.5}
+.routine-item-wrap{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:#faf8f5}
+.routine-product-input{font-family:inherit;font-size:11.5px;padding:6px 8px;border:1px solid rgba(184,150,106,.18);border-radius:7px;background:#fff;color:var(--ink1);flex:1;min-width:0;box-sizing:border-box}
+.routine-product-input::placeholder{color:var(--ink2)}
+body.dark .routine-product-input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,150,106,.25)}
 /* PROGRESS BAR */
 .routine-progress{height:6px;background:#f0ede8;border-radius:3px;margin:10px 0 6px;overflow:hidden}
 .routine-progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#b8966a,#d4a96a);transition:width .4s ease}
@@ -1205,7 +1209,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:2px 0 8px 2px" data-t="profileCare"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 10 11 4 20 4c0 9-6 15-15 15z"/><path d="M5 19c3-3 7-7 11-11"/></svg> Домашна грижа</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;min-width:0;width:100%;box-sizing:border-box">
         <button onclick="toggleCarePanel('morning')" id="morning-btn"
-          style="min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:0;display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;overflow:hidden">
+          style="grid-row:1;min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:0;display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;overflow:hidden">
           <div style="position:relative;width:100%;height:80px;flex-shrink:0">
             <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-morning.jpeg?alt=media" loading="lazy" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
             <span style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">
@@ -1218,13 +1222,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           </div>
         </button>
         <!-- СУТРЕШНА ГРИЖА PANEL -->
-        <div id="morning-panel" style="display:none;grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
+        <div id="morning-panel" style="display:none;grid-column:1/-1;grid-row:2;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
           <div style="display:flex;flex-direction:column;gap:7px" id="morning-list">
-            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-serum"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Серум</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-moisturize"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4v3l1.5 2v13a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V7L10 5V2z"/><path d="M9 11h6"/></svg> Хидратация</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-spf"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg> SPF</span></label>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label><input type="text" class="routine-product-input" data-step="m-cleanse" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер</span></label><input type="text" class="routine-product-input" data-step="m-tone" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-serum"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Серум</span></label><input type="text" class="routine-product-input" data-step="m-serum" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-moisturize"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4v3l1.5 2v13a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V7L10 5V2z"/><path d="M9 11h6"/></svg> Хидратация</span></label><input type="text" class="routine-product-input" data-step="m-moisturize" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-morning" data-r="m-spf"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg> SPF</span></label><input type="text" class="routine-product-input" data-step="m-spf" placeholder="Продукт"></div>
           </div>
           <div id="custom-morning-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
           <div style="display:flex;gap:8px;margin-top:8px">
@@ -1239,7 +1243,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
         </div>
         <button onclick="toggleCarePanel('evening')" id="evening-btn"
-          style="min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:0;display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;overflow:hidden">
+          style="grid-row:1;min-width:0;width:100%;box-sizing:border-box;text-align:left;background:var(--card);border-radius:14px;border:1.5px solid rgba(184,150,106,.15);padding:0;display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow);font-family:inherit;overflow:hidden">
           <div style="position:relative;width:100%;height:80px;flex-shrink:0">
             <img src="https://firebasestorage.googleapis.com/v0/b/after-care-treatment.firebasestorage.app/o/app-assets%2Fhome-care-evening.jpeg?alt=media" loading="lazy" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
             <span style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">
@@ -1252,13 +1256,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           </div>
         </button>
         <!-- ВЕЧЕРНА ГРИЖА PANEL -->
-        <div id="evening-panel" style="display:none;grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
+        <div id="evening-panel" style="display:none;grid-column:1/-1;grid-row:2;min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden;background:var(--card);border:1.5px solid rgba(184,150,106,.2);border-radius:14px;padding:14px">
           <div style="display:flex;flex-direction:column;gap:7px" id="evening-list">
-            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер/Есенция</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-serum"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Серум/Ампула</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-eye"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> Крем за очи</span></label>
-            <label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-moisturize"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4v3l1.5 2v13a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V7L10 5V2z"/><path d="M9 11h6"/></svg> Нощен крем</span></label>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-cleanse"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Почистване</span></label><input type="text" class="routine-product-input" data-step="e-cleanse" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-tone"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg> Тонер/Есенция</span></label><input type="text" class="routine-product-input" data-step="e-tone" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-serum"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Серум/Ампула</span></label><input type="text" class="routine-product-input" data-step="e-serum" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-eye"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> Крем за очи</span></label><input type="text" class="routine-product-input" data-step="e-eye" placeholder="Продукт"></div>
+            <div class="routine-item-wrap"><label class="routine-item"><input type="checkbox" class="routine-cb-evening" data-r="e-moisturize"> <span><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2h4v3l1.5 2v13a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V7L10 5V2z"/><path d="M9 11h6"/></svg> Нощен крем</span></label><input type="text" class="routine-product-input" data-step="e-moisturize" placeholder="Продукт"></div>
           </div>
           <div id="custom-evening-list" style="display:flex;flex-direction:column;gap:7px;margin-top:7px"></div>
           <div style="display:flex;gap:8px;margin-top:8px">
@@ -5388,21 +5392,37 @@ function startEditEntry(eid,procId){
     const routineLabel = d.procId==='home-care-morning'?t('morningCare'):t('eveningCare');
     const routineType = d.procId==='home-care-morning'?'morning':'evening';
     const defaultSteps = routineType==='morning'
-      ? [{r:'m-cleanse',l:`${ic('droplet','13px')} Почистване`},{r:'m-tone',l:`${ic('droplet','13px')} Тонер`},{r:'m-serum',l:`${ic('sparkle','13px')} Серум`},{r:'m-moisturize',l:`${ic('bottle','13px')} Хидратация`},{r:'m-spf',l:`${ic('sun','13px')} SPF`}]
-      : [{r:'e-cleanse',l:`${ic('droplet','13px')} Почистване`},{r:'e-tone',l:`${ic('droplet','13px')} Тонер/Есенция`},{r:'e-serum',l:`${ic('sparkle','13px')} Серум/Ампула`},{r:'e-eye',l:`${ic('eye','13px')} Крем за очи`},{r:'e-moisturize',l:`${ic('bottle','13px')} Нощен крем`}];
+      ? [{r:'m-cleanse',icon:'droplet',label:'Почистване'},{r:'m-tone',icon:'droplet',label:'Тонер'},{r:'m-serum',icon:'sparkle',label:'Серум'},{r:'m-moisturize',icon:'bottle',label:'Хидратация'},{r:'m-spf',icon:'sun',label:'SPF'}]
+      : [{r:'e-cleanse',icon:'droplet',label:'Почистване'},{r:'e-tone',icon:'droplet',label:'Тонер/Есенция'},{r:'e-serum',icon:'sparkle',label:'Серум/Ампула'},{r:'e-eye',icon:'eye',label:'Крем за очи'},{r:'e-moisturize',icon:'bottle',label:'Нощен крем'}];
     const savedChecked = (d.advice||'').replace('Стъпки: ','').split(', ').map(s=>s.trim());
     const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+routineType)||'[]');
+    // Разпарсва запазения "Стъпка: Продукт, Стъпка2: Продукт2" низ обратно в map
+    const productMap = {};
+    (d.products||'').split(', ').forEach(pair=>{
+      const idx = pair.indexOf(': ');
+      if(idx>-1){
+        const k = pair.slice(0,idx).trim();
+        const v = pair.slice(idx+2).trim();
+        if(k) productMap[k]=v;
+      }
+    });
     card.innerHTML=isRoutineEntry?`
       <div class="diary-date-lbl" style="color:var(--gold)">${ic('edit','13px')} Редактиране · ${routineLabel}</div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
-        ${defaultSteps.map(s=>`<label class="routine-item">
-          <input type="checkbox" class="ee-step-cb" data-label="${s.l}" ${savedChecked.some(sc=>sc.includes(s.l.replace(/[^\w\s]/g,'').trim()))?'checked':''}>
-          <span>${s.l}</span>
-        </label>`).join('')}
-        ${customs.map(c=>`<label class="routine-item">
-          <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.some(sc=>sc.includes(c.label))?'checked':''}>
-          <span>${c.label}</span>
-        </label>`).join('')}
+        ${defaultSteps.map(s=>`<div class="routine-item-wrap">
+          <label class="routine-item">
+            <input type="checkbox" class="ee-step-cb" data-label="${s.label}" ${savedChecked.includes(s.label)?'checked':''}>
+            <span>${ic(s.icon,'13px')} ${s.label}</span>
+          </label>
+          <input type="text" class="routine-product-input ee-step-product" data-label="${s.label}" placeholder="Продукт" value="${(productMap[s.label]||'').replace(/"/g,'&quot;')}">
+        </div>`).join('')}
+        ${customs.map(c=>`<div class="routine-item-wrap">
+          <label class="routine-item">
+            <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.includes(c.label)?'checked':''}>
+            <span>${c.label}</span>
+          </label>
+          <input type="text" class="routine-product-input ee-step-product" data-label="${c.label}" placeholder="Продукт" value="${(productMap[c.label]||'').replace(/"/g,'&quot;')}">
+        </div>`).join('')}
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" id="ee-custom-input-${eid}" class="form-input" placeholder="+ Добави стъпка..." style="flex:1;font-size:16px;padding:7px 10px">
@@ -6313,7 +6333,10 @@ function toggleCarePanel(type){
   panel.style.display = open ? 'none' : 'block';
   if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
   if(btn) btn.style.background = open ? 'var(--card)' : 'rgba(184,150,106,.1)';
-  if(!open) setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  if(!open){
+    initStepProductInputs(panel);
+    setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  }
 }
 function toggleRoutineAcc(accId){
   // Legacy — map to new panel system
@@ -9531,13 +9554,34 @@ function renderCustomSteps(type){
   const today = new Date().toDateString();
   const saved = JSON.parse(localStorage.getItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today)||'[]');
   list.innerHTML = customs.map(c=>`
-    <div style="display:flex;align-items:center;gap:6px">
-      <label class="routine-item" style="flex:1">
+    <div class="routine-item-wrap">
+      <label class="routine-item" style="max-width:38%">
         <input type="checkbox" class="routine-cb-${type}-custom" data-r="${c.id}" ${saved.includes(c.id)?'checked':''}>
         <span>${c.label}</span>
       </label>
-      <button onclick="deleteCustomStep('${type}','${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer">${ic('close','14px')}</button>
+      <input type="text" class="routine-product-input" data-step="${c.id}" placeholder="Продукт">
+      <button onclick="deleteCustomStep('${type}','${c.id}')" style="background:none;border:none;color:var(--ink2);cursor:pointer;flex-shrink:0;padding:0;display:flex;align-items:center">${ic('close','14px')}</button>
     </div>`).join('');
+  initStepProductInputs(list);
+}
+
+function initStepProductInputs(scope){
+  const root = scope || document;
+  root.querySelectorAll('.routine-product-input').forEach(inp=>{
+    if(inp._gtWired) return;
+    const stepId = inp.dataset.step;
+    if(!stepId) return;
+    const saved = localStorage.getItem('gt_step_product_'+stepId);
+    if(saved) inp.value = saved;
+    const save = ()=>{
+      const v = inp.value.trim();
+      if(v) localStorage.setItem('gt_step_product_'+stepId, v);
+      else localStorage.removeItem('gt_step_product_'+stepId);
+    };
+    inp.addEventListener('input', save);
+    inp.addEventListener('blur', save);
+    inp._gtWired = true;
+  });
 }
 
 function deleteCustomStep(type, id){
@@ -9548,46 +9592,63 @@ function deleteCustomStep(type, id){
 
 async function saveRoutine(type, btnEl){
   const today = new Date().toDateString();
-  const checked = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(c=>c.dataset.r);
-  const customChecked = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(c=>c.dataset.r);
+  const checkedEls = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked'));
+  const customCheckedEls = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked'));
+  const checked = checkedEls.map(c=>c.dataset.r);
+  const customChecked = customCheckedEls.map(c=>c.dataset.r);
   const all = [...checked, ...customChecked];
   localStorage.setItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_'+today, JSON.stringify(all));
   localStorage.setItem('gt_care_'+(window._user?window._user.uid+'_':'')+type+'_last', today);
   updateCareStreak(type, all, today);
 
+  // Gather step labels + any manually entered product names for the checked steps
+  const steps = [];
+  const productLines = [];
+  [...checkedEls, ...customCheckedEls].forEach(cb=>{
+    const label = (cb.nextElementSibling?.textContent||'').trim();
+    if(label) steps.push(label);
+    const wrap = cb.closest('.routine-item-wrap');
+    const prodVal = wrap?.querySelector('.routine-product-input')?.value.trim();
+    if(prodVal) productLines.push(label ? `${label}: ${prodVal}` : prodVal);
+  });
+
   // Save to diary
   if(window._user && all.length > 0){
-    const savedKey = 'gt_care_diary_'+type+'_'+today;
-    if(!localStorage.getItem(savedKey)){
-      try{
-        const label = type === 'morning' ? 'Сутрешна грижа' : 'Вечерна грижа';
-        const steps = Array.from(document.querySelectorAll('.routine-cb-'+type+':checked')).map(cb=>cb.nextElementSibling?.textContent||'');
-        const customSteps = Array.from(document.querySelectorAll('.routine-cb-'+type+'-custom:checked')).map(cb=>cb.nextElementSibling?.textContent||'');
-        await F().addDoc(F().collection(DB(),'diary_entries'),{
+    const label = type === 'morning' ? 'Сутрешна грижа' : 'Вечерна грижа';
+    const adviceText = 'Стъпки: '+steps.join(', ');
+    const productsText = productLines.join(', ');
+    const savedKey = 'gt_care_diary_'+window._user.uid+'_'+type+'_'+today;
+    const existingDocId = localStorage.getItem(savedKey);
+    try{
+      if(existingDocId){
+        await F().updateDoc(F().doc(DB(),'diary_entries',existingDocId),{
+          advice: adviceText,
+          products: productsText
+        });
+        showToast('Обновено в дневника!');
+      } else {
+        const docRef = await F().addDoc(F().collection(DB(),'diary_entries'),{
           userId: window._user.uid,
           procId: 'home-care-'+type,
           procName: label,
           procIcon: type==='morning'?'sun':'moon',
           clinic:'', specialist:'', contact:'',
-          advice: 'Стъпки: '+[...steps,...customSteps].join(', '),
+          advice: adviceText,
           feeling: label+' завършена',
-          products:'', photos:[],
+          products: productsText, photos:[],
           isRoutine: true,
           createdAt: F().serverTimestamp()
         });
-        localStorage.setItem(savedKey, '1');
+        localStorage.setItem(savedKey, docRef.id);
         showToast('Запазено в дневника!');
-        if(typeof window._glowBurst==='function') window._glowBurst(btnEl);
-        if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
-        // Auto-close accordion
-        const accBody = document.getElementById('routine-acc-body') || document.querySelector('.acc-body.open');
-        if(accBody){ accBody.classList.remove('open'); const arr=accBody.previousElementSibling?.querySelector('.acc-arrow'); if(arr) arr.classList.remove('open'); }
-      } catch(e){}
-    } else {
-      showToast(t('toastRoutineSaved'));
+      }
+      if(typeof window._glowBurst==='function') window._glowBurst(btnEl);
+      invalidateCache();
+      if(document.getElementById('page-diary')?.classList.contains('active')) loadDiaryTab();
+      // Auto-close accordion
       const accBody = document.getElementById('routine-acc-body') || document.querySelector('.acc-body.open');
       if(accBody){ accBody.classList.remove('open'); const arr=accBody.previousElementSibling?.querySelector('.acc-arrow'); if(arr) arr.classList.remove('open'); }
-    }
+    } catch(e){ showToast(t('toastErrUpd')); }
   } else {
     showToast(t('toastSaved'));
   }
@@ -9700,24 +9761,33 @@ function addEECustomStep(eid, type){
   const customs = JSON.parse(localStorage.getItem('gt_care_custom_'+type)||'[]');
   customs.push({id:'c_'+Date.now(), label:val});
   localStorage.setItem('gt_care_custom_'+type, JSON.stringify(customs));
-  // Add checkbox to form
-  const newLabel = document.createElement('label');
-  newLabel.className = 'routine-item';
-  newLabel.innerHTML = `<input type="checkbox" class="ee-step-cb" data-label="${val}" checked><span>${val}</span>`;
-  inp.parentElement.before(newLabel);
+  // Add checkbox+product ред to form
+  const newWrap = document.createElement('div');
+  newWrap.className = 'routine-item-wrap';
+  newWrap.innerHTML = `<label class="routine-item"><input type="checkbox" class="ee-step-cb" data-label="${val}" checked><span>${val}</span></label><input type="text" class="routine-product-input ee-step-product" data-label="${val}" placeholder="Продукт">`;
+  inp.parentElement.before(newWrap);
   inp.value = '';
 }
 
 async function saveRoutineEdit(eid, procId, type){
-  const checked = Array.from(document.querySelectorAll('.ee-step-cb:checked')).map(cb=>cb.dataset.label);
+  const checkedCbs = Array.from(document.querySelectorAll('.ee-step-cb:checked'));
+  const checked = checkedCbs.map(cb=>cb.dataset.label);
+  const productLines = checkedCbs.map(cb=>{
+    const label = cb.dataset.label;
+    const wrap = cb.closest('.routine-item-wrap');
+    const val = wrap?.querySelector('.ee-step-product')?.value.trim();
+    return val ? `${label}: ${val}` : null;
+  }).filter(Boolean);
   const feeling = document.getElementById('ee-feel-'+eid)?.value.trim()||'';
   const label = type==='morning'?'Сутрешна грижа':'Вечерна грижа';
   try{
     await F().updateDoc(F().doc(DB(),'diary_entries',eid),{
       advice: checked.length ? 'Стъпки: '+checked.join(', ') : '',
+      products: productLines.join(', '),
       feeling: feeling,
     });
     showToast(t('toastUpdated'));
+    invalidateCache();
     loadDiaryTab();
   }catch(e){showToast(t('toastErrUpd'));}
 }
