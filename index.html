@@ -2663,6 +2663,11 @@ function ic(key,size){
   const s=size||'1em';
   return `<svg class="gt-ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 }
+// Escape-ва потребителски текст преди вкарване в innerHTML темплейт литерали —
+// вижте одита за пълния списък засегнати места (feedback text, custom стъпки,
+// diary бележки, calendar заглавия, AI chat echo). Използвайте навсякъде,
+// където стойността идва от потребителски вход, не от статични app данни.
+function esc(s){return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 // Икона за admin-въведени реклами (клиники/продукти): ако полето е празно ->
 // gold SVG по подразбиране; ако admin е въвел наш icon key -> SVG; иначе (стар
 // ръчно въведен emoji в Firestore) показва се както си е, без промяна.
@@ -5028,9 +5033,9 @@ async function openSheet(id){
         const attrs=a.url?`href="${normalizeUrl(a.url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"`:'';
         return`<${tag} class="clinic-ad-card" ${attrs}>
         <div class="clinic-ad-logo">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="" onerror="this.parentElement.textContent='${a.icon||''}'">`:adIco(a.icon,'medical')}</div>
-        <div class="clinic-ad-info"><div class="clinic-ad-name">${a.name}</div>
-        <div class="clinic-ad-sub">${[a.address,a.phone].filter(Boolean).join(' · ')}</div>
-        ${a.url?`<div style="font-size:10.5px;color:var(--sage);margin-top:2px">${ic('link','12px')} ${a.url}</div>`:''}</div>
+        <div class="clinic-ad-info"><div class="clinic-ad-name">${esc(a.name)}</div>
+        <div class="clinic-ad-sub">${esc([a.address,a.phone].filter(Boolean).join(' · '))}</div>
+        ${a.url?`<div style="font-size:10.5px;color:var(--sage);margin-top:2px">${ic('link','12px')} ${esc(a.url)}</div>`:''}</div>
         <span class="clinic-ad-badge">Партньор</span></${tag}>`;
       }).join('')}</div>`;
     if(productsForProc.length)productAdsHTML=`<div class="info-section"><div class="info-title">${t('productAds')}</div>
@@ -5040,9 +5045,9 @@ async function openSheet(id){
         const attrs=a.url?`href="${appendTrackingParam(normalizeUrl(a.url),clickId)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit" onclick="trackAffiliateClick('${a.id}','${clickId}')"`:'';
         return`<${tag} class="product-ad-row" ${attrs}>
         <div class="product-ad-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="" onerror="this.parentElement.textContent='${a.icon||''}'">`:adIco(a.icon,'bottle')}</div>
-        <div class="product-ad-info"><div class="product-ad-brand">${a.brand||''}</div>
-        <div class="product-ad-name">${a.name}</div>
-        ${a.desc?`<div class="product-ad-desc">${a.desc}</div>`:''}
+        <div class="product-ad-info"><div class="product-ad-brand">${esc(a.brand||'')}</div>
+        <div class="product-ad-name">${esc(a.name)}</div>
+        ${a.desc?`<div class="product-ad-desc">${esc(a.desc)}</div>`:''}
         ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:2px;opacity:.7">${ic('link','12px')} Съдържа афилиейт линк</div>`:''}</div>
         <span class="ad-label">Реклама</span></${tag}>`;
       }).join('')}</div>`;
@@ -5237,12 +5242,12 @@ function renderEntryCard(docSnap, overrideProcId){
       </div>
     </div>
     <div id="body-${eid}" style="display:none;padding:0 16px 14px;border-top:1px solid var(--roselt)">
-    ${!isRoutineEntry&&(d.clinic||d.specialist)?`<div class="entry-field"><span class="lbl">${t('clinicSpecLabel')}</span>${[d.clinic,d.specialist].filter(Boolean).join(' · ')}${d.contact?' · '+d.contact:''}</div>`:''}
-    ${d.advice&&!isRoutineEntry?`<div class="entry-field"><span class="lbl">${t('adviceLabel')}</span>${d.advice}</div>`:''}
-    ${isRoutineEntry&&d.advice?`<div class="entry-field">${d.advice}</div>`:''}
+    ${!isRoutineEntry&&(d.clinic||d.specialist)?`<div class="entry-field"><span class="lbl">${t('clinicSpecLabel')}</span>${esc([d.clinic,d.specialist].filter(Boolean).join(' · '))}${d.contact?' · '+esc(d.contact):''}</div>`:''}
+    ${d.advice&&!isRoutineEntry?`<div class="entry-field"><span class="lbl">${t('adviceLabel')}</span>${esc(d.advice)}</div>`:''}
+    ${isRoutineEntry&&d.advice?`<div class="entry-field">${esc(d.advice)}</div>`:''}
     ${d.rating>0?`<div class="entry-field"><span class="lbl">${t('ratingLabel')}</span>${ic('star','13px').repeat(d.rating)}${ic('starOutline','13px').repeat(5-d.rating)}</div>`:''}
     ${d.price>0?`<div class="entry-field"><span class="lbl">${t('priceLabel')}</span>${d.price} €</div>`:''}
-    ${d.feeling?`<div class="entry-field"><span class="lbl">${t('feelingLabel')}</span>${d.feeling}</div>`:''}
+    ${d.feeling?`<div class="entry-field"><span class="lbl">${t('feelingLabel')}</span>${esc(d.feeling)}</div>`:''}
     ${d.photosBefore&&d.photosBefore.length?`
       <div class="entry-photos-section">
         <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:4px">${ic('camera','12px')} ${window._lang==='en'?'BEFORE':'ПРЕДИ'}</div>
@@ -5254,7 +5259,7 @@ function renderEntryCard(docSnap, overrideProcId){
         <div class="entry-photos">${d.photosAfter.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')">`).join('')}</div>
       </div>`:''}
     ${photos.length?`<div class="entry-photos">${photos.map(ph=>`<img class="entry-photo" src="${ph}" loading="lazy" onclick="openLightbox('${ph}')">`).join('')}</div>`:''}
-    ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">${t('productsLabel')}</span><span class="product-chip">${d.products}</span></div>`:''}
+    ${d.products&&!isRoutineEntry?`<div class="entry-field" style="margin-top:6px"><span class="lbl">${t('productsLabel')}</span><span class="product-chip">${esc(d.products)}</span></div>`:''}
     </div>
     `;
 }
@@ -5430,10 +5435,10 @@ function startEditEntry(eid,procId){
         </div>`).join('')}
         ${customs.map(c=>`<div class="routine-item-wrap">
           <label class="routine-item">
-            <input type="checkbox" class="ee-step-cb" data-label="${c.label}" ${savedChecked.includes(c.label)?'checked':''}>
-            <span>${c.label}</span>
+            <input type="checkbox" class="ee-step-cb" data-label="${esc(c.label)}" ${savedChecked.includes(c.label)?'checked':''}>
+            <span>${esc(c.label)}</span>
           </label>
-          <input type="text" class="routine-product-input ee-step-product" data-label="${c.label}" placeholder="Продукт" value="${(productMap[c.label]||'').replace(/"/g,'&quot;')}">
+          <input type="text" class="routine-product-input ee-step-product" data-label="${esc(c.label)}" placeholder="Продукт" value="${esc(productMap[c.label]||'')}">
         </div>`).join('')}
       </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -5446,12 +5451,12 @@ function startEditEntry(eid,procId){
         <button class="mini-btn" onclick="loadDiaryTab()">Откажи</button>
       </div>`:`
       <div class="diary-date-lbl">${t('editEntry')}</div>
-      <div class="form-row"><label class="form-lbl">Клиника</label><input class="form-input" id="ee-clinic-${eid}" value="${d.clinic||''}"></div>
-      <div class="form-row"><label class="form-lbl">Специалист</label><input class="form-input" id="ee-spec-${eid}" value="${d.specialist||''}"></div>
-      <div class="form-row"><label class="form-lbl">Контакти</label><input class="form-input" id="ee-contact-${eid}" value="${d.contact||''}"></div>
-      <div class="form-row"><label class="form-lbl">Препоръки от специалиста</label><textarea class="form-input" id="ee-advice-${eid}" rows="3">${d.advice||''}</textarea></div>
-      <div class="form-row"><label class="form-lbl">Лично усещане</label><textarea class="form-input" id="ee-feel2-${eid}" rows="2">${d.feeling||''}</textarea></div>
-      <div class="form-row"><label class="form-lbl">Препоръчани продукти</label><input class="form-input" id="ee-prod-${eid}" value="${d.products||''}"></div>
+      <div class="form-row"><label class="form-lbl">Клиника</label><input class="form-input" id="ee-clinic-${eid}" value="${esc(d.clinic||'')}"></div>
+      <div class="form-row"><label class="form-lbl">Специалист</label><input class="form-input" id="ee-spec-${eid}" value="${esc(d.specialist||'')}"></div>
+      <div class="form-row"><label class="form-lbl">Контакти</label><input class="form-input" id="ee-contact-${eid}" value="${esc(d.contact||'')}"></div>
+      <div class="form-row"><label class="form-lbl">Препоръки от специалиста</label><textarea class="form-input" id="ee-advice-${eid}" rows="3">${esc(d.advice||'')}</textarea></div>
+      <div class="form-row"><label class="form-lbl">Лично усещане</label><textarea class="form-input" id="ee-feel2-${eid}" rows="2">${esc(d.feeling||'')}</textarea></div>
+      <div class="form-row"><label class="form-lbl">Препоръчани продукти</label><input class="form-input" id="ee-prod-${eid}" value="${esc(d.products||'')}"></div>
       <div class="form-row">
         <label class="form-lbl">${t('priceLabel')} (€)</label>
         <input class="form-input" type="number" id="ee-price-${eid}" value="${d.price||''}" placeholder="напр. 50" style="width:120px">
@@ -6235,8 +6240,8 @@ function showCalDetailV2(entries,dateStr){
         <div class="dc-icon" style="background:${col}18">${SVG_CUSTOM.replace('stroke="currentColor"','stroke="'+col+'"')}</div>
         <div style="flex:1;min-width:0">
           <div class="dc-tag" style="color:${col}">${isBG?'Събитие':'Event'}</div>
-          <div class="dc-name">${e.title||e.name}</div>
-          ${e.time||e.note?`<div class="dc-sub">${[e.time,e.note].filter(Boolean).join(' · ')}</div>`:''}
+          <div class="dc-name">${esc(e.title||e.name)}</div>
+          ${e.time||e.note?`<div class="dc-sub">${esc([e.time,e.note].filter(Boolean).join(' · '))}</div>`:''}
         </div>
         <button onclick="editCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--gold);display:flex;align-items:center" title="Редактирай" aria-label="Редактирай събитие"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
         <button onclick="deleteCalEvent('${e.id}')" style="background:none;border:none;cursor:pointer;padding:4px;color:#e85d5d;display:flex;align-items:center" title="Изтрий" aria-label="Изтрий събитие"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
@@ -6739,10 +6744,10 @@ function renderClinics(){
       <div class="clinic-card-hdr">
         <div class="clinic-logo">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="" onerror="this.parentElement.textContent='${a.icon||''}'">`:adIco(a.icon,'medical')}</div>
         <div style="flex:1;min-width:0">
-          <div class="clinic-name">${a.name}</div>
-          ${a.address?`<div class="clinic-address">${ic('message','12px')} ${a.address}</div>`:''}
-          ${a.phone?`<div class="clinic-phone">${ic('message','12px')} ${a.phone}</div>`:''}
-          ${a.url?`<div style="font-size:11px;color:var(--sage);margin-top:1px">${ic('link','12px')} ${a.url}</div>`:''}
+          <div class="clinic-name">${esc(a.name)}</div>
+          ${a.address?`<div class="clinic-address">${ic('message','12px')} ${esc(a.address)}</div>`:''}
+          ${a.phone?`<div class="clinic-phone">${ic('message','12px')} ${esc(a.phone)}</div>`:''}
+          ${a.url?`<div style="font-size:11px;color:var(--sage);margin-top:1px">${ic('link','12px')} ${esc(a.url)}</div>`:''}
         </div>
         <span class="sponsored-pill">Партньор</span>
       </div>
@@ -6778,9 +6783,9 @@ function renderProducts(){
     return`<${tag} class="product-tab-card" ${attrs}>
       <div class="product-tab-icon" style="background:${a.color||'#eeeaf8'}">${a.logoUrl?`<img src="${a.logoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="" onerror="this.parentElement.textContent='${a.icon||''}'">`:adIco(a.icon,'bottle')}</div>
       <div class="product-tab-info">
-        <div class="product-tab-brand">${a.brand||''}</div>
-        <div class="product-tab-name">${a.name}</div>
-        ${a.desc?`<div class="product-tab-desc">${a.desc}</div>`:''}
+        <div class="product-tab-brand">${esc(a.brand||'')}</div>
+        <div class="product-tab-name">${esc(a.name)}</div>
+        ${a.desc?`<div class="product-tab-desc">${esc(a.desc)}</div>`:''}
         ${procNames.length?`<div class="product-tab-procs">${ic('clipboard','12px')} ${procNames.slice(0,4).join(', ')}${procNames.length>4?' …':''}</div>`:''}
         ${a.url?`<div style="font-size:9px;color:var(--ink2);margin-top:4px;opacity:.7">${ic('link','12px')} Съдържа афилиейт линк</div>`:''}
       </div>
@@ -6916,7 +6921,7 @@ async function loadAdminLists(){
     document.getElementById('admin-clinics-list').innerHTML=!window._adminClinicsCache.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма клиники</div>':window._adminClinicsCache.map(a=>{
       const isActive = a.active !== false;
       return`<div class="admin-list-item" style="${isActive?'':'opacity:.45'}">
-        <span style="flex:1">${adIco(a.icon,'medical')} ${a.name}${isActive?'':' <em style=\"font-size:10px\">(скрита)</em>'}</span>
+        <span style="flex:1">${adIco(a.icon,'medical')} ${esc(a.name)}${isActive?'':' <em style=\"font-size:10px\">(скрита)</em>'}</span>
         <button class="admin-btn sm" style="margin-right:4px" onclick="editClinicAd('${a.id}')" aria-label="Редактирай клиника">${ic('edit')}</button>
         <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('clinic_ads','${a.id}',${isActive})" aria-label="${isActive?'Скрий клиника':'Покажи клиника'}">${isActive?ic('eye'):ic('forbidden')}</button>
         <button class="admin-btn sm red" onclick="deleteAdminItem('clinic_ads','${a.id}')" aria-label="Изтрий клиника">${ic('close')}</button>
@@ -6925,7 +6930,7 @@ async function loadAdminLists(){
     document.getElementById('admin-products-list').innerHTML=!window._adminProductsCache.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма продукти</div>':window._adminProductsCache.map(a=>{
       const isActive = a.active !== false;
       return`<div class="admin-list-item" style="${isActive?'':'opacity:.45'}">
-        <span style="flex:1">${adIco(a.icon,'bottle')} ${a.brand?a.brand+' — ':''}${a.name}${isActive?'':' <em style=\"font-size:10px\">(скрит)</em>'}</span>
+        <span style="flex:1">${adIco(a.icon,'bottle')} ${a.brand?esc(a.brand)+' — ':''}${esc(a.name)}${isActive?'':' <em style=\"font-size:10px\">(скрит)</em>'}</span>
         <button class="admin-btn sm" style="margin-right:4px" onclick="editProductAd('${a.id}')" aria-label="Редактирай продукт">${ic('edit')}</button>
         <button class="admin-btn sm" style="margin-right:4px" onclick="toggleActiveStatus('product_ads','${a.id}',${isActive})" aria-label="${isActive?'Скрий продукт':'Покажи продукт'}">${isActive?ic('eye'):ic('forbidden')}</button>
         <button class="admin-btn sm red" onclick="deleteAdminItem('product_ads','${a.id}')" aria-label="Изтрий продукт">${ic('close','14px')}</button>
@@ -7033,7 +7038,7 @@ async function sendAiMsg(){
   const text=inp.value.trim();if(!text)return;
   inp.value='';
   document.getElementById('ai-suggestions').innerHTML='';
-  addAiMsg('user',text);
+  addAiMsg('user',esc(text));
   _aiHistory.push({role:'user',content:text});
   // Loading
   const loadDiv=addAiMsg('bot','<span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>');
@@ -7049,7 +7054,7 @@ async function sendAiMsg(){
     const reply=result?.data?.reply||'Нещо се обърка. Опитай пак.';
     _aiHistory.push({role:'assistant',content:reply});
     loadDiv.remove();
-    addAiMsg('bot',reply.replace(/\n/g,'<br>'));
+    addAiMsg('bot',esc(reply).replace(/\n/g,'<br>'));
     // Follow-up suggestions
     showAiSuggestions(t('aiFollowUp'));
   }catch(e){
@@ -7103,9 +7108,9 @@ async function loadAdminInbox(){
       const fb=d.data();
       const dt=fb.createdAt?.toDate?fb.createdAt.toDate():new Date();
       return`<div class="admin-inbox-item">
-        <div class="admin-inbox-type">${typeLabel[fb.type]||fb.type}</div>
-        <div class="admin-inbox-text">${fb.text}</div>
-        <div class="admin-inbox-meta">от ${fb.userName||fb.userEmail} · ${fmtFull(dt)}</div>
+        <div class="admin-inbox-type">${typeLabel[fb.type]||esc(fb.type)}</div>
+        <div class="admin-inbox-text">${esc(fb.text)}</div>
+        <div class="admin-inbox-meta">от ${esc(fb.userName||fb.userEmail)} · ${fmtFull(dt)}</div>
       </div>`;
     }).join(''):'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма предложения</div>';
     // mark all as read
@@ -8856,7 +8861,7 @@ function renderCustomRoutine(){
     <div style="display:flex;align-items:center;gap:6px">
       <label class="routine-item" style="flex:1">
         <input type="checkbox" class="routine-cb-custom" data-r="${c.id}" ${checked.includes(c.id)?'checked':''}>
-        <span>${c.label}</span>
+        <span>${esc(c.label)}</span>
       </label>
       <button onclick="deleteCustomRoutine('${c.id}')" aria-label="Изтрий стъпка" style="background:none;border:none;color:var(--ink2);cursor:pointer;font-size:16px;padding:4px">${ic('close','14px')}</button>
     </div>`).join('');
@@ -9569,7 +9574,7 @@ function renderCustomSteps(type){
     <div class="routine-item-wrap">
       <label class="routine-item" style="max-width:38%">
         <input type="checkbox" class="routine-cb-${type}-custom" data-r="${c.id}" ${saved.includes(c.id)?'checked':''}>
-        <span>${c.label}</span>
+        <span>${esc(c.label)}</span>
       </label>
       <input type="text" class="routine-product-input" data-step="${c.id}" placeholder="Продукт">
       <button onclick="deleteCustomStep('${type}','${c.id}')" aria-label="Изтрий стъпка" style="background:none;border:none;color:var(--ink2);cursor:pointer;flex-shrink:0;padding:0;display:flex;align-items:center">${ic('close','14px')}</button>
@@ -9776,7 +9781,7 @@ function addEECustomStep(eid, type){
   // Add checkbox+product ред to form
   const newWrap = document.createElement('div');
   newWrap.className = 'routine-item-wrap';
-  newWrap.innerHTML = `<label class="routine-item"><input type="checkbox" class="ee-step-cb" data-label="${val}" checked><span>${val}</span></label><input type="text" class="routine-product-input ee-step-product" data-label="${val}" placeholder="Продукт">`;
+  newWrap.innerHTML = `<label class="routine-item"><input type="checkbox" class="ee-step-cb" data-label="${esc(val)}" checked><span>${esc(val)}</span></label><input type="text" class="routine-product-input ee-step-product" data-label="${esc(val)}" placeholder="Продукт">`;
   inp.parentElement.before(newWrap);
   inp.value = '';
 }
