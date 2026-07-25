@@ -2718,7 +2718,7 @@ async function saveProcRemind(procId,procName){
   }
   saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:'10:00', type:'reminder'});
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(saved.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
   showToast(window._lang==='en'?'Reminder saved':'Напомнянето е запазено');
   // Close the accordion menu after saving
@@ -5588,7 +5588,7 @@ async function saveDiaryEntry(procId){
       _lsSet('gt_notifs', saved2);
       // Sync to Firestore
       if(window._user){
-        try{ window.syncNotifsFS(saved2); }catch(e){}
+        try{ await window.syncNotifsFS(saved2); }catch(e){}
       }
       updateNotifBadge(saved2.filter(n=>{
         const dt=new Date(n.date);
@@ -6029,7 +6029,7 @@ function calSelectColor(el){
 // Замяна на целия notif обект при update (не merge/spread) е нарочна — маха
 // стар 'sent' флаг, ако е имало преди, за да получи преместено събитие ново
 // push вместо да остане тихо занапред "вече изпратено".
-function _syncCalEventNotif(ev){
+async function _syncCalEventNotif(ev){
   const notifId='n_cal_'+ev.id;
   const notifs=_lsGet('gt_notifs')||[];
   const idx=notifs.findIndex(n=>n.id===notifId);
@@ -6042,17 +6042,17 @@ function _syncCalEventNotif(ev){
     if(idx!==-1) notifs[idx]=notif; else notifs.push(notif);
   }
   _lsSet('gt_notifs',notifs);
-  if(window._user){ try{ window.syncNotifsFS(notifs); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(notifs); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(notifs.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
 }
-function _removeCalEventNotif(evId){
+async function _removeCalEventNotif(evId){
   const notifId='n_cal_'+evId;
   const notifs=_lsGet('gt_notifs')||[];
   const idx=notifs.findIndex(n=>n.id===notifId);
   if(idx===-1) return;
   notifs.splice(idx,1);
   _lsSet('gt_notifs',notifs);
-  if(window._user){ try{ window.syncNotifsFS(notifs); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(notifs); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(notifs.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
 }
 async function saveCalEvent(){
@@ -6069,7 +6069,7 @@ async function saveCalEvent(){
   if(window._user){
     try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
   }
-  _syncCalEventNotif(ev);
+  await _syncCalEventNotif(ev);
   hideCalAddForm();
   renderDiaryCal();
 }
@@ -6103,7 +6103,7 @@ async function editCalEvent(evId){
       const updated=saved.map(e=>e.id===evId?updatedEv:e);
       if(typeof _lsSet==='function') _lsSet('gt_cal_events',updated);
       if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:updated},{merge:true});}catch(e){} }
-      _syncCalEventNotif(updatedEv);
+      await _syncCalEventNotif(updatedEv);
       saveBtn.onclick=saveCalEvent; // restore
       hideCalAddForm();
       renderDiaryCal();
@@ -6122,7 +6122,7 @@ async function deleteCalEvent(evId){
   if(window._user){
     try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
   }
-  _removeCalEventNotif(evId);
+  await _removeCalEventNotif(evId);
   renderDiaryCal();
 }
 
@@ -7283,7 +7283,7 @@ function setNotifType(type){
   }
 }
 let _savingNotif = false;
-function saveNotifDate(){
+async function saveNotifDate(){
   // Защита #1: блокира втори клик, докато първият още се обработва
  // (лесен инцидентен double-tap на бутона за запис създаваше две отделни, реално различни
   // напомняния — сървърът ги пращаше коректно, изглеждаше като "дублирано" push).
@@ -7303,7 +7303,7 @@ function saveNotifDate(){
   _savingNotif = true;
   saved.push({id:'n_'+Date.now(), procId, procName, date:d, time, type}); 
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   const dt = new Date(d + 'T' + time);
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
@@ -7921,7 +7921,7 @@ async function onCycleDayTap(dateStr){
       isCycleReminder:true
     });
     if(typeof _lsSet==='function') _lsSet('gt_notifs',_filtered);
-    if(window._user){ try{window.syncNotifsFS(_filtered);}catch(e){} }
+    if(window._user){ try{await window.syncNotifsFS(_filtered);}catch(e){} }
   }catch(e){}
   showToast(window._lang==='en'?'Period logged':'Записано');
   renderCycleTracker();
@@ -8967,10 +8967,10 @@ function loadNotifProcSelector(){
   // Saved notifs are shown in the main page content (loadNotifsPage), not here
 }
 
-function deleteNotif(id){
+async function deleteNotif(id){
   const saved = (_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   loadNotifProcSelector();
   loadNotifsPage();
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
@@ -9209,7 +9209,7 @@ function closeEditNotif(){
   document.getElementById('edit-notif-dropdown').style.display = 'none';
 }
 
-function saveEditNotif(){
+async function saveEditNotif(){
   const id = document.getElementById('edit-notif-id').value;
   const procId = document.getElementById('edit-notif-proc-id').value;
   const procName = document.getElementById('edit-notif-proc-search').value;
@@ -9221,7 +9221,7 @@ function saveEditNotif(){
   const idx = saved.findIndex(x=>x.id===id);
   if(idx>-1) saved[idx] = {...saved[idx], procId, procName, date, time};
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   closeEditNotif();
   loadNotifProcSelector();
   if(typeof _diaryView!=='undefined' && _diaryView==='cal' && typeof renderDiaryCal==='function') renderDiaryCal();
@@ -9842,10 +9842,10 @@ function toggleNewEntry(){
 }
 
 
-function deleteNotifFromPage(id){
+async function deleteNotifFromPage(id){
   const saved = (_lsGet('gt_notifs')||[]).filter(n=>n.id!==id);
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   updateNotifBadge(saved.filter(n=>new Date(n.date)>=new Date()).length);
   loadNotifsPage();
   if(typeof _diaryView!=='undefined' && _diaryView==='cal' && typeof renderDiaryCal==='function') renderDiaryCal();
@@ -10066,7 +10066,7 @@ function calcNextDate(){
   }
 }
 
-function suggestReminder(lastDate, minDays, maxDays){
+async function suggestReminder(lastDate, minDays, maxDays){
   const avg = Math.round((minDays+maxDays)/2);
   const dt = new Date(lastDate);
   dt.setDate(dt.getDate()+avg);
@@ -10082,7 +10082,7 @@ function suggestReminder(lastDate, minDays, maxDays){
   }
   saved.push({id:'n_'+Date.now(), procId:window.currentProcId, procName, date:dateStr, time:'10:00'});
   _lsSet('gt_notifs', saved);
-  if(window._user){ try{ window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
+  if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   const upcoming = saved.filter(n=>new Date(n.date)>=new Date()).length;
   updateNotifBadge(upcoming);
   showToast(t('toastNotifSaved'));
