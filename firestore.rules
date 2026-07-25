@@ -12,9 +12,15 @@ service cloud.firestore {
     }
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
+      // sentNotifIds е server-only — само claimNotif() (Cloud Function, Admin SDK,
+      // заобикаля тези rules изцяло) го пипа. Клиентът никога не го подава в
+      // notifs-related writes, затова блокирането му тук не пречи на нормалната
+      // употреба, само предотвратява директна манипулация (вижте одита — client
+      // писане на "sent" статус беше архитектурен риск, вече елиминиран структурно
+      // чрез отделянето му от notifs масива, тук се заключва и на rules ниво).
       allow write: if isOwner(userId)
         && !request.resource.data.diff(resource.data).affectedKeys()
-             .hasAny(['referralCount', 'unlockedRewards']);
+             .hasAny(['referralCount', 'unlockedRewards', 'sentNotifIds']);
     }
     match /diary_entries/{entryId} {
       allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
