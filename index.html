@@ -1656,6 +1656,16 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
               <div id="admin-inbox-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зареждане...</div></div>
             </div>
           </div>
+
+          <div class="p-eyebrow">Тестови данни</div>
+          <div class="acc-section profile-card-section" id="admin-testdata-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink1);cursor:pointer;margin-bottom:10px">
+              <input type="checkbox" id="admin-testmode-toggle" onchange="toggleTestMode(this.checked)">
+              Test mode — нови calendar/notif записи се маркират автоматично
+            </label>
+            <button class="admin-btn sm red" onclick="cleanupTestData()">Изчисти тестови записи (calendar + notifs)</button>
+            <div id="admin-testdata-status" style="font-size:11px;color:var(--ink2);margin-top:6px"></div>
+          </div>
         </div>
 
         <div class="p-eyebrow">Обратна връзка</div>
@@ -2233,8 +2243,27 @@ window.syncNotifsFS=async function(notifsArr){
       const remoteSentIds=new Set(remoteNotifs.filter(n=>n.sent).map(n=>n.id));
       notifsArr=notifsArr.map(n=>(!n.sent&&remoteSentIds.has(n.id))?{...n,sent:true}:n);
     }catch(e){}
+    // Базово lifecycle почистване (одит #6) — notifs по-стари от 30 дни вече
+    // или са изпратени, или трайно изтекли (claimNotif пропуска всичко извън
+    // 48ч прозорец завинаги), затова държането им само трупа масива безсмислено.
+    // Само notifs, НЕ calEvents — календарните записи са видима история за
+    // потребителя, не вътрешна bookkeeping, изтриването им е data loss, не cleanup.
+    try{
+      const cutoff=Date.now()-30*24*60*60*1000;
+      notifsArr=notifsArr.filter(n=>{
+        if(!n.date) return true;
+        const dt=new Date(n.date+'T'+(n.time||'10:00'));
+        return isNaN(dt) || dt.getTime()>=cutoff;
+      });
+    }catch(e){}
     await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:notifsArr,nextReminderAt:window._computeNextReminderAt(notifsArr)},{merge:true});
-  }catch(e){}
+  }catch(e){
+    // Централизирано тук — покрива всичките ~13 call sites наведнъж (calendar
+    // save/edit/delete, saveNotifDate, deleteNotif и т.н.), вместо да се дублира
+    // toast логика във всеки от тях. Без това потребителят не научава, че
+    // локално-запазеното напомняне никога не е стигнало до сървъра.
+    if(typeof showToast==='function') showToast(t('toastErrSync'));
+  }
 };
 window.pushNotifStatus=function(){
   if(!('Notification' in window))return 'unsupported';
@@ -3653,6 +3682,7 @@ const T = {
     toastAddObs: 'Добави поне едно наблюдение',
     toastErrSave: 'Грешка при запазване',
     toastErrUpd: 'Грешка при обновяване',
+    toastErrSync: 'Записано локално, но не се синхронизира със сървъра',
     toastErrDel: 'Грешка при изтриване',
     toastLogout: 'Излязохте',
     toastNotifSaved: 'Напомнянето е добавено!',
@@ -3952,6 +3982,7 @@ const T = {
     toastErrSave: 'Error saving',
     toastErrSend: 'Error sending',
     toastErrUpd: 'Error updating',
+    toastErrSync: 'Saved locally, but did not sync to the server',
     toastFavAdd: 'Added to Favourites!',
     toastFavRem: 'Removed from Favourites',
     toastFbLogin: 'Sign in to send',
@@ -6038,7 +6069,7 @@ async function _syncCalEventNotif(ev){
     if(idx===-1) return;
     notifs.splice(idx,1);
   } else {
-    const notif={id:notifId, procId:null, procName:ev.title, date:ev.date, time:ev.time, type:'calendar'};
+    const notif={id:notifId, procId:null, procName:ev.title, date:ev.date, time:ev.time, type:'calendar', ...(ev.isTest?{isTest:true}:{})};
     if(idx!==-1) notifs[idx]=notif; else notifs.push(notif);
   }
   _lsSet('gt_notifs',notifs);
@@ -6055,20 +6086,39 @@ async function _removeCalEventNotif(evId){
   if(window._user){ try{ await window.syncNotifsFS(notifs); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(notifs.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
 }
+// Merge-safe calEvents sync (одит #1, остатъчна част) — вместо да презаписва
+// целия масив от стар локален snapshot (blanket overwrite риск, същия клас
+// бъг като notifs преди фикса — виж syncNotifsFS), чете текущото Firestore
+// състояние и прилага САМО конкретното действие (add/update/delete) върху
+// него, за да не се изгуби промяна от друго устройство/таб, направена между
+// зареждането на локалния snapshot и този запис. Връща смесения масив, за
+// да може вика да refresh-не localStorage-а с истинското сървърно състояние.
+async function syncCalEventsFS(action, ev){
+  let remote=[];
+  if(window._user){
+    try{
+      const snap=await F().getDoc(F().doc(DB(),'users',window._user.uid));
+      remote = snap.exists()?(snap.data().calEvents||[]):[];
+    }catch(e){}
+  }
+  let merged;
+  if(action==='delete') merged=remote.filter(e=>e.id!==ev.id);
+  else if(remote.some(e=>e.id===ev.id)) merged=remote.map(e=>e.id===ev.id?ev:e);
+  else merged=[...remote,ev];
+  if(typeof _lsSet==='function') _lsSet('gt_cal_events',merged);
+  else localStorage.setItem('gt_cal_events',JSON.stringify(merged));
+  if(window._user){
+    try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:merged},{merge:true});}catch(e){showToast(t('toastErrSync'));}
+  }
+  return merged;
+}
 async function saveCalEvent(){
   const title=document.getElementById('cal-evt-title')?.value.trim();
   if(!title) return;
   const time=document.getElementById('cal-evt-time')?.value||'';
   const note=document.getElementById('cal-evt-note')?.value.trim()||'';
-  const ev={id:'cev_'+Date.now(),date:_calSelected,title,time,note,color:_calSelColor};
-  const saved=typeof _lsGet==='function'?(_lsGet('gt_cal_events')||[]):[];
-  saved.push(ev);
-  if(typeof _lsSet==='function') _lsSet('gt_cal_events',saved);
-  else localStorage.setItem('gt_cal_events',JSON.stringify(saved));
-  // Sync to Firestore
-  if(window._user){
-    try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
-  }
+  const ev={id:'cev_'+Date.now(),date:_calSelected,title,time,note,color:_calSelColor,...(window._testMode?{isTest:true}:{})};
+  await syncCalEventsFS('add', ev);
   await _syncCalEventNotif(ev);
   hideCalAddForm();
   renderDiaryCal();
@@ -6100,9 +6150,7 @@ async function editCalEvent(evId){
       const title=ti?.value.trim();
       if(!title) return;
       const updatedEv={...ev,title,time:tm?.value||'',note:no?.value.trim()||'',color:_calSelColor};
-      const updated=saved.map(e=>e.id===evId?updatedEv:e);
-      if(typeof _lsSet==='function') _lsSet('gt_cal_events',updated);
-      if(window._user){ try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:updated},{merge:true});}catch(e){} }
+      await syncCalEventsFS('update', updatedEv);
       await _syncCalEventNotif(updatedEv);
       saveBtn.onclick=saveCalEvent; // restore
       hideCalAddForm();
@@ -6115,14 +6163,42 @@ function deleteDiaryEntry(eid){
   if(typeof deleteEntry==='function') deleteEntry(eid,'');
 }
 async function deleteCalEvent(evId){
-  let saved=typeof _lsGet==='function'?(_lsGet('gt_cal_events')||[]):[];
-  saved=saved.filter(e=>e.id!==evId);
-  if(typeof _lsSet==='function') _lsSet('gt_cal_events',saved);
-  else localStorage.setItem('gt_cal_events',JSON.stringify(saved));
-  if(window._user){
-    try{await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:saved},{merge:true});}catch(e){}
-  }
+  await syncCalEventsFS('delete', {id:evId});
   await _removeCalEventNotif(evId);
+  renderDiaryCal();
+}
+
+// ── ТЕСТОВИ ДАННИ (одит #9) — маркировка + почистване ──
+// Дозволява да се различат тестови calendar/notif записи от реални
+// потребителски данни (виж инцидента от 2026-07-24/25 — тестови записи,
+// останали неизтрити с дни, объркваха диагностика и chatter-ваха логовете).
+function toggleTestMode(checked){
+  window._testMode = checked;
+  try{localStorage.setItem('gt_test_mode', checked?'1':'0');}catch(e){}
+}
+(function(){ try{ window._testMode = localStorage.getItem('gt_test_mode')==='1'; }catch(e){ window._testMode=false; } })();
+
+async function cleanupTestData(){
+  const statusEl = document.getElementById('admin-testdata-status');
+  const evs = typeof _lsGet==='function' ? (_lsGet('gt_cal_events')||[]) : [];
+  const notifs = typeof _lsGet==='function' ? (_lsGet('gt_notifs')||[]) : [];
+  const testEvIds = new Set(evs.filter(e=>e.isTest).map(e=>e.id));
+  const keptEvs = evs.filter(e=>!e.isTest);
+  const keptNotifs = notifs.filter(n=>!n.isTest && !(n.id && testEvIds.has(n.id.replace(/^n_cal_/,''))));
+  const removedEvs = evs.length - keptEvs.length;
+  const removedNotifs = notifs.length - keptNotifs.length;
+  if(removedEvs===0 && removedNotifs===0){
+    if(statusEl) statusEl.textContent = 'Няма тестови записи за изчистване.';
+    return;
+  }
+  if(!confirm(`Изтрий ${removedEvs} тестови събития и ${removedNotifs} тестови напомняния?`)) return;
+  if(typeof _lsSet==='function'){ _lsSet('gt_cal_events',keptEvs); _lsSet('gt_notifs',keptNotifs); }
+  if(window._user){
+    try{
+      await F().setDoc(F().doc(DB(),'users',window._user.uid),{calEvents:keptEvs,notifs:keptNotifs,nextReminderAt:window._computeNextReminderAt(keptNotifs)},{merge:true});
+    }catch(e){ showToast(t('toastErrSync')); }
+  }
+  if(statusEl) statusEl.textContent = `Изтрити: ${removedEvs} събития, ${removedNotifs} напомняния.`;
   renderDiaryCal();
 }
 
@@ -8625,6 +8701,10 @@ function loadProfileStats(){
   if(window._isAdmin){
     const wrap = document.getElementById('admin-inbox-wrap');
     if(wrap) wrap.style.display = 'block';
+    const tdw = document.getElementById('admin-testdata-wrap');
+    if(tdw) tdw.style.display = 'block';
+    const tmt = document.getElementById('admin-testmode-toggle');
+    if(tmt) tmt.checked = localStorage.getItem('gt_test_mode')==='1';
     const fb = document.getElementById('client-feedback-section');
     if(fb) fb.style.display = 'none';
     loadAdminInbox();
