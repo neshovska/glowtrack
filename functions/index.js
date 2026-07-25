@@ -79,11 +79,11 @@ function formatSofiaDateTime(date) {
 // Огледален вариант на window._computeNextReminderAt от index.html — трябва двете
 // да остават синхронизирани по логика. Пропуска notifs, по-стари от 48ч прозореца
 // за изпращане, за да не остане nextReminderAt "заклещено" в миналото завинаги.
-function computeNextReminderAtServer(notifs, now) {
+function computeNextReminderAtServer(notifs, sentIds, now) {
   if (!Array.isArray(notifs) || !notifs.length) return null;
   let soonest = null;
   for (const n of notifs) {
-    if (n.sent || !n.date) continue;
+    if (sentIds[n.id] || !n.date) continue;
     try {
       const dt = sofiaWallTimeToUTC(n.date, n.time || "10:00");
       const diffMinutes = (dt - now) / 60000;
@@ -95,19 +95,29 @@ function computeNextReminderAtServer(notifs, now) {
 }
 
 // Атомарно "заявява" право да прати push за конкретно напомняне.
-// Връща true само ако успешно е маркирало notif.sent=true (никой друг не го е взел преди него).
-// Обновява и nextReminderAt в същата transaction, за да остане полето винаги точно.
+// "sent" статусът се пази в отделно, server-only поле (sentNotifIds — map
+// notifId->true), НЕ вътре в notifs масива. Причината: notifs масива е
+// client-owned (презаписва се цял при всяко календарно действие — виж
+// syncNotifsFS), затова sent там периодично се "възкресяваше" на false от
+// остарели локални копия и cron-ът препращаше вече доставени известия
+// (виж инцидента от 2026-07-25). Отделно map поле може да се обновява
+// атомарно per-key (dot-notation update) и firestore.rules може реално
+// да го защити като изцяло сървърно — самото поле никога не минава през
+// клиентски пълен презапис.
+// Връща true само ако успешно е маркирало sentNotifIds[notifId]=true
+// (никой друг не го е взел преди него). Обновява и nextReminderAt в
+// същата transaction, за да остане полето винаги точно.
 async function claimNotif(userRef, notifId, now) {
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(userRef);
-    const notifs = snap.data()?.notifs || [];
-    const idx = notifs.findIndex((n) => n.id === notifId);
-    if (idx === -1) return false;          // изтрито междувременно
-    if (notifs[idx].sent) return false;    // вече е взето/пратено от друго изпълнение
-    const updated = [...notifs];
-    updated[idx] = {...updated[idx], sent: true};
-    const nextReminderAt = computeNextReminderAtServer(updated, now);
-    tx.update(userRef, {notifs: updated, nextReminderAt});
+    const data = snap.data() || {};
+    const notifs = data.notifs || [];
+    const sentIds = data.sentNotifIds || {};
+    if (!notifs.some((n) => n.id === notifId)) return false; // изтрито междувременно
+    if (sentIds[notifId]) return false;    // вече е взето/пратено от друго изпълнение
+    const updatedSentIds = {...sentIds, [notifId]: true};
+    const nextReminderAt = computeNextReminderAtServer(notifs, updatedSentIds, now);
+    tx.update(userRef, {[`sentNotifIds.${notifId}`]: true, nextReminderAt});
     return true;
   });
 }
@@ -133,12 +143,13 @@ exports.sendScheduledReminders = onSchedule(
         const userData = userDoc.data();
         const fcmToken = userData.fcmToken;
         const notifs = userData.notifs;
+        const sentIds = userData.sentNotifIds || {};
         if (!fcmToken || !Array.isArray(notifs) || notifs.length === 0) continue;
 
         let anyClaimed = false;
 
         for (const n of notifs) {
-          if (n.sent) continue;
+          if (sentIds[n.id]) continue;
           const notifDateTime = sofiaWallTimeToUTC(n.date, n.time || "10:00");
           const diffMinutes = (notifDateTime - now) / 60000;
 
@@ -173,7 +184,7 @@ exports.sendScheduledReminders = onSchedule(
         // nextReminderAt няма да се обнови от claimNotif. Преизчисляваме го тук ръчно,
         // за да не влиза потребителят в заявката отново и отново завинаги.
         if (!anyClaimed) {
-          const newNextReminderAt = computeNextReminderAtServer(notifs, now);
+          const newNextReminderAt = computeNextReminderAtServer(notifs, sentIds, now);
           if (newNextReminderAt !== (userData.nextReminderAt || null)) {
             await userDoc.ref.update({nextReminderAt: newNextReminderAt});
           }

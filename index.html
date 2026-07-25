@@ -2202,6 +2202,11 @@ window._sofiaWallTimeToUTC=function(dateStr,timeStr){
   const offsetMs=sofiaDisplayedAsUTC-naive.getTime();
   return new Date(naive.getTime()-offsetMs);
 };
+// n.sent тук е само исторически fallback — реалният sent статус живее сървърно
+// в sentNotifIds, до който клиентът няма достъп. Ако това подцени "заето" някой
+// notif като все още чакащ, резултатът е в най-лошия случай един излишен, безобиден
+// cron цикъл — sendScheduledReminders самò self-heal-ва nextReminderAt точно с
+// коректния sentNotifIds на следващия tick.
 window._computeNextReminderAt=function(notifs){
   if(!Array.isArray(notifs)||!notifs.length)return null;
   let soonest=null;
@@ -2217,22 +2222,15 @@ window._computeNextReminderAt=function(notifs){
 // Централизиран запис на notifs + nextReminderAt в Firestore. Използвайте това вместо
 // директен setDoc(...,{notifs:...}), за да поддържаме nextReminderAt винаги синхронизирано.
 //
-// ВАЖНО: локалният notifsArr никога не научава кога claimNotif() (Cloud Function)
-// маркира sent:true директно във Firestore — локалният merge при зареждане
-// (виж onAuthStateChanged) добавя само липсващи id-та, не обновява съществуващи.
-// Затова преди всеки пълен презапис тук осиновяваме sent:true от текущото
-// Firestore състояние за всеки id, който вече го има там — иначе презаписваме
-// сървърния прогрес обратно на "неизпратено" и cron-ът праща стари, вече
-// доставени известия повторно (виж инцидента от 2026-07-25 сутринта).
+// "sent" статусът вече НЕ живее в notifs масива — пази се отделно, сървърно,
+// в sentNotifIds (виж claimNotif в functions/index.js и firestore.rules).
+// Затова пълният презапис тук вече не може да "възкреси" сървърен прогрес —
+// няма read-modify-write merge стъпка, полето просто не е тук за да се
+// презапише (инцидентът от 2026-07-25 сутринта стана структурно невъзможен,
+// не само патчнат).
 window.syncNotifsFS=async function(notifsArr){
   if(!window._user)return;
   try{
-    try{
-      const snap=await F().getDoc(F().doc(DB(),'users',window._user.uid));
-      const remoteNotifs=snap.exists()?(snap.data().notifs||[]):[];
-      const remoteSentIds=new Set(remoteNotifs.filter(n=>n.sent).map(n=>n.id));
-      notifsArr=notifsArr.map(n=>(!n.sent&&remoteSentIds.has(n.id))?{...n,sent:true}:n);
-    }catch(e){}
     await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:notifsArr,nextReminderAt:window._computeNextReminderAt(notifsArr)},{merge:true});
   }catch(e){}
 };

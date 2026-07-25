@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() && request.auth.uid == '7lNa6gWSDxb7kgR1AR8VEeKPgap2';
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      // sentNotifIds е server-only — само claimNotif() (Cloud Function, Admin SDK,
+      // заобикаля тези rules изцяло) го пипа. Клиентът никога не го подава в
+      // notifs-related writes, затова блокирането му тук не пречи на нормалната
+      // употреба, само предотвратява директна манипулация (вижте одита — client
+      // писане на "sent" статус беше архитектурен риск, вече елиминиран структурно
+      // чрез отделянето му от notifs масива, тук се заключва и на rules ниво).
+      allow write: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['referralCount', 'unlockedRewards', 'sentNotifIds']);
+    }
+    match /diary_entries/{entryId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    match /feedback/{feedbackId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000
+        && request.resource.data.type in ['idea', 'bug', 'content'];
+      allow read, update, delete: if isAdmin();
+    }
+    match /app_config/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /clinic_ads/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /product_ads/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /affiliate_clicks/{id} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+    match /search_logs/{id} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
+    }
+    match /clinic_inquiries/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    match /referrals/{referralId} {
+      allow create: if isSignedIn()
+        && request.auth.uid == request.resource.data.refereeUid
+        && request.resource.data.status == 'pending';
+      allow read: if isSignedIn()
+        && request.auth.uid in [resource.data.referrerUid, resource.data.refereeUid];
+      allow update, delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
