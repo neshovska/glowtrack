@@ -2216,10 +2216,24 @@ window._computeNextReminderAt=function(notifs){
 };
 // Централизиран запис на notifs + nextReminderAt в Firestore. Използвайте това вместо
 // директен setDoc(...,{notifs:...}), за да поддържаме nextReminderAt винаги синхронизирано.
-window.syncNotifsFS=function(notifsArr){
+//
+// ВАЖНО: локалният notifsArr никога не научава кога claimNotif() (Cloud Function)
+// маркира sent:true директно във Firestore — локалният merge при зареждане
+// (виж onAuthStateChanged) добавя само липсващи id-та, не обновява съществуващи.
+// Затова преди всеки пълен презапис тук осиновяваме sent:true от текущото
+// Firestore състояние за всеки id, който вече го има там — иначе презаписваме
+// сървърния прогрес обратно на "неизпратено" и cron-ът праща стари, вече
+// доставени известия повторно (виж инцидента от 2026-07-25 сутринта).
+window.syncNotifsFS=async function(notifsArr){
   if(!window._user)return;
   try{
-    F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:notifsArr,nextReminderAt:window._computeNextReminderAt(notifsArr)},{merge:true}).catch(()=>{});
+    try{
+      const snap=await F().getDoc(F().doc(DB(),'users',window._user.uid));
+      const remoteNotifs=snap.exists()?(snap.data().notifs||[]):[];
+      const remoteSentIds=new Set(remoteNotifs.filter(n=>n.sent).map(n=>n.id));
+      notifsArr=notifsArr.map(n=>(!n.sent&&remoteSentIds.has(n.id))?{...n,sent:true}:n);
+    }catch(e){}
+    await F().setDoc(F().doc(DB(),'users',window._user.uid),{notifs:notifsArr,nextReminderAt:window._computeNextReminderAt(notifsArr)},{merge:true});
   }catch(e){}
 };
 window.pushNotifStatus=function(){
