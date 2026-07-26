@@ -5409,16 +5409,27 @@ function removePhoto(i, slot){
 }
 
 function startEditEntry(eid,procId){
-  // The inline editor only exists inside a procedure sheet's entry card (id="ec-{eid}").
-  // When "Редактирай" is clicked from the calendar view, that card doesn't exist yet —
-  // open the procedure sheet first (which renders it), then retry.
-  if(!document.getElementById('ec-'+eid)){
-    if(procId && procId!=='undefined' && typeof openSheet==='function'){
+  // Домашна грижа / skin-routine псевдо-записи нямат истинско PROCS id —
+  // openSheet(procId) никога не намира съвпадение за тях и тихо не прави
+  // нищо, затова редакторът никога не се отваря за тях (докладван бъг).
+  // За тях картата вече съществува директно в "Моят дневник" реда
+  // (id="ded-{eid}"), няма нужда от openSheet fallback изобщо.
+  const isRoutineLike = procId==='skin-routine' || (procId||'').startsWith('home-care-');
+  const containerId = isRoutineLike ? ('ded-'+eid) : ('ec-'+eid);
+  // За реални процедури инлайн редакторът съществува само вътре в процедурния
+  // sheet-ов entry card (id="ec-{eid}"). Ако е кликнато от календара/дневника
+  // и тази карта още не съществува — отвори sheet-а първо (той я рендира), после пробвай пак.
+  if(!document.getElementById(containerId)){
+    if(!isRoutineLike && procId && procId!=='undefined' && typeof openSheet==='function'){
       Promise.resolve(openSheet(procId)).then(()=>{
         setTimeout(()=>startEditEntry(eid,procId), 150);
       });
     }
     return;
+  }
+  if(isRoutineLike){
+    const dedCard=document.getElementById(containerId);
+    if(dedCard) dedCard.classList.add('open');
   }
   // Try cache first, fall back to Firebase
   const cachedDoc = (window._cache.diary||[]).find(d=>d.id===eid);
@@ -5428,13 +5439,16 @@ function startEditEntry(eid,procId){
     window.eeOrigData[eid]={photosBefore:d.photosBefore||[],photosAfter:d.photosAfter||[]};
     if(!window._eePhotos) window._eePhotos={};
     window._eePhotos[eid]={before:[],after:[]};
-    const card=document.getElementById('ec-'+eid);if(!card)return;
-    // Ensure body is visible
-    const bodyDiv=document.getElementById('body-'+eid);
-    if(bodyDiv&&bodyDiv.style.display==='none'){
-      bodyDiv.style.display='block';
-      const arr=document.getElementById('arr-'+eid);
-      if(arr)arr.style.transform='rotate(180deg)';
+    const card=document.getElementById(containerId);if(!card)return;
+    if(!isRoutineLike){
+      // Ensure body is visible (само за процедурния ec- контекст — ded- контекстът
+      // има собствен toggle механизъм през .open класа, вижте по-горе).
+      const bodyDiv=document.getElementById('body-'+eid);
+      if(bodyDiv&&bodyDiv.style.display==='none'){
+        bodyDiv.style.display='block';
+        const arr=document.getElementById('arr-'+eid);
+        if(arr)arr.style.transform='rotate(180deg)';
+      }
     }
     const isRoutineEntry = d.isRoutine||(d.procId||'').startsWith('home-care-');
     const routineLabel = d.procId==='home-care-morning'?t('morningCare'):t('eveningCare');
