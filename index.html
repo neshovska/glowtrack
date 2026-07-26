@@ -1402,7 +1402,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
             <input type="date" id="notif-date" class="form-input" style="flex:1;font-size:14px">
             <input type="time" id="notif-time" value="10:00" class="form-input" style="width:100px;font-size:14px">
-            <button onclick="saveNotifDate()" style="padding:10px 16px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:11px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1.5"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M8.5 11h7M8.5 15h7"/></svg></button>
+            <button onclick="saveNotifDate()" aria-label="Запази" style="padding:10px 16px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:11px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></button>
           </div>
           <div id="notif-info" style="margin-top:8px;font-size:11px;color:var(--gold)"></div>
           <!-- past notifs appear in main content below, not here -->
@@ -6588,7 +6588,8 @@ async function loadDiaryTab(){
           :`<div class="dv2-icon" onclick="event.stopPropagation();openSheet('${pid}')" style="cursor:pointer">${procCircleIcon(_dlp?.name||g.name,'#b8966a',44)}</div>`);
 
       const lastE=g.entries[0].data();
-      const lastDate=fmtDate(g.entries[0].data().createdAt?.toDate?.()??new Date());
+      const lastDateObj=g.entries[0].data().createdAt?.toDate?.()??new Date();
+      const lastDate=fmtDate(lastDateObj);
       const cnt=g.entries.length;
       const cntLbl=isBG?(cnt===1?'запис':'записа'):(cnt===1?'entry':'entries');
 
@@ -6627,7 +6628,7 @@ async function loadDiaryTab(){
           ${iconEl}
           <div class="dv2-info">
             <div class="dv2-name">${name}</div>
-            <div class="dv2-meta">${isBG ? 'Последно' : 'Last'}: ${lastDate}</div>
+            <div class="dv2-meta">${isBG ? 'Последно' : 'Last'}: ${lastDate} · ${daysAgoLabel(lastDateObj)}</div>
           </div>
           <span class="dv2-count">${cnt}×</span>
           <span class="dv2-chev" id="dvg-${pid}">⌄</span>
