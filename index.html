@@ -1236,7 +1236,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button onclick="addCustomStep('morning')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="saveRoutine('morning',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning">Запази</button>
+            <button onclick="saveRoutine('morning',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
             <button onclick="toggleCarePanel('morning')" style="padding:10px 16px;background:none;border:1.5px solid var(--roselt);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2)">Отмени</button>
           </div>
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
@@ -1270,7 +1270,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <button onclick="addCustomStep('evening')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="saveRoutine('evening',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening">Запази</button>
+            <button onclick="saveRoutine('evening',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
             <button onclick="toggleCarePanel('evening')" style="padding:10px 16px;background:none;border:1.5px solid var(--roselt);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2)">Отмени</button>
           </div>
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
@@ -2007,7 +2007,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     </div>
     <div style="display:flex;gap:8px">
       <button onclick="closeEditNotif()" style="flex:1;padding:10px;border:1px solid var(--goldlt);border-radius:10px;background:none;color:var(--ink2);cursor:pointer;font-family:inherit;font-size:13px" data-t="cancelBtn">Отмени</button>
-      <button onclick="saveEditNotif()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600" data-t="saveBtnStar">Запази <svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg></button>
+      <button onclick="saveEditNotif()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600" data-t="saveBtnStar">Запази <svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></button>
     </div>
   </div>
 </div>
@@ -5200,7 +5200,7 @@ async function openSheet(id){
           </div>
           <input type="hidden" id="proc-remind-days" value="${initDays}">
           <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600">${(isBGr?'Напомняне на: ':'Reminder on: ')+initDateStr}</div>
-          <button onclick="saveProcRemind('${id}','${(lp.name||'').replace(/'/g,"&#39;")}')" style="margin-top:10px;width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('clipboard','13px')} ${isBGr?'Запази напомняне':'Save reminder'}</button>`;
+          <button onclick="saveProcRemind('${id}','${(lp.name||'').replace(/'/g,"&#39;")}')" style="margin-top:10px;width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('check','13px')} ${isBGr?'Запази напомняне':'Save reminder'}</button>`;
         return acc(`${clockSvg}${isBGr?'Напомни ми за процедурата':'Remind me about the procedure'}`, body, false, true);
       })()}
 
@@ -5541,7 +5541,7 @@ function startEditEntry(eid,procId){
       </div>
       <div class="form-row"><label class="form-lbl">Бележки</label><textarea class="form-input" id="ee-feel-${eid}" rows="2">${d.feeling||''}</textarea></div>
       <div class="entry-actions">
-        <button class="save-btn" style="max-width:140px;flex:none" onclick="saveRoutineEdit('${eid}','${procId}','${routineType}')">${ic('clipboard','13px')} Запази</button>
+        <button class="save-btn" style="max-width:140px;flex:none" onclick="saveRoutineEdit('${eid}','${procId}','${routineType}')">${ic('check','13px')} Запази</button>
         <button class="mini-btn" onclick="loadDiaryTab()">Откажи</button>
       </div>`:`
       <div class="diary-date-lbl">${t('editEntry')}</div>
@@ -10924,7 +10924,7 @@ function refreshProfilePage(){
     </div>
     <div id="ep-error" style="font-size:11px;color:#e85d5d;margin-top:6px;display:none"></div>
     <div style="display:flex;gap:8px;margin-top:16px">
-      <button onclick="saveEditProfile()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" data-t="saveBtn2">Запази</button>
+      <button onclick="saveEditProfile()" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit" data-t="saveBtn2"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
       <button onclick="document.getElementById('edit-profile-modal').style.display='none'" style="padding:10px 16px;background:none;border:1.5px solid var(--goldlt);border-radius:12px;font-size:13px;color:var(--ink2);cursor:pointer;font-family:inherit" data-t="cancelBtn">Откажи</button>
     </div>
   </div>
