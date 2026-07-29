@@ -2114,6 +2114,7 @@ window._aiAssistantEnabled = false; // безопасна стойност по 
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
 window._callSendPasswordReset = httpsCallable(fnInstance, 'sendBrandedPasswordReset');
 window._callDeleteAccount = httpsCallable(fnInstance, 'deleteAccountData');
+window._callResolveReferralCode = httpsCallable(fnInstance, 'resolveReferralCode');
 (async function(){
   try{
     const snap = await getDoc(doc(db,'app_config','settings'));
@@ -2173,25 +2174,36 @@ window._generateReferralCode=_generateReferralCode;
 // login/register екрана) — създава 'pending' документ в referrals колекцията.
 // "Успешен" referral (referralCount++, unlockedRewards) се брои от Cloud Function
 // при ПЪРВИЯ diary entry на новия потребител, не тук — виж functions/index.js.
+//
+// referralCount/unlockedRewards НЕ се пращат тук умишлено — firestore.rules
+// блокира client write на тези две полета (само Cloud Function-и с Admin SDK
+// имат право да ги пипат, виж коментара в firestore.rules). Преди фикса тук
+// целият setDoc гърмеше с permission-denied заради тях, което пречеше и на
+// referralCode/referredBy — напълно легитимни self-service полета — да се
+// запишат изобщо, а оттам и pending документът в referrals никога не се
+// създаваше. Никой клиентски код не разчита на референс 0/[] стойност —
+// всички четения вече имат `|| 0` / `|| []` fallback (виж renderReferralSection
+// и admin stats панела) — Cloud Function-ът ги инициализира сам при първо
+// реално кредитиране.
 window._applyReferralSignup=async function(uid){
   try{
     const referralCode=await _generateReferralCode(uid);
-    const updates={referralCode, referralCount:0, unlockedRewards:[]};
+    const updates={referralCode};
     let referredByCode=null;
     try{ referredByCode=localStorage.getItem('gt_pending_ref')||null; }catch(e){}
     if(referredByCode) updates.referredBy=referredByCode;
     await setDoc(doc(db,'users',uid), updates, {merge:true});
     if(referredByCode){
-      const q=query(collection(db,'users'), where('referralCode','==',referredByCode));
-      const snap=await getDocs(q);
-      if(!snap.empty){
-        const referrerUid=snap.docs[0].id;
-        if(referrerUid!==uid){ // без self-referral
-          await addDoc(collection(db,'referrals'),{
-            referrerUid, refereeUid:uid, referralCode:referredByCode,
-            status:'pending', createdAt:serverTimestamp(),
-          });
-        }
+      // users колекцията не позволява client-side query по referralCode (rules:
+      // isOwner(userId) || isAdmin() — виж коментара по-горе) — lookup-ът минава
+      // през resolveReferralCode Cloud Function (Admin SDK, връща само uid).
+      const resolveResult=await window._callResolveReferralCode({referralCode:referredByCode});
+      const referrerUid=resolveResult?.data?.uid||null;
+      if(referrerUid && referrerUid!==uid){ // без self-referral
+        await addDoc(collection(db,'referrals'),{
+          referrerUid, refereeUid:uid, referralCode:referredByCode,
+          status:'pending', createdAt:serverTimestamp(),
+        });
       }
       try{ localStorage.removeItem('gt_pending_ref'); }catch(e){}
     }

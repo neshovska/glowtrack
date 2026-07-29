@@ -491,6 +491,30 @@ exports.onDiaryEntryCreated = onDocumentCreated("diary_entries/{entryId}", async
   return null;
 });
 
+// Server-side lookup referralCode -> uid. Клиентът (index.html, _applyReferralSignup)
+// НЕ може директно да query-ва users колекцията по referralCode — firestore.rules
+// позволяват само четене на собствения документ (isOwner(userId) || isAdmin()), а
+// users документите съдържат чувствителни данни (имейл, дата на раждане, пол), затова
+// разрешаване на широк client-side query по поле не е безопасен path (би изложило
+// пълните документи на трети страни на всеки, който познае/пробва кодове). Тази
+// функция връща САМО uid-а на притежателя на кода, нищо друго от документа му — same
+// принцип като sentNotifIds/referralCount защитата: cross-user lookup по чувствително
+// поле минава само през сървъра, никога директно от клиента.
+exports.resolveReferralCode = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Трябва да си логната.");
+  }
+  const code = ((request.data && request.data.referralCode) || "").toString().trim().toUpperCase();
+  if (!code) {
+    throw new HttpsError("invalid-argument", "Липсва referral код.");
+  }
+  const snap = await db.collection("users").where("referralCode", "==", code).limit(1).get();
+  if (snap.empty) {
+    return {uid: null};
+  }
+  return {uid: snap.docs[0].id};
+});
+
 
 // ═══════════════════════════════════════════════════════════
 // AI АСИСТЕНТ
