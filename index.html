@@ -2114,6 +2114,7 @@ window._aiAssistantEnabled = false; // безопасна стойност по 
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
 window._callSendPasswordReset = httpsCallable(fnInstance, 'sendBrandedPasswordReset');
 window._callDeleteAccount = httpsCallable(fnInstance, 'deleteAccountData');
+window._callResolveReferralCode = httpsCallable(fnInstance, 'resolveReferralCode');
 (async function(){
   try{
     const snap = await getDoc(doc(db,'app_config','settings'));
@@ -2193,16 +2194,16 @@ window._applyReferralSignup=async function(uid){
     if(referredByCode) updates.referredBy=referredByCode;
     await setDoc(doc(db,'users',uid), updates, {merge:true});
     if(referredByCode){
-      const q=query(collection(db,'users'), where('referralCode','==',referredByCode));
-      const snap=await getDocs(q);
-      if(!snap.empty){
-        const referrerUid=snap.docs[0].id;
-        if(referrerUid!==uid){ // без self-referral
-          await addDoc(collection(db,'referrals'),{
-            referrerUid, refereeUid:uid, referralCode:referredByCode,
-            status:'pending', createdAt:serverTimestamp(),
-          });
-        }
+      // users колекцията не позволява client-side query по referralCode (rules:
+      // isOwner(userId) || isAdmin() — виж коментара по-горе) — lookup-ът минава
+      // през resolveReferralCode Cloud Function (Admin SDK, връща само uid).
+      const resolveResult=await window._callResolveReferralCode({referralCode:referredByCode});
+      const referrerUid=resolveResult?.data?.uid||null;
+      if(referrerUid && referrerUid!==uid){ // без self-referral
+        await addDoc(collection(db,'referrals'),{
+          referrerUid, refereeUid:uid, referralCode:referredByCode,
+          status:'pending', createdAt:serverTimestamp(),
+        });
       }
       try{ localStorage.removeItem('gt_pending_ref'); }catch(e){}
     }
