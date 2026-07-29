@@ -18,7 +18,18 @@ service cloud.firestore {
       // употреба, само предотвратява директна манипулация (вижте одита — client
       // писане на "sent" статус беше архитектурен риск, вече елиминиран структурно
       // чрез отделянето му от notifs масива, тук се заключва и на rules ниво).
-      allow write: if isOwner(userId)
+      //
+      // create/update разделени умишлено — diff(resource.data) изисква съществуващ
+      // resource, а при create (регистрация, първият setDoc за users/{uid}) resource
+      // е null и diff() гърми с грешка, което rules engine-ът оценява като deny. Това
+      // счупи регистрацията изцяло в production (потвърдено с реален E2E тест
+      // 2026-07-28): setDoc-ът за новия профил гърмеше с permission-denied, което
+      // тригерваше rollback-а в doAuthUnified/doPsAuthUnified и триеше току-що
+      // създадения Auth акаунт — потребителят виждаше "грешна парола" при опит да
+      // влезе с абсолютно същите данни, без никаква индикация какво се е случило.
+      allow create: if isOwner(userId)
+        && !request.resource.data.keys().hasAny(['referralCount', 'unlockedRewards', 'sentNotifIds']);
+      allow update: if isOwner(userId)
         && !request.resource.data.diff(resource.data).affectedKeys()
              .hasAny(['referralCount', 'unlockedRewards', 'sentNotifIds']);
     }
