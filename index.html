@@ -2769,6 +2769,69 @@ function updateRemindCustom(){
   const days=Math.max(1,Math.min(365,Number(input.value)||1));
   _renderRemindPreview(days);
 }
+// Единствен източник на истина за "вече има ли запазено напомняне за тази
+// процедура" — четен и при render на секцията (openSheet), и от
+// edit/cancel/save handler-ите по-долу.
+function _findProcRemind(procId){
+  const saved=_lsGet('gt_notifs')||[];
+  return saved.find(n=>n.procId===procId && n.type==='reminder')||null;
+}
+function _procRemindViewLabel(existing){
+  const isBGr=window._lang!=='en';
+  const dayNames=isBGr
+    ?['неделя','понеделник','вторник','сряда','четвъртък','петък','събота']
+    :['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const d=new Date(existing.date+'T00:00:00');
+  return `${fmtDate(d)} – ${dayNames[d.getDay()]}`;
+}
+// Превключва секцията между "изглед" (вече има напомняне — показва датата +
+// бутон Редактирай) и "форма" (input + preview + Запази/Откажи) — извиква се
+// след render, след save и от Откажи (за връщане назад без запис).
+function _refreshProcRemindUI(procId){
+  const existing=_findProcRemind(procId);
+  const viewEl=document.getElementById('proc-remind-view');
+  const formEl=document.getElementById('proc-remind-form');
+  const viewText=document.getElementById('proc-remind-view-text');
+  if(!viewEl||!formEl)return;
+  if(existing){
+    if(viewText) viewText.textContent=(window._lang==='en'?'Reminder set for: ':'Напомняне зададено за: ')+_procRemindViewLabel(existing);
+    viewEl.style.display='block';
+    formEl.style.display='none';
+  }else{
+    viewEl.style.display='none';
+    formEl.style.display='block';
+  }
+}
+function startEditProcRemind(procId){
+  const existing=_findProcRemind(procId);
+  const input=document.getElementById('proc-remind-input');
+  const viewEl=document.getElementById('proc-remind-view');
+  const formEl=document.getElementById('proc-remind-form');
+  if(existing && input){
+    const days=Math.max(1,daysUntil(new Date(existing.date+'T00:00:00')));
+    input.value=days;
+    _renderRemindPreview(days);
+  }
+  if(viewEl) viewEl.style.display='none';
+  if(formEl) formEl.style.display='block';
+}
+function cancelProcRemind(procId){
+  const input=document.getElementById('proc-remind-input');
+  const existing=_findProcRemind(procId);
+  if(existing){
+    // Вече имаше запазено напомняне — Откажи връща към изгледа му, без да пипа
+    // въведеното (нищо не е записано).
+    if(input) input.value='';
+    const prev=document.getElementById('proc-remind-date-preview');
+    if(prev) prev.textContent='';
+    _refreshProcRemindUI(procId);
+  }else{
+    // Няма запазено напомняне — Откажи просто изчиства полето.
+    if(input) input.value='';
+    const prev=document.getElementById('proc-remind-date-preview');
+    if(prev) prev.textContent='';
+  }
+}
 async function saveProcRemind(procId,procName){
   const input=document.getElementById('proc-remind-input');
   if(!input)return;
@@ -2778,22 +2841,26 @@ async function saveProcRemind(procId,procName){
   const yyyy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
   const dateStr=`${yyyy}-${mm}-${dd}`;
   const saved=_lsGet('gt_notifs')||[];
-  // Защита срещу двоен клик — вж. коментара в saveNotifDate() по-долу за контекст.
-  if(saved.find(n=>n.procId===procId && n.date===dateStr && n.time==='10:00' && n.type==='reminder')){
-    showToast(window._lang==='en'?'Reminder saved':'Напомнянето е запазено');
-    return;
+  // Update-in-place, не дублирай — едно напомняне на процедура (същия принцип
+  // като editCalEvent). Ако вече има запис за тази процедура, пазим id-то му и
+  // просто обновяваме датата, вместо да push-ваме нов запис.
+  const existingIdx=saved.findIndex(n=>n.procId===procId && n.type==='reminder');
+  if(existingIdx>=0){
+    saved[existingIdx]={...saved[existingIdx], procName, date:dateStr, time:'10:00'};
+  }else{
+    saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:'10:00', type:'reminder'});
   }
-  saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:'10:00', type:'reminder'});
   _lsSet('gt_notifs', saved);
   if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(saved.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
   showToast(window._lang==='en'?'Reminder saved':'Напомнянето е запазено');
+  _refreshProcRemindUI(procId);
   // Close the accordion menu after saving
-  const body = hidden.closest('.acc-body');
+  const body=input.closest('.acc-body');
   if(body){
     body.classList.remove('open');
-    const header = body.previousElementSibling;
-    const arrow = header && header.querySelector('.acc-arrow');
+    const header=body.previousElementSibling;
+    const arrow=header && header.querySelector('.acc-arrow');
     if(arrow) arrow.classList.remove('open');
   }
 }
@@ -5180,12 +5247,24 @@ async function openSheet(id){
       ${(()=>{
         const isBGr = window._lang!=='en';
         const clockSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9" stroke="#b8966a" stroke-width="1.6"/><path d="M12 7V12L15.5 14.5" stroke="#b8966a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const procNameEsc = (lp.name||'').replace(/'/g,"&#39;");
+        const existing = _findProcRemind(id);
+        const viewLabel = existing ? esc(_procRemindViewLabel(existing)) : '';
         const body = `
-          <div style="margin-bottom:10px">
-            <input type="number" id="proc-remind-input" min="1" max="365" oninput="updateRemindCustom()" placeholder="${isBGr?'Брой дни':'Number of days'}" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--roselt);font-size:14px;font-family:inherit;background:var(--card);color:var(--ink1)">
+          <div id="proc-remind-view" style="display:${existing?'block':'none'}">
+            <div id="proc-remind-view-text" style="font-size:13px;color:var(--ink1);margin-bottom:10px">${(isBGr?'Напомняне зададено за: ':'Reminder set for: ')+viewLabel}</div>
+            <button onclick="startEditProcRemind('${id}')" style="width:100%;padding:11px;background:var(--card);color:var(--gold);border:1.5px solid var(--gold);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('edit','13px')} ${isBGr?'Редактирай':'Edit'}</button>
           </div>
-          <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600"></div>
-          <button onclick="saveProcRemind('${id}','${(lp.name||'').replace(/'/g,"&#39;")}')" style="margin-top:10px;width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('check','13px')} ${isBGr?'Запази напомняне':'Save reminder'}</button>`;
+          <div id="proc-remind-form" style="display:${existing?'none':'block'}">
+            <div style="margin-bottom:10px">
+              <input type="number" id="proc-remind-input" min="1" max="365" oninput="updateRemindCustom()" placeholder="${isBGr?'Брой дни':'Number of days'}" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--roselt);font-size:14px;font-family:inherit;background:var(--card);color:var(--ink1)">
+            </div>
+            <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button onclick="saveProcRemind('${id}','${procNameEsc}')" style="flex:1;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('check','13px')} ${isBGr?'Запази':'Save'}</button>
+              <button onclick="cancelProcRemind('${id}')" style="flex:1;padding:11px;background:var(--card);color:var(--ink2);border:1px solid var(--roselt);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGr?'Откажи':'Cancel'}</button>
+            </div>
+          </div>`;
         return acc(`${clockSvg}${isBGr?'Напомни ми за процедурата':'Remind me about the procedure'}`, body, false, true);
       })()}
 
