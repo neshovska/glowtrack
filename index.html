@@ -2749,9 +2749,9 @@ function daysUntil(d){
 function computeRemindDate(days){
   const d=new Date(); d.setDate(d.getDate()+Number(days)); return d;
 }
-// Общ рендер на "Напомняне на: [ден], [дата]" в preview-то, ползван и от
-// chip избора, и от custom input-а — единствен източник на истина за
-// текущо избрания брой дни е #proc-remind-days (hidden input).
+// Рендер на "Напомняне на: [дата] – [ден]" в preview-то, ползван от единственото
+// ръчно поле #proc-remind-input — единствен източник на истина за избрания
+// брой дни.
 function _renderRemindPreview(days){
   const prev=document.getElementById('proc-remind-date-preview');
   if(!prev)return;
@@ -2760,46 +2760,19 @@ function _renderRemindPreview(days){
     ?['неделя','понеделник','вторник','сряда','четвъртък','петък','събота']
     :['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const d=computeRemindDate(days);
-  const label=`${dayNames[d.getDay()]}, ${fmtDate(d)}`;
+  const label=`${fmtDate(d)} – ${dayNames[d.getDay()]}`;
   prev.textContent=(isBGr?'Напомняне на: ':'Reminder on: ')+label;
 }
-function selectRemindDays(days){
-  const hidden=document.getElementById('proc-remind-days');
-  if(hidden) hidden.value=days;
-  document.querySelectorAll('#proc-remind-chips [data-remind-chip]').forEach(btn=>{
-    const active=btn.getAttribute('data-remind-chip')===String(days);
-    btn.style.borderColor=active?'var(--gold)':'var(--roselt)';
-    btn.style.background=active?'var(--gold)':'var(--card)';
-    btn.style.color=active?'#fff':'var(--ink1)';
-  });
-  const customWrap=document.getElementById('proc-remind-custom-wrap');
-  if(customWrap) customWrap.style.display='none';
+function updateRemindCustom(){
+  const input=document.getElementById('proc-remind-input');
+  if(!input?.value){ const prev=document.getElementById('proc-remind-date-preview'); if(prev) prev.textContent=''; return; }
+  const days=Math.max(1,Math.min(365,Number(input.value)||1));
   _renderRemindPreview(days);
 }
-function selectRemindOther(){
-  document.querySelectorAll('#proc-remind-chips [data-remind-chip]').forEach(btn=>{
-    const isOther=btn.id==='proc-remind-other-chip';
-    btn.style.borderColor=isOther?'var(--gold)':'var(--roselt)';
-    btn.style.background=isOther?'var(--gold)':'var(--card)';
-    btn.style.color=isOther?'#fff':'var(--ink1)';
-  });
-  const customWrap=document.getElementById('proc-remind-custom-wrap');
-  const input=document.getElementById('proc-remind-custom-input');
-  if(customWrap) customWrap.style.display='block';
-  if(input) input.focus();
-  updateRemindCustom();
-}
-function updateRemindCustom(){
-  const input=document.getElementById('proc-remind-custom-input');
-  const hidden=document.getElementById('proc-remind-days');
-  const days=Math.max(1,Math.min(365,Number(input?.value)||1));
-  if(hidden) hidden.value=days;
-  if(input?.value) _renderRemindPreview(days);
-}
 async function saveProcRemind(procId,procName){
-  const hidden=document.getElementById('proc-remind-days');
-  if(!hidden)return;
-  const days=Number(hidden.value);
+  const input=document.getElementById('proc-remind-input');
+  if(!input)return;
+  const days=Number(input.value);
   if(!days||days<1){showToast(t('toastSelectDate'));return;}
   const d=computeRemindDate(days);
   const yyyy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
@@ -5205,37 +5178,13 @@ async function openSheet(id){
       <div class="diary-section-title" style="text-align:center">${window._lang==='en'?'My <em>diary</em>':'Моят <em>дневник</em>'}</div>
 
       ${(()=>{
-        // remindDays = "кога има смисъл да проверим как се чувстваш/резултата"
-        // (калибрирано по downtime/време-до-видим-ефект на КОНКРЕТНАТА процедура),
-        // НЕ "кога е следващата пълна сесия" — това вече е в lp.interval, не се
-        // пипа тук. Всеки запис в PROCS вече носи remindDays — няма fallback
-        // клон тук нарочно, за да пукне ясно ако бъде добавена нова процедура
-        // без remindDays, вместо тихо да падне на грешен hardcoded default.
-        const rd = lp.remindDays;
         const isBGr = window._lang!=='en';
-        const dayNames = isBGr
-          ? ['неделя','понеделник','вторник','сряда','четвъртък','петък','събота']
-          : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        const fmtDayDate = d => `${dayNames[d.getDay()]}, ${fmtDate(d)}`;
-        const initDays = rd.min;
-        const initDateStr = fmtDayDate(computeRemindDate(initDays));
-        const mid = Math.round((rd.min+rd.max)/2);
-        const chipVals = [...new Set([rd.min, mid, rd.max])].sort((a,b)=>a-b);
         const clockSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="9" stroke="#b8966a" stroke-width="1.6"/><path d="M12 7V12L15.5 14.5" stroke="#b8966a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-        const chipStyle = active => `padding:8px 14px;border-radius:20px;border:1.5px solid ${active?'var(--gold)':'var(--roselt)'};background:${active?'var(--gold)':'var(--card)'};color:${active?'#fff':'var(--ink1)'};font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap`;
         const body = `
-          <div style="background:linear-gradient(135deg,rgba(184,150,106,.14),rgba(212,169,106,.07));border:1px solid var(--goldlt);border-radius:10px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:var(--gold);font-weight:600">
-            ✨ ${isBGr?'Препоръчително за':'Recommended for'} ${esc(lp.name)}: ${rd.min}–${rd.max} ${isBGr?'дни':'days'}
+          <div style="margin-bottom:10px">
+            <input type="number" id="proc-remind-input" min="1" max="365" oninput="updateRemindCustom()" placeholder="${isBGr?'Брой дни':'Number of days'}" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--roselt);font-size:14px;font-family:inherit;background:var(--card);color:var(--ink1)">
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="proc-remind-chips">
-            ${chipVals.map(n=>`<button type="button" onclick="selectRemindDays(${n})" data-remind-chip="${n}" style="${chipStyle(n===initDays)}">${n} ${isBGr?'дни':'days'}</button>`).join('')}
-            <button type="button" onclick="selectRemindOther()" data-remind-chip="other" id="proc-remind-other-chip" style="${chipStyle(false)}">${isBGr?'Друго':'Other'}</button>
-          </div>
-          <div id="proc-remind-custom-wrap" style="display:none;margin-bottom:10px">
-            <input type="number" id="proc-remind-custom-input" min="1" max="365" oninput="updateRemindCustom()" placeholder="${isBGr?'Брой дни':'Number of days'}" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--roselt);font-size:14px;font-family:inherit;background:var(--card);color:var(--ink1)">
-          </div>
-          <input type="hidden" id="proc-remind-days" value="${initDays}">
-          <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600">${(isBGr?'Напомняне на: ':'Reminder on: ')+initDateStr}</div>
+          <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600"></div>
           <button onclick="saveProcRemind('${id}','${(lp.name||'').replace(/'/g,"&#39;")}')" style="margin-top:10px;width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('check','13px')} ${isBGr?'Запази напомняне':'Save reminder'}</button>`;
         return acc(`${clockSvg}${isBGr?'Напомни ми за процедурата':'Remind me about the procedure'}`, body, false, true);
       })()}
