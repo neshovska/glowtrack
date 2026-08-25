@@ -1,6 +1,6 @@
 // Build step: minify/obfuscate index.html for GitHub Pages deployment.
 // Source of truth stays index.html at repo root; this writes dist/.
-import { readFile, writeFile, mkdir, copyFile, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, copyFile, cp, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +22,16 @@ const PASSTHROUGH_FILES = [
   'og-image.png',
   'manifest.json',
   'sw.js',
+];
+
+// Директории, копирани рекурсивно. images/ държи процедурните снимки, сервирани
+// от самия glowtrack.eu вместо от Firebase Storage — така минават през
+// cache-first клона на sw.js (Storage адресите съдържат "google" в хоста и се
+// пропускат нарочно), тоест зареждат се мигновено при повторно отваряне и
+// оцеляват офлайн. Снимките се качват вече смалени (800px JPEG, ~50 KB); не
+// слагай тук сурови изображения от камера/генератор.
+const PASSTHROUGH_DIRS = [
+  'images',
 ];
 
 // Top-level function/variable declarations must never be renamed or dropped:
@@ -141,6 +151,16 @@ async function main() {
       continue;
     }
     await copyFile(src, path.join(DIST, file));
+  }
+
+  for (const dir of PASSTHROUGH_DIRS) {
+    const src = path.join(ROOT, dir);
+    if (!existsSync(src)) {
+      console.warn(`  WARNING: expected directory not found, skipping: ${dir}/`);
+      continue;
+    }
+    await cp(src, path.join(DIST, dir), { recursive: true });
+    console.log(`  copied ${dir}/`);
   }
 
   const origSize = Buffer.byteLength(srcHtml, 'utf8');
