@@ -198,7 +198,7 @@ bucket-а, authDomain-а, имената на GitHub Actions secrets-ите, д�
 
 ## Каталогът на процедурите (`PROCS`)
 
-**374 записа** (беше 383 — виж дедупликацията по-долу), всичките с пълен и
+**360 записа** (беше 383 — виж дедупликацията по-долу), всичките с пълен и
 еднакъв набор от полета (проверено — няма нито един непълен):
 
 ```
@@ -210,7 +210,7 @@ bucket-а, authDomain-а, имената на GitHub Actions secrets-ите, д�
   tags, prob, zone, goal, tech, age, gender, occ, preg, rec, dur, pain, sea, inv }
 ```
 
-Категории (`CATS_LIST`) и разпределение: `hair` 83, `hw` 74, `cosm` 65,
+Категории (`CATS_LIST`) и разпределение: `hair` 83, `cosm` 65, `hw` 60,
 `face` 58, `body` 48, `inject` 46.
 
 ### `alsoCat` — процедура в ПОВЕЧЕ от една категория
@@ -242,7 +242,39 @@ Alma, Lumenis, InMode, NormaTec и т.н. живеят САМО в `devices`. К
 справочник: човек, на когото в салона са предложили "Vacuslim", трябва да го
 намери. Без това дедупликацията по-долу би направила слетите марки невидими.
 
-### Дедупликация на каталога (сливане на 9 записа)
+### Дедупликация на каталога (сливане на 23 записа)
+
+Направена на две вълни — `body` (9) и `hw` (14). Общият принцип е този, който
+каталогът ВЕЧЕ ползваше за криолиполизата: **марките отиват в `devices`, не в
+отделни записи** (`kriolip` е един запис, а CoolSculpting/CoolTech/Clatuu са в
+`devices`). Затова добавянето на `devices` в търсачката беше ПРЕДУСЛОВИЕ —
+без него всяка слята марка би станала ненамираема.
+
+#### `hw`: 74 → 60
+
+Осем от тях самите си признаваха в описанието: "Plasma G — *подобна на Plasma
+Pen технология*", "РЧ фракционен микронидлинг — *концепция тип Morpheus8*".
+
+| Изтрит | Слят в |
+|---|---|
+| `notino-plasma-g-81` | `notino-plasma-pen-80` |
+| `notino-genius-17`, `notino-radiochestoten-mikronidling-s-led-svetli-13` | `notino-radiochestoten-fraktsionen-mikronidling-14` |
+| `notino-krioterapiya-74`, `notino-acryos-89` | `cryo-facial` |
+| `notino-vertikalen-solarium-90` | `notino-solarium-77` (преименуван на "хоризонтален и вертикален") |
+| `notino-alma-q-15` | `laser-toning-melasma` |
+| `notino-termalna-radiochestota-11`, `notino-duet-rf-16`, `notino-thuzzle-radiochestota-18`, `notino-neinvaziven-lifting-na-litse-9` | `notino-radiochestoten-lifting-8` — четири неразличими "RF лифтинг за лице" |
+| `notino-fototerapiya-73` | `led-therapy` — беше "специалистът подбира дължината на вълната" |
+| `notino-onetec-t-away-21`, `notino-ldm-protsedura-22` | `rf-body` |
+
+Остават отделни, макар да са RF за лице: `thermage` (конкретна марка с
+клепачна насадка), `indiba` (капацитивно-резистивна технология), `rf-neck-lift`
+и `rf-undereye` (специфични зони).
+
+**Известен, ОЩЕ НЕ слят дубликат:** `plasma-pen-eyelid` [face] и
+`notino-plasma-pen-80` [hw] — и двата "Plasma Pen", плазмена дъга, същите зони
+(клепачи, около очите). Открит след одита, чака решение.
+
+#### `body`: 56 → 48
 
 Вносът на 164 notino записа беше създал паралелни записи за процедури, които
 вече съществуват под собствено име. Слети:
