@@ -391,7 +391,8 @@ Altesse/Диодна/SHR/Epilfree — точно тези сега отпада�
 
 1. **`images/<категория>/` в самото repo**, сервирани от glowtrack.eu (GitHub
    Pages). Това е мястото за НОВИ снимки — виж правилото по-долу.
-   Досега: `images/body/` (36 снимки), `images/hair/` (9).
+   Досега: `images/body/` (36 снимки), `images/hair/` (9), `images/hw/` (26,
+   виж батча по-долу).
 2. **Firebase Storage `app-assets/`** (публично четими) — категорийните карти,
    home-care и част от старите процедурни снимки.
 3. **Външни** — `cdn.enter.pro` (brand-специфични) и Pexels/Unsplash (заварени).
@@ -458,6 +459,46 @@ sharp(src).resize({width:800, withoutEnlargement:true})
 от процедурите се показват с български текст. Това е известно и прието
 състояние, не бъг за "поправяне" в движение — но ако добавяш нова процедура,
 добави и `PROCS_EN` запис, за да не расте разликата.
+
+### Снимков батч: `hw` (Апаратни) — 26 процедури, `images/hw/`
+
+Продължение на снимковата подмяна от "тяло"/"коса" към категория "Апаратни"
+(`hw`). Идентифицирани по видимо брандиране на самия екран/корпус на апарата
+(напр. "Fotona Nd:YAG GENESIS", "CRYO T-SHOCK", "PLASMA PEN", "EMFACE",
+"Microcurrent Facial Toning", "Q-SWITCHED Nd:YAG", "HIFU BODY LIFT",
+"OxyGeneo", "BLUE LIGHT ACNE THERAPY", "RF NECK LIFT", "INDIBA DEEP BEAUTY",
+"SKIN SCRUBBER") или по формата на апликатора (напр. раздвоен ендорален
+накрайник за FOTONA 3D/4D Lifting/NightLase, ролков вакуум-RF апликатор за
+`rf-body`/`endosphere`), не по самия текст на процедурата — новите снимки
+бяха генерирани отделно от каталога и не носят метаданни за id.
+
+Заменени (`PROCS`, всички бяха Pexels stock, честo несъответстващ на
+реалната процедура): `ft-3d4d`, `ft-genesis`, `ft-veins`, `ft-liplase`,
+`ft-nightlase`, `ft-removal`, `ft-lightpeel`, `morpheus8-body`, `hifu`,
+`notino-accent-prime-19`, `rf-body`, `endosphere`,
+`diamond-microdermabrasion`, `emface`, `qswitched-nd-yag`, `indiba-facial`,
+`led-body-panel`, `laser-toning-melasma`, `cryo-t-shock`,
+`plasma-pen-eyelid` (единственият от "лице", не "апаратни" —
+Plasma Pen екранът беше на снимката), `microcurrent-facial`, `rf-neck-lift`,
+`ultrasonic-scrubber`, `hifu-body-lift`, `oxygeneo-facial`, `blue-light-acne`.
+
+Всичките 24 от тях с `PROCS_EN` запис получиха и махнат `img` (по правилото
+по-горе), с изключение на `hifu` (EN записът никога не е имал собствена
+снимка) и `notino-accent-prime-19` (няма EN запис изобщо).
+
+`rf-body` и `endosphere` бяха разграничени по формата на апликатора, не по
+надпис — и двата са ролкови вакуум-RF/микровибрационни устройства за тяло,
+без видим бранд текст на снимките: `rf-body` показва апликатор с метални
+ролки/сфери в основата (Venus Legacy/BodyFX тип), `endosphere` — гладък
+цилиндричен ролков накрайник (компресивна микровибрация, различна
+механика). Ако бъдат сбъркани при бъдещ преглед, си струва да се провери
+пак.
+
+`ft-3d4d` срещу `ft-nightlase` — и двете FOTONA процедури минават през
+ендорален (в устата) раздвоен апликатор, но снимката с апликатор ВЪН от
+устата (периорбитална зона) отиде при 3D/4D Lifting (той комбинира
+ендорален + външен режим, докато NightLase е чисто ендорален за небцето) —
+снимката с апликатор ВЪТРЕ в устата отиде при NightLase.
 
 ---
 
