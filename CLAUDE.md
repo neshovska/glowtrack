@@ -391,6 +391,7 @@ Altesse/Диодна/SHR/Epilfree — точно тези сега отпада�
 
 1. **`images/<категория>/` в самото repo**, сервирани от glowtrack.eu (GitHub
    Pages). Това е мястото за НОВИ снимки — виж правилото по-долу.
+   Досега: `images/body/` (36 снимки), `images/hair/` (9).
 2. **Firebase Storage `app-assets/`** (публично четими) — категорийните карти,
    home-care и част от старите процедурни снимки.
 3. **Външни** — `cdn.enter.pro` (brand-специфични) и Pexels/Unsplash (заварени).
