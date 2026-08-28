@@ -4739,7 +4739,18 @@ function renderCats(){
   const allBg = CAT_IMAGES.all || '';
   const allBtn = `<button class="cat-btn ${allIsActive?'active':''}" style="${_catStyle('all')};grid-column:1/-1;background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${allBg}')" onclick="setCat('all')"><span class="cat-btn-icon">${ic(CATS_LIST[0].icon,'14px')}</span>${allIsActive?checkBadge:''}${allLbl}</button>`;
 
-  bar.innerHTML = `<div class="cats-grid">${allBtn}${allCatBtns}</div>`;
+  // "Любими" — псевдо-категория (не е в CATS_LIST/PROCS.cat), филтрира по
+  // getFavs() навсякъде из всички категории. Ползва СЪЩАТА логика като
+  // скрития "Любими" чип в панела "Филтри" (adv-favs-chip), само вдигната
+  // на видно място до "Всички" — по изрична заявка, най-евтината добавка,
+  // защото звездичките/toggleFavFromList()/getFavs() вече съществуват.
+  // Без снимка (няма естествена такава за "любими"), затова плътен
+  // градиент вместо background-image url().
+  const favLbl = window._lang==='en' ? 'Favourites' : 'Любими';
+  const favIsActive = activeCat==='favs';
+  const favBtn = `<button class="cat-btn ${favIsActive?'active':''}" style="${_catStyle('all')};background-image:linear-gradient(135deg,#b8966a,#d4a96a)" onclick="setCat('favs')"><span class="cat-btn-icon">${ic('star','14px')}</span>${favIsActive?checkBadge:''}${favLbl}</button>`;
+
+  bar.innerHTML = `<div class="cats-grid">${allBtn}${favBtn}${allCatBtns}</div>`;
 }
 function setCat(c){activeCat=c;try{localStorage.setItem('gt_active_cat',c);}catch(e){}renderCats();renderProcs();}
 
@@ -5015,8 +5026,11 @@ function renderProcs(){
     // (лазерната епилация е и "Коса и нокти", и "Апаратни"). Основната остава
     // p.cat — тя се показва в заглавието на sheet-а и отива в analytics; alsoCat
     // само добавя записа към чуждия филтър, без да го мести.
-    const catOk=activeCat==='all'||p.cat===activeCat
+    const catOk=activeCat==='all'||activeCat==='favs'||p.cat===activeCat
       ||(Array.isArray(p.alsoCat)&&p.alsoCat.includes(activeCat));
+    // "Любими" псевдо-категория (чипът до "Всички") — филтрира по любими
+    // навсякъде из всички категории, СЪЩАТА проверка като favsOnly отдолу.
+    if(activeCat==='favs' && !favIds.includes(p.id)) return false;
     if(favsOnly && !favIds.includes(p.id)) return false;
     // AND across facet groups, OR within each facet group
     const advOk=ADV_GROUPS.every(g=>procMatchesAdvGroup(p,g,advGrouped[g]));
