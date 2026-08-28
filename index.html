@@ -4338,6 +4338,17 @@ function showComingSoon(){
 
 function goPage(name,btn){
   try{hideSuggestions();}catch(e){}
+  // Напускане на "Процедури" към друга страница връща филтъра обратно на
+  // "Всички" — по изрична заявка: иначе потребител, забравил избраната
+  // категория (или "Любими"), се връща по-късно, започва да търси нещо
+  // през търсачката и получава 0 резултата, защото търсенето и категорията
+  // се комбинират с AND (виж catOk в renderProcs()).
+  if(name!=='procs' && _currentActivePageName()==='procs' && activeCat!=='all'){
+    activeCat='all';
+    try{localStorage.setItem('gt_active_cat','all');}catch(e){}
+    if(typeof renderCats==='function') renderCats();
+    if(typeof renderProcs==='function') renderProcs();
+  }
   if(typeof trackEvent==='function')trackEvent('page_view',{page_name:name});
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
@@ -5122,6 +5133,17 @@ function renderProcs(){
 let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
 async function openSheet(id){
   const p=PROCS.find(x=>x.id===id);if(!p)return;
+  // Отваряне на процедура (независимо откъде — от "Процедури", "Начало"
+  // и т.н.) също връща филтъра на "Процедури" обратно на "Всички" —
+  // същата причина като в goPage(). Безобидно дори когато sheet-ът е
+  // отворен извън страница "Процедури" — само нулира скрито състояние,
+  // което има значение чак при следващото ѝ отваряне.
+  if(typeof activeCat!=='undefined' && activeCat!=='all'){
+    activeCat='all';
+    try{localStorage.setItem('gt_active_cat','all');}catch(e){}
+    if(typeof renderCats==='function') renderCats();
+    if(typeof renderProcs==='function') renderProcs();
+  }
   const lp=procL(p);
   if(typeof trackEvent==='function')trackEvent('procedure_view',{procedure_id:id,procedure_name:lp.name,category:p.cat});
   currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
