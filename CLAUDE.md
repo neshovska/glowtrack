@@ -233,6 +233,81 @@ Nd:YAG варианта.
 процедура за епилация, реши в коя категория е ОСНОВНА и добави другата в
 `alsoCat`.
 
+#### Голямо прилагане на `alsoCat` към "Лице" — 54 записа
+
+По изрична заявка, след като потребителят забеляза застъпване между
+"Лице" и "Козметични и Дерматологични": "всичко за лице да е в лице, не
+пречи ако процедура я има на две или повече места". Критерий: полето
+`zones` (не усещане/име) — записи, чиято зона включва "лице" (главна
+или малка буква, навсякъде в низа, не само в началото).
+
+Два различни хода, според това дали записът има собствена, различна от
+"процедура за лице" идентичност:
+
+**15 записа МЕСТЕНИ от `cosm` в `face`** (сменен `cat`, не `alsoCat`) —
+генерични фациал-технологии без друга причина да стоят в "Козметични"
+(след преименуването ѝ на "Козметични и Дерматологични" истинската
+причина да е там е дерматология/консултации/нокти/зъби/грим, а тези
+записи не са нито едно от тях): `notino-nanonidling-45`,
+`notino-hidrolifting-46`, `notino-kislorodna-infuziya-47`,
+`notino-biostimulatsiya-s-lazer-49`, `notino-dpl-terapiya-51`,
+`notino-kislorodna-hiperbarna-kamera-s-do-100-kp-52`,
+`notino-terapiya-s-endosfera-53`, `notino-suho-chetkane-54`,
+`notino-aquafacial-56`, `notino-hydrafacial-57`,
+`notino-préime-dermafacial-58`, `notino-pochistvane-na-kozhata-59`,
+`notino-led-terapiya-61`, `notino-kozmetichni-terapii-62`,
+`notino-grim-98`.
+
+**39 записа получиха `alsoCat:['face']`, `cat` НЕПИПНАТ** — записи, чиято
+основна идентичност е техника/инструмент (апарат, инжекция, масажна
+техника), не "тип услуга", затова остават в родната си категория, но
+стават откриваеми и под "Лице":
+- `cosm` (2, дерматология с лице като ЕДИНСТВЕНА зона по `zones`, не
+  просто спомената): `derm-rosacea`, `derm-melasma`. Останалата
+  дерматология (акне/екзема/себореен дерматит/брадавици/витилиго и
+  т.н.) НЕ получи `alsoCat` — зоните им покриват лице ЗАЕДНО с гръб/
+  ръце/скалп/тяло без лицето да е водещо, а вече има отделен
+  `body-acne-treatment` за телесно акне — добавяне навсякъде би
+  претрупало "Лице" с общотелесни диагнози.
+- `hw` (33): всички FOTONA (`ft-3d4d`, `ft-genesis`, `ft-lightpeel`,
+  `ft-veins`, `ft-removal`), `co2-laser`, `morpheus8-face`, `hifu`,
+  `thermage`, `diamond-microdermabrasion`, `ipl-photofacial`,
+  `cryo-facial`, `emface`, `qswitched-nd-yag`, `indiba-facial`,
+  `picofractional`, `microcurrent-facial`, `ultrasonic-scrubber`,
+  `laser-toning-melasma`, `oxygeneo-facial`, `blue-light-acne`,
+  `notino-radiochestoten-lifting-8`, `notino-lazeren-lifting-10`,
+  `notino-fraktsionna-radiochestota-12`,
+  `notino-radiochestoten-fraktsionen-mikronidling-14`,
+  `notino-accent-prime-19`, `notino-ozonoterapiya-76`,
+  `notino-ipl-terapiya-82`, `notino-oxygenera-pro-84`,
+  `notino-darsonval-86`, `notino-alpha-led-oxy-spa-88`, `endosphere`,
+  `cryo-t-shock` — точно примерът, който потребителят даде ("процедура
+  с лице и апарат").
+- `body` (4): `fat-transfer`, `notino-icoone-36`, `lymph`,
+  `notino-lpg-lipomasazh-lifting-masazh-26`.
+
+**Умишлено ИЗКЛЮЧЕНИ** записи, чиято зона споменава "лице", но чиято
+идентичност е епилация/премахване на косми, не грижа за лицето:
+`le-electro`, `ipl-hair-removal`, `notino-lazerna-epilatsiya-0`,
+`waxing-body`, `sugaring` — за тях "лице" в `zones` значи "горна устна/
+вежди", не "лицева процедура" в смисъла, в който категорията "Лице" се
+разбира.
+
+**`inject` (Инжекционни) умишлено НЕ е пипната в тая вълна** — почти
+всеки филър/ботокс запис там сочи някаква лицева зона (скули, челюст,
+слепоочия, назолабиални гънки, чело, глабела...), значи буквалното
+приложение на същото правило би добавило `alsoCat:['face']` към ~38 от
+45-те инжекционни записа — почти цялата категория би се появила
+дублирано и в "Лице". Оставено като отделно решение за потребителя,
+преди да се приложи (виж чат историята) — за да не се претрупа "Лице" с
+целия каталог "Инжекционни" без изрично потвърждение.
+
+Резултат: 332 записа общо (непроменено); `cat:'face'` 58→73; `cat:'cosm'`
+54→39; таб "Лице" показва 73+39=112 записа (директни + кръстосани).
+Проверено с Playwright: числата се връзват; "Апаратни" продължава да
+показва `morpheus8-face`/`thermage` и т.н. (alsoCat не маха от родната
+категория); нула JS грешки.
+
 ### Търсенето включва `devices` — не го махай
 
 `procSearchHaystack()` търси в name/sub/subcat/what/zones/results/contra/tags,
