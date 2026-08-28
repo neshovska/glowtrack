@@ -4733,15 +4733,13 @@ function renderCats(){
     const bg = CAT_IMAGES[c.id] || '';
     return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${isActive?'active':''}" style="${_catStyle(c.id)};background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${bg}')" onclick="setCat('${c.id}')"><span class="cat-btn-icon">${ic(c.icon,'14px')}</span>${isActive?checkBadge:''}${lbl}</button>`;
   }).join('');
-  const addBtn = `<button class="cat-add-btn" onclick="openFavCatsModal()" title="Избери любими категории" style="grid-column:1/-1;margin-top:2px">＋ ${window._lang==='en'?'Edit':'Редактирай'}</button>`;
-
   // "Всички" — hero карта на цяла ширина отгоре
   const allLbl = window._lang==='en' ? (CATS_EN.all||'All') : CATS_LIST[0].label;
   const allIsActive = activeCat==='all';
   const allBg = CAT_IMAGES.all || '';
   const allBtn = `<button class="cat-btn ${allIsActive?'active':''}" style="${_catStyle('all')};grid-column:1/-1;background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${allBg}')" onclick="setCat('all')"><span class="cat-btn-icon">${ic(CATS_LIST[0].icon,'14px')}</span>${allIsActive?checkBadge:''}${allLbl}</button>`;
 
-  bar.innerHTML = `<div class="cats-grid">${allBtn}${allCatBtns}${addBtn}</div>`;
+  bar.innerHTML = `<div class="cats-grid">${allBtn}${allCatBtns}</div>`;
 }
 function setCat(c){activeCat=c;try{localStorage.setItem('gt_active_cat',c);}catch(e){}renderCats();renderProcs();}
 
