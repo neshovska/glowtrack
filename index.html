@@ -4733,11 +4733,13 @@ function renderCats(){
     const bg = CAT_IMAGES[c.id] || '';
     return `<button class="cat-btn ${isFavCat?'fav-cat':''} ${isActive?'active':''}" style="${_catStyle(c.id)};background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${bg}')" onclick="setCat('${c.id}')"><span class="cat-btn-icon">${ic(c.icon,'14px')}</span>${isActive?checkBadge:''}${lbl}</button>`;
   }).join('');
-  // "Всички" — hero карта на цяла ширина отгоре
+  // "Всички" — вече на реда с "Любими", НЕ hero на цяла ширина (по изрична
+  // заявка: двете да застанат едно до друго, "Всички" смалено до размера
+  // на останалите карти) — затова БЕЗ grid-column:1/-1.
   const allLbl = window._lang==='en' ? (CATS_EN.all||'All') : CATS_LIST[0].label;
   const allIsActive = activeCat==='all';
   const allBg = CAT_IMAGES.all || '';
-  const allBtn = `<button class="cat-btn ${allIsActive?'active':''}" style="${_catStyle('all')};grid-column:1/-1;background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${allBg}')" onclick="setCat('all')"><span class="cat-btn-icon">${ic(CATS_LIST[0].icon,'14px')}</span>${allIsActive?checkBadge:''}${allLbl}</button>`;
+  const allBtn = `<button class="cat-btn ${allIsActive?'active':''}" style="${_catStyle('all')};background-image:linear-gradient(180deg,rgba(20,16,10,.05) 40%,rgba(20,16,10,.78) 100%),url('${allBg}')" onclick="setCat('all')"><span class="cat-btn-icon">${ic(CATS_LIST[0].icon,'14px')}</span>${allIsActive?checkBadge:''}${allLbl}</button>`;
 
   // "Любими" — псевдо-категория (не е в CATS_LIST/PROCS.cat), филтрира по
   // getFavs() навсякъде из всички категории. Ползва СЪЩАТА логика като
