@@ -907,6 +907,13 @@ body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,
 .chip button{background:none;border:none;color:var(--gold);font-size:11px;cursor:pointer;padding:0}
 /* NAV */
 .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100vw);background:rgba(247,245,242,.94);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-top:1px solid rgba(184,150,106,.18);padding:5px 8px calc(env(safe-area-inset-bottom,0px) + 5px);display:flex;justify-content:space-around;z-index:150}
+/* Плаващ бутон "най-отгоре" на страница "Процедури" — обвивка със СЪЩАТА
+   центрираща техника като .bnav (left:50%+transform+width:min(480px,100vw)),
+   за да остане бутонът в границите на визуалната колона на приложението и
+   на широк десктоп изглед, не залепен за суровия десен ръб на viewport-а. */
+.procs-top-btn-wrap{position:fixed;left:50%;transform:translateX(-50%);width:min(480px,100vw);bottom:calc(96px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:140}
+.procs-top-btn{position:absolute;right:16px;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(184,150,106,.4);cursor:pointer;opacity:0;pointer-events:none;transform:scale(.8);transition:opacity .2s,transform .2s}
+.procs-top-btn.visible{opacity:1;pointer-events:auto;transform:scale(1)}
 .nb{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:3px 6px;border-radius:10px;border:none;background:none;min-width:44px}
 .nb svg{width:19px;height:19px}
 .nb.active .ni{color:var(--gold)}.nb.active svg ellipse,.nb.active svg path{fill:var(--gold) !important;stroke:var(--gold)}
@@ -1216,6 +1223,12 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </script>
   <div class="page" id="page-procs">
     <div class="page-hdr"><div class="page-hdr-title">Процедури</div><div class="page-hdr-sub"></div></div>
+    <!-- Плаващ бутон "най-отгоре" — показва се само след по-дълъг скрол
+         (виж JS слушателя за scroll), скрит по подразбиране (.visible го
+         открива). Вътре в #page-procs нарочно — display:none на
+         неактивна .page крие и position:fixed деца, значи автоматично
+         важи само докато "Процедури" е активният таб. -->
+    <div class="procs-top-btn-wrap"><button class="procs-top-btn" id="procs-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Върни най-отгоре" title="Най-отгоре"><svg class="gt-ico" width="18px" height="18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(-90deg)"><path d="M4 12h16M13 5l7 7-7 7"/></svg></button></div>
     <div class="search-wrap">
       <div style="display:flex;gap:8px;align-items:center">
         <div class="search-box" style="position:relative;flex:1"><span class="search-icon"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg></span><input class="search-input" id="proc-search" aria-label="Търси процедура" role="searchbox" placeholder="Търси процедура..." data-ph="searchProcs" style="font-size:16px" oninput="debounceSearch()" onchange="filterProcs()" onkeyup="debounceSearch()" onfocus="hideSuggestions()" autocomplete="off"><button id="search-ok" onclick="confirmProcSearch()" aria-label="Търси" style="display:none;position:absolute;right:36px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gold);cursor:pointer;padding:4px;line-height:1"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg></button><button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:var(--ink2);cursor:pointer;padding:4px;line-height:1">×</button><div id="search-suggestions" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1.5px solid var(--goldlt);border-radius:12px;box-shadow:0 4px 16px rgba(26,26,46,.1);z-index:100;overflow:hidden"></div></div>
@@ -4787,6 +4800,27 @@ function setCat(c){
     if(list) list.scrollIntoView({behavior:'smooth',block:'start'});
   }, 0);
 }
+
+// Плаващ бутон "най-отгоре" на "Процедури" — по изрична заявка, за по-дълъг
+// скрол надолу в списъка. Един window scroll слушател (не по един на
+// рисуване — самият бутон е статичен в markup-а, не се пресъздава при
+// renderProcs()), пази прост праг: показва се след 500px скрол, докато
+// "Процедури" е активният таб (проверка нужна, защото body-то скролва общо
+// за цялото приложение — виж #page-procs display:none бележката в markup-а
+// за защо самата ВИДИМОСТ на бутона вече е гарантирана дори без тая
+// проверка, но без нея бихме сметнали визуален клас за скрит елемент
+// на всяка друга страница).
+(function(){
+  const btn = document.getElementById('procs-top-btn');
+  if(!btn) return;
+  window.addEventListener('scroll', function(){
+    if(typeof _currentActivePageName==='function' && _currentActivePageName()!=='procs'){
+      btn.classList.remove('visible');
+      return;
+    }
+    btn.classList.toggle('visible', window.scrollY > 500);
+  }, {passive:true});
+})();
 
 // ── FAV CATS MODAL ──
 function openFavCatsModal(){
