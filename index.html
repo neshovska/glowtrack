@@ -4771,7 +4771,22 @@ function renderCats(){
 
   bar.innerHTML = `<div class="cats-grid">${allBtn}${favBtn}${allCatBtns}</div>`;
 }
-function setCat(c){activeCat=c;try{localStorage.setItem('gt_active_cat',c);}catch(e){}renderCats();renderProcs();}
+function setCat(c){
+  activeCat=c;
+  try{localStorage.setItem('gt_active_cat',c);}catch(e){}
+  renderCats();
+  renderProcs();
+  // Скрол надолу до самите резултати при избор на категория — по изрична
+  // заявка: над списъка стоят Домашна грижа + търсачка + решетката с
+  // категории, значи след клик резултатите остават под сгъвката и
+  // потребителят не вижда, че изобщо е станало нещо. setTimeout(0), за да
+  // мине след layout-а на вече обновения #proc-list (renderProcs() пълни
+  // innerHTML синхронно, но реалната височина се смята чак след repaint).
+  setTimeout(()=>{
+    const list = document.getElementById('proc-list');
+    if(list) list.scrollIntoView({behavior:'smooth',block:'start'});
+  }, 0);
+}
 
 // ── FAV CATS MODAL ──
 function openFavCatsModal(){
