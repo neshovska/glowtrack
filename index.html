@@ -1459,6 +1459,16 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   </div>
   <div class="page" id="page-admin">
     <div class="page-hdr"><div class="page-hdr-title">GlowTrack <em>Admin</em></div><div class="page-hdr-sub">Клиники, известия и статистика на приложението</div></div>
+          <!-- Тестов превключвател — вижда САМО ADMIN_UID акаунтът, защото само той
+               реално стига до тази страница. Не е истинска клиника, само примерни
+               данни в window._clinicData, за да можеш да прегледаш #page-clinic
+               без да ти трябва отделен тестов клиничен акаунт. -->
+          <div style="padding:0 16px 14px;max-width:480px;margin:0 auto">
+            <button onclick="toggleAdminClinicPreview()" style="width:100%;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:12px;padding:11px;font-size:12.5px;font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              Виж като клиника (тест)
+            </button>
+          </div>
           <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px">
             <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
               <span class="pcs-title"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M12 20V4M20 20v-7"/><path d="M2 20h20"/></svg> Статистика на приложението</span>
@@ -1630,6 +1640,11 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
   <div class="page" id="page-clinic">
     <div class="page-hdr"><div class="page-hdr-title">Клиничен <em>панел</em></div><div class="page-hdr-sub" id="clinic-page-name">—</div></div>
     <div style="padding:0 16px 40px;max-width:480px;margin:0 auto">
+      <!-- Показва се САМО в тестовия преглед (window._adminClinicPreview),
+           не и за истински клиничен акаунт — виж toggleAdminClinicPreview(). -->
+      <button id="clinic-preview-back-btn" onclick="toggleAdminClinicPreview()" style="display:none;width:100%;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:12px;padding:11px;font-size:12.5px;font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit;margin-bottom:14px;align-items:center;justify-content:center;gap:7px">
+        ← Обратно към Admin (тестов преглед)
+      </button>
       <div class="p-eyebrow">Профил на клиниката</div>
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 16px">
         <div id="clinic-page-info" style="font-size:12.5px;color:var(--ink1);line-height:1.8">—</div>
@@ -9262,6 +9277,26 @@ function renderClinicPage(){
     <div><b>ЕИК/БУЛСТАТ:</b> ${esc(d.eik||'—')}</div>
     <div><b>Статус:</b> ${d.status==='approved'?'Активна':esc(d.status||'—')}</div>
   `:'—';
+  const backBtn=document.getElementById('clinic-preview-back-btn');
+  if(backBtn) backBtn.style.display=window._adminClinicPreview?'flex':'none';
+}
+
+// ── ТЕСТОВ ПРЕГЛЕД НА КЛИНИЧНИЯ ИЗГЛЕД (само за admin) ──
+// Позволява на ADMIN_UID акаунта да прегледа #page-clinic без да му трябва
+// отделен, реален клиничен акаунт — истински клиничен акаунт стига дотук
+// през updateNavForRole()/window._isClinic, тук вместо това само подаваме
+// примерни данни в window._clinicData временно, докато преглежда. Не пипа
+// window._isClinic (истинската роля) — само window._adminClinicPreview,
+// изрично отделен флаг, за да не се обърка с реален клиничен вход другаде
+// в кода (напр. при следващ логаут/логин).
+function toggleAdminClinicPreview(){
+  if(!window._isAdmin) return;
+  window._adminClinicPreview=!window._adminClinicPreview;
+  if(window._adminClinicPreview && !window._clinicData){
+    window._clinicData={name:'Тестова клиника (преглед)',address:'ул. Примерна 1, София',phone:'+359 88 000 0000',email:'test@example.bg',eik:'000000000',status:'approved'};
+  }
+  const btn=document.getElementById('nav-home-btn');
+  goPage(window._adminClinicPreview?'clinic':'admin', btn);
 }
 
 // ── ADMIN DASHBOARD ──
