@@ -719,6 +719,18 @@ textarea.form-input{resize:none}
    отделен клас вместо преизползване на .form-input директно върху <button>. */
 #page-for-clinics .vat-toggle-btn{flex:1;background:#1e1e38;color:#f0ede8;border:1px solid rgba(212,169,106,.25);border-radius:8px;padding:9px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;font-weight:600}
 #page-for-clinics .vat-toggle-btn.active{background:linear-gradient(135deg,#b8966a,#dcb87e);color:#241a0d;border-color:transparent}
+/* Същия ДДС превключвател, но за #page-clinic (клиничния self-serve панел) —
+   там страницата следва обичайната тъмна/светла тема на приложението (не е
+   закован тъмен фон като #page-for-clinics), затова тук е theme-aware. */
+#page-clinic .vat-toggle-btn{flex:1;background:var(--card);color:var(--ink);border:1.5px solid var(--roselt);border-radius:8px;padding:9px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;font-weight:600}
+#page-clinic .vat-toggle-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.clinic-price-row{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--goldlt)}
+.clinic-price-row:last-child{border-bottom:none}
+.clinic-price-row .cpr-info{flex:1;min-width:0}
+.clinic-price-row .cpr-name{font-size:12.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:6px}
+.clinic-price-row .cpr-price{font-size:12px;color:var(--ink1);margin-top:2px}
+.clinic-price-row .cpr-note{font-size:11px;color:var(--ink2);margin-top:2px}
+.clinic-price-row .cpr-actions{display:flex;gap:4px;flex-shrink:0}
 .photo-previews{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .photo-preview-wrap{position:relative}
 .photo-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--roselt)}
@@ -1645,16 +1657,55 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <button id="clinic-preview-back-btn" onclick="toggleAdminClinicPreview()" style="display:none;width:100%;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:12px;padding:11px;font-size:12.5px;font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit;margin-bottom:14px;align-items:center;justify-content:center;gap:7px">
         ← Обратно към Admin (тестов преглед)
       </button>
+      <!-- Статус (чака одобрение/активна) — реален клиничен акаунт стига дотук
+           само СЛЕД одобрение (approveClinicRegistration), значи на практика
+           винаги "Активна"; полето остава видимо за яснота, ако статусът
+           някога се промени ръчно от админ. -->
+      <div id="clinic-status-banner" style="text-align:center;padding:9px 14px;border-radius:10px;background:var(--goldlt);color:var(--gold);font-size:11.5px;font-weight:700;margin-bottom:14px">—</div>
+
       <div class="p-eyebrow">Профил на клиниката</div>
       <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 16px">
-        <div id="clinic-page-info" style="font-size:12.5px;color:var(--ink1);line-height:1.8">—</div>
+        <div class="auth-field"><label class="auth-label">Име на клиниката</label><input class="form-input" id="cp-name" style="font-size:16px"></div>
+        <div class="auth-field"><label class="auth-label">Адрес</label><input class="form-input" id="cp-address" style="font-size:16px"></div>
+        <div style="display:flex;gap:10px">
+          <div class="auth-field" style="flex:1"><label class="auth-label">Телефон</label><input class="form-input" type="tel" id="cp-phone" style="font-size:16px"></div>
+          <div class="auth-field" style="flex:1"><label class="auth-label">Уебсайт</label><input class="form-input" id="cp-website" style="font-size:16px"></div>
+        </div>
+        <div class="auth-field"><label class="auth-label">Лице за контакт</label><input class="form-input" id="cp-contact" style="font-size:16px"></div>
+        <div class="auth-field">
+          <label class="auth-label">ДДС регистрация</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" id="cp-vat-yes" onclick="setClinicVat(true)" class="vat-toggle-btn">Да</button>
+            <button type="button" id="cp-vat-no" onclick="setClinicVat(false)" class="vat-toggle-btn">Не</button>
+          </div>
+        </div>
+        <!-- Никога редактируеми от клиниката (виж firestore.rules — updateDoc
+             върху clinics/{uid} е ограничен изрично до контактни полета) —
+             имейлът е Auth самоличността, ЕИК е правният идентификатор. -->
+        <div style="font-size:11px;color:var(--ink2);line-height:1.8;margin:10px 0;padding-top:8px;border-top:1px solid var(--goldlt)">
+          <div><b>Имейл:</b> <span id="cp-email-ro">—</span></div>
+          <div><b>ЕИК/БУЛСТАТ:</b> <span id="cp-eik-ro">—</span></div>
+        </div>
+        <button class="admin-btn" style="width:100%" onclick="saveClinicProfile()">Запази промените</button>
+        <div id="cp-save-status" style="font-size:11px;color:var(--ink2);margin-top:6px;text-align:center"></div>
       </div>
-      <!-- Управлението на цени/промоции е следваща, отделна стъпка (виж
-           CLAUDE.md) — клиничният акаунт вече съществува и влиза тук, но
-           тепърва ще получи собствен работен екран, различен от този
-           placeholder. -->
-      <div style="text-align:center;padding:22px 16px;border-radius:14px;background:var(--goldlt);color:var(--ink2);font-size:12.5px;line-height:1.6">
-        Управлението на цени и промоции идва скоро — засега това е само твоят профил на клиника.
+
+      <div class="p-eyebrow">Цени по процедура</div>
+      <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 16px">
+        <input type="hidden" id="cpz-edit-id" value="">
+        <div id="cpz-proc-picker" style="position:relative;margin-bottom:8px">
+          <input class="form-input" id="cpz-proc-search" placeholder="Търси процедура за добавяне..." oninput="filterClinicPricePicker()" style="font-size:16px">
+          <div id="cpz-proc-results" class="proc-picker-results"></div>
+        </div>
+        <div id="cpz-selected-proc" style="display:none;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--goldlt);border-radius:9px;font-size:12.5px;color:var(--ink1)"></div>
+        <div style="display:flex;gap:10px;margin-bottom:8px">
+          <div class="auth-field" style="flex:1;margin-bottom:0"><label class="auth-label">Цена (лв.)</label><input class="form-input" type="number" min="0" step="1" id="cpz-price" style="font-size:16px"></div>
+          <div class="auth-field" style="flex:1;margin-bottom:0"><label class="auth-label">Промо цена <span style="text-transform:none;font-weight:400">(по избор)</span></label><input class="form-input" type="number" min="0" step="1" id="cpz-promo" style="font-size:16px"></div>
+        </div>
+        <input class="form-input" id="cpz-note" placeholder='Бележка (по избор) — напр. "включва 3 сесии"' style="font-size:16px;margin-bottom:10px">
+        <button class="admin-btn" id="cpz-save-btn" style="width:100%" onclick="saveClinicPrice()">+ Добави цена</button>
+        <button class="admin-btn sm" id="cpz-cancel-btn" style="width:100%;margin-top:6px;background:var(--goldlt);color:var(--gold);display:none" onclick="cancelEditClinicPrice()">Отказ на редакция</button>
+        <div id="clinic-prices-list" style="margin-top:14px"></div>
       </div>
     </div>
   </div>
@@ -9262,23 +9313,245 @@ function loadAdminPage(){
 }
 
 // ── КЛИНИЧЕН ПАНЕЛ (собствена страница #page-clinic) ──
-// Само placeholder засега — истинското управление на цени/промоции е
-// следваща, отделна стъпка (виж CLAUDE.md). window._clinicData се пълни
-// при вход (onAuthStateChanged), ако clinics/{uid} документ съществува.
+// Пълен self-serve панел: клиниката САМА редактира контактния си профил
+// (firestore.rules позволява update само на ограничен набор полета —
+// name/address/phone/website/contactPerson/vatRegistered, НИКОГА status/
+// eik/email/clinicId — виж коментара в firestore.rules) и управлява
+// собствените си редове в clinic_prices (цена по процедура + опционална
+// промо цена/бележка). window._clinicData се пълни при вход
+// (onAuthStateChanged), ако clinics/{uid} документ съществува.
+//
+// ТЕСТОВ ПРЕГЛЕД (window._adminClinicPreview) НЕ пипа реален Firestore —
+// профилните промени остават само в паметта (window._clinicData), а
+// цените живеят в window._clinicPreviewPrices (локален масив, никога не се
+// пише в облака) — за да може admin да разгледа/пробва цялата функционалност
+// без риск да замърси реални данни и без нужда от истински clinicOwnerUid.
+window._clinicPreviewPrices = window._clinicPreviewPrices || [];
+window._clinicPrices = window._clinicPrices || [];
+window._clinicPriceSelectedProc = null;
+
 function renderClinicPage(){
   const nameEl=document.getElementById('clinic-page-name');
-  const infoEl=document.getElementById('clinic-page-info');
   const d=window._clinicData;
   if(nameEl) nameEl.textContent=d?.name||'—';
-  if(infoEl) infoEl.innerHTML=d?`
-    <div><b>Адрес:</b> ${esc(d.address||'—')}</div>
-    <div><b>Телефон:</b> ${esc(d.phone||'—')}</div>
-    <div><b>Имейл:</b> ${esc(d.email||'—')}</div>
-    <div><b>ЕИК/БУЛСТАТ:</b> ${esc(d.eik||'—')}</div>
-    <div><b>Статус:</b> ${d.status==='approved'?'Активна':esc(d.status||'—')}</div>
-  `:'—';
+
   const backBtn=document.getElementById('clinic-preview-back-btn');
   if(backBtn) backBtn.style.display=window._adminClinicPreview?'flex':'none';
+
+  const statusEl=document.getElementById('clinic-status-banner');
+  if(statusEl) statusEl.textContent = d ? (d.status==='approved'?'Активна клиника':('Статус: '+d.status)) : '—';
+
+  const nameInp=document.getElementById('cp-name'); if(nameInp) nameInp.value=d?.name||'';
+  const addrInp=document.getElementById('cp-address'); if(addrInp) addrInp.value=d?.address||'';
+  const phoneInp=document.getElementById('cp-phone'); if(phoneInp) phoneInp.value=d?.phone||'';
+  const webInp=document.getElementById('cp-website'); if(webInp) webInp.value=d?.website||'';
+  const contactInp=document.getElementById('cp-contact'); if(contactInp) contactInp.value=d?.contactPerson||'';
+  const emailRo=document.getElementById('cp-email-ro'); if(emailRo) emailRo.textContent=d?.email||'—';
+  const eikRo=document.getElementById('cp-eik-ro'); if(eikRo) eikRo.textContent=d?.eik||'—';
+  setClinicVat(!!(d&&d.vatRegistered));
+
+  // Формата за добавяне/редакция на цена се нулира при всяко влизане в
+  // страницата — иначе предишно "полузапочнато" редактиране от миналото
+  // посещение би останало объркващо на екрана.
+  cancelEditClinicPrice();
+  loadClinicPrices();
+}
+
+function setClinicVat(val){
+  window._clinicVatValue=val;
+  const yesBtn=document.getElementById('cp-vat-yes'), noBtn=document.getElementById('cp-vat-no');
+  if(yesBtn) yesBtn.classList.toggle('active', val===true);
+  if(noBtn) noBtn.classList.toggle('active', val===false);
+}
+
+async function saveClinicProfile(){
+  const name=document.getElementById('cp-name').value.trim();
+  const address=document.getElementById('cp-address').value.trim();
+  const phone=document.getElementById('cp-phone').value.trim();
+  const website=document.getElementById('cp-website').value.trim();
+  const contactPerson=document.getElementById('cp-contact').value.trim();
+  const vatRegistered=!!window._clinicVatValue;
+  if(!name){showToast('Въведи име на клиниката');return;}
+  const statusDiv=document.getElementById('cp-save-status');
+  const patch={name,address,phone,website,contactPerson,vatRegistered};
+  const nameEl=document.getElementById('clinic-page-name');
+  if(window._adminClinicPreview){
+    window._clinicData=Object.assign({},window._clinicData,patch);
+    if(nameEl) nameEl.textContent=name;
+    if(statusDiv) statusDiv.textContent='Запазено (тестов преглед — не се записва в облака)';
+    return;
+  }
+  if(!window._user){showToast(t('toastErr'));return;}
+  try{
+    await F().updateDoc(F().doc(DB(),'clinics',window._user.uid), Object.assign({},patch,{updatedAt:F().serverTimestamp()}));
+    window._clinicData=Object.assign({},window._clinicData,patch);
+    if(nameEl) nameEl.textContent=name;
+    if(statusDiv) statusDiv.textContent='Запазено';
+    showToast('Профилът е запазен');
+  }catch(e){
+    console.error('Грешка при запис на клиничен профил:',e);
+    showToast(t('toastErr'));
+  }
+}
+
+// ── ЦЕНИ ПО ПРОЦЕДУРА (clinic_prices) ──
+function activeClinicPricesArr(){
+  return window._adminClinicPreview ? window._clinicPreviewPrices : window._clinicPrices;
+}
+async function loadClinicPrices(){
+  if(window._adminClinicPreview){ renderClinicPricesList(); return; }
+  if(!window._user){ window._clinicPrices=[]; renderClinicPricesList(); return; }
+  try{
+    const snap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('clinicOwnerUid','==',window._user.uid)));
+    window._clinicPrices=snap.docs.map(dd=>Object.assign({id:dd.id},dd.data()));
+  }catch(e){
+    console.error('Грешка при зареждане на клиничните цени:',e);
+    window._clinicPrices=[];
+  }
+  renderClinicPricesList();
+}
+function filterClinicPricePicker(){
+  const term=document.getElementById('cpz-proc-search').value.toLowerCase();
+  const el=document.getElementById('cpz-proc-results');
+  if(!term){el.innerHTML='';el.classList.remove('open');return;}
+  const editId=document.getElementById('cpz-edit-id').value;
+  // Едно цена-на-процедура ред за клиника — вече добавена процедура не се
+  // предлага пак в търсенето, освен точно тази, която в момента се редактира.
+  const usedIds=activeClinicPricesArr().filter(r=>r.id!==editId).map(r=>r.procId);
+  const m=PROCS.filter(p=>(p.name.toLowerCase().includes(term)||p.sub.toLowerCase().includes(term))&&!usedIds.includes(p.id)).slice(0,20);
+  el.innerHTML=m.length?m.map(p=>`<div class="proc-picker-item" onclick="selectClinicPriceProc('${p.id}')">${ic(p.icon)} ${esc(p.name)}</div>`).join(''):'<div style="padding:9px 12px;font-size:12px;color:var(--ink2)">Няма резултати</div>';
+  el.classList.add('open');
+}
+function selectClinicPriceProc(procId){
+  const p=PROCS.find(x=>x.id===procId);
+  if(!p) return;
+  window._clinicPriceSelectedProc={id:p.id,name:p.name,icon:p.icon};
+  document.getElementById('cpz-proc-search').value='';
+  document.getElementById('cpz-proc-results').innerHTML='';
+  document.getElementById('cpz-proc-results').classList.remove('open');
+  renderClinicPriceProcSelection();
+}
+function clearClinicPriceProc(){
+  window._clinicPriceSelectedProc=null;
+  renderClinicPriceProcSelection();
+}
+function renderClinicPriceProcSelection(){
+  const el=document.getElementById('cpz-selected-proc');
+  if(!el) return;
+  const p=window._clinicPriceSelectedProc;
+  if(!p){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='flex';
+  el.innerHTML=`<span style="flex:1;display:flex;align-items:center;gap:6px">${ic(p.icon)} ${esc(p.name)}</span><button onclick="clearClinicPriceProc()" style="background:none;border:none;color:var(--gold);cursor:pointer;display:flex" aria-label="Премахни">${ic('close')}</button>`;
+}
+async function saveClinicPrice(){
+  const sel=window._clinicPriceSelectedProc;
+  const editId=document.getElementById('cpz-edit-id').value;
+  const existing=editId?activeClinicPricesArr().find(r=>r.id===editId):null;
+  if(!sel && !existing){showToast('Избери процедура');return;}
+  const priceVal=parseFloat(document.getElementById('cpz-price').value);
+  if(isNaN(priceVal)||priceVal<0){showToast('Въведи валидна цена');return;}
+  const promoRaw=document.getElementById('cpz-promo').value.trim();
+  const promoPrice=promoRaw===''?null:parseFloat(promoRaw);
+  const note=document.getElementById('cpz-note').value.trim();
+  const data={
+    clinicOwnerUid: window._adminClinicPreview ? 'preview' : (window._user?window._user.uid:''),
+    clinicName: window._clinicData?.name||'',
+    procId: sel?sel.id:existing.procId,
+    procName: sel?sel.name:existing.procName,
+    price: priceVal,
+    promoPrice: (promoPrice!=null && !isNaN(promoPrice)) ? promoPrice : null,
+    note,
+  };
+  if(window._adminClinicPreview){
+    if(editId){
+      const idx=window._clinicPreviewPrices.findIndex(r=>r.id===editId);
+      if(idx>-1) window._clinicPreviewPrices[idx]=Object.assign({},window._clinicPreviewPrices[idx],data);
+    } else {
+      window._clinicPreviewPrices.push(Object.assign({id:'prev_'+Date.now()},data));
+    }
+    showToast('Запазено (тестов преглед — не се записва в облака)');
+    cancelEditClinicPrice();
+    renderClinicPricesList();
+    return;
+  }
+  if(!window._user){showToast(t('toastErr'));return;}
+  try{
+    if(editId){
+      await F().setDoc(F().doc(DB(),'clinic_prices',editId), Object.assign({},data,{updatedAt:F().serverTimestamp()}), {merge:true});
+    } else {
+      await F().addDoc(F().collection(DB(),'clinic_prices'), Object.assign({},data,{createdAt:F().serverTimestamp(),updatedAt:F().serverTimestamp()}));
+    }
+    showToast('Цената е запазена');
+    cancelEditClinicPrice();
+    loadClinicPrices();
+  }catch(e){
+    console.error('Грешка при запис на клинична цена:',e);
+    showToast(t('toastErr'));
+  }
+}
+function editClinicPrice(id){
+  const row=activeClinicPricesArr().find(r=>r.id===id);
+  if(!row) return;
+  document.getElementById('cpz-edit-id').value=id;
+  const catalogProc=PROCS.find(x=>x.id===row.procId);
+  window._clinicPriceSelectedProc={id:row.procId,name:row.procName,icon:catalogProc?catalogProc.icon:'sparkle'};
+  renderClinicPriceProcSelection();
+  document.getElementById('cpz-price').value=row.price!=null?row.price:'';
+  document.getElementById('cpz-promo').value=row.promoPrice!=null?row.promoPrice:'';
+  document.getElementById('cpz-note').value=row.note||'';
+  document.getElementById('cpz-save-btn').textContent='Запази промяната';
+  document.getElementById('cpz-cancel-btn').style.display='block';
+  document.getElementById('cpz-proc-picker').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function cancelEditClinicPrice(){
+  const editIdInp=document.getElementById('cpz-edit-id'); if(editIdInp) editIdInp.value='';
+  window._clinicPriceSelectedProc=null;
+  renderClinicPriceProcSelection();
+  const priceInp=document.getElementById('cpz-price'); if(priceInp) priceInp.value='';
+  const promoInp=document.getElementById('cpz-promo'); if(promoInp) promoInp.value='';
+  const noteInp=document.getElementById('cpz-note'); if(noteInp) noteInp.value='';
+  const searchInp=document.getElementById('cpz-proc-search'); if(searchInp) searchInp.value='';
+  const r=document.getElementById('cpz-proc-results'); if(r){r.innerHTML='';r.classList.remove('open');}
+  const saveBtn=document.getElementById('cpz-save-btn'); if(saveBtn) saveBtn.textContent='+ Добави цена';
+  const cancelBtn=document.getElementById('cpz-cancel-btn'); if(cancelBtn) cancelBtn.style.display='none';
+}
+async function deleteClinicPrice(id){
+  if(!confirm('Изтрий тази цена?')) return;
+  if(window._adminClinicPreview){
+    window._clinicPreviewPrices=window._clinicPreviewPrices.filter(r=>r.id!==id);
+    renderClinicPricesList();
+    return;
+  }
+  try{
+    await F().deleteDoc(F().doc(DB(),'clinic_prices',id));
+    loadClinicPrices();
+  }catch(e){
+    console.error('Грешка при изтриване на клинична цена:',e);
+    showToast(t('toastErr'));
+  }
+}
+function renderClinicPricesList(){
+  const el=document.getElementById('clinic-prices-list');
+  if(!el) return;
+  const arr=activeClinicPricesArr().slice().sort((a,b)=>(a.procName||'').localeCompare(b.procName||'','bg'));
+  if(!arr.length){ el.innerHTML='<div style="font-size:12px;color:var(--ink2);padding:6px 0;text-align:center">Все още няма добавени цени</div>'; return; }
+  el.innerHTML=arr.map(r=>{
+    const p=PROCS.find(x=>x.id===r.procId);
+    const priceHtml = (r.promoPrice!=null)
+      ? `<span style="text-decoration:line-through;color:var(--ink2)">${esc(String(r.price))} лв</span> <strong style="color:var(--gold)">${esc(String(r.promoPrice))} лв</strong>`
+      : `<strong>${esc(String(r.price))} лв</strong>`;
+    return `<div class="clinic-price-row">
+      <div class="cpr-info">
+        <div class="cpr-name">${p?ic(p.icon):''} ${esc(r.procName||'')}</div>
+        <div class="cpr-price">${priceHtml}</div>
+        ${r.note?`<div class="cpr-note">${esc(r.note)}</div>`:''}
+      </div>
+      <div class="cpr-actions">
+        <button class="admin-btn sm" onclick="editClinicPrice('${r.id}')" aria-label="Редактирай">${ic('edit')}</button>
+        <button class="admin-btn sm red" onclick="deleteClinicPrice('${r.id}')" aria-label="Изтрий">${ic('close')}</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── ТЕСТОВ ПРЕГЛЕД НА КЛИНИЧНИЯ ИЗГЛЕД (само за admin) ──
@@ -9293,7 +9566,7 @@ function toggleAdminClinicPreview(){
   if(!window._isAdmin) return;
   window._adminClinicPreview=!window._adminClinicPreview;
   if(window._adminClinicPreview && !window._clinicData){
-    window._clinicData={name:'Тестова клиника (преглед)',address:'ул. Примерна 1, София',phone:'+359 88 000 0000',email:'test@example.bg',eik:'000000000',status:'approved'};
+    window._clinicData={name:'Тестова клиника (преглед)',address:'ул. Примерна 1, София',phone:'+359 88 000 0000',website:'',contactPerson:'',vatRegistered:false,email:'test@example.bg',eik:'000000000',status:'approved'};
   }
   const btn=document.getElementById('nav-home-btn');
   goPage(window._adminClinicPreview?'clinic':'admin', btn);
@@ -10796,7 +11069,7 @@ function initRosegoldTheme(){
 
 // close pickers on outside click
 document.addEventListener('click',e=>{
-  ['admin-clinic-picker','admin-product-picker'].forEach(id=>{
+  ['admin-clinic-picker','admin-product-picker','cpz-proc-picker'].forEach(id=>{
     const el=document.getElementById(id);
     if(el&&!el.contains(e.target)){const r=el.querySelector('.proc-picker-results');if(r){r.innerHTML='';r.classList.remove('open');}}
   });
