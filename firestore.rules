@@ -83,14 +83,15 @@ service cloud.firestore {
     match /clinics/{clinicId} {
       // Публично четим — клиентският сравнителен списък трябва да покаже
       // името/града на клиниката до цената, дори за нелогнат потребител.
-      // Самоличността (одобрение, статус) се управлява само от админ — клиника
-      // все още няма собствен self-serve панел за редакция на профила си
-      // (виж работния документ, раздел "Панел на клиника" — отделен, по-късен
-      // етап). Когато той се появи, тук ще трябва по-тясно правило, което
-      // позволява на clinicId == request.auth.uid да пипа САМО контактните си
-      // полета, никога 'status'.
       allow read: if true;
       allow write: if isAdmin();
+      // Self-serve панел (#page-clinic в index.html) — клиниката пипа само
+      // собствения си КОНТАКТЕН профил, изрично изброени полета. НИКОГА
+      // 'status' (само админ одобрява/спира), 'eik' (правен идентификатор),
+      // 'email' (Auth самоличността ѝ), 'createdAt'/'approvedAt' (сървърни).
+      allow update: if isSignedIn() && request.auth.uid == clinicId
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'address', 'phone', 'website', 'contactPerson', 'vatRegistered', 'updatedAt']);
     }
     match /clinic_prices/{priceId} {
       // Клиниката пише само собствените си редове (clinicOwnerUid == uid) и само
