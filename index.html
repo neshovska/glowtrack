@@ -731,6 +731,19 @@ textarea.form-input{resize:none}
 .clinic-price-row .cpr-price{font-size:12px;color:var(--ink1);margin-top:2px}
 .clinic-price-row .cpr-note{font-size:11px;color:var(--ink2);margin-top:2px}
 .clinic-price-row .cpr-actions{display:flex;gap:4px;flex-shrink:0}
+.cpr-promo-badge{display:inline-flex;align-items:center;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.05em;padding:2px 6px;border-radius:8px;text-transform:uppercase}
+/* #page-promos — списък процедури с активна промоция от поне една клиника,
+   достъпен от картата "Клиники партньори" в #page-soon (виж "Осма стъпка"/
+   деветата стъпка в CLAUDE.md). Клик на ред отваря съответната процедура
+   (openSheet), където живее пълният списък "Цени в клиники". */
+.promo-row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border-radius:14px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 8px rgba(26,26,46,.05)}
+.promo-row:active{opacity:.8}
+.promo-row-icon{width:40px;height:40px;border-radius:10px;background:var(--goldlt);color:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.promo-row-info{flex:1;min-width:0}
+.promo-row-name{font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.promo-row-sub{font-size:11px;color:var(--ink2);margin-top:2px}
+.promo-row-price{flex-shrink:0;font-size:12px;color:var(--ink1);text-align:right;white-space:nowrap}
+.promo-row-price strong{color:var(--gold);font-size:13.5px}
 .photo-previews{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .photo-preview-wrap{position:relative}
 .photo-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--roselt)}
@@ -1721,6 +1734,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
           <div class="auth-field" style="flex:1;margin-bottom:0"><label class="auth-label">Промо цена <span style="text-transform:none;font-weight:400">(по избор)</span></label><input class="form-input" type="number" min="0" step="1" id="cpz-promo" style="font-size:16px"></div>
         </div>
         <input class="form-input" id="cpz-note" placeholder='Бележка (по избор) — напр. "включва 3 сесии"' style="font-size:16px;margin-bottom:10px">
+        <div class="auth-field">
+          <label class="auth-label">Активна промоция <span style="text-transform:none;font-weight:400">(показва се в "Промоции")</span></label>
+          <div style="display:flex;gap:6px">
+            <button type="button" id="cpz-promo-active-yes" onclick="setClinicPriceActivePromo(true)" class="vat-toggle-btn">Да</button>
+            <button type="button" id="cpz-promo-active-no" onclick="setClinicPriceActivePromo(false)" class="vat-toggle-btn">Не</button>
+          </div>
+        </div>
         <button class="admin-btn" id="cpz-save-btn" style="width:100%" onclick="saveClinicPrice()">+ Добави цена</button>
         <button class="admin-btn sm" id="cpz-cancel-btn" style="width:100%;margin-top:6px;background:var(--goldlt);color:var(--gold);display:none" onclick="cancelEditClinicPrice()">Отказ на редакция</button>
         <div id="clinic-prices-list" style="margin-top:14px"></div>
@@ -1890,17 +1910,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       <div id="soon-hero-title" style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a2e;line-height:1.25;margin-bottom:10px">Твоят glow,<br>твоите партньори</div>
       <div style="font-size:12px;color:rgba(26,26,46,.6);line-height:1.75" data-t="soonHeroDesc">Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.</div>
     </div>
-    <!-- Клиники -->
+    <!-- Клиники — ЕДИНСТВЕНАТА от петте карти тук, която вече е РЕАЛНА функция,
+         не маркетингов placeholder (виж "Девета стъпка" в CLAUDE.md). Води към
+         #page-promos — съпоставка на процедури с активна промоция от поне
+         една клиника. Останалите карти по-долу си остават "СКОРО". -->
     <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px" data-t="soonClinicsLbl">Клиники партньори</div>
-    <div style="background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
+    <div onclick="goPage('promos')" role="button" tabindex="0" style="cursor:pointer;background:var(--card);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(26,26,46,.05)">
       <div style="width:44px;height:44px;border-radius:12px;background:var(--goldlt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/></svg>
       </div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--ink)" data-t="soonClinicsTitle">Верифицирани клиники</div>
-        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5" data-t="soonClinicsDesc">Намери клиника близо до теб, специализирана в процедурите които следиш</div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink)" data-t="soonClinicsTitle">Сравни цени и промоции</div>
+        <div style="font-size:11px;color:var(--ink2);margin-top:3px;line-height:1.5" data-t="soonClinicsDesc">Виж кои клиники предлагат твоята процедура и на каква цена</div>
       </div>
-      <div style="flex-shrink:0;background:var(--goldlt);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.08em;padding:4px 8px;border-radius:20px;border:1px solid rgba(184,150,106,.25)" data-t="soonBadge">СКОРО</div>
+      <div style="flex-shrink:0;color:var(--gold)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
     </div>
     <!-- Брандове -->
     <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;margin-top:14px" data-t="soonBrandsLbl">Козметични брандове</div>
@@ -1946,6 +1969,24 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
       </div>
       <button onclick="window.location.href='mailto:info@glowtrack.eu'" style="flex-shrink:0;padding:8px 14px;background:var(--gold);color:#fff;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" data-t="soonWriteBtn">Пишете ни</button>
     </div>
+  </div>
+</div>
+
+<!-- #page-promos — реалната съпоставка "къде и на каква цена се предлага"
+     всяка процедура с активна промоция от поне една клиника. Достъпна САМО
+     от картата "Клиники партньори" в #page-soon (не е bottom-nav таб, затова
+     не е в _validTabs). Клик на ред отваря openSheet(procId), където живее
+     пълният "Цени в клиники" списък за конкретната процедура. -->
+<div class="page" id="page-promos">
+  <div class="page-hdr">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button onclick="goPage('soon')" aria-label="Назад" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink2);padding:0">‹</button>
+      <div class="page-hdr-title" data-t="promosTitle">Промоции</div>
+    </div>
+    <div class="page-hdr-sub" data-t="promosSub">Активни оферти от клиники партньори</div>
+  </div>
+  <div style="padding:0 16px 40px;max-width:480px;margin:0 auto">
+    <div id="promos-list"></div>
   </div>
 </div>
 
@@ -3784,8 +3825,14 @@ const T = {
     soonSub: 'Скоро в GlowTrack',
     soonHeroDesc: 'Скоро ще те свържем с верифицирани клиники, козметични брандове и ексклузивни оферти — всичко персонализирано за твоите процедури.',
     soonClinicsLbl: 'Клиники партньори',
-    soonClinicsTitle: 'Верифицирани клиники',
-    soonClinicsDesc: 'Намери клиника близо до теб, специализирана в процедурите които следиш',
+    soonClinicsTitle: 'Сравни цени и промоции',
+    soonClinicsDesc: 'Виж кои клиники предлагат твоята процедура и на каква цена',
+    promosTitle: 'Промоции',
+    promosSub: 'Активни оферти от клиники партньори',
+    promosEmpty: 'Все още няма активни промоции от клиники.',
+    promosClinicOne: 'клиника',
+    promosClinicMany: 'клиники',
+    promosFrom: 'от',
     soonBrandsLbl: 'Козметични брандове',
     soonProductsTitle: 'Препоръчани продукти',
     soonProductsDesc: 'Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа',
@@ -4067,8 +4114,14 @@ const T = {
     soonSub: 'Coming soon to GlowTrack',
     soonHeroDesc: "Soon we'll connect you with verified clinics, beauty brands, and exclusive offers — all personalized to your treatments.",
     soonClinicsLbl: 'Partner clinics',
-    soonClinicsTitle: 'Verified clinics',
-    soonClinicsDesc: 'Find a clinic near you that specializes in the treatments you track',
+    soonClinicsTitle: 'Compare prices & promotions',
+    soonClinicsDesc: 'See which clinics offer your treatment and at what price',
+    promosTitle: 'Promotions',
+    promosSub: 'Active offers from partner clinics',
+    promosEmpty: 'No active clinic promotions yet.',
+    promosClinicOne: 'clinic',
+    promosClinicMany: 'clinics',
+    promosFrom: 'from',
     soonBrandsLbl: 'Beauty brands',
     soonProductsTitle: 'Recommended products',
     soonProductsDesc: 'Home-care products picked for your treatments and skin type',
@@ -4585,6 +4638,9 @@ function goPage(name,btn){
     }
     if(name==='clinic'){
       if(typeof renderClinicPage==='function') renderClinicPage();
+    }
+    if(name==='promos'){
+      if(typeof loadPromosPage==='function') loadPromosPage();
     }
   }catch(e){}
   if(typeof syncDiaryBackBtn==='function') syncDiaryBackBtn();
@@ -5515,7 +5571,7 @@ async function openSheet(id){
             ?`<span style="text-decoration:line-through;color:var(--ink2)">${esc(String(r.price))} €</span> <strong style="color:var(--gold)">${esc(String(r.promoPrice))} €</strong>`
             :`<strong>${esc(String(r.price))} €</strong>`;
           return `<div class="clinic-price-row"><div class="cpr-info">
-            <div class="cpr-name">${esc(r.clinicName)}</div>
+            <div class="cpr-name">${esc(r.clinicName)} ${r.activePromo?'<span class="cpr-promo-badge">Промо</span>':''}</div>
             <div class="cpr-price">${priceHtml}</div>
             ${r.note?`<div class="cpr-note">${esc(r.note)}</div>`:''}
           </div></div>`;
@@ -9419,6 +9475,19 @@ function setClinicVat(val){
   if(noBtn) noBtn.classList.toggle('active', val===false);
 }
 
+// Клиниката РЪЧНО решава дали текущата цена е активна промоция за
+// съпоставката (#page-promos) — НЕЗАВИСИМО от това дали има зададена
+// promoPrice. Съзнателно два отделни концепта: promoPrice е просто по-ниска
+// цена, activePromo е "покажи ме в списъка с промоции точно сега" — клиника
+// може да иска едното без другото (напр. temporary featured без реална
+// отстъпка, или изтекла промо цена, която вече не се рекламира активно).
+function setClinicPriceActivePromo(val){
+  window._clinicPriceActivePromoValue=val;
+  const yesBtn=document.getElementById('cpz-promo-active-yes'), noBtn=document.getElementById('cpz-promo-active-no');
+  if(yesBtn) yesBtn.classList.toggle('active', val===true);
+  if(noBtn) noBtn.classList.toggle('active', val===false);
+}
+
 async function saveClinicProfile(){
   const name=document.getElementById('cp-name').value.trim();
   const address=document.getElementById('cp-address').value.trim();
@@ -9521,6 +9590,7 @@ async function saveClinicPrice(){
     price: priceVal,
     promoPrice: (promoPrice!=null && !isNaN(promoPrice)) ? promoPrice : null,
     note,
+    activePromo: !!window._clinicPriceActivePromoValue,
   };
   if(window._adminClinicPreview){
     if(editId){
@@ -9559,6 +9629,7 @@ function editClinicPrice(id){
   document.getElementById('cpz-price').value=row.price!=null?row.price:'';
   document.getElementById('cpz-promo').value=row.promoPrice!=null?row.promoPrice:'';
   document.getElementById('cpz-note').value=row.note||'';
+  setClinicPriceActivePromo(!!row.activePromo);
   document.getElementById('cpz-save-btn').textContent='Запази промяната';
   document.getElementById('cpz-cancel-btn').style.display='block';
   document.getElementById('cpz-proc-picker').scrollIntoView({behavior:'smooth',block:'center'});
@@ -9570,6 +9641,7 @@ function cancelEditClinicPrice(){
   const priceInp=document.getElementById('cpz-price'); if(priceInp) priceInp.value='';
   const promoInp=document.getElementById('cpz-promo'); if(promoInp) promoInp.value='';
   const noteInp=document.getElementById('cpz-note'); if(noteInp) noteInp.value='';
+  setClinicPriceActivePromo(false);
   const searchInp=document.getElementById('cpz-proc-search'); if(searchInp) searchInp.value='';
   const r=document.getElementById('cpz-proc-results'); if(r){r.innerHTML='';r.classList.remove('open');}
   const saveBtn=document.getElementById('cpz-save-btn'); if(saveBtn) saveBtn.textContent='+ Добави цена';
@@ -9602,7 +9674,7 @@ function renderClinicPricesList(){
       : `<strong>${esc(String(r.price))} €</strong>`;
     return `<div class="clinic-price-row">
       <div class="cpr-info">
-        <div class="cpr-name">${p?ic(p.icon):''} ${esc(r.procName||'')}</div>
+        <div class="cpr-name">${p?ic(p.icon):''} ${esc(r.procName||'')} ${r.activePromo?'<span class="cpr-promo-badge">Промо</span>':''}</div>
         <div class="cpr-price">${priceHtml}</div>
         ${r.note?`<div class="cpr-note">${esc(r.note)}</div>`:''}
       </div>
@@ -9612,6 +9684,51 @@ function renderClinicPricesList(){
       </div>
     </div>`;
   }).join('');
+}
+
+// ── #page-promos — публична съпоставка "къде и на каква цена" ──
+// Групира clinic_prices по procId (само редове с activePromo===true), не
+// по отделен клиничен ред — потребителят иска "процедура → списък клиники",
+// не "клиника → списък процедури" (обратното вече съществува в openSheet()
+// самостоятелно за всяка процедура). Публично, не изисква логнат потребител
+// — СЪЩИЯТ принцип като "Цени в клиники" вътре в openSheet().
+async function loadPromosPage(){
+  const el=document.getElementById('promos-list');
+  if(!el) return;
+  const isEn=window._lang==='en';
+  el.innerHTML=`<div style="text-align:center;padding:24px 0;color:var(--ink2);font-size:12.5px">${isEn?'Loading…':'Зареждане…'}</div>`;
+  try{
+    const snap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('activePromo','==',true)));
+    const rows=snap.docs.map(d=>d.data()).filter(r=>r.price!=null && r.procId);
+    const byProc={};
+    rows.forEach(r=>{
+      const eff=r.promoPrice!=null?r.promoPrice:r.price;
+      if(!byProc[r.procId]) byProc[r.procId]={procId:r.procId,procName:r.procName,minPrice:eff,count:1};
+      else { byProc[r.procId].count++; if(eff<byProc[r.procId].minPrice) byProc[r.procId].minPrice=eff; }
+    });
+    const list=Object.values(byProc).sort((a,b)=>a.minPrice-b.minPrice);
+    if(!list.length){
+      el.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink2);font-size:12.5px">${esc(t('promosEmpty'))}</div>`;
+      return;
+    }
+    el.innerHTML=list.map(p=>{
+      const proc=PROCS.find(x=>x.id===p.procId);
+      const iconHtml=proc?ic(proc.icon):'';
+      const name=esc(proc?procL(proc).name:(p.procName||'—'));
+      const clinicWord=p.count===1?t('promosClinicOne'):t('promosClinicMany');
+      return `<div class="promo-row" onclick="openSheet('${p.procId}')">
+        <div class="promo-row-icon">${iconHtml}</div>
+        <div class="promo-row-info">
+          <div class="promo-row-name">${name}</div>
+          <div class="promo-row-sub">${p.count} ${esc(clinicWord)}</div>
+        </div>
+        <div class="promo-row-price">${esc(t('promosFrom'))} <strong>${esc(String(p.minPrice))} €</strong></div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    console.error('Грешка при зареждане на промоции:',e);
+    el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--red);font-size:12px">${isEn?'Error loading':'Грешка при зареждане'}</div>`;
+  }
 }
 
 // ── ТЕСТОВ ПРЕГЛЕД НА КЛИНИЧНИЯ ИЗГЛЕД (само за admin) ──
