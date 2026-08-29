@@ -1323,20 +1323,80 @@ stub-нат Firestore рендира wrap-овете без грешки. Нул
 примерни данни (име/адрес/телефон/имейл/ЕИК/статус) и видим бутон за
 връщане; клик на връщане активира обратно `#page-admin`; нула JS грешки.
 
+**Седма стъпка — реален self-serve панел, не placeholder.** По изрична
+заявка "искам да имам цялата страница с опция да въвежда всичко както би
+правила клиника" — `#page-clinic` вече е пълноценна работна страница:
+- **Профил на клиниката** — редактируеми `name`/`address`/`phone`/`website`/
+  `contactPerson`/`vatRegistered` (последното през същия `.vat-toggle-btn`
+  Да/Не превключвател като регистрационната форма, само theme-aware
+  вариант — `#page-clinic .vat-toggle-btn`, защото тази страница следва
+  обичайната тъмна/светла тема на приложението, за разлика от вечно
+  тъмния фон на `#page-for-clinics`). `saveClinicProfile()` пише в
+  `clinics/{uid}` през `updateDoc()`. Имейл/ЕИК/статус остават read-only
+  дисплей — виж защо в firestore.rules по-долу.
+  `setClinicVat()` е СЪЩАТА идея като `setRegVat()` от регистрационната
+  форма, отделна функция (не преизползване directly), защото пише в
+  различна module-level променлива (`window._clinicVatValue`) и пипа
+  различни DOM id-та (`cp-vat-*` вместо `reg-vat-*`).
+- **Цени по процедура** (`clinic_prices`) — search-picker по целия каталог
+  (`filterClinicPricePicker()`/`selectClinicPriceProc()`), СЪЩИЯТ принцип
+  като `filterAdminPicker()`/`addAdminProc()` за админ формите на
+  клиники/продукти реклами (`.proc-picker-results`/`.proc-picker-item`
+  CSS преизползвани directly), но опростен до single-select (една
+  процедура на добавяне, не multi-select чипове — тук всеки ред Е отделен
+  Firestore документ, не масив от id-та в едно поле). Вече добавена
+  процедура не се предлага пак в търсенето (`usedIds` филтър в
+  `filterClinicPricePicker()`), освен точно тази, която в момента се
+  редактира. Полета: цена, опционална промо цена (показва се зачертана
+  оригинална цена + златна промо цена в списъка), бележка (по избор).
+  `saveClinicPrice()` различава create (`addDoc`) от update
+  (`setDoc(...,{merge:true})`) по скрито `cpz-edit-id` поле — СЪЩИЯТ
+  похват като `saveClinicAd()`/`ac-edit-id`. Полетата на документа
+  (`clinicOwnerUid`/`clinicName`/`procId`/`procName`/`price`) съвпадат
+  нарочно с това, което `notifyOnClinicPriceChange` Cloud Function вече
+  очаква (виж по-горе) — без съвпадение известията/имейлите биха излизали
+  с "—"/"Непозната клиника".
+- **Тестовият преглед вече работи с целия панел, не само самоличността.**
+  `window._adminClinicPreview` активен → профилните промени остават само
+  в `window._clinicData` (паметта), а цените живеят в
+  `window._clinicPreviewPrices` (локален масив) — `activeClinicPricesArr()`
+  връща единия или другия масив според флага, целият останал код
+  (`saveClinicPrice`/`editClinicPrice`/`deleteClinicPrice`/
+  `renderClinicPricesList`) не знае/не го интересува кой от двата е активен.
+  Нужно е точно защото admin тестовият акаунт няма истински
+  `clinicOwnerUid`/Firestore документ — писане към реалната колекция би
+  или гръмнало на rules, или създало сирак документ с фиктивен uid.
+
+**`firestore.rules` — нов `allow update` за `clinics/{clinicId}`.**
+Дотогава само `isAdmin()` можеше да пипа `clinics/*` изобщо — клиниката
+нямаше начин да си смени телефон/адрес без да пише на админа. Новото
+правило е строго ограничено (`diff().affectedKeys().hasOnly([...])`) до
+`name`/`address`/`phone`/`website`/`contactPerson`/`vatRegistered`/
+`updatedAt` — НИКОГА `status` (само админ одобрява/спира), `eik` (правен
+идентификатор), `email` (Auth самоличността ѝ), `createdAt`/`approvedAt`
+(сървърни). Проверено с Playwright + stub-нат Firestore: реалният
+`updateDoc()` извик носи ТОЧНО тези ключове, нищо извън списъка.
+
 **ИЗРИЧНО ОЩЕ НЕ Е ПОСТРОЕНО** (следващи, отделни стъпки от пътната карта):
-клиничен self-serve панел за редакция на цени (клиниката може да влезе с
-новия си акаунт, но още няма какво да прави там — вижда общия профилен
-екран, не специфично клинично табло), `role:'clinic'` изрично поле (в
-момента самото съществуване на `clinics/{uid}` документ Е сигналът "това е
-клиничен акаунт" — няма отделен флаг), Stripe продукт/плащане за клиника,
-каквато и да е логика "невидимо докато не плати".
+`role:'clinic'` изрично поле (в момента самото съществуване на
+`clinics/{uid}` документ Е сигналът "това е клиничен акаунт" — няма
+отделен флаг), Stripe продукт/плащане за клиника, каквато и да е логика
+"невидимо докато не плати" (записаните цени вече СА видими в
+`clinic_prices` за всеки, който ги прочете — публичен клиентски
+сравнителен списък/търсене по цена все още не е построен, само
+писането/редакцията от страна на клиниката).
 
 **Изисква ръчно действие от потребителя, извън repo-то, преди да проработи
 на живо:** `firestore.rules` НЕ се деплойва от CI (виж раздела "Работен
-процес при промени" по-долу) — новите правила (`clinics`/`clinic_prices`/
-`admin_notifications`/`clinic_registrations`) изискват `firebase deploy
---only firestore:rules` ръчно, ВСИЧКИ наведнъж (правилата все още не са
-пуснати от предната стъпка). `functions/index.js` промените
+процес при промени" по-долу) — ВСИЧКИ правила от marketplace работата
+(`clinics` вкл. новия `allow update`, `clinic_prices`, `admin_notifications`,
+`clinic_registrations`) все още НЕ са публикувани в живия Firebase проект,
+значи докато потребителят не пусне `firebase deploy --only firestore:rules`
+ръчно: и `saveClinicProfile()` (update на `clinics/{uid}`), и
+`saveClinicPrice()`/`deleteClinicPrice()` (create/update/delete на
+`clinic_prices`) ще гърмят с permission-denied в реалния clinic акаунт —
+работят само в тестовия преглед (`window._adminClinicPreview`), който
+изобщо не пипа Firestore. `functions/index.js` промените
 (`notifyOnClinicPriceChange`, `notifyOnClinicRegistration`,
 `approveClinicRegistration`) СЕ деплойват автоматично от
 `deploy-functions.yml` при push към `main`.
