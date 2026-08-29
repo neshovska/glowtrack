@@ -71,6 +71,48 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
+    match /clinics/{clinicId} {
+      // Публично четим — клиентският сравнителен списък трябва да покаже
+      // името/града на клиниката до цената, дори за нелогнат потребител.
+      // Самоличността (одобрение, статус) се управлява само от админ — клиника
+      // все още няма собствен self-serve панел за редакция на профила си
+      // (виж работния документ, раздел "Панел на клиника" — отделен, по-късен
+      // етап). Когато той се появи, тук ще трябва по-тясно правило, което
+      // позволява на clinicId == request.auth.uid да пипа САМО контактните си
+      // полета, никога 'status'.
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /clinic_prices/{priceId} {
+      // Клиниката пише само собствените си редове (clinicOwnerUid == uid) и само
+      // след одобрение (виж isApprovedClinic()) — самото писане никога не е
+      // заключено зад плащане (решено изрично: "въвеждането не спира" дори след
+      // пробния период). Кое от вече написаното е ВИДИМО за клиентите заради
+      // плащане е бъдещ, отделен слой (виж "Отворени въпроси"/"Решения" в работния
+      // документ) — не се прилага тук, докато клиничните абонаменти не съществуват.
+      function isApprovedClinic() {
+        return isSignedIn() && get(/databases/$(database)/documents/clinics/$(request.auth.uid)).data.status == 'approved';
+      }
+      allow read: if true;
+      allow create: if isApprovedClinic()
+        && request.resource.data.clinicOwnerUid == request.auth.uid;
+      allow update: if isApprovedClinic()
+        && resource.data.clinicOwnerUid == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicOwnerUid']);
+      allow delete: if (isSignedIn() && resource.data.clinicOwnerUid == request.auth.uid) || isAdmin();
+    }
+    match /admin_notifications/{notifId} {
+      // Пълни се САМО от notifyOnClinicPriceChange (Cloud Function, Admin SDK,
+      // заобикаля тези правила изцяло) — клиентът никога не създава известия сам,
+      // иначе всеки логнат клиничен акаунт би могъл да си "измисли" фалшива история.
+      allow create: if false;
+      allow read: if isAdmin();
+      // Ограничено до точно тези два ключа — "Прегледай" бутонът в админ панела
+      // не бива случайно да презаписва clinicName/summary/createdAt на известието.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reviewed', 'reviewedAt']);
+      allow delete: if isAdmin();
+    }
     match /referrals/{referralId} {
       allow create: if isSignedIn()
         && request.auth.uid == request.resource.data.refereeUid

@@ -1689,6 +1689,20 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <div id="admin-products-list"></div>
           </div>
 
+          <div class="p-eyebrow">Известия от клиники</div>
+          <div class="acc-section profile-card-section" id="admin-clinic-notif-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
+            <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+              <span class="pcs-title"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Активност <span id="clinic-notif-badge" class="inbox-badge" style="display:none;margin-left:4px"></span></span>
+              <span class="acc-arrow">⌄</span>
+            </div>
+            <div class="acc-body">
+              <!-- Качено/променено от клиника (виж functions/index.js:notifyOnClinicPriceChange) —
+                   всеки запис остава видим завинаги, "Прегледай" само маркира reviewed:true,
+                   не трие историята (виж loadAdminClinicNotifications()/markClinicNotifReviewed()). -->
+              <div id="admin-clinic-notif-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зареждане...</div></div>
+            </div>
+          </div>
+
           <div class="p-eyebrow">Съобщения от потребители</div>
           <div class="acc-section profile-card-section" id="admin-inbox-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
             <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -7434,6 +7448,52 @@ async function loadAdminInbox(){
   }catch(e){const listEl2=document.getElementById('admin-inbox-list'); if(listEl2) listEl2.innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
 }
 
+// ── ИЗВЕСТИЯ ОТ КЛИНИКИ (admin) ──
+// admin_notifications се пълни от Cloud Function notifyOnClinicPriceChange
+// (functions/index.js) при всяко create/update на clinic_prices — клиентът
+// никога не пише директно в тази колекция (виж firestore.rules, allow create: if false).
+// "Прегледай" САМО маркира reviewed:true — записът остава в историята завинаги,
+// за да може по-късно да се проследи какво вече е било проверено за релевантност.
+async function loadAdminClinicNotifications(){
+  if(!window._isAdmin) return;
+  try{
+    const snap=await F().getDocs(F().query(F().collection(DB(),'admin_notifications'), F().orderBy('createdAt','desc'), F().limit(30)));
+    const items=snap.docs;
+    const unread=items.filter(d=>!d.data().reviewed).length;
+    const badge=document.getElementById('clinic-notif-badge');
+    if(badge){ if(unread>0){badge.style.display='inline';badge.textContent=unread+' нови';}else{badge.style.display='none';} }
+    const listEl=document.getElementById('admin-clinic-notif-list');
+    if(listEl) listEl.innerHTML=items.length?items.map(d=>{
+      const n=d.data();
+      const dt=n.createdAt?.toDate?n.createdAt.toDate():new Date();
+      const reviewed=!!n.reviewed;
+      return`<div class="admin-inbox-item">
+        <div class="admin-inbox-type">${esc(n.clinicName||'Клиника')}</div>
+        <div class="admin-inbox-text">${esc(n.summary||'')}</div>
+        <div class="admin-inbox-meta" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span>${fmtFull(dt)}</span>
+          ${reviewed
+            ?`<span style="display:flex;align-items:center;gap:3px;color:var(--ink2)">${ic('check','11px')} Прегледано</span>`
+            :`<button onclick="markClinicNotifReviewed('${d.id}')" style="border:none;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:700;background:var(--gold);color:#fff;cursor:pointer">Прегледай</button>`}
+        </div>
+      </div>`;
+    }).join(''):'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма известия още</div>';
+  }catch(e){
+    console.error('loadAdminClinicNotifications error:', e);
+    const listEl2=document.getElementById('admin-clinic-notif-list');
+    if(listEl2) listEl2.innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';
+  }
+}
+async function markClinicNotifReviewed(id){
+  if(!window._isAdmin) return;
+  try{
+    await F().updateDoc(F().doc(DB(),'admin_notifications',id),{reviewed:true, reviewedAt:F().serverTimestamp()});
+    loadAdminClinicNotifications();
+  }catch(e){
+    console.error('markClinicNotifReviewed error:', e);
+    showToast(t('toastErr'));
+  }
+}
 
 // ── FORGOT PASSWORD ──
 function showForgotPassword(){
@@ -8949,6 +9009,8 @@ function loadProfileStats(){
   if(window._isAdmin){
     const wrap = document.getElementById('admin-inbox-wrap');
     if(wrap) wrap.style.display = 'block';
+    const cnw = document.getElementById('admin-clinic-notif-wrap');
+    if(cnw) cnw.style.display = 'block';
     const tdw = document.getElementById('admin-testdata-wrap');
     if(tdw) tdw.style.display = 'block';
     const tmt = document.getElementById('admin-testmode-toggle');
@@ -8956,6 +9018,7 @@ function loadProfileStats(){
     const fb = document.getElementById('client-feedback-section');
     if(fb) fb.style.display = 'none';
     loadAdminInbox();
+    loadAdminClinicNotifications();
     loadAdminDashboard();
     loadAdminLists();
     renderAiToggleUI();
