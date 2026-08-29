@@ -1694,6 +1694,22 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <div id="admin-products-list"></div>
           </div>
 
+          <div class="p-eyebrow">Клиники — чакащи одобрение</div>
+          <div class="acc-section profile-card-section" id="admin-clinic-pending-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
+            <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+              <span class="pcs-title"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Чакащи <span id="clinic-pending-badge" class="inbox-badge" style="display:none;margin-left:4px"></span></span>
+              <span class="acc-arrow">⌄</span>
+            </div>
+            <div class="acc-body">
+              <!-- "Одобри" вика approveClinicRegistration (Cloud Function, Admin SDK) —
+                   създава реален Firebase Auth акаунт + clinics/{uid} документ + праща
+                   имейл с линк за задаване на парола (същия oobCode механизъм като
+                   sendBrandedPasswordReset). "Откажи" е обикновен клиентски update на
+                   статуса — не изисква сървърна логика, защото не създава акаунт. -->
+              <div id="admin-clinic-pending-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зареждане...</div></div>
+            </div>
+          </div>
+
           <div class="p-eyebrow">Известия от клиники</div>
           <div class="acc-section profile-card-section" id="admin-clinic-notif-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
             <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -2177,6 +2193,7 @@ window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
 window._callSendPasswordReset = httpsCallable(fnInstance, 'sendBrandedPasswordReset');
 window._callDeleteAccount = httpsCallable(fnInstance, 'deleteAccountData');
 window._callResolveReferralCode = httpsCallable(fnInstance, 'resolveReferralCode');
+window._callApproveClinicRegistration = httpsCallable(fnInstance, 'approveClinicRegistration');
 (async function(){
   try{
     const snap = await getDoc(doc(db,'app_config','settings'));
@@ -7453,6 +7470,67 @@ async function loadAdminInbox(){
   }catch(e){const listEl2=document.getElementById('admin-inbox-list'); if(listEl2) listEl2.innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';}
 }
 
+// ── КЛИНИКИ, ЧАКАЩИ ОДОБРЕНИЕ (admin) ──
+// "Одобри" вика approveClinicRegistration (Cloud Function, Admin SDK) — тя
+// прави ВСИЧКО сървърно (createUser + clinics/{uid} + branded reset-парола
+// имейл), защото createUser никога не е разрешен от клиента (виж
+// firestore.rules — clinics пише само isAdmin(), а тук трябва и реален Auth
+// акаунт, което Firestore rules изобщо не могат да контролират). "Откажи" е
+// обикновен статус update — не създава нищо, значи не му трябва Cloud Function.
+async function loadAdminClinicPending(){
+  if(!window._isAdmin) return;
+  try{
+    // where+orderBy на РАЗЛИЧНИ полета би изисквало съставен Firestore индекс —
+    // сортираме на клиента вместо това (същия похват като loadAdminInbox()),
+    // за да няма нужда от ръчно създаване на индекс в Firebase Console.
+    const snap=await F().getDocs(F().query(F().collection(DB(),'clinic_registrations'), F().where('status','==','pending')));
+    const items=snap.docs.sort((a,b)=>(b.data().createdAt?.toMillis?.()??0)-(a.data().createdAt?.toMillis?.()??0));
+    const badge=document.getElementById('clinic-pending-badge');
+    if(badge){ if(items.length>0){badge.style.display='inline';badge.textContent=items.length+' нови';}else{badge.style.display='none';} }
+    const listEl=document.getElementById('admin-clinic-pending-list');
+    if(listEl) listEl.innerHTML=items.length?items.map(d=>{
+      const r=d.data();
+      return`<div class="admin-inbox-item">
+        <div class="admin-inbox-type">${esc(r.name||'Клиника')} · ЕИК ${esc(r.eik||'—')}</div>
+        <div class="admin-inbox-text">${esc(r.address||'—')}${r.website?' · '+esc(r.website):''}<br>${esc(r.contactPerson||'—')} · ${esc(r.email||'—')} · ${esc(r.phone||'—')}</div>
+        <div class="admin-inbox-meta" style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+          <button onclick="rejectClinicRegistration('${d.id}')" style="border:1px solid rgba(217,95,95,.4);background:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:700;color:#c0504f;cursor:pointer">Откажи</button>
+          <button onclick="approveClinicRegistration('${d.id}', this)" style="border:none;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:700;background:var(--gold);color:#fff;cursor:pointer">Одобри</button>
+        </div>
+      </div>`;
+    }).join(''):'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма чакащи регистрации</div>';
+  }catch(e){
+    console.error('loadAdminClinicPending error:', e);
+    const listEl2=document.getElementById('admin-clinic-pending-list');
+    if(listEl2) listEl2.innerHTML='<div style="font-size:12px;color:var(--ink2)">Грешка при зареждане</div>';
+  }
+}
+window.rejectClinicRegistration=async function(id){
+  if(!window._isAdmin) return;
+  if(!confirm('Отказваш тази регистрация?')) return;
+  try{
+    await F().updateDoc(F().doc(DB(),'clinic_registrations',id),{status:'rejected', rejectedAt:F().serverTimestamp()});
+    loadAdminClinicPending();
+  }catch(e){
+    console.error('rejectClinicRegistration error:', e);
+    showToast(t('toastErr'));
+  }
+};
+window.approveClinicRegistration=async function(id, btnEl){
+  if(!window._isAdmin) return;
+  const label=btnEl?btnEl.textContent:'';
+  if(btnEl){btnEl.disabled=true;btnEl.textContent='...';}
+  try{
+    await window._callApproveClinicRegistration({registrationId:id});
+    showToast('Клиниката е одобрена — изпратен е имейл за парола.');
+    loadAdminClinicPending();
+  }catch(e){
+    console.error('approveClinicRegistration error:', e);
+    showToast(e?.message || t('toastErr'));
+    if(btnEl){btnEl.disabled=false; btnEl.textContent=label;}
+  }
+};
+
 // ── ИЗВЕСТИЯ ОТ КЛИНИКИ (admin) ──
 // admin_notifications се пълни от Cloud Function notifyOnClinicPriceChange
 // (functions/index.js) при всяко create/update на clinic_prices — клиентът
@@ -9079,6 +9157,8 @@ function loadProfileStats(){
     if(wrap) wrap.style.display = 'block';
     const cnw = document.getElementById('admin-clinic-notif-wrap');
     if(cnw) cnw.style.display = 'block';
+    const cpw = document.getElementById('admin-clinic-pending-wrap');
+    if(cpw) cpw.style.display = 'block';
     const tdw = document.getElementById('admin-testdata-wrap');
     if(tdw) tdw.style.display = 'block';
     const tmt = document.getElementById('admin-testmode-toggle');
@@ -9086,6 +9166,7 @@ function loadProfileStats(){
     const fb = document.getElementById('client-feedback-section');
     if(fb) fb.style.display = 'none';
     loadAdminInbox();
+    loadAdminClinicPending();
     loadAdminClinicNotifications();
     loadAdminDashboard();
     loadAdminLists();
