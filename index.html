@@ -2542,6 +2542,7 @@ onAuthStateChanged(auth,async user=>{
   window._authReady=true;
   if(user){
     window._user=user;window._isAdmin=(user.uid==='7lNa6gWSDxb7kgR1AR8VEeKPgap2');
+    if(typeof updateNavForRole==='function') updateNavForRole();
     window._rosegoldAllowed=ROSEGOLD_ALLOWED_UIDS.includes(user.uid);
     if(typeof initRosegoldTheme==='function')initRosegoldTheme();
     // Ако браузърът вече е дал push разрешение, инициализираме push само ако:
@@ -2685,6 +2686,18 @@ onAuthStateChanged(auth,async user=>{
         }catch(backfillErr){ console.error('Backfill грешка:',backfillErr); }
       }
     }catch(e){}
+    // Клиничен акаунт — самото съществуване на clinics/{uid} документ Е сигналът
+    // (виж CLAUDE.md, "role:'clinic' изрично поле" все още не съществува).
+    // Долният таб "Начало" се превръща в "Профил" за клиника/админ
+    // (updateNavForRole()) — "Начало" показва лични неща (фаза на цикъла, тип
+    // кожа, "Открий ново"), безсмислени за бизнес акаунт; профилният панел вече
+    // е там, където живее и админ пространството.
+    window._isClinic=false; window._clinicData=null;
+    try{
+      const clinicSnap=await getDoc(doc(db,'clinics',user.uid));
+      if(clinicSnap.exists()){ window._isClinic=true; window._clinicData=clinicSnap.data(); }
+    }catch(e){}
+    if(typeof updateNavForRole==='function') updateNavForRole();
     // Apply language (uses localStorage fallback if Firestore read failed)
     if(typeof applyLang==='function')applyLang();else window._pendingLang=true;
     if(!window._isAdmin&&typeof checkOnboarding==='function')checkOnboarding(uSnapAll&&uSnapAll.exists()?uSnapAll.data():null);
@@ -4385,6 +4398,26 @@ async function confirmDeleteAccount(){
 }
 
 // ── NAVIGATION ──
+// Първият долен таб ("Начало") се превръща в "Профил" за клиника/админ —
+// извиква се веднъж при вход (виж onAuthStateChanged), не при всяко рисуване.
+// Иконата е ICO_DEFS.person (същия path като категорията "Тяло" в каталога),
+// не нова икона. Обикновен потребител не се пипа — по изрична заявка,
+// "за нормалния потребител бутона ще си остане за момента както е сега".
+function updateNavForRole(){
+  const btn=document.getElementById('nav-home-btn');
+  const lbl=document.getElementById('nav-home-lbl');
+  if(!btn||!lbl) return;
+  const ni=btn.querySelector('.ni');
+  if(window._isAdmin||window._isClinic){
+    btn.setAttribute('onclick',"goPage('profile',this)");
+    lbl.textContent='Профил';
+    if(ni) ni.innerHTML=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6">${ICO_DEFS.person}</svg>`;
+  } else {
+    btn.setAttribute('onclick',"goPage('home',this)");
+    lbl.textContent='Начало';
+    if(ni) ni.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>';
+  }
+}
 function showComingSoon(){
   const cs = document.getElementById('coming-soon-overlay');
   if(cs) cs.style.display='flex';
