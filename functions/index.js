@@ -737,9 +737,9 @@ exports.notifyOnClinicPriceChange = onDocumentWritten(
 
       let summary;
       if (isNew) {
-        summary = `Добави нова цена/промоция — ${procLabel}: ${after.price != null ? after.price + " лв" : "—"}`;
+        summary = `Добави нова цена/промоция — ${procLabel}: ${after.price != null ? after.price + " €" : "—"}`;
       } else if (before.price !== after.price) {
-        summary = `Обнови цена — ${procLabel}: ${before.price ?? "—"} → ${after.price ?? "—"} лв`;
+        summary = `Обнови цена — ${procLabel}: ${before.price ?? "—"} → ${after.price ?? "—"} €`;
       } else {
         summary = `Промени данни — ${procLabel}`;
       }
