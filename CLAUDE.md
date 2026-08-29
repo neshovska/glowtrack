@@ -1069,6 +1069,7 @@ compat SDK-ът търси в `us-central1` и хвърля not-found.
 | `resolveReferralCode` | onCall | referralCode → uid (клиентът няма право да query-ва users) |
 | `askAiAssistant` | onCall | Anthropic API, `claude-haiku-4-5-20251001`, 5/ден |
 | `notifyOnClinicInquiry` | onDocumentCreated | имейл до `info@glowtrack.eu` през Zoho SMTP |
+| `notifyOnClinicPriceChange` | onDocumentWritten `clinic_prices/{id}` | имейл + запис в `admin_notifications` при ново/променено качване от клиника |
 | `sendBrandedPasswordReset` | onCall | брандиран reset имейл + throttle |
 | `deleteAccountData` | onCall | пълно изтриване на акаунт |
 
@@ -1132,6 +1133,59 @@ compat SDK-ът търси в `us-central1` и хвърля not-found.
   няма "recent login" изискване, за разлика от клиентския `deleteUser()`.
   Старата клиентска логика можеше да изтрие данните и да остави Auth акаунта
   като "празна черупка" при изтекла сесия.
+
+---
+
+## Marketplace за клиники — В ПРОЦЕС (само бекенд основата засега)
+
+Дългосрочен план: двустранен marketplace (клиенти ⇄ клиники) за сравнение
+на цени по процедура, с GlowTrack като посредник (роли, регистрация с
+ЕИК/БУЛСТАТ, плащане, аналитика). Пълният план — роли, стъпаловидна пътна
+карта, конкурентна среда, отворени решения — засега живее в отделен работен
+документ извън repo-то (обсъждан с потребителя, не е committed тук).
+
+**Направено в кода до момента — само нотификационната основа, нищо друго:**
+- `firestore.rules` — нови колекции `clinics/{clinicId}` (публично четими,
+  писани само от админ — клиника още няма собствен self-serve панел за
+  редакция на профила си) и `clinic_prices/{priceId}` (клиниката пише само
+  собствените си редове, `clinicOwnerUid == request.auth.uid`, само след
+  `clinics/{uid}.status == 'approved'`; писането НИКОГА не е заключено зад
+  плащане — решено изрично, "въвеждането не спира" дори след пробния период,
+  плащането ще гейтва бъдеща видимост за клиенти, не самото писане).
+  `admin_notifications/{notifId}` — пълни се САМО от Cloud Function (Admin
+  SDK), клиентът никога не създава запис сам; `update` е ограничено до точно
+  `reviewed`/`reviewedAt`, за да не презаписва "Прегледай" бутона случайно
+  останалите полета.
+- `functions/index.js:notifyOnClinicPriceChange` — `onDocumentWritten` (не
+  `onDocumentCreated` като `notifyOnClinicInquiry` — трябва да хване И ново
+  качване, И редакция) на `clinic_prices/{docId}`. Строи кратко резюме
+  какво се е променило (сравнява `before.price`/`after.price`), пише го в
+  `admin_notifications` И праща имейл през същия Zoho SMTP механизъм като
+  `notifyOnClinicInquiry`. Изтриване на ред (delete на документа) НЕ известява
+  — собственик, чистещ собствен ред, не е нередност за преглед.
+- `index.html` — нова секция "Известия от клиники" в админ панела
+  (`loadAdminClinicNotifications()`/`markClinicNotifReviewed()`), веднага
+  до "Съобщения от потребители" (`loadAdminInbox()`), СЪЩИЯТ визуален модел
+  (`.admin-inbox-item` класовете, преизползвани directly). Всеки запис
+  показва клиника + резюме + дата; "Прегледай" САМО маркира `reviewed:true`
+  — записът остава в историята завинаги, за да може по-късно да се
+  проследи какво вече е било проверено за релевантност на цената (изрична
+  заявка на потребителя — "да мога да проследявам... дали реално цените
+  им релевантни").
+
+**ИЗРИЧНО ОЩЕ НЕ Е ПОСТРОЕНО** (следващи, отделни стъпки от пътната карта):
+регистрационен екран за клиника (само мокъп засега), клиничен self-serve
+панел за редакция на цени, `role:'clinic'` на Firebase Auth акаунт, Stripe
+продукт/плащане за клиника, каквато и да е логика "невидимо докато не
+плати" (само `clinics`/`clinic_prices` съществуват структурно — никой
+реален клиничен акаунт още не може да се регистрира през приложението).
+
+**Изисква ръчно действие от потребителя, извън repo-то, преди да проработи
+на живо:** `firestore.rules` НЕ се деплойва от CI (виж раздела "Работен
+процес при промени" по-долу) — новите правила за `clinics`/`clinic_prices`/
+`admin_notifications` изискват `firebase deploy --only firestore:rules`
+ръчно. `functions/index.js` промяната (`notifyOnClinicPriceChange`) СЕ
+деплойва автоматично от `deploy-functions.yml` при push към `main`.
 
 ---
 

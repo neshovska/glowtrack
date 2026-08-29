@@ -12,7 +12,7 @@ const crypto = require("crypto");
 const {setGlobalOptions} = require("firebase-functions/v2");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
-const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {onDocumentCreated, onDocumentWritten} = require("firebase-functions/v2/firestore");
 const {defineSecret, defineString} = require("firebase-functions/params");
 const nodemailer = require("nodemailer");
 const admin = require("firebase-admin");
@@ -654,6 +654,73 @@ exports.notifyOnClinicInquiry = onDocumentCreated(
         console.log("Имейл известие за клиника изпратено:", data.clinicName);
       } catch (e) {
         console.error("Грешка при изпращане на имейл известие за клиника:", e);
+      }
+      return null;
+    },
+);
+
+
+// ═══════════════════════════════════════════════════════════
+// НОТИФИКАЦИЯ ЗА ПРОМЯНА НА ЦЕНА ОТ КЛИНИКА — първата истинска писателна
+// операция на клиничния marketplace (виж работния документ). onDocumentWritten
+// (не onDocumentCreated, за разлика от notifyOnClinicInquiry) — трябва да хване
+// И ново качване, И редакция на вече съществуваща цена, "изтрий" на event.data.after
+// липсва (delete на самия документ), в който случай нищо не се известява —
+// изтриване на собствен ред не е нередност, която админ трябва да преглежда.
+exports.notifyOnClinicPriceChange = onDocumentWritten(
+    {document: "clinic_prices/{docId}", secrets: [smtpUser, smtpPass]},
+    async (event) => {
+      const after = event.data?.after?.exists ? event.data.after.data() : null;
+      if (!after) return null; // документът е изтрит — нищо за докладване
+
+      const before = event.data?.before?.exists ? event.data.before.data() : null;
+      const isNew = !before;
+      const procLabel = after.procName || after.procId || "процедура";
+      const clinicName = after.clinicName || "Непозната клиника";
+
+      let summary;
+      if (isNew) {
+        summary = `Добави нова цена/промоция — ${procLabel}: ${after.price != null ? after.price + " лв" : "—"}`;
+      } else if (before.price !== after.price) {
+        summary = `Обнови цена — ${procLabel}: ${before.price ?? "—"} → ${after.price ?? "—"} лв`;
+      } else {
+        summary = `Промени данни — ${procLabel}`;
+      }
+
+      // 1) запис в admin_notifications — за лентата в самия админ панел
+      // (виж loadAdminClinicNotifications() в index.html). Best-effort, отделно
+      // try/catch от имейла — неуспех тук не бива да спре имейл известието.
+      try {
+        await db.collection("admin_notifications").add({
+          type: "clinic_price_change",
+          clinicId: after.clinicOwnerUid || null,
+          clinicName,
+          summary,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          reviewed: false,
+        });
+      } catch (e) {
+        console.error("Грешка при запис на admin_notifications:", e);
+      }
+
+      // 2) имейл — същия SMTP механизъм като notifyOnClinicInquiry по-горе.
+      const port = parseInt(smtpPort.value(), 10) || 465;
+      const transporter = nodemailer.createTransport({
+        host: smtpHost.value(),
+        port,
+        secure: port === 465,
+        auth: {user: smtpUser.value(), pass: smtpPass.value()},
+      });
+      try {
+        await transporter.sendMail({
+          from: `"GlowTrack" <${smtpUser.value()}>`,
+          to: CLINIC_NOTIFICATION_EMAIL,
+          subject: `${isNew ? "Нова цена" : "Промяна на цена"} от ${clinicName}`,
+          text: `${clinicName}:\n${summary}`,
+        });
+        console.log("Имейл известие за промяна на клинична цена изпратено:", clinicName);
+      } catch (e) {
+        console.error("Грешка при изпращане на имейл известие за промяна на цена:", e);
       }
       return null;
     },
