@@ -714,6 +714,11 @@ textarea.form-input{resize:none}
 #page-for-clinics .form-input{background:#1e1e38!important;color:#f0ede8!important;border-color:rgba(212,169,106,.25)!important}
 #page-for-clinics .form-input:focus{background:#242444!important;border-color:#d4a96a!important}
 #page-for-clinics .form-input::placeholder{color:#6b6878!important}
+/* ДДС да/не превключвател в регистрационната форма на клиника — визуално
+   съответства на .form-input (същия фон/рамка), но е бутон, не input, затова
+   отделен клас вместо преизползване на .form-input директно върху <button>. */
+#page-for-clinics .vat-toggle-btn{flex:1;background:#1e1e38;color:#f0ede8;border:1px solid rgba(212,169,106,.25);border-radius:8px;padding:9px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;font-weight:600}
+#page-for-clinics .vat-toggle-btn.active{background:linear-gradient(135deg,#b8966a,#dcb87e);color:#241a0d;border-color:transparent}
 .photo-previews{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
 .photo-preview-wrap{position:relative}
 .photo-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--roselt)}
@@ -8239,6 +8244,69 @@ window.submitClinicInquiry=async function(){
     if(btn){btn.disabled=false; btn.textContent=ct.submitBtn;}
   }
 };
+
+// ── РЕГИСТРАЦИЯ НА КЛИНИКА (сравнение на цени) — пише в clinic_registrations,
+// ОТДЕЛНА колекция от clinic_inquiries по-горе (виж коментара в маркъпа).
+// Статусът остава 'pending', докато админ ръчно не одобри — виж
+// notifyOnClinicRegistration в functions/index.js и работния документ за
+// пълния поток (Регистрация → Чака одобрение → Активна). Създаването на
+// реален Firebase Auth акаунт за клиниката е следваща, отделна стъпка —
+// това парче само събира и известява за заявката.
+window._clinicRegVat = false;
+window.setRegVat = function(val){
+  window._clinicRegVat = !!val;
+  const y = document.getElementById('reg-vat-yes');
+  const n = document.getElementById('reg-vat-no');
+  if(y) y.classList.toggle('active', val === true);
+  if(n) n.classList.toggle('active', val === false);
+};
+window.openClinicRegisterForm = function(){
+  const fields = document.getElementById('clinic-register-fields');
+  const intro = document.getElementById('clinic-register-intro');
+  if(fields) fields.style.display = 'block';
+  if(intro) intro.style.display = 'none';
+  if(typeof window.trackEvent==='function') window.trackEvent('clinic_registration_form_opened',{});
+};
+window.submitClinicRegistration = async function(){
+  const name=(document.getElementById('reg-clinic-name').value||'').trim();
+  const eik=(document.getElementById('reg-clinic-eik').value||'').trim();
+  const address=(document.getElementById('reg-clinic-address').value||'').trim();
+  const website=(document.getElementById('reg-clinic-website').value||'').trim();
+  const phone=(document.getElementById('reg-clinic-phone').value||'').trim();
+  const email=(document.getElementById('reg-clinic-email').value||'').trim();
+  const contactPerson=(document.getElementById('reg-clinic-contact').value||'').trim();
+  const errEl=document.getElementById('clinic-reg-error');
+  const showErr=(m)=>{ if(errEl){errEl.textContent=m; errEl.classList.add('show');} };
+  if(errEl){errEl.classList.remove('show'); errEl.textContent='';}
+  if(!name||!eik||!address||!phone||!email||!contactPerson){
+    showErr('Моля, попълнете задължителните полета.');
+    return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showErr('Невалиден имейл адрес.');
+    return;
+  }
+  const btn=document.getElementById('clinic-reg-submit-btn');
+  const btnLabel=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    await F().addDoc(F().collection(DB(),'clinic_registrations'),{
+      name, eik, vatRegistered:!!window._clinicRegVat, address, website, phone, email, contactPerson,
+      status:'pending',
+      createdAt:F().serverTimestamp(),
+    });
+    const fields=document.getElementById('clinic-register-fields');
+    const success=document.getElementById('clinic-register-success');
+    if(fields) fields.style.display='none';
+    if(success) success.style.display='block';
+    if(typeof window.trackEvent==='function') window.trackEvent('clinic_registration_submitted',{});
+  }catch(e){
+    console.error('[clinic-registration] грешка:', e);
+    showErr('Възникна грешка. Опитайте отново.');
+    if(btn){btn.disabled=false; btn.textContent=btnLabel;}
+  }
+};
+
 (function(){
   if(location.hash!=='#for-clinics') return;
   const open=function(){ if(typeof window.openForClinics==='function') window.openForClinics(); };
@@ -11137,6 +11205,52 @@ function refreshProfilePage(){
         <select class="form-input" id="clinic-plan-select"></select>
       </div>
       <button class="auth-btn" data-ct="submitBtn" onclick="submitClinicInquiry()" id="clinic-submit-btn" style="margin-top:6px">Изпрати запитване</button>
+    </div>
+  </div>
+
+  <!-- РЕГИСТРАЦИЯ ЗА СРАВНЕНИЕ НА ЦЕНИ — отделна от общата B2B форма отгоре
+       (тя е маркетингов lead за реклами/партньорства, clinic_inquiries);
+       това е конкретно за marketplace-а за сравнение на цени по процедура,
+       изисква ЕИК/БУЛСТАТ за верификация, пише в clinic_registrations. Умишлено
+       само на български — БУЛСТАТ е специфично за българска регистрация, няма
+       смисъл от CT[lang] threading тук като горната секция. -->
+  <div id="clinic-register-section" style="padding:0 20px 60px;max-width:420px;margin:0 auto">
+    <div id="clinic-register-intro" style="text-align:center;padding:24px 18px;border-radius:14px;background:rgba(212,169,106,.08);border:1px solid rgba(212,169,106,.25);margin-bottom:20px">
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#d4a96a;margin-bottom:8px">Ново</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#f0ede8;margin:0 0 8px">Сравнение на цени по процедура</h3>
+      <p style="font-size:12.5px;color:#a09890;line-height:1.5;margin:0 0 16px">Регистрирай клиниката си, за да се появиш, когато клиент търси конкретна процедура и сравнява цени между места.</p>
+      <button class="auth-btn" onclick="openClinicRegisterForm()" id="clinic-register-toggle-btn" style="max-width:280px;margin:0 auto">Регистрирай клиниката си</button>
+    </div>
+
+    <div class="auth-error" id="clinic-reg-error"></div>
+    <div id="clinic-register-fields" style="display:none">
+      <div class="auth-field"><label class="auth-label">Име на клиниката</label><input class="form-input" id="reg-clinic-name" placeholder="Напр. Аврора Дерма"></div>
+      <div style="display:flex;gap:10px">
+        <div class="auth-field" style="flex:1"><label class="auth-label">ЕИК / БУЛСТАТ</label><input class="form-input" id="reg-clinic-eik" placeholder="20654XXXXX"></div>
+        <div class="auth-field" style="flex:1">
+          <label class="auth-label">ДДС регистрация</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" id="reg-vat-yes" onclick="setRegVat(true)" class="vat-toggle-btn">Да</button>
+            <button type="button" id="reg-vat-no" onclick="setRegVat(false)" class="vat-toggle-btn active">Не</button>
+          </div>
+        </div>
+      </div>
+      <div class="auth-field"><label class="auth-label">Адрес</label><input class="form-input" id="reg-clinic-address" placeholder="ул. ..., София"></div>
+      <div style="display:flex;gap:10px">
+        <div class="auth-field" style="flex:1"><label class="auth-label">Уебсайт <span style="text-transform:none;font-weight:400">(по желание)</span></label><input class="form-input" id="reg-clinic-website" placeholder="aurora-derma.bg"></div>
+        <div class="auth-field" style="flex:1"><label class="auth-label">Телефон</label><input class="form-input" type="tel" id="reg-clinic-phone" placeholder="+359 ..."></div>
+      </div>
+      <div class="auth-field"><label class="auth-label">Имейл за контакт</label><input class="form-input" type="email" id="reg-clinic-email" placeholder="office@..."></div>
+      <div class="auth-field"><label class="auth-label">Лице за контакт</label><input class="form-input" id="reg-clinic-contact" placeholder="Име Фамилия"></div>
+      <button class="auth-btn" onclick="submitClinicRegistration()" id="clinic-reg-submit-btn" style="margin-top:6px">Изпрати за одобрение</button>
+    </div>
+
+    <div id="clinic-register-success" style="display:none;text-align:center;padding:24px 18px;border-radius:14px;background:rgba(217,148,86,.08);border:1px solid rgba(217,148,86,.3)">
+      <div style="width:44px;height:44px;border-radius:50%;background:rgba(217,148,86,.16);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:#d99456">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      </div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#f0ede8;margin:0 0 6px">Чака одобрение</h3>
+      <p style="font-size:12.5px;color:#a09890;line-height:1.5;margin:0">Ще прегледаме данните ти и ще те известим на посочения имейл. Обикновено отнема 1–2 работни дни.</p>
     </div>
   </div>
 </div>
