@@ -1699,7 +1699,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         </div>
         <div id="cpz-selected-proc" style="display:none;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--goldlt);border-radius:9px;font-size:12.5px;color:var(--ink1)"></div>
         <div style="display:flex;gap:10px;margin-bottom:8px">
-          <div class="auth-field" style="flex:1;margin-bottom:0"><label class="auth-label">Цена (лв.)</label><input class="form-input" type="number" min="0" step="1" id="cpz-price" style="font-size:16px"></div>
+          <div class="auth-field" style="flex:1;margin-bottom:0"><label class="auth-label">Цена (€)</label><input class="form-input" type="number" min="0" step="1" id="cpz-price" style="font-size:16px"></div>
           <div class="auth-field" style="flex:1;margin-bottom:0"><label class="auth-label">Промо цена <span style="text-transform:none;font-weight:400">(по избор)</span></label><input class="form-input" type="number" min="0" step="1" id="cpz-promo" style="font-size:16px"></div>
         </div>
         <input class="form-input" id="cpz-note" placeholder='Бележка (по избор) — напр. "включва 3 сесии"' style="font-size:16px;margin-bottom:10px">
@@ -9538,8 +9538,8 @@ function renderClinicPricesList(){
   el.innerHTML=arr.map(r=>{
     const p=PROCS.find(x=>x.id===r.procId);
     const priceHtml = (r.promoPrice!=null)
-      ? `<span style="text-decoration:line-through;color:var(--ink2)">${esc(String(r.price))} лв</span> <strong style="color:var(--gold)">${esc(String(r.promoPrice))} лв</strong>`
-      : `<strong>${esc(String(r.price))} лв</strong>`;
+      ? `<span style="text-decoration:line-through;color:var(--ink2)">${esc(String(r.price))} €</span> <strong style="color:var(--gold)">${esc(String(r.promoPrice))} €</strong>`
+      : `<strong>${esc(String(r.price))} €</strong>`;
     return `<div class="clinic-price-row">
       <div class="cpr-info">
         <div class="cpr-name">${p?ic(p.icon):''} ${esc(r.procName||'')}</div>
