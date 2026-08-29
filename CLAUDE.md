@@ -1205,12 +1205,51 @@ compat SDK-ът търси в `us-central1` и хвърля not-found.
   `clinic_inquiries`/`feedback` другаде във файла, не е тестван "на живо"
   срещу реален Firebase в тази среда.
 
+**Трета стъпка — реалното одобрение вече създава Firebase Auth акаунт.**
+`functions/index.js:approveClinicRegistration` (`onCall`, само за
+`ADMIN_UID`) — сървърна нарочно, защото `admin.auth().createUser()`
+съществува само в Admin SDK; клиентският Firebase SDK изобщо няма метод за
+създаване на акаунт за трета страна, значи firestore.rules физически не
+биха могли да заместят тази функция, колкото и стриктни да са.
+1. Чете `clinic_registrations/{id}`; ако вече е `status:'approved'` —
+   отказва (идемпотентност, пази от двоен `createUser()` при двоен клик).
+2. `admin.auth().createUser({email,...})` — при `auth/email-already-exists`
+   НЕ преизползва тихо съществуващия uid (имейл, споделен с личен
+   потребителски акаунт, изисква ръчна преценка, не автоматично сливане на
+   самоличности) — връща изрична грешка на админ панела вместо това.
+3. Създава `clinics/{uid}` документ (копира профилните полета от
+   регистрацията + `status:'approved'`), маркира `clinic_registrations/{id}`
+   като `approved` с `approvedUid`.
+4. Праща имейл с линк за задаване на парола — СЪЩИЯТ `oobCode` механизъм
+   като `sendBrandedPasswordReset` (glowtrack.eu е GitHub Pages, не Firebase
+   Hosting, затова линкът се строи ръчно от извлечения `oobCode`, не се
+   ползва директно генерирания Firebase линк). Best-effort — неуспех тук НЕ
+   отменя вече създадения акаунт, само липсва имейл; клиниката пак може да
+   мине през обичайния "Забравена парола" екран.
+
+`index.html` — ново табло "Клиники — чакащи одобрение" в админ панела
+(`loadAdminClinicPending()`), СЪСЕДНО на "Известия от клиники", не същото —
+там е обикновен feed, тук са конкретни редове с бутони "Одобри"/"Откажи".
+"Одобри" вика `approveClinicRegistration` през `httpsCallable`
+(`window._callApproveClinicRegistration`, регистриран до
+`_callSendPasswordReset`); "Откажи" е обикновен клиентски `updateDoc`
+(`status:'rejected'`) — не изисква Cloud Function, защото не създава акаунт.
+Заявката `where('status','==','pending')` е БЕЗ `orderBy` (сортирането е
+клиентско, `Array#sort` по `createdAt`, същия похват като `loadAdminInbox()`)
+— `where`+`orderBy` на различни полета би изисквало съставен Firestore
+индекс, който не съществува и не се създава автоматично.
+Проверено с Playwright (stub-нат `F()`/`_callApproveClinicRegistration`,
+реален Firebase не се зарежда в тази среда): списъкът се сортира правилно
+по дата (най-новата отгоре), "Откажи" вика `updateDoc` с точните полета,
+"Одобри" вика Cloud Function-а с правилния `registrationId` и заключва
+бутона докато чака — нула JS грешки.
+
 **ИЗРИЧНО ОЩЕ НЕ Е ПОСТРОЕНО** (следващи, отделни стъпки от пътната карта):
-одобрение от админ, което реално създава Firebase Auth акаунт за клиниката
-(`clinics/{uid}` документът все още се създава само ръчно от админ — виж
-по-горе), клиничен self-serve панел за редакция на цени, `role:'clinic'`
-на акаунт, Stripe продукт/плащане за клиника, каквато и да е логика
-"невидимо докато не плати".
+клиничен self-serve панел за редакция на цени (клиниката може да влезе с
+новия си акаунт, но още няма какво да прави там), `role:'clinic'` изрично
+поле (в момента самото съществуване на `clinics/{uid}` документ Е сигналът
+"това е клиничен акаунт" — няма отделен флаг), Stripe продукт/плащане за
+клиника, каквато и да е логика "невидимо докато не плати".
 
 **Изисква ръчно действие от потребителя, извън repo-то, преди да проработи
 на живо:** `firestore.rules` НЕ се деплойва от CI (виж раздела "Работен
@@ -1218,8 +1257,9 @@ compat SDK-ът търси в `us-central1` и хвърля not-found.
 `admin_notifications`/`clinic_registrations`) изискват `firebase deploy
 --only firestore:rules` ръчно, ВСИЧКИ наведнъж (правилата все още не са
 пуснати от предната стъпка). `functions/index.js` промените
-(`notifyOnClinicPriceChange`, `notifyOnClinicRegistration`) СЕ деплойват
-автоматично от `deploy-functions.yml` при push към `main`.
+(`notifyOnClinicPriceChange`, `notifyOnClinicRegistration`,
+`approveClinicRegistration`) СЕ деплойват автоматично от
+`deploy-functions.yml` при push към `main`.
 
 ---
 

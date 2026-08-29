@@ -910,6 +910,125 @@ exports.sendBrandedPasswordReset = onCall(
 );
 
 // ═══════════════════════════════════════════════════════════
+// ОДОБРЕНИЕ НА РЕГИСТРАЦИЯ НА КЛИНИКА — създава реален Auth акаунт
+// ═══════════════════════════════════════════════════════════
+
+// Сървърна нарочно, не клиентска — createUser() го има само в Admin SDK,
+// клиентският Firebase SDK изобщо няма такъв метод (може само да създава
+// акаунт за САМИЯ СЕБЕ СИ при регистрация, никога за трета страна). Затова
+// firestore.rules сами по себе си не биха стигнали тук, колкото и стриктни
+// да са — самото действие "създай нов Auth потребител" не е операция, която
+// Firestore rules могат да разрешат/забранят.
+exports.approveClinicRegistration = onCall(
+    {secrets: [smtpUser, smtpPass]},
+    async (request) => {
+      if (!request.auth || request.auth.uid !== ADMIN_UID) {
+        throw new HttpsError("permission-denied", "Само админ може да одобрява регистрации.");
+      }
+      const registrationId = (request.data?.registrationId || "").trim();
+      if (!registrationId) {
+        throw new HttpsError("invalid-argument", "Липсва registrationId.");
+      }
+
+      const regRef = db.collection("clinic_registrations").doc(registrationId);
+      const regSnap = await regRef.get();
+      if (!regSnap.exists) {
+        throw new HttpsError("not-found", "Регистрацията не е намерена.");
+      }
+      const reg = regSnap.data();
+      // Идемпотентност — предпазва от двоен createUser() при двоен клик/повторен
+      // опит (напр. мрежово забавяне кара админ да натисне "Одобри" пак).
+      if (reg.status === "approved") {
+        throw new HttpsError("failed-precondition", "Тази регистрация вече е одобрена.");
+      }
+      const email = (reg.email || "").trim().toLowerCase();
+      if (!email) {
+        throw new HttpsError("failed-precondition", "Регистрацията няма имейл.");
+      }
+
+      let uid;
+      try {
+        const userRecord = await admin.auth().createUser({
+          email,
+          emailVerified: false,
+          displayName: reg.name || undefined,
+        });
+        uid = userRecord.uid;
+      } catch (e) {
+        // auth/email-already-exists НЕ се решава автоматично (напр. чрез
+        // преизползване на съществуващ uid) — имейл, споделен с личен
+        // GlowTrack акаунт, изисква ръчна преценка, не тихо сливане на
+        // самоличности между "потребител" и "клиника".
+        if (e.code === "auth/email-already-exists") {
+          throw new HttpsError("already-exists",
+              "Вече има Firebase акаунт с този имейл — провери ръчно преди да продължиш.");
+        }
+        console.error("Грешка при createUser за одобрение на клиника:", e);
+        throw new HttpsError("internal", "Грешка при създаване на акаунта.");
+      }
+
+      const now = admin.firestore.FieldValue.serverTimestamp();
+      await db.collection("clinics").doc(uid).set({
+        name: reg.name || "",
+        eik: reg.eik || "",
+        vatRegistered: !!reg.vatRegistered,
+        address: reg.address || "",
+        website: reg.website || "",
+        phone: reg.phone || "",
+        email,
+        contactPerson: reg.contactPerson || "",
+        status: "approved",
+        createdAt: now,
+        approvedAt: now,
+      });
+
+      await regRef.update({status: "approved", approvedUid: uid, approvedAt: now});
+
+      // Линк за задаване на парола — СЪЩИЯТ oobCode механизъм като
+      // sendBrandedPasswordReset по-горе (glowtrack.eu е GitHub Pages, не
+      // Firebase Hosting, затова строим собствен URL вместо да ползваме
+      // директно генерирания Firebase линк). Best-effort — неуспех тук НЕ
+      // отменя вече създадения акаунт/документ, само липсва имейл; акаунтът
+      // остава валиден, "Изпрати линк отново" върши работа през обичайния
+      // "Забравена парола" екран.
+      let brandedLink = null;
+      try {
+        const resetLink = await admin.auth().generatePasswordResetLink(email, {url: "https://glowtrack.eu/"});
+        const oobCode = new URL(resetLink).searchParams.get("oobCode");
+        if (oobCode) brandedLink = `https://glowtrack.eu/?mode=resetPassword&oobCode=${encodeURIComponent(oobCode)}`;
+      } catch (e) {
+        console.error("Грешка при генериране на линк за парола (одобрение на клиника):", e);
+      }
+
+      if (brandedLink) {
+        const port = parseInt(smtpPort.value(), 10) || 465;
+        const transporter = nodemailer.createTransport({
+          host: smtpHost.value(),
+          port,
+          secure: port === 465,
+          auth: {user: smtpUser.value(), pass: smtpPass.value()},
+        });
+        try {
+          await transporter.sendMail({
+            from: `"GlowTrack" <${smtpUser.value()}>`,
+            to: email,
+            subject: "Клиниката ти е одобрена в GlowTrack",
+            text: `Здравей,\n\nЗаявката на "${reg.name || "клиниката ти"}" за GlowTrack сравнение на ` +
+              `цени е одобрена.\n\nЗадай парола за акаунта си тук:\n${brandedLink}\n\n` +
+              `След това ще можеш да влезеш с имейл ${email} и новата си парола.\n\n` +
+              `— Екипът на GlowTrack`,
+          });
+          console.log("Имейл за одобрение на клиника изпратен:", email);
+        } catch (e) {
+          console.error("Грешка при изпращане на имейл за одобрение на клиника:", e);
+        }
+      }
+
+      return {ok: true, uid};
+    },
+);
+
+// ═══════════════════════════════════════════════════════════
 // ИЗТРИВАНЕ НА АКАУНТ (server-side)
 // ═══════════════════════════════════════════════════════════
 
