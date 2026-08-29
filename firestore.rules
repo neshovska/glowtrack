@@ -71,6 +71,15 @@ service cloud.firestore {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
+    match /clinic_registrations/{docId} {
+      // ОТДЕЛНА от clinic_inquiries — тя е обща B2B заявка за интерес, тук е
+      // конкретна идентификационна регистрация (ЕИК/БУЛСТАТ) за marketplace-а
+      // за сравнение на цени. Public create, защото клиниката още няма акаунт
+      // в момента на подаване (акаунтът, ако изобщо се стигне дотам, се
+      // създава от админ СЛЕД одобрение — виж работния документ).
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
     match /clinics/{clinicId} {
       // Публично четим — клиентският сравнителен списък трябва да покаже
       // името/града на клиниката до цената, дори за нелогнат потребител.

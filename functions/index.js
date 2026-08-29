@@ -661,6 +661,63 @@ exports.notifyOnClinicInquiry = onDocumentCreated(
 
 
 // ═══════════════════════════════════════════════════════════
+// РЕГИСТРАЦИЯ НА КЛИНИКА (marketplace за сравнение на цени) — ОТДЕЛНА от
+// notifyOnClinicInquiry по-горе (тя е за общи B2B запитвания за интерес; тук
+// е конкретна заявка с ЕИК/БУЛСТАТ, чака ръчно одобрение). Пише и в
+// admin_notifications, за да падне в СЪЩАТА лента в админ панела като
+// известията за промяна на цена — една обща "активност от клиники" гледна
+// точка, не два отделни списъка за преглед.
+exports.notifyOnClinicRegistration = onDocumentCreated(
+    {document: "clinic_registrations/{docId}", secrets: [smtpUser, smtpPass]},
+    async (event) => {
+      const data = event.data?.data();
+      if (!data) return null;
+
+      const summary = `Нова регистрация — ЕИК ${data.eik || "—"}, ${data.address || "—"}, `+
+        `контакт: ${data.contactPerson || "—"} (${data.email || "—"}, ${data.phone || "—"})`;
+
+      try {
+        await db.collection("admin_notifications").add({
+          type: "clinic_registration",
+          clinicId: null, // клиниката още няма Auth акаунт/uid на този етап
+          clinicName: data.name || "Непозната клиника",
+          summary,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          reviewed: false,
+        });
+      } catch (e) {
+        console.error("Грешка при запис на admin_notifications (регистрация):", e);
+      }
+
+      const port = parseInt(smtpPort.value(), 10) || 465;
+      const transporter = nodemailer.createTransport({
+        host: smtpHost.value(),
+        port,
+        secure: port === 465,
+        auth: {user: smtpUser.value(), pass: smtpPass.value()},
+      });
+      try {
+        await transporter.sendMail({
+          from: `"GlowTrack" <${smtpUser.value()}>`,
+          to: CLINIC_NOTIFICATION_EMAIL,
+          replyTo: data.email || undefined,
+          subject: `Нова регистрация на клиника — ${data.name || "—"} (чака одобрение)`,
+          text: `Получена е нова регистрация за marketplace-а за сравнение на цени:\n\n`+
+            `Име: ${data.name || "—"}\nЕИК/БУЛСТАТ: ${data.eik || "—"}\n`+
+            `ДДС регистрация: ${data.vatRegistered ? "Да" : "Не"}\nАдрес: ${data.address || "—"}\n`+
+            `Уебсайт: ${data.website || "—"}\nТелефон: ${data.phone || "—"}\nИмейл: ${data.email || "—"}\n`+
+            `Лице за контакт: ${data.contactPerson || "—"}`,
+        });
+        console.log("Имейл известие за регистрация на клиника изпратено:", data.name);
+      } catch (e) {
+        console.error("Грешка при изпращане на имейл за регистрация на клиника:", e);
+      }
+      return null;
+    },
+);
+
+
+// ═══════════════════════════════════════════════════════════
 // НОТИФИКАЦИЯ ЗА ПРОМЯНА НА ЦЕНА ОТ КЛИНИКА — първата истинска писателна
 // операция на клиничния marketplace (виж работния документ). onDocumentWritten
 // (не onDocumentCreated, за разлика от notifyOnClinicInquiry) — трябва да хване
