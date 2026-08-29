@@ -1614,6 +1614,24 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             </div>
           </div>
 
+          <div class="p-eyebrow">Одобрени клиники</div>
+          <div class="acc-section profile-card-section" id="admin-clinics-approved-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
+            <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
+              <span class="pcs-title"><svg class="gt-ico" width="13px" height="13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1"/></svg> Всички <span id="admin-clinics-approved-count" style="color:var(--ink2);font-weight:400"></span></span>
+              <span class="acc-arrow">⌄</span>
+            </div>
+            <div class="acc-body">
+              <!-- "Отвори" зарежда РЕАЛНИЯ clinics/{uid} документ на клиниката в
+                   #page-clinic (adminOpenClinic()) — за разлика от "Виж като
+                   клиника (тест)" по-горе (window._adminClinicPreview), тук
+                   window._adminViewingRealClinic пази истинския uid и всяко
+                   запазване пише в РЕАЛНИТЕ Firestore документи на клиниката,
+                   не в паметта. Полезно, когато клиника помоли за помощ по
+                   телефона/имейл да ѝ се коригира нещо. -->
+              <div id="admin-clinics-approved-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зареждане...</div></div>
+            </div>
+          </div>
+
           <div class="p-eyebrow">Известия от клиники</div>
           <div class="acc-section profile-card-section" id="admin-clinic-notif-wrap" style="border-bottom:none;margin-bottom:14px;display:none">
             <div class="acc-header" onclick="toggleAcc(this)" style="padding:0">
@@ -1654,7 +1672,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div style="padding:0 16px 40px;max-width:480px;margin:0 auto">
       <!-- Показва се САМО в тестовия преглед (window._adminClinicPreview),
            не и за истински клиничен акаунт — виж toggleAdminClinicPreview(). -->
-      <button id="clinic-preview-back-btn" onclick="toggleAdminClinicPreview()" style="display:none;width:100%;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:12px;padding:11px;font-size:12.5px;font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit;margin-bottom:14px;align-items:center;justify-content:center;gap:7px">
+      <button id="clinic-preview-back-btn" onclick="exitAdminClinicView()" style="display:none;width:100%;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:12px;padding:11px;font-size:12.5px;font-weight:700;color:var(--gold);cursor:pointer;font-family:inherit;margin-bottom:14px;align-items:center;justify-content:center;gap:7px">
         ← Обратно към Admin (тестов преглед)
       </button>
       <!-- Статус (чака одобрение/активна) — реален клиничен акаунт стига дотук
@@ -2788,7 +2806,7 @@ onAuthStateChanged(auth,async user=>{
   }else{
     window._user=null;
     window._lastUserId=null;
-    if(typeof invalidateCache==='function')invalidateCache();window._isAdmin=false;window._isClinic=false;window._clinicData=null;window._rosegoldAllowed=false;
+    if(typeof invalidateCache==='function')invalidateCache();window._isAdmin=false;window._isClinic=false;window._clinicData=null;window._rosegoldAllowed=false;window._adminClinicPreview=false;window._adminViewingRealClinic=null;
     if(typeof updateNavForRole==='function') updateNavForRole();
     // Guests browse freely — auth-screen only opens when they tap "Влез" or
     // try a personal action (diary, reminders, profile). Keep it closed here.
@@ -5478,6 +5496,33 @@ async function openSheet(id){
     }
   }
 
+  // ── FETCH CLINIC PRICES (публичен списък цени по тази процедура,
+  // въведени от клиники през self-serve панела #page-clinic) — публичен,
+  // не изисква логнат потребител, СЪЩИЯТ принцип като clinicAdsHTML/
+  // productAdsHTML по-горе. Не минава през window._cache/TTL — цените могат
+  // да се сменят по всяко време от клиника, некеширано изрично. ---
+  let clinicPricesHTML='';
+  try{
+    const priceSnap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('procId','==',id)));
+    const priceRows=priceSnap.docs.map(d=>d.data()).filter(r=>r.price!=null && r.clinicName);
+    if(priceRows.length){
+      // Най-евтино (реалната платима цена — промо, ако има) най-отгоре, за да
+      // остане списъкът полезен за сравнение, не просто по азбучен ред.
+      priceRows.sort((a,b)=>(a.promoPrice??a.price)-(b.promoPrice??b.price));
+      clinicPricesHTML=`<div class="info-section"><div class="info-title">${ic('money','14px')} Цени в клиники</div>
+        ${priceRows.map(r=>{
+          const priceHtml=(r.promoPrice!=null)
+            ?`<span style="text-decoration:line-through;color:var(--ink2)">${esc(String(r.price))} €</span> <strong style="color:var(--gold)">${esc(String(r.promoPrice))} €</strong>`
+            :`<strong>${esc(String(r.price))} €</strong>`;
+          return `<div class="clinic-price-row"><div class="cpr-info">
+            <div class="cpr-name">${esc(r.clinicName)}</div>
+            <div class="cpr-price">${priceHtml}</div>
+            ${r.note?`<div class="cpr-note">${esc(r.note)}</div>`:''}
+          </div></div>`;
+        }).join('')}</div>`;
+    }
+  }catch(e){ console.error('Грешка при зареждане на клинични цени за процедурата:',e); }
+
   // ── FETCH DIARY (cached) ──
   let entries=[];
   if(window._user){
@@ -5523,7 +5568,7 @@ async function openSheet(id){
         ${lp.reactions.abnormal.map(r=>`<div class="result-row"><div class="result-dot" style="background:#e85d5d"></div><div class="result-txt">${r}</div></div>`).join('')}
       </div>`:''}
     </div>`, false, true):''}
-    ${clinicAdsHTML}${productAdsHTML}
+    ${clinicPricesHTML}${clinicAdsHTML}${productAdsHTML}
     ${window._user?`<div class="diary-section">
       <div class="diary-section-title" style="text-align:center">${window._lang==='en'?'My <em>diary</em>':'Моят <em>дневник</em>'}</div>
 
@@ -9300,6 +9345,8 @@ function loadAdminPage(){
   if(cnw) cnw.style.display = 'block';
   const cpw = document.getElementById('admin-clinic-pending-wrap');
   if(cpw) cpw.style.display = 'block';
+  const caw = document.getElementById('admin-clinics-approved-wrap');
+  if(caw) caw.style.display = 'block';
   const tdw = document.getElementById('admin-testdata-wrap');
   if(tdw) tdw.style.display = 'block';
   const tmt = document.getElementById('admin-testmode-toggle');
@@ -9307,6 +9354,7 @@ function loadAdminPage(){
   loadAdminInbox();
   loadAdminClinicPending();
   loadAdminClinicNotifications();
+  loadAdminApprovedClinics();
   loadAdminDashboard();
   loadAdminLists();
   renderAiToggleUI();
@@ -9335,11 +9383,18 @@ function renderClinicPage(){
   const d=window._clinicData;
   if(nameEl) nameEl.textContent=d?.name||'—';
 
+  const viewingReal=!!window._adminViewingRealClinic;
   const backBtn=document.getElementById('clinic-preview-back-btn');
-  if(backBtn) backBtn.style.display=window._adminClinicPreview?'flex':'none';
+  if(backBtn){
+    backBtn.style.display=(window._adminClinicPreview||viewingReal)?'flex':'none';
+    backBtn.textContent = viewingReal ? '← Обратно към списъка с клиники' : '← Обратно към Admin (тестов преглед)';
+  }
 
   const statusEl=document.getElementById('clinic-status-banner');
-  if(statusEl) statusEl.textContent = d ? (d.status==='approved'?'Активна клиника':('Статус: '+d.status)) : '—';
+  if(statusEl){
+    const baseStatus = d ? (d.status==='approved'?'Активна клиника':('Статус: '+d.status)) : '—';
+    statusEl.textContent = viewingReal ? ('Admin преглед — '+baseStatus) : baseStatus;
+  }
 
   const nameInp=document.getElementById('cp-name'); if(nameInp) nameInp.value=d?.name||'';
   const addrInp=document.getElementById('cp-address'); if(addrInp) addrInp.value=d?.address||'';
@@ -9381,13 +9436,17 @@ async function saveClinicProfile(){
     if(statusDiv) statusDiv.textContent='Запазено (тестов преглед — не се записва в облака)';
     return;
   }
-  if(!window._user){showToast(t('toastErr'));return;}
+  const targetUid=currentClinicTargetUid();
+  if(!targetUid){showToast(t('toastErr'));return;}
   try{
-    await F().updateDoc(F().doc(DB(),'clinics',window._user.uid), Object.assign({},patch,{updatedAt:F().serverTimestamp()}));
+    await F().updateDoc(F().doc(DB(),'clinics',targetUid), Object.assign({},patch,{updatedAt:F().serverTimestamp()}));
     window._clinicData=Object.assign({},window._clinicData,patch);
     if(nameEl) nameEl.textContent=name;
     if(statusDiv) statusDiv.textContent='Запазено';
     showToast('Профилът е запазен');
+    // Admin преглежда чужд профил — опресни и списъка "Одобрени клиники" (за
+    // да покаже веднага новото име, ако е сменено), не само тоя екран.
+    if(window._adminViewingRealClinic && typeof loadAdminApprovedClinics==='function') loadAdminApprovedClinics();
   }catch(e){
     console.error('Грешка при запис на клиничен профил:',e);
     showToast(t('toastErr'));
@@ -9400,9 +9459,10 @@ function activeClinicPricesArr(){
 }
 async function loadClinicPrices(){
   if(window._adminClinicPreview){ renderClinicPricesList(); return; }
-  if(!window._user){ window._clinicPrices=[]; renderClinicPricesList(); return; }
+  const targetUid=currentClinicTargetUid();
+  if(!targetUid){ window._clinicPrices=[]; renderClinicPricesList(); return; }
   try{
-    const snap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('clinicOwnerUid','==',window._user.uid)));
+    const snap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('clinicOwnerUid','==',targetUid)));
     window._clinicPrices=snap.docs.map(dd=>Object.assign({id:dd.id},dd.data()));
   }catch(e){
     console.error('Грешка при зареждане на клиничните цени:',e);
@@ -9454,7 +9514,7 @@ async function saveClinicPrice(){
   const promoPrice=promoRaw===''?null:parseFloat(promoRaw);
   const note=document.getElementById('cpz-note').value.trim();
   const data={
-    clinicOwnerUid: window._adminClinicPreview ? 'preview' : (window._user?window._user.uid:''),
+    clinicOwnerUid: window._adminClinicPreview ? 'preview' : (currentClinicTargetUid()||''),
     clinicName: window._clinicData?.name||'',
     procId: sel?sel.id:existing.procId,
     procName: sel?sel.name:existing.procName,
@@ -9474,7 +9534,7 @@ async function saveClinicPrice(){
     renderClinicPricesList();
     return;
   }
-  if(!window._user){showToast(t('toastErr'));return;}
+  if(!currentClinicTargetUid()){showToast(t('toastErr'));return;}
   try{
     if(editId){
       await F().setDoc(F().doc(DB(),'clinic_prices',editId), Object.assign({},data,{updatedAt:F().serverTimestamp()}), {merge:true});
@@ -9570,6 +9630,70 @@ function toggleAdminClinicPreview(){
   }
   const btn=document.getElementById('nav-home-btn');
   goPage(window._adminClinicPreview?'clinic':'admin', btn);
+}
+
+// ── ADMIN ПРЕГЛЕД/РЕДАКЦИЯ НА РЕАЛНА КЛИНИКА ──
+// За разлика от toggleAdminClinicPreview() (фиктивни примерни данни, никога
+// не пипа Firestore), тук admin отваря ИСТИНСКИ clinics/{uid} документ на
+// одобрена клиника — например защото клиниката е помолила по телефона/имейл
+// за корекция и не може/не иска сама да го направи. window._adminViewingRealClinic
+// пази чий е документът; renderClinicPage()/saveClinicProfile()/
+// saveClinicPrice() и др. четат currentClinicTargetUid() вместо голия
+// window._user.uid, значи всеки запис пада в РЕАЛНИТЕ документи на
+// клиниката, не в паметта. firestore.rules позволява това: clinics/{uid}
+// вече има `allow write: if isAdmin()` (пълен достъп), а clinic_prices
+// create/update имат добавено `|| isAdmin()` изрично за тоя случай.
+function currentClinicTargetUid(){
+  if(window._adminViewingRealClinic) return window._adminViewingRealClinic;
+  if(window._user) return window._user.uid;
+  return null;
+}
+async function loadAdminApprovedClinics(){
+  if(!window._isAdmin) return;
+  const el=document.getElementById('admin-clinics-approved-list');
+  const countEl=document.getElementById('admin-clinics-approved-count');
+  if(!el) return;
+  try{
+    const snap=await F().getDocs(F().query(F().collection(DB(),'clinics'), F().where('status','==','approved')));
+    const list=snap.docs.map(d=>Object.assign({id:d.id},d.data()));
+    list.sort((a,b)=>(a.name||'').localeCompare(b.name||'','bg'));
+    if(countEl) countEl.textContent=list.length?`(${list.length})`:'';
+    el.innerHTML=!list.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма одобрени клиники</div>':list.map(c=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--goldlt)">
+        <div style="min-width:0">
+          <div style="font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name||'—')}</div>
+          <div style="font-size:11px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.email||'')}</div>
+        </div>
+        <button class="admin-btn sm" style="flex-shrink:0" onclick="adminOpenClinic('${c.id}')">Отвори</button>
+      </div>
+    `).join('');
+  }catch(e){
+    console.error('Грешка при зареждане на одобрени клиники:',e);
+    if(el) el.innerHTML='<div style="font-size:12px;color:var(--red)">Грешка при зареждане</div>';
+  }
+}
+async function adminOpenClinic(uid){
+  if(!window._isAdmin || !uid) return;
+  try{
+    const snap=await F().getDoc(F().doc(DB(),'clinics',uid));
+    if(!snap.exists()){showToast('Клиниката не е намерена');return;}
+    window._adminViewingRealClinic=uid;
+    window._adminClinicPreview=false;
+    window._clinicData=Object.assign({},snap.data());
+    goPage('clinic', document.getElementById('nav-home-btn'));
+  }catch(e){
+    console.error('Грешка при отваряне на клиника от admin:',e);
+    showToast(t('toastErr'));
+  }
+}
+// Общ изход и от двата "чужди" изгледа на #page-clinic (фиктивен тестов
+// преглед И реален admin преглед) — единна функция за бутона "← Обратно",
+// защото само едното от двете състояния е активно във всеки момент.
+function exitAdminClinicView(){
+  window._adminClinicPreview=false;
+  window._adminViewingRealClinic=null;
+  window._clinicData=null;
+  goPage('admin', document.getElementById('nav-home-btn'));
 }
 
 // ── ADMIN DASHBOARD ──
