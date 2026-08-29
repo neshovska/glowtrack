@@ -104,11 +104,18 @@ service cloud.firestore {
         return isSignedIn() && get(/databases/$(database)/documents/clinics/$(request.auth.uid)).data.status == 'approved';
       }
       allow read: if true;
-      allow create: if isApprovedClinic()
-        && request.resource.data.clinicOwnerUid == request.auth.uid;
-      allow update: if isApprovedClinic()
+      // `|| isAdmin()` на create/update — admin панелът (#page-admin →
+      // "Одобрени клиники" → "Отвори", adminOpenClinic() в index.html)
+      // позволява на админ да редактира цените на РЕАЛНА клиника от нейно
+      // име (напр. клиника моли по телефона за корекция) — записва с
+      // истинския clinicOwnerUid на клиниката, не на админ акаунта, затова
+      // проверката "request.resource.data.clinicOwnerUid == request.auth.uid"
+      // сама по себе си не би минала за админ и трябва отделен клон.
+      allow create: if (isApprovedClinic()
+        && request.resource.data.clinicOwnerUid == request.auth.uid) || isAdmin();
+      allow update: if (isApprovedClinic()
         && resource.data.clinicOwnerUid == request.auth.uid
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicOwnerUid']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clinicOwnerUid'])) || isAdmin();
       allow delete: if (isSignedIn() && resource.data.clinicOwnerUid == request.auth.uid) || isAdmin();
     }
     match /admin_notifications/{notifId} {
