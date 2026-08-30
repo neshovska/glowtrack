@@ -968,6 +968,15 @@ exports.approveClinicRegistration = onCall(
       }
 
       const now = admin.firestore.FieldValue.serverTimestamp();
+      // trialEndsAt — 14-дневен безплатен пробен период от одобрението.
+      // Ползва се само ако window._clinicPaymentGateEnabled е включен
+      // (app_config/settings, изключен по подразбиране) — виж
+      // isClinicPriceVisible() в index.html. Реален Stripe checkout НЕ е
+      // построен засега (изрично решение — "плащането може да е изключено
+      // в началото"); "paid" е ръчен флаг, който админ превключва след
+      // банков превод/друг договор извън приложението (виж
+      // adminToggleClinicPaid() в index.html).
+      const trialEndsAt = admin.firestore.Timestamp.fromMillis(Date.now() + 14 * 24 * 60 * 60 * 1000);
       await db.collection("clinics").doc(uid).set({
         name: reg.name || "",
         eik: reg.eik || "",
@@ -978,6 +987,9 @@ exports.approveClinicRegistration = onCall(
         email,
         contactPerson: reg.contactPerson || "",
         status: "approved",
+        role: "clinic",
+        paid: false,
+        trialEndsAt,
         createdAt: now,
         approvedAt: now,
       });
