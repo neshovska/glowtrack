@@ -1550,6 +1550,14 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             </div>
           </div>
 
+          <div class="p-eyebrow">Плащане от клиники</div>
+          <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div style="font-size:12px;color:var(--ink1)">Статус: <strong id="adm-clinic-gate-status" style="color:var(--gold)">Изключен</strong><br><span style="font-size:10.5px;color:var(--ink2)">Докато е изключен, всички клинични цени/промоции са видими независимо от пробен период. Няма реален Stripe — само ръчен "Платена" флаг в "Одобрени клиники".</span></div>
+              <button id="adm-clinic-gate-toggle-btn" onclick="toggleClinicPaymentGateAdmin()" style="flex-shrink:0;background:var(--gold);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">Включи</button>
+            </div>
+          </div>
+
           <div class="p-eyebrow">Търсене на потребител</div>
           <div class="acc-section profile-card-section" style="border-bottom:none;margin-bottom:14px;padding:14px 18px">
             <div style="display:flex;gap:6px">
@@ -1641,6 +1649,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
                    запазване пише в РЕАЛНИТЕ Firestore документи на клиниката,
                    не в паметта. Полезно, когато клиника помоли за помощ по
                    телефона/имейл да ѝ се коригира нещо. -->
+              <button class="admin-btn sm" style="width:100%;margin-bottom:8px;background:var(--goldlt);color:var(--gold)" onclick="adminBackfillClinicFields()">Попълни role/пробен период за стари клиники</button>
               <div id="admin-clinics-approved-list" style="margin-top:8px"><div style="font-size:12px;color:var(--ink2)">Зареждане...</div></div>
             </div>
           </div>
@@ -1986,6 +1995,7 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
     <div class="page-hdr-sub" data-t="promosSub">Активни оферти от клиники партньори</div>
   </div>
   <div style="padding:0 16px 40px;max-width:480px;margin:0 auto">
+    <input class="form-input" id="promos-search" oninput="filterPromosList()" data-ph="promosSearchPh" placeholder="Търси процедура..." style="font-size:16px;margin-bottom:12px">
     <div id="promos-list"></div>
   </div>
 </div>
@@ -2330,6 +2340,12 @@ const auth=getAuth(fb);const db=getFirestore(fb);const storage=getStorage(fb);
 const fnInstance=getFunctions(fb,'europe-west1'); // трябва да съвпада с region-а на функциите (виж setGlobalOptions в functions/index.js)
 // ── AI АСИСТЕНТ — feature flag (управлява се от Firestore app_config, вижда се в admin таблото) ──
 window._aiAssistantEnabled = false; // безопасна стойност по подразбиране, докато се зареди реалната
+// ── ПЛАЩАНЕ ЗА КЛИНИКИ — глобален ключ за "невидимо докато не плати" (виж
+// isClinicPriceVisible()) — СЪЩИЯТ app_config/settings документ, същия
+// принцип като aiAssistantEnabled. По подразбиране ИЗКЛЮЧЕН — докато
+// потребителят не реши да го включи от admin панела, гейтингът е no-op и
+// всички клинични цени/промоции остават видими независимо от пробен период.
+window._clinicPaymentGateEnabled = false;
 window._callAiAssistant = httpsCallable(fnInstance, 'askAiAssistant');
 window._callSendPasswordReset = httpsCallable(fnInstance, 'sendBrandedPasswordReset');
 window._callDeleteAccount = httpsCallable(fnInstance, 'deleteAccountData');
@@ -2338,7 +2354,11 @@ window._callApproveClinicRegistration = httpsCallable(fnInstance, 'approveClinic
 (async function(){
   try{
     const snap = await getDoc(doc(db,'app_config','settings'));
-    if(snap.exists() && snap.data().aiAssistantEnabled === true) window._aiAssistantEnabled = true;
+    if(snap.exists()){
+      const cfg = snap.data();
+      if(cfg.aiAssistantEnabled === true) window._aiAssistantEnabled = true;
+      if(cfg.clinicPaymentGateEnabled === true) window._clinicPaymentGateEnabled = true;
+    }
   }catch(e){}
 })();
 // Ensure auth persists across page reloads
@@ -3833,6 +3853,8 @@ const T = {
     promosClinicOne: 'клиника',
     promosClinicMany: 'клиники',
     promosFrom: 'от',
+    promosSearchPh: 'Търси процедура...',
+    promosNoResults: 'Няма намерени процедури',
     soonBrandsLbl: 'Козметични брандове',
     soonProductsTitle: 'Препоръчани продукти',
     soonProductsDesc: 'Продукти за домашна грижа подбрани спрямо твоите процедури и тип кожа',
@@ -4122,6 +4144,8 @@ const T = {
     promosClinicOne: 'clinic',
     promosClinicMany: 'clinics',
     promosFrom: 'from',
+    promosSearchPh: 'Search treatment...',
+    promosNoResults: 'No treatments found',
     soonBrandsLbl: 'Beauty brands',
     soonProductsTitle: 'Recommended products',
     soonProductsDesc: 'Home-care products picked for your treatments and skin type',
@@ -5560,7 +5584,14 @@ async function openSheet(id){
   let clinicPricesHTML='';
   try{
     const priceSnap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('procId','==',id)));
-    const priceRows=priceSnap.docs.map(d=>d.data()).filter(r=>r.price!=null && r.clinicName);
+    let priceRows=priceSnap.docs.map(d=>d.data()).filter(r=>r.price!=null && r.clinicName);
+    // Гейтинг по плащане — no-op, докато app_config/settings.clinicPaymentGateEnabled
+    // е изключен (виж isClinicPriceVisible()); тогава изобщо не се правят
+    // допълнителни четения тук.
+    if(window._clinicPaymentGateEnabled && priceRows.length){
+      const visMap=await fetchClinicVisibilityMap(priceRows.map(r=>r.clinicOwnerUid));
+      priceRows=priceRows.filter(r=>isClinicPriceVisible(visMap[r.clinicOwnerUid]));
+    }
     if(priceRows.length){
       // Най-евтино (реалната платима цена — промо, ако има) най-отгоре, за да
       // остане списъкът полезен за сравнение, не просто по азбучен ред.
@@ -9414,6 +9445,7 @@ function loadAdminPage(){
   loadAdminDashboard();
   loadAdminLists();
   renderAiToggleUI();
+  renderClinicGateToggleUI();
 }
 
 // ── КЛИНИЧЕН ПАНЕЛ (собствена страница #page-clinic) ──
@@ -9692,43 +9724,74 @@ function renderClinicPricesList(){
 // не "клиника → списък процедури" (обратното вече съществува в openSheet()
 // самостоятелно за всяка процедура). Публично, не изисква логнат потребител
 // — СЪЩИЯТ принцип като "Цени в клиники" вътре в openSheet().
+window._promosFullList=[];
 async function loadPromosPage(){
   const el=document.getElementById('promos-list');
   if(!el) return;
   const isEn=window._lang==='en';
+  const searchInp=document.getElementById('promos-search');
+  if(searchInp) searchInp.value='';
   el.innerHTML=`<div style="text-align:center;padding:24px 0;color:var(--ink2);font-size:12.5px">${isEn?'Loading…':'Зареждане…'}</div>`;
   try{
     const snap=await F().getDocs(F().query(F().collection(DB(),'clinic_prices'), F().where('activePromo','==',true)));
-    const rows=snap.docs.map(d=>d.data()).filter(r=>r.price!=null && r.procId);
+    let rows=snap.docs.map(d=>d.data()).filter(r=>r.price!=null && r.procId);
+    // Гейтинг по плащане — no-op докато app_config/settings.clinicPaymentGateEnabled
+    // е изключен (виж isClinicPriceVisible()).
+    if(window._clinicPaymentGateEnabled && rows.length){
+      const visMap=await fetchClinicVisibilityMap(rows.map(r=>r.clinicOwnerUid));
+      rows=rows.filter(r=>isClinicPriceVisible(visMap[r.clinicOwnerUid]));
+    }
     const byProc={};
     rows.forEach(r=>{
       const eff=r.promoPrice!=null?r.promoPrice:r.price;
       if(!byProc[r.procId]) byProc[r.procId]={procId:r.procId,procName:r.procName,minPrice:eff,count:1};
       else { byProc[r.procId].count++; if(eff<byProc[r.procId].minPrice) byProc[r.procId].minPrice=eff; }
     });
-    const list=Object.values(byProc).sort((a,b)=>a.minPrice-b.minPrice);
-    if(!list.length){
-      el.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink2);font-size:12.5px">${esc(t('promosEmpty'))}</div>`;
-      return;
-    }
-    el.innerHTML=list.map(p=>{
-      const proc=PROCS.find(x=>x.id===p.procId);
-      const iconHtml=proc?ic(proc.icon):'';
-      const name=esc(proc?procL(proc).name:(p.procName||'—'));
-      const clinicWord=p.count===1?t('promosClinicOne'):t('promosClinicMany');
-      return `<div class="promo-row" onclick="openSheet('${p.procId}')">
-        <div class="promo-row-icon">${iconHtml}</div>
-        <div class="promo-row-info">
-          <div class="promo-row-name">${name}</div>
-          <div class="promo-row-sub">${p.count} ${esc(clinicWord)}</div>
-        </div>
-        <div class="promo-row-price">${esc(t('promosFrom'))} <strong>${esc(String(p.minPrice))} €</strong></div>
-      </div>`;
-    }).join('');
+    window._promosFullList=Object.values(byProc).sort((a,b)=>a.minPrice-b.minPrice);
+    renderPromosList(window._promosFullList);
   }catch(e){
     console.error('Грешка при зареждане на промоции:',e);
     el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--red);font-size:12px">${isEn?'Error loading':'Грешка при зареждане'}</div>`;
   }
+}
+function renderPromosList(list){
+  const el=document.getElementById('promos-list');
+  if(!el) return;
+  if(!list.length){
+    const msg=document.getElementById('promos-search')?.value.trim() ? t('promosNoResults') : t('promosEmpty');
+    el.innerHTML=`<div style="text-align:center;padding:30px 16px;color:var(--ink2);font-size:12.5px">${esc(msg)}</div>`;
+    return;
+  }
+  el.innerHTML=list.map(p=>{
+    const proc=PROCS.find(x=>x.id===p.procId);
+    const iconHtml=proc?ic(proc.icon):'';
+    const name=esc(proc?procL(proc).name:(p.procName||'—'));
+    const clinicWord=p.count===1?t('promosClinicOne'):t('promosClinicMany');
+    return `<div class="promo-row" onclick="openSheet('${p.procId}')">
+      <div class="promo-row-icon">${iconHtml}</div>
+      <div class="promo-row-info">
+        <div class="promo-row-name">${name}</div>
+        <div class="promo-row-sub">${p.count} ${esc(clinicWord)}</div>
+      </div>
+      <div class="promo-row-price">${esc(t('promosFrom'))} <strong>${esc(String(p.minPrice))} €</strong></div>
+    </div>`;
+  }).join('');
+}
+// Търсене В САМАТА страница "Промоции" — филтрира вече заредения набор по
+// име на процедурата (кирилица⇄латиница, СЪЩАТА toLatin() транслитерация
+// като главната търсачка на каталога), без нов Firestore fetch.
+function filterPromosList(){
+  const term=(document.getElementById('promos-search')?.value||'').trim().toLowerCase();
+  if(!term){ renderPromosList(window._promosFullList); return; }
+  const termLatin=typeof toLatin==='function'?toLatin(term):term;
+  const filtered=window._promosFullList.filter(p=>{
+    const proc=PROCS.find(x=>x.id===p.procId);
+    const name=(proc?procL(proc).name:(p.procName||'')).toLowerCase();
+    if(name.includes(term)) return true;
+    if(typeof toLatin==='function' && toLatin(name).includes(termLatin)) return true;
+    return false;
+  });
+  renderPromosList(filtered);
 }
 
 // ── ТЕСТОВ ПРЕГЛЕД НА КЛИНИЧНИЯ ИЗГЛЕД (само за admin) ──
@@ -9774,19 +9837,77 @@ async function loadAdminApprovedClinics(){
     const snap=await F().getDocs(F().query(F().collection(DB(),'clinics'), F().where('status','==','approved')));
     const list=snap.docs.map(d=>Object.assign({id:d.id},d.data()));
     list.sort((a,b)=>(a.name||'').localeCompare(b.name||'','bg'));
+    window._adminApprovedClinicsCache=list;
     if(countEl) countEl.textContent=list.length?`(${list.length})`:'';
-    el.innerHTML=!list.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма одобрени клиники</div>':list.map(c=>`
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--goldlt)">
-        <div style="min-width:0">
-          <div style="font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name||'—')}</div>
-          <div style="font-size:11px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.email||'')}</div>
+    el.innerHTML=!list.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма одобрени клиники</div>':list.map(c=>{
+      let trialLabel;
+      if(c.paid) trialLabel='<span style="color:var(--gold);font-weight:700">Платена</span>';
+      else if(c.trialEndsAt){
+        const teMs=typeof c.trialEndsAt.toMillis==='function'?c.trialEndsAt.toMillis():(c.trialEndsAt.seconds?c.trialEndsAt.seconds*1000:0);
+        trialLabel=teMs>Date.now()?`Пробен до ${fmtDate(new Date(teMs))}`:`<span style="color:var(--red)">Пробен изтекъл ${fmtDate(new Date(teMs))}</span>`;
+      } else trialLabel='<span style="color:var(--ink2)">Без данни за пробен период</span>';
+      return `
+      <div style="padding:8px 0;border-bottom:1px solid var(--goldlt)">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div style="min-width:0">
+            <div style="font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name||'—')}</div>
+            <div style="font-size:11px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.email||'')}</div>
+          </div>
+          <button class="admin-btn sm" style="flex-shrink:0" onclick="adminOpenClinic('${c.id}')">Отвори</button>
         </div>
-        <button class="admin-btn sm" style="flex-shrink:0" onclick="adminOpenClinic('${c.id}')">Отвори</button>
-      </div>
-    `).join('');
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px">
+          <span style="font-size:10.5px">${trialLabel}</span>
+          <button class="admin-btn sm" style="flex-shrink:0;background:${c.paid?'var(--goldlt)':'var(--gold)'};color:${c.paid?'var(--gold)':'#fff'}" onclick="adminToggleClinicPaid('${c.id}',${!!c.paid})">${c.paid?'Маркирай неплатена':'Маркирай платена'}</button>
+        </div>
+      </div>`;
+    }).join('');
   }catch(e){
     console.error('Грешка при зареждане на одобрени клиники:',e);
     if(el) el.innerHTML='<div style="font-size:12px;color:var(--red)">Грешка при зареждане</div>';
+  }
+}
+// Ръчен флаг, превключван от админ след договорка извън приложението
+// (банков превод, фактура и т.н.) — виж isClinicPriceVisible(). paidAt се
+// пази само за референция, не участва в никаква логика.
+async function adminToggleClinicPaid(uid, currentPaid){
+  if(!window._isAdmin) return;
+  const newVal=!currentPaid;
+  try{
+    await F().updateDoc(F().doc(DB(),'clinics',uid), newVal
+      ? {paid:true, paidAt:F().serverTimestamp()}
+      : {paid:false});
+    showToast(newVal?'Маркирана като платена':'Маркирана като неплатена');
+    loadAdminApprovedClinics();
+  }catch(e){
+    console.error('Грешка при промяна на платен статус:',e);
+    showToast(t('toastErr'));
+  }
+}
+// Еднократна поправка за клиники, одобрени ПРЕДИ тази стъпка (нямат role/
+// trialEndsAt/paid — approveClinicRegistration вече ги слага автоматично
+// за нови одобрения). Ръчен бутон, не автоматично при всяко зареждане на
+// списъка — избягва изненадващи странични писания при обикновено разглеждане.
+async function adminBackfillClinicFields(){
+  if(!window._isAdmin) return;
+  const list=window._adminApprovedClinicsCache||[];
+  const missing=list.filter(c=>!c.role || c.trialEndsAt===undefined || c.paid===undefined);
+  if(!missing.length){showToast('Всички клиники вече имат нужните полета');return;}
+  if(!confirm(`Попълни role/пробен период/платен статус за ${missing.length} клиника(и)?`)) return;
+  try{
+    await Promise.all(missing.map(c=>F().updateDoc(F().doc(DB(),'clinics',c.id), {
+      role: c.role||'clinic',
+      paid: c.paid!==undefined?c.paid:false,
+      // 14 дни от СЕГА, не от createdAt — за стари клиники нямаме по-добра
+      // референтна точка, а изрично решено правило е "гейтингът е изключен
+      // по подразбиране", значи това поле не пипа нищо, докато админ не
+      // включи app_config/settings.clinicPaymentGateEnabled.
+      trialEndsAt: c.trialEndsAt || F().Timestamp.fromMillis(Date.now()+14*24*60*60*1000),
+    })));
+    showToast('Готово');
+    loadAdminApprovedClinics();
+  }catch(e){
+    console.error('Грешка при backfill на клинични полета:',e);
+    showToast(t('toastErr'));
   }
 }
 async function adminOpenClinic(uid){
@@ -9967,6 +10088,66 @@ function renderAiToggleUI(){
     btnEl.textContent = window._aiAssistantEnabled ? 'Изключи' : 'Включи';
     btnEl.style.background = window._aiAssistantEnabled ? '#e85d5d' : 'var(--gold)';
   }
+}
+
+// ── ГЕЙТИНГ НА КЛИНИЧНИТЕ ЦЕНИ ПО ПЛАЩАНЕ — ВКЛ/ИЗКЛ (admin) ──
+// СЪЩИЯТ app_config/settings.* принцип като AI асистента по-горе — отделен
+// ключ (clinicPaymentGateEnabled), по подразбиране изключен. Докато е
+// изключен, isClinicPriceVisible() винаги връща true — нищо не се крие,
+// независимо от пробен период/платен статус на клиниката.
+function toggleClinicPaymentGateAdmin(){
+  if(!window._isAdmin) return;
+  const newVal = !window._clinicPaymentGateEnabled;
+  F().setDoc(F().doc(DB(),'app_config','settings'),{clinicPaymentGateEnabled:newVal},{merge:true})
+    .then(()=>{
+      window._clinicPaymentGateEnabled = newVal;
+      renderClinicGateToggleUI();
+      showToast(newVal ? 'Гейтингът по плащане е включен' : 'Гейтингът по плащане е изключен');
+    })
+    .catch(e=>{console.error(e);showToast(t('toastErr'));});
+}
+function renderClinicGateToggleUI(){
+  const statusEl = document.getElementById('adm-clinic-gate-status');
+  const btnEl = document.getElementById('adm-clinic-gate-toggle-btn');
+  if(statusEl) statusEl.textContent = window._clinicPaymentGateEnabled ? 'Включен' : 'Изключен';
+  if(btnEl){
+    btnEl.textContent = window._clinicPaymentGateEnabled ? 'Изключи' : 'Включи';
+    btnEl.style.background = window._clinicPaymentGateEnabled ? '#e85d5d' : 'var(--gold)';
+  }
+}
+
+// ── ВИДИМОСТ НА КЛИНИЧНА ЦЕНА СПОРЕД ПРОБЕН ПЕРИОД/ПЛАЩАНЕ ──
+// `clinic` е clinics/{uid} документ (или null/undefined, ако не е намерен —
+// third пада на "невидима", по-безопасната страна при липсващи данни, само
+// докато гейтингът е ВКЛЮЧЕН). Изрично РЪЧЕН paid флаг (админ маркира след
+// банков превод/друг договор извън приложението) — НЯМА реален Stripe
+// checkout засега (решено изрично: "плащането може да е изключено в
+// началото, да видим как ще се развиваме"). trialEndsAt се задава еднократно
+// при одобрение (approveClinicRegistration, functions/index.js) — 14 дни.
+function isClinicPriceVisible(clinic){
+  if(!window._clinicPaymentGateEnabled) return true;
+  if(!clinic) return false;
+  if(clinic.paid === true) return true;
+  const te = clinic.trialEndsAt;
+  const ms = te ? (typeof te.toMillis === 'function' ? te.toMillis() : (te.seconds ? te.seconds*1000 : 0)) : 0;
+  return ms > Date.now();
+}
+// Взима clinics/{uid} документите за даден набор от uid-та наведнъж
+// (Promise.all от getDoc — marketplace-ът е малък засега, няма нужда от
+// по-сложна batch логика) и връща map uid -> данни, за да могат
+// openSheet()/loadPromosPage() да филтрират реда по клиника само когато
+// гейтингът реално е включен (иначе изобщо не се вика — 0 допълнителни четения).
+async function fetchClinicVisibilityMap(uids){
+  const map={};
+  const unique=[...new Set(uids.filter(Boolean))];
+  if(!unique.length) return map;
+  await Promise.all(unique.map(async uid=>{
+    try{
+      const snap=await F().getDoc(F().doc(DB(),'clinics',uid));
+      map[uid]=snap.exists()?snap.data():null;
+    }catch(e){ map[uid]=null; }
+  }));
+  return map;
 }
 
 // ── ТЪРСЕНЕ НА ПОТРЕБИТЕЛ (admin) ──
