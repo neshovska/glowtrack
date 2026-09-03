@@ -3838,7 +3838,7 @@ const T = {
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
     addReminder: 'Добави напомняне / резервация',
-    addReminderShort: 'Добави напомняне',
+    addReminderShort: 'Известие',
     deRemindVerb: 'Напомни',
     deBookVerb: 'Резервирай',
     okBtn: 'ОК',
@@ -4134,7 +4134,7 @@ const T = {
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
     addReminder: 'Add reminder / booking',
-    addReminderShort: 'Add reminder',
+    addReminderShort: 'Notification',
     deRemindVerb: 'Remind',
     deBookVerb: 'Book',
     okBtn: 'OK',
@@ -5713,23 +5713,67 @@ async function openSheet(id){
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('clinic')}</label><input autocomplete="off" class="form-input" type="text" id="de-clinic" placeholder="" data-ph="clinicPh"></div>
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('specialist')}</label><input autocomplete="off" class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specialistPh"></div>
         </div>
-        <!-- Контакт + бутонът за напомняне на СЪЩИЯ ред; разгъващата се част
-             остава на цял ред отдолу (двата типа + дата/час не се събират в
-             половин ширина). align-items:flex-end подравнява бутона по долния
-             ръб на полето, защото над бутона няма .form-lbl като над input-а.
-             (Редът с Клиника/Специалист горе ползва stretch + justify-content:
-             flex-end по КОЛОНИ вместо това — там И ДВЕТЕ колони имат етикет, а
-             "Специалист (по желание)" се увива на два реда в половин ширина;
-             без това полето му застава 12px по-ниско от съседното.)
-             Бутонът ползва по-краткия надпис addReminderShort — пълният
-             "Добави напомняне / резервация" не се събира в половин ширина. -->
-        <div class="form-row" style="display:flex;gap:10px;align-items:flex-end">
-          <div style="flex:1;min-width:0"><label class="form-lbl">${t('contact')}</label><input autocomplete="off" class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
-          <div style="flex:1;min-width:0">
-            <button onclick="toggleDiaryReminder()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 8px;border:1.5px solid var(--roselt);border-radius:9px;background:var(--goldlt);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">
-              ${ic('bell','13px')}<span id="de-reminder-btn-lbl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${t('addReminderShort')||'Добави напомняне'}</span>
-              <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s;flex-shrink:0">⌄</span>
-            </button>
+        <!-- Контакт + Цена на ЕДИН ред (размяна по изрична заявка — дотук
+             тук стоеше бутонът за напомняне, а цената беше долу до оценката).
+             stretch + justify-content:flex-end по КОЛОНИ, не align-items на реда:
+             "Контакт (по желание)" се увива на два реда в половин ширина, а
+             "Цена (€)" — на един, значи полетата иначе излизат на различна
+             височина (същият капан като при Клиника/Специалист горе). -->
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('contact')}</label><input autocomplete="off" class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+              <label class="form-lbl">${ic('money','13px')} ${t('priceLabel')} (€)</label>
+              <input autocomplete="off" class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:100%">
+          </div>
+        </div>
+        <!-- Препоръки + Лично усещане на ЕДИН ред (по изрична заявка, като
+             редовете с Клиника/Специалист и Контакт горе), но по-високи от
+             тях — тук се пише свободен текст, не име. Растат сами с текста
+             (autoGrowTextarea), защото textarea.form-input е resize:none и
+             потребителят няма ръчна дръжка за уголемяване.
+             ДВЕТЕ полета винаги са с ЕДНАКВА височина (data-grow-pair, виж
+             autoGrowTextarea) — иначе при stretch+flex-end по-късото поле
+             увисва с празнина над себе си, щом другото порасне. Заедно с
+             flex-end това ги подравнява по долния ръб независимо колко реда
+             заема етикетът отгоре: "Препоръки от специалиста" се увива на
+             два реда в половин ширина, "Лично усещане" — на един (измерено),
+             а на по-тесен екран/друг език съотношението пак се сменя. -->
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl">${t('adviceLabel')}</label>
+            <textarea class="form-input autogrow" id="de-advice" rows="3" placeholder="" data-ph="advicePh" data-grow-pair="de-feeling" oninput="autoGrowTextarea(this)"></textarea>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl">${t('feelingLabel')}</label>
+            <textarea class="form-input autogrow" id="de-feeling" rows="3" placeholder="" data-ph="feelingPh" data-grow-pair="de-advice" oninput="autoGrowTextarea(this)"></textarea>
+          </div>
+        </div>
+        <div class="form-row"><label class="form-lbl">${t('productsLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
+        <!-- Оценка + Известие на ЕДИН ред (по изрична заявка звездите са
+             ВЛЯВО, бутонът вдясно). Бутонът няма .form-lbl над себе си, а
+             съседната колона има етикет + звезди — затова колоната му е
+             собствен flex контейнер с align-items:center: центрира се спрямо
+             реалната височина на съседа, вместо да виси горе или долу.
+             Разгъващата се част остава на ЦЯЛ ред отдолу (двата типа + дата/
+             час не се събират в половин ширина).
+             Надписът е addReminderShort ("Известие") — пълното "Добави
+             напомняне / резервация" не се събира в половин ширина. -->
+        <div class="form-row" style="display:flex;gap:16px;align-items:stretch">
+          <div style="flex:1">
+            <!-- Оценката е центрирана и с по-едри звезди по изрична заявка.
+                 Размерът идва от параметъра на ic() (SVG width/height), НЕ от
+                 font-size на span-а — той не влияе на SVG с изрични размери. -->
+            <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
+            <div style="display:flex;gap:8px;margin-top:10px;justify-content:center" id="de-rating-stars">
+              ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s">${ic('star','21px')}</span>`).join('')}
+            </div>
+            <input type="hidden" id="de-rating" value="0">
+          </div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center">
+              <button onclick="toggleDiaryReminder()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 8px;border:1.5px solid var(--roselt);border-radius:9px;background:var(--goldlt);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">
+                ${ic('bell','13px')}<span id="de-reminder-btn-lbl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${t('addReminderShort')||'Известие'}</span>
+                <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s;flex-shrink:0">⌄</span>
+              </button>
           </div>
         </div>
         <div id="de-reminder-section" style="display:none;margin-bottom:10px;padding:12px 14px;border:1.5px solid var(--roselt);border-radius:12px">
@@ -5764,45 +5808,6 @@ async function openSheet(id){
                 ${t('cancelBtn')||'Откажи'}
               </button>
             </div>
-        </div>
-        <!-- Препоръки + Лично усещане на ЕДИН ред (по изрична заявка, като
-             редовете с Клиника/Специалист и Контакт горе), но по-високи от
-             тях — тук се пише свободен текст, не име. Растат сами с текста
-             (autoGrowTextarea), защото textarea.form-input е resize:none и
-             потребителят няма ръчна дръжка за уголемяване.
-             ДВЕТЕ полета винаги са с ЕДНАКВА височина (data-grow-pair, виж
-             autoGrowTextarea) — иначе при stretch+flex-end по-късото поле
-             увисва с празнина над себе си, щом другото порасне. Заедно с
-             flex-end това ги подравнява по долния ръб независимо колко реда
-             заема етикетът отгоре: "Препоръки от специалиста" се увива на
-             два реда в половин ширина, "Лично усещане" — на един (измерено),
-             а на по-тесен екран/друг език съотношението пак се сменя. -->
-        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
-          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
-            <label class="form-lbl">${t('adviceLabel')}</label>
-            <textarea class="form-input autogrow" id="de-advice" rows="3" placeholder="" data-ph="advicePh" data-grow-pair="de-feeling" oninput="autoGrowTextarea(this)"></textarea>
-          </div>
-          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
-            <label class="form-lbl">${t('feelingLabel')}</label>
-            <textarea class="form-input autogrow" id="de-feeling" rows="3" placeholder="" data-ph="feelingPh" data-grow-pair="de-advice" oninput="autoGrowTextarea(this)"></textarea>
-          </div>
-        </div>
-        <div class="form-row"><label class="form-lbl">${t('productsLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
-        <div class="form-row" style="display:flex;gap:16px;align-items:flex-start">
-          <div style="flex:1">
-            <label class="form-lbl">${ic('money','13px')} ${t('priceLabel')} (€)</label>
-            <input autocomplete="off" class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:100%">
-          </div>
-          <div style="flex:1">
-            <!-- Оценката е центрирана и с по-едри звезди по изрична заявка.
-                 Размерът идва от параметъра на ic() (SVG width/height), НЕ от
-                 font-size на span-а — той не влияе на SVG с изрични размери. -->
-            <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
-            <div style="display:flex;gap:8px;margin-top:6px;justify-content:center" id="de-rating-stars">
-              ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s">${ic('star','21px')}</span>`).join('')}
-            </div>
-            <input type="hidden" id="de-rating" value="0">
-          </div>
         </div>
         <!-- ПРЕДИ и СЛЕД на ЕДИН ред (по изрична заявка, като останалите
              двойки във формата). Надписът на бутона е скъсен до addPhotoShort
@@ -6192,7 +6197,7 @@ function cancelDeReminder(){
   if(sec) sec.style.display = 'none';
   if(arr) arr.style.transform = '';
   const lbl = document.getElementById('de-reminder-btn-lbl');
-  if(lbl) lbl.textContent = t('addReminderShort')||'Добави напомняне';
+  if(lbl) lbl.textContent = t('addReminderShort')||'Известие';
 }
 
 function toggleDiaryReminder(){
