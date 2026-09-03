@@ -3832,6 +3832,7 @@ const T = {
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
     addReminder: 'Добави напомняне / резервация',
+    addReminderShort: 'Добави напомняне',
     sendBtn: 'Изпрати',
     notifTypeReminder: 'Напомняне',
     notifTypeBooking: 'Резервация',
@@ -4123,6 +4124,7 @@ const T = {
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
     addReminder: 'Add reminder / booking',
+    addReminderShort: 'Add reminder',
     sendBtn: 'Send',
     notifTypeReminder: 'Reminder',
     notifTypeBooking: 'Booking',
@@ -5688,9 +5690,48 @@ async function openSheet(id){
         ${ic('sparkle','12px')} ${t('newEntry')} ${fmtDate(new Date())}
       </button>
       <div id="new-entry-form" style="display:none;margin-top:10px;border:1.5px solid var(--roselt);border-radius:14px;padding:14px">
-        <div class="form-row"><label class="form-lbl">${t('clinic')}</label><input autocomplete="off" class="form-input" type="text" id="de-clinic" placeholder="" data-ph="clinicPh"></div>
-        <div class="form-row"><label class="form-lbl">${t('specialist')}</label><input autocomplete="off" class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specialistPh"></div>
-        <div class="form-row"><label class="form-lbl">${t('contact')}</label><input autocomplete="off" class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
+        <!-- Клиника + Специалист на ЕДИН ред (по изрична заявка — и двете са
+             къси полета, цял ред за всяко беше излишен). min-width:0 на flex
+             децата е задължителен: без него input с width:100% не се свива под
+             собствената си intrinsic ширина и двете колони преливат навън. -->
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('clinic')}</label><input autocomplete="off" class="form-input" type="text" id="de-clinic" placeholder="" data-ph="clinicPh"></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('specialist')}</label><input autocomplete="off" class="form-input" type="text" id="de-specialist" placeholder="" data-ph="specialistPh"></div>
+        </div>
+        <!-- Контакт + бутонът за напомняне на СЪЩИЯ ред; разгъващата се част
+             остава на цял ред отдолу (двата типа + дата/час не се събират в
+             половин ширина). align-items:flex-end подравнява бутона по долния
+             ръб на полето, защото над бутона няма .form-lbl като над input-а.
+             (Редът с Клиника/Специалист горе ползва stretch + justify-content:
+             flex-end по КОЛОНИ вместо това — там И ДВЕТЕ колони имат етикет, а
+             "Специалист (по желание)" се увива на два реда в половин ширина;
+             без това полето му застава 12px по-ниско от съседното.)
+             Бутонът ползва по-краткия надпис addReminderShort — пълният
+             "Добави напомняне / резервация" не се събира в половин ширина. -->
+        <div class="form-row" style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1;min-width:0"><label class="form-lbl">${t('contact')}</label><input autocomplete="off" class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
+          <div style="flex:1;min-width:0">
+            <button onclick="toggleDiaryReminder()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 8px;border:1.5px solid var(--roselt);border-radius:9px;background:var(--goldlt);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">
+              ${ic('bell','13px')}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${t('addReminderShort')||'Добави напомняне'}</span>
+              <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s;flex-shrink:0">⌄</span>
+            </button>
+          </div>
+        </div>
+        <div id="de-reminder-section" style="display:none;margin-bottom:10px;padding:12px 14px;border:1.5px solid var(--roselt);border-radius:12px">
+            <div style="display:flex;gap:6px;margin-bottom:10px">
+              <button id="de-rtype-reminder" onclick="setDeReminderType('reminder')" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+                ${ic('bell','13px')} ${t('notifTypeReminder')||'Напомняне'}
+              </button>
+              <button id="de-rtype-booking" onclick="setDeReminderType('booking')" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+                ${ic('check','13px')} ${t('notifTypeBooking')||'Резервация'}
+              </button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input autocomplete="off" type="date" id="de-reminder-date" class="form-input" style="flex:1;font-size:16px">
+              <input autocomplete="off" type="time" id="de-reminder-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
+            </div>
+            <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
+        </div>
         <div class="form-row"><label class="form-lbl">${t('adviceLabel')}</label><textarea class="form-input" id="de-advice" rows="3" placeholder="" data-ph="advicePh"></textarea></div>
         <div class="form-row"><label class="form-lbl">${t('feelingLabel')}</label><textarea class="form-input" id="de-feeling" rows="2" placeholder="" data-ph="feelingPh"></textarea></div>
         <div class="form-row"><label class="form-lbl">${t('productsLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
@@ -5722,27 +5763,6 @@ async function openSheet(id){
             ${ic('camera','12px')} ${t('addPhotoAfter')||'Добави снимка След'}
             <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'after')">
           </label>
-        </div>
-        <div style="margin-bottom:12px;border:1.5px solid var(--roselt);border-radius:12px;overflow:hidden">
-          <div onclick="toggleDiaryReminder()" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;background:var(--goldlt)">
-            <span style="font-size:13px;font-weight:600;color:var(--ink)">${ic('bell','13px')} ${t('addReminder')||'Добави напомняне / резервация'}</span>
-            <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s">⌄</span>
-          </div>
-          <div id="de-reminder-section" style="display:none;padding:12px 14px;border-top:1px solid var(--roselt)">
-            <div style="display:flex;gap:6px;margin-bottom:10px">
-              <button id="de-rtype-reminder" onclick="setDeReminderType('reminder')" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('bell','13px')} ${t('notifTypeReminder')||'Напомняне'}
-              </button>
-              <button id="de-rtype-booking" onclick="setDeReminderType('booking')" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('check','13px')} ${t('notifTypeBooking')||'Резервация'}
-              </button>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input autocomplete="off" type="date" id="de-reminder-date" class="form-input" style="flex:1;font-size:16px">
-              <input autocomplete="off" type="time" id="de-reminder-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
-            </div>
-            <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
-          </div>
         </div>
         <div class="diary-actions">
           <button class="save-btn" style="width:100%" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
