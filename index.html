@@ -705,6 +705,12 @@ body.dark .notif-acc-hdr{background:linear-gradient(135deg,#1e1e38 0%,#2a2444 10
 body.dark .form-input:focus{background:#1a1a2e!important;color:#f0ede8!important;border-color:var(--gold)!important}
 .form-input::placeholder{color:#bbb4a8}
 textarea.form-input{resize:none}
+/* Полетата "Препоръки"/"Лично усещане" в записа на процедура растат с текста
+   (autoGrowTextarea) — min-height пази началния размер от ~3 реда, иначе
+   първото натискане на клавиш би ги свило до един ред: scrollHeight на празен
+   textarea е точно толкова, а autoGrowTextarea() задава точно него.
+   overflow-y:hidden маха мигащия вътрешен скролбар по време на растежа. */
+textarea.autogrow{min-height:82px;overflow-y:hidden}
 /* #for-clinics landing е самостоятелна маркетингова страница с фиксирана
    тъмна палитра (виж коментара при #page-for-clinics), независима от
    body.dark toggle-а на основното приложение — затова .auth-label/.form-input
@@ -5732,8 +5738,28 @@ async function openSheet(id){
             </div>
             <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
         </div>
-        <div class="form-row"><label class="form-lbl">${t('adviceLabel')}</label><textarea class="form-input" id="de-advice" rows="3" placeholder="" data-ph="advicePh"></textarea></div>
-        <div class="form-row"><label class="form-lbl">${t('feelingLabel')}</label><textarea class="form-input" id="de-feeling" rows="2" placeholder="" data-ph="feelingPh"></textarea></div>
+        <!-- Препоръки + Лично усещане на ЕДИН ред (по изрична заявка, като
+             редовете с Клиника/Специалист и Контакт горе), но по-високи от
+             тях — тук се пише свободен текст, не име. Растат сами с текста
+             (autoGrowTextarea), защото textarea.form-input е resize:none и
+             потребителят няма ръчна дръжка за уголемяване.
+             ДВЕТЕ полета винаги са с ЕДНАКВА височина (data-grow-pair, виж
+             autoGrowTextarea) — иначе при stretch+flex-end по-късото поле
+             увисва с празнина над себе си, щом другото порасне. Заедно с
+             flex-end това ги подравнява по долния ръб независимо колко реда
+             заема етикетът отгоре: "Препоръки от специалиста" се увива на
+             два реда в половин ширина, "Лично усещане" — на един (измерено),
+             а на по-тесен екран/друг език съотношението пак се сменя. -->
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl">${t('adviceLabel')}</label>
+            <textarea class="form-input autogrow" id="de-advice" rows="3" placeholder="" data-ph="advicePh" data-grow-pair="de-feeling" oninput="autoGrowTextarea(this)"></textarea>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl">${t('feelingLabel')}</label>
+            <textarea class="form-input autogrow" id="de-feeling" rows="3" placeholder="" data-ph="feelingPh" data-grow-pair="de-advice" oninput="autoGrowTextarea(this)"></textarea>
+          </div>
+        </div>
         <div class="form-row"><label class="form-lbl">${t('productsLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
         <div class="form-row" style="display:flex;gap:16px;align-items:flex-start">
           <div style="flex:1">
@@ -5741,9 +5767,12 @@ async function openSheet(id){
             <input autocomplete="off" class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:100%">
           </div>
           <div style="flex:1">
-            <label class="form-lbl">${ic('star','13px')} ${t('ratingLabel')}</label>
-            <div style="display:flex;gap:4px;margin-top:6px" id="de-rating-stars">
-              ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="font-size:20px;cursor:pointer;opacity:.3;transition:opacity .15s">${ic('star','13px')}</span>`).join('')}
+            <!-- Оценката е центрирана и с по-едри звезди по изрична заявка.
+                 Размерът идва от параметъра на ic() (SVG width/height), НЕ от
+                 font-size на span-а — той не влияе на SVG с изрични размери. -->
+            <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
+            <div style="display:flex;gap:8px;margin-top:6px;justify-content:center" id="de-rating-stars">
+              ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s">${ic('star','21px')}</span>`).join('')}
             </div>
             <input type="hidden" id="de-rating" value="0">
           </div>
@@ -11402,6 +11431,26 @@ function shareProc(){
       showToast(t('toastCopied'));
     });
   }
+}
+
+// Полето расте с текста си вместо да скролва вътрешно. Височината се нулира
+// на 'auto' ПРЕДИ четенето на scrollHeight — иначе scrollHeight никога не
+// намалява при триене на текст (пази последната, по-голяма стойност) и полето
+// расте само в едната посока. Минимумът е в CSS (textarea.autogrow), не тук.
+function autoGrowTextarea(el){
+  if(!el) return;
+  el.style.height = 'auto';
+  let h = el.scrollHeight;
+  // data-grow-pair: две полета един до друг растат ЗАЕДНО, до височината на
+  // по-дългия текст. Без това по-късото увисва (виж коментара при маркъпа) и
+  // двете кутии изглеждат разместени, вместо като двойка.
+  const pair = el.dataset.growPair ? document.getElementById(el.dataset.growPair) : null;
+  if(pair){
+    pair.style.height = 'auto';
+    h = Math.max(h, pair.scrollHeight);
+    pair.style.height = h + 'px';
+  }
+  el.style.height = h + 'px';
 }
 
 // ── RATING ──
