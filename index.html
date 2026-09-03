@@ -5764,7 +5764,7 @@ async function openSheet(id){
                  Размерът идва от параметъра на ic() (SVG width/height), НЕ от
                  font-size на span-а — той не влияе на SVG с изрични размери. -->
             <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
-            <div style="display:flex;gap:8px;margin-top:10px;justify-content:center" id="de-rating-stars">
+            <div style="display:flex;gap:8px;margin-top:8px;justify-content:center" id="de-rating-stars">
               ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s">${ic('star','21px')}</span>`).join('')}
             </div>
             <input type="hidden" id="de-rating" value="0">
@@ -5796,16 +5796,17 @@ async function openSheet(id){
               <input autocomplete="off" type="time" id="de-reminder-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
             </div>
             <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
-            <!-- ОК затваря менюто и ЗАПАЗВА въведеното (то отива в дневниковия
-                 запис при "Запази"); Откажи затваря и изчиства датата, значи
-                 нищо няма да се запише. Виж confirmDeReminder()/
+            <!-- Откажи е ПЪРВИ, ОК втори (по изрична заявка — размяна на
+                 местата). ОК затваря менюто и ЗАПАЗВА въведеното (то отива в
+                 дневниковия запис при "Запази"); Откажи затваря и изчиства
+                 датата, значи нищо няма да се запише. Виж confirmDeReminder()/
                  cancelDeReminder() за защо е нужен изричен флаг. -->
             <div style="display:flex;gap:8px;margin-top:10px">
-              <button onclick="confirmDeReminder()" style="flex:1;padding:7px 8px;border-radius:9px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px">
-                ${ic('check','13px')} ${t('okBtn')||'ОК'}
-              </button>
-              <button onclick="cancelDeReminder()" style="flex:1;padding:7px 8px;border-radius:9px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit">
+              <button onclick="cancelDeReminder()" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit">
                 ${t('cancelBtn')||'Откажи'}
+              </button>
+              <button onclick="confirmDeReminder()" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px">
+                ${ic('check','12px')} ${t('okBtn')||'ОК'}
               </button>
             </div>
         </div>
