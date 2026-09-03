@@ -3839,6 +3839,10 @@ const T = {
     cancelBtn: 'Откажи',
     addReminder: 'Добави напомняне / резервация',
     addReminderShort: 'Добави напомняне',
+    deRemindVerb: 'Напомни',
+    deBookVerb: 'Резервирай',
+    okBtn: 'ОК',
+    addPhotoShort: '+ Добави',
     sendBtn: 'Изпрати',
     notifTypeReminder: 'Напомняне',
     notifTypeBooking: 'Резервация',
@@ -4131,6 +4135,10 @@ const T = {
     cancelBtn: 'Cancel',
     addReminder: 'Add reminder / booking',
     addReminderShort: 'Add reminder',
+    deRemindVerb: 'Remind',
+    deBookVerb: 'Book',
+    okBtn: 'OK',
+    addPhotoShort: '+ Add',
     sendBtn: 'Send',
     notifTypeReminder: 'Reminder',
     notifTypeBooking: 'Booking',
@@ -5509,6 +5517,7 @@ async function openSheet(id){
   if(typeof trackEvent==='function')trackEvent('procedure_view',{procedure_id:id,procedure_name:lp.name,category:p.cat});
   currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
   _deReminderType='reminder';
+  window._deReminderConfirmed=false; // нов sheet = ново решение (виж confirmDeReminder)
   if(lp.img){
     document.getElementById('sh-icon').innerHTML=`<img src="${lp.img}" loading="lazy" style="width:44px;height:44px;border-radius:12px;object-fit:cover" alt="">`;
     document.getElementById('sh-icon').style.background='transparent';
@@ -5718,18 +5727,24 @@ async function openSheet(id){
           <div style="flex:1;min-width:0"><label class="form-lbl">${t('contact')}</label><input autocomplete="off" class="form-input" type="text" id="de-contact" placeholder="" data-ph="contactPh"></div>
           <div style="flex:1;min-width:0">
             <button onclick="toggleDiaryReminder()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 8px;border:1.5px solid var(--roselt);border-radius:9px;background:var(--goldlt);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">
-              ${ic('bell','13px')}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${t('addReminderShort')||'Добави напомняне'}</span>
+              ${ic('bell','13px')}<span id="de-reminder-btn-lbl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${t('addReminderShort')||'Добави напомняне'}</span>
               <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s;flex-shrink:0">⌄</span>
             </button>
           </div>
         </div>
         <div id="de-reminder-section" style="display:none;margin-bottom:10px;padding:12px 14px;border:1.5px solid var(--roselt);border-radius:12px">
+            <!-- Двата типа са с ГЛАГОЛНИ имена ("Напомни"/"Резервирай") и
+                 по-дребни от преди, по изрична заявка. Нарочно НОВИ ключове
+                 (deRemindVerb/deBookVerb), не преизползване на
+                 notifTypeReminder/notifTypeBooking — тези са съществителните
+                 ("Напомняне"/"Резервация") и се ползват като ЕТИКЕТИ на
+                 страницата с напомнянията; глагол там би звучал грешно. -->
             <div style="display:flex;gap:6px;margin-bottom:10px">
-              <button id="de-rtype-reminder" onclick="setDeReminderType('reminder')" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('bell','13px')} ${t('notifTypeReminder')||'Напомняне'}
+              <button id="de-rtype-reminder" onclick="setDeReminderType('reminder')" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">
+                ${ic('bell','12px')} ${t('deRemindVerb')||'Напомни'}
               </button>
-              <button id="de-rtype-booking" onclick="setDeReminderType('booking')" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('check','13px')} ${t('notifTypeBooking')||'Резервация'}
+              <button id="de-rtype-booking" onclick="setDeReminderType('booking')" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">
+                ${ic('check','12px')} ${t('deBookVerb')||'Резервирай'}
               </button>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
@@ -5737,6 +5752,18 @@ async function openSheet(id){
               <input autocomplete="off" type="time" id="de-reminder-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
             </div>
             <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
+            <!-- ОК затваря менюто и ЗАПАЗВА въведеното (то отива в дневниковия
+                 запис при "Запази"); Откажи затваря и изчиства датата, значи
+                 нищо няма да се запише. Виж confirmDeReminder()/
+                 cancelDeReminder() за защо е нужен изричен флаг. -->
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button onclick="confirmDeReminder()" style="flex:1;padding:7px 8px;border-radius:9px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px">
+                ${ic('check','13px')} ${t('okBtn')||'ОК'}
+              </button>
+              <button onclick="cancelDeReminder()" style="flex:1;padding:7px 8px;border-radius:9px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit">
+                ${t('cancelBtn')||'Откажи'}
+              </button>
+            </div>
         </div>
         <!-- Препоръки + Лично усещане на ЕДИН ред (по изрична заявка, като
              редовете с Клиника/Специалист и Контакт горе), но по-високи от
@@ -5777,21 +5804,29 @@ async function openSheet(id){
             <input type="hidden" id="de-rating" value="0">
           </div>
         </div>
-        <div style="margin-bottom:10px;margin-top:8px">
-          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'BEFORE':'ПРЕДИ'}</div>
-          <div class="photo-previews" id="de-previews-before" style="margin-bottom:6px"></div>
-          <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--gold)">
-            ${ic('camera','12px')} ${t('addPhotoBefore')||'Добави снимка Преди'}
-            <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'before')">
-          </label>
-        </div>
-        <div style="margin-bottom:12px">
-          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'AFTER':'СЛЕД'}</div>
-          <div class="photo-previews" id="de-previews-after" style="margin-bottom:6px"></div>
-          <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--gold)">
-            ${ic('camera','12px')} ${t('addPhotoAfter')||'Добави снимка След'}
-            <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'after')">
-          </label>
+        <!-- ПРЕДИ и СЛЕД на ЕДИН ред (по изрична заявка, като останалите
+             двойки във формата). Надписът на бутона е скъсен до addPhotoShort
+             ("+ Добави"), защото заглавието ПРЕДИ/СЛЕД точно над него вече
+             казва кое кое е — пълното "Добави снимка Преди" не се събира в
+             половин ширина. align-items:flex-start, не stretch: двете колони
+             растат независимо, като се добавят различен брой снимки. -->
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;margin-top:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'BEFORE':'ПРЕДИ'}</div>
+            <div class="photo-previews" id="de-previews-before" style="margin-bottom:6px"></div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+              ${ic('camera','12px')} ${t('addPhotoShort')||'+ Добави'}
+              <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'before')">
+            </label>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'AFTER':'СЛЕД'}</div>
+            <div class="photo-previews" id="de-previews-after" style="margin-bottom:6px"></div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+              ${ic('camera','12px')} ${t('addPhotoShort')||'+ Добави'}
+              <input type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(event,'after')">
+            </label>
+          </div>
         </div>
         <div class="diary-actions">
           <button class="save-btn" style="width:100%" onclick="saveDiaryEntry('${id}')">${t('saveBtn')}</button>
@@ -6123,6 +6158,43 @@ function startEditEntry(eid,procId){
 
 let _deReminderType = 'reminder';
 
+// ОК: затваря менюто, но ЗАПАЗВА въведените дата/час — те се записват
+// заедно с дневниковия запис при "Запази". Изричният флаг _deReminderConfirmed
+// е нужен, защото историческата проверка в saveDiaryEntry() е "панелът е
+// видим", а ОК тъкмо го скрива — без флага потвърденото напомняне би изчезнало
+// тихо. Старата проверка ОСТАВА като втори клон (виж saveDiaryEntry): който
+// попълни дата и натисне направо "Запази", без да минава през ОК, пак получава
+// напомнянето си, както преди тази промяна.
+function confirmDeReminder(){
+  const d = document.getElementById('de-reminder-date');
+  if(!d || !d.value){ showToast(window._lang==='en'?'Pick a date first':'Първо избери дата'); return; }
+  window._deReminderConfirmed = true;
+  const sec = document.getElementById('de-reminder-section');
+  const arr = document.getElementById('de-reminder-arrow');
+  if(sec) sec.style.display = 'none';
+  if(arr) arr.style.transform = '';
+  // Бутонът горе показва избраната дата/час — единствената видима следа, че
+  // напомняне чака запис, след като панелът вече е затворен.
+  const lbl = document.getElementById('de-reminder-btn-lbl');
+  if(lbl){
+    const parts = d.value.split('-');
+    const tm = document.getElementById('de-reminder-time')?.value || '';
+    lbl.textContent = parts.length===3 ? (parts[2]+'.'+parts[1]+(tm?' '+tm:'')) : d.value;
+  }
+}
+// Откажи: затваря менюто И изчиства датата, значи нищо няма да се запише —
+// и по двата клона на проверката в saveDiaryEntry().
+function cancelDeReminder(){
+  window._deReminderConfirmed = false;
+  const d = document.getElementById('de-reminder-date'); if(d) d.value = '';
+  const sec = document.getElementById('de-reminder-section');
+  const arr = document.getElementById('de-reminder-arrow');
+  if(sec) sec.style.display = 'none';
+  if(arr) arr.style.transform = '';
+  const lbl = document.getElementById('de-reminder-btn-lbl');
+  if(lbl) lbl.textContent = t('addReminderShort')||'Добави напомняне';
+}
+
 function toggleDiaryReminder(){
   const sec = document.getElementById('de-reminder-section');
   const arr = document.getElementById('de-reminder-arrow');
@@ -6199,7 +6271,12 @@ async function saveDiaryEntry(procId){
     const deReminderDate = document.getElementById('de-reminder-date')?.value;
     const deReminderTime = document.getElementById('de-reminder-time')?.value||'10:00';
     const deReminderSec = document.getElementById('de-reminder-section');
-    if(deReminderDate && deReminderSec && deReminderSec.style.display!=='none'){
+    // Два приети случая: (а) потвърдено с ОК (панелът е затворен, но
+    // _deReminderConfirmed пази решението) и (б) панелът е още отворен с
+    // попълнена дата — поведението отпреди бутоните ОК/Откажи, оставено
+    // нарочно, за да не изчезне напомнянето на човек, който натиска направо
+    // "Запази".
+    if(deReminderDate && (window._deReminderConfirmed || (deReminderSec && deReminderSec.style.display!=='none'))){
       const p2 = PROCS.find(x=>x.id===procId)||{};
       const saved2 = (_lsGet('gt_notifs')||[]);
       saved2.push({
