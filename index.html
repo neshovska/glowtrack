@@ -5862,7 +5862,11 @@ async function openSheet(id){
   if(!_existingDisc){
     const _disc = document.createElement('div');
     _disc.id = 'sh-disclaimer';
-    _disc.style.cssText = 'margin:12px 18px 16px;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.08),rgba(212,169,106,.05));border:1.5px solid var(--gold);border-radius:14px';
+    // Хоризонтален margin НЕ бива да има: #sh-body вече е с padding:0 18px,
+    // значи 18px тук се НАСЛАГВАТ върху него и карето излизаше 36px по-тясно
+    // от секциите над него (измерено: 318px срещу 354px). По изрична заявка
+    // да е широко колкото горните карета.
+    _disc.style.cssText = 'margin:12px 0 16px;padding:14px;background:linear-gradient(135deg,rgba(184,150,106,.08),rgba(212,169,106,.05));border:1.5px solid var(--gold);border-radius:14px';
     _disc.innerHTML = '<div style="font-size:10px;color:var(--ink2);line-height:1.5;text-align:center;opacity:0.85">'+
       '<strong style="color:var(--gold);font-size:10px">'+ic('star','13px')+' '+t('disclaimerTitle')+'</strong><br>'+t('disclaimerBody')+'</div>';
     document.getElementById('sh-body').appendChild(_disc);
