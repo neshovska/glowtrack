@@ -2922,8 +2922,40 @@ onAuthStateChanged(auth,async user=>{
     if(typeof renderHomePage==='function') setTimeout(renderHomePage, 50);
     if(user && typeof window.triggerNavWave==='function') window.triggerNavWave(150);
   }
+  // Реален докладван бъг: тапваш "Влез" ВЪТРЕ в отворена процедура (диарито
+  // изисква логин) и "нищо не се случва" — формата за вход РЕАЛНО се отваря
+  // (виж openAuthScreen() по-долу), но зад все още отворения sheet: .overlay
+  // (процедурата) е z-index:200, .auth-screen е само 100, значи формата се
+  // рендира невидима и недостъпна ПОД тъмния/размазан фон на sheet-а, който
+  // и продължава да поглъща кликовете. Поправено на две места заедно:
+  // openAuthScreen() сама затваря отворената процедура (виж coментара там),
+  // а тук — щом потребителят реално влезе — я връщаме автоматично, вместо
+  // просто да изчезне занапред. Същия pending-флаг похват като
+  // _pendingProfileGoPage/_pendingHomeGoPage непосредствено над.
+  window.consumePendingReopenAfterLogin();
 });
+// Изнесена в собствена именувана функция (не inline в onAuthStateChanged),
+// за да може да се тества директно — Firebase Auth не тръгва в тази среда
+// (мрежата към gstatic.com е блокирана), значи истинският onAuthStateChanged
+// callback не може да се извика от тест; тази функция може.
+window.consumePendingReopenAfterLogin=function(){
+  if(!window._pendingReopenProcId) return;
+  const _rpid=window._pendingReopenProcId;
+  window._pendingReopenProcId=null;
+  if(typeof openSheet==='function') setTimeout(()=>openSheet(_rpid), 60);
+};
 window.openAuthScreen=function(){
+  // Затваряме отворена процедура ПРЕДИ да покажем формата за вход — иначе
+  // тя ляга зад sheet-а (виж коментара в onAuthStateChanged по-горе) и
+  // изглежда все едно бутонът не прави нищо. currentProcId/closeSheet()
+  // живеят в по-късен <script> блок, но като top-level `let`/function
+  // декларации са видими тук по времето, когато потребителят реално
+  // кликва (всички скриптове вече са изпълнени при зареждане).
+  const _ov=document.getElementById('overlay');
+  if(_ov&&_ov.classList.contains('open')){
+    window._pendingReopenProcId=typeof currentProcId!=='undefined'?currentProcId:null;
+    if(typeof closeSheet==='function') closeSheet();
+  }
   document.getElementById('auth-screen').classList.remove('hidden');
   if(typeof setAuthMode==='function') setAuthMode('login');
 };
