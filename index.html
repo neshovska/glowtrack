@@ -1015,6 +1015,13 @@ body.dark .routine-product-input{background:#1a1a2e;color:#f0ede8;border-color:r
 .acc-arrow.open{transform:rotate(180deg)}
 .acc-body{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1);padding:0 18px}
 .acc-body.open{max-height:2000px;padding:0 18px 14px;overflow:visible}
+/* Вариант "една карта" (по изрична заявка за "Напомни ми за процедурата"):
+   заоблени ръбове + собствена рамка, а разгънатото съдържание НЕ се увива в
+   отделна кутия (виж goldCard/`styled` в acc() ) — за да изглежда като СЪЩАТА
+   карта, която се разгъва, а не като второ каре вътре в първото.
+   overflow:hidden пази ъглите чисти по време на max-height анимацията. */
+.acc-section.acc-card{border:1.5px solid #b8966a33;border-radius:14px;background:var(--card);overflow:hidden;margin-bottom:2px}
+body.dark .acc-section.acc-card{background:#1a1a2e;border-color:rgba(212,169,106,.2)}
 /* UTILS */
 .toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--ink);border:1px solid var(--roselt);box-shadow:0 4px 16px rgba(0,0,0,.15);padding:9px 18px;border-radius:20px;font-size:12.5px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
@@ -1308,9 +1315,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <input autocomplete="off" type="text" id="custom-morning-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
             <button onclick="addCustomStep('morning')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
+          <!-- Отмени преди Запази (по изрична заявка "по-удобно за дясна
+               ръка хора, които са повече като брой") — същият принцип като
+               ОК/Откажи в менюто за напомняне и "Напомни ми за процедурата":
+               действието, което НЕ ангажира с решение, е първо/вляво. -->
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="saveRoutine('morning',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
             <button onclick="toggleCarePanel('morning')" style="padding:10px 16px;background:none;border:1.5px solid var(--roselt);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2)">Отмени</button>
+            <button onclick="saveRoutine('morning',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#b8966a,#d4a96a);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineMorning"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
           </div>
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="morning-progress-fill" style="width:0%"></div></div>
           <div id="morning-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
@@ -1342,9 +1353,13 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
             <input autocomplete="off" type="text" id="custom-evening-input" class="form-input" placeholder="+ Добави стъпка..." data-ph="addStep" style="flex:1;font-size:16px;padding:7px 10px">
             <button onclick="addCustomStep('evening')" aria-label="Добави стъпка" style="padding:7px 12px;background:var(--gold);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:16px">+</button>
           </div>
+          <!-- Отмени преди Запази (по изрична заявка "по-удобно за дясна
+               ръка хора, които са повече като брой") — същият принцип като
+               ОК/Откажи в менюто за напомняне и "Напомни ми за процедурата":
+               действието, което НЕ ангажира с решение, е първо/вляво. -->
           <div style="display:flex;gap:8px;margin-top:10px">
-            <button onclick="saveRoutine('evening',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
             <button onclick="toggleCarePanel('evening')" style="padding:10px 16px;background:none;border:1.5px solid var(--roselt);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink2)">Отмени</button>
+            <button onclick="saveRoutine('evening',this)" style="flex:1;padding:10px;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700" data-t="saveRoutineEvening"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg> Запази</button>
           </div>
           <div class="routine-progress" style="margin-top:8px"><div class="routine-progress-fill" id="evening-progress-fill" style="width:0%"></div></div>
           <div id="evening-streak" style="font-size:11px;color:var(--ink2);margin-top:4px"></div>
@@ -5643,8 +5658,8 @@ async function openSheet(id){
   const mk=(arr,cls)=>(arr||[]).map(([em,txt])=>`<div class="care-item ${cls}"><span class="care-em">${ic(em,'16px')}</span><span class="care-txt">${txt}</span></div>`).join('');
   const notPrefix = window._lang==='en' ? 'NO' : 'НЕ';
   const goldCard = (content) => `<div style="border:1.5px solid #b8966a33;border-radius:14px;background:var(--card);padding:14px 14px 12px;margin-top:2px">${content}</div>`;
-  const acc = (title, body, open=false, styled=false) => `
-    <div class="acc-section">
+  const acc = (title, body, open=false, styled=false, extraCls='') => `
+    <div class="acc-section ${extraCls}">
       <div class="acc-header" onclick="toggleAcc(this)">
         <span class="acc-title">${title}</span>
         <span class="acc-arrow ${open?'open':''}">⌄</span>
@@ -5699,7 +5714,9 @@ async function openSheet(id){
               <button onclick="saveProcRemind('${id}','${procNameEsc}')" style="flex:1;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('check','13px')} ${isBGr?'Запази':'Save'}</button>
             </div>
           </div>`;
-        return acc(`${clockSvg}${isBGr?'Напомни ми за процедурата':'Remind me about the procedure'}`, body, false, true);
+        // styled=false нарочно: съдържанието НЕ се увива в goldCard, за да не
+        // изглежда като отделно каре вътре в картата (виж .acc-card в <style>).
+        return acc(`${clockSvg}${isBGr?'Напомни ми за процедурата':'Remind me about the procedure'}`, body, false, false, 'acc-card');
       })()}
 
       <!-- BUTTON 1: New entry -->
@@ -5728,29 +5745,35 @@ async function openSheet(id){
               <input autocomplete="off" class="form-input" type="number" id="de-price" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:100%">
           </div>
         </div>
-        <!-- Препоръки + Лично усещане на ЕДИН ред (по изрична заявка, като
-             редовете с Клиника/Специалист и Контакт горе), но по-високи от
-             тях — тук се пише свободен текст, не име. Растат сами с текста
-             (autoGrowTextarea), защото textarea.form-input е resize:none и
-             потребителят няма ръчна дръжка за уголемяване.
+        <!-- Препоръки + Продукти на ЕДИН ред (по изрична заявка "Лично
+             усещане" и "Продукти" си РАЗМЕНИХА местата, като размерът на
+             самите кутии остана какъвто беше: голямото поле тук е вече
+             Продукти, а Лично усещане слезе на цял ред отдолу, като
+             едноредово поле. Разменени са и id-тата (de-products е тук,
+             de-feeling долу), не само етикетите — иначе текстът за
+             продукти щеше да се записва във feeling полето на записа.
+             ВНИМАНИЕ: този коментар е ВЪТРЕ в темплейт литерал — никакви
+             обратни апострофи тук, те затварят литерала и build-ът гърми.)
+             Растат сами с текста (autoGrowTextarea), защото
+             textarea.form-input е resize:none и потребителят няма ръчна
+             дръжка за уголемяване.
              ДВЕТЕ полета винаги са с ЕДНАКВА височина (data-grow-pair, виж
              autoGrowTextarea) — иначе при stretch+flex-end по-късото поле
              увисва с празнина над себе си, щом другото порасне. Заедно с
              flex-end това ги подравнява по долния ръб независимо колко реда
-             заема етикетът отгоре: "Препоръки от специалиста" се увива на
-             два реда в половин ширина, "Лично усещане" — на един (измерено),
-             а на по-тесен екран/друг език съотношението пак се сменя. -->
+             заема етикетът отгоре — не предполагай кой етикет се събира на
+             един ред при тази ширина, мери. -->
         <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
             <label class="form-lbl">${t('adviceLabel')}</label>
-            <textarea class="form-input autogrow" id="de-advice" rows="3" placeholder="" data-ph="advicePh" data-grow-pair="de-feeling" oninput="autoGrowTextarea(this)"></textarea>
+            <textarea class="form-input autogrow" id="de-advice" rows="3" placeholder="" data-ph="advicePh" data-grow-pair="de-products" oninput="autoGrowTextarea(this)"></textarea>
           </div>
           <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
-            <label class="form-lbl">${t('feelingLabel')}</label>
-            <textarea class="form-input autogrow" id="de-feeling" rows="3" placeholder="" data-ph="feelingPh" data-grow-pair="de-advice" oninput="autoGrowTextarea(this)"></textarea>
+            <label class="form-lbl">${t('productsLabel')}</label>
+            <textarea class="form-input autogrow" id="de-products" rows="3" placeholder="" data-ph="productsPh" data-grow-pair="de-advice" oninput="autoGrowTextarea(this)"></textarea>
           </div>
         </div>
-        <div class="form-row"><label class="form-lbl">${t('productsLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-products" placeholder="" data-ph="productsPh"></div>
+        <div class="form-row"><label class="form-lbl">${t('feelingLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-feeling" placeholder="" data-ph="feelingPh"></div>
         <!-- Оценка + Известие на ЕДИН ред (по изрична заявка звездите са
              ВЛЯВО, бутонът вдясно). Бутонът няма .form-lbl над себе си, а
              съседната колона има етикет + звезди — затова колоната му е
