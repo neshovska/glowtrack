@@ -6243,43 +6243,75 @@ function startEditEntry(eid,procId){
         <button class="mini-btn" onclick="loadDiaryTab()">Откажи</button>
       </div>`:`
       <div class="diary-date-lbl">${t('editEntry')}</div>
-      <div class="form-row"><label class="form-lbl">Клиника</label><input autocomplete="off" class="form-input" id="ee-clinic-${eid}" value="${esc(d.clinic||'')}"></div>
-      <div class="form-row"><label class="form-lbl">Специалист</label><input autocomplete="off" class="form-input" id="ee-spec-${eid}" value="${esc(d.specialist||'')}"></div>
-      <div class="form-row"><label class="form-lbl">Контакти</label><input autocomplete="off" class="form-input" id="ee-contact-${eid}" value="${esc(d.contact||'')}"></div>
-      <div class="form-row"><label class="form-lbl">Препоръки от специалиста</label><textarea class="form-input" id="ee-advice-${eid}" rows="3">${esc(d.advice||'')}</textarea></div>
-      <div class="form-row"><label class="form-lbl">Лично усещане</label><textarea class="form-input" id="ee-feel2-${eid}" rows="2">${esc(d.feeling||'')}</textarea></div>
-      <div class="form-row"><label class="form-lbl">Препоръчани продукти</label><input autocomplete="off" class="form-input" id="ee-prod-${eid}" value="${esc(d.products||'')}"></div>
-      <div class="form-row">
-        <label class="form-lbl">${t('priceLabel')} (€)</label>
-        <input autocomplete="off" class="form-input" type="number" id="ee-price-${eid}" value="${d.price||''}" placeholder="напр. 50" style="width:120px">
+      <!-- Реализация 1:1 със схемата на "Опиши своята процедура" в openSheet()
+           (#new-entry-form) — по изрична заявка редакцията на вече записана
+           процедура да изглежда по НОВАТА подредба, не по старата (Клиника/
+           Специалист/Контакти/Цена/Оценка бяха всяко на собствен ред тук).
+           id-тата остават ee-*-${eid} (уникални за всяка карта в списъка,
+           за разлика от единствения de-* формуляр), но подредбата по двойки,
+           етикетите (през t(), не суров кирилски текст — старата версия
+           показваше "Клиника"/"Специалист" и на английски интерфейс, реален
+           пропуск покрай другото) и стилът на звездите/снимките са същите. -->
+      <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('clinic')}</label><input autocomplete="off" class="form-input" id="ee-clinic-${eid}" value="${esc(d.clinic||'')}"></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('specialist')}</label><input autocomplete="off" class="form-input" id="ee-spec-${eid}" value="${esc(d.specialist||'')}"></div>
       </div>
+      <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl">${t('contact')}</label><input autocomplete="off" class="form-input" id="ee-contact-${eid}" value="${esc(d.contact||'')}"></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+          <label class="form-lbl">${ic('money','13px')} ${t('priceLabel')} (€)</label>
+          <input autocomplete="off" class="form-input" type="number" id="ee-price-${eid}" value="${d.price||''}" placeholder="${window._lang==='en'?'e.g. 50':'напр. 50'}" style="width:100%">
+        </div>
+      </div>
+      <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+          <label class="form-lbl">${t('adviceLabel')}</label>
+          <textarea class="form-input autogrow" id="ee-advice-${eid}" rows="3" data-grow-pair="ee-prod-${eid}" oninput="autoGrowTextarea(this)">${esc(d.advice||'')}</textarea>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+          <label class="form-lbl">${t('productsLabel')}</label>
+          <textarea class="form-input autogrow" id="ee-prod-${eid}" rows="3" data-grow-pair="ee-advice-${eid}" oninput="autoGrowTextarea(this)">${esc(d.products||'')}</textarea>
+        </div>
+      </div>
+      <div class="form-row"><label class="form-lbl">${t('feelingLabel')}</label><input autocomplete="off" class="form-input" type="text" id="ee-feel2-${eid}" value="${esc(d.feeling||'')}"></div>
       <div class="form-row">
-        <label class="form-lbl">${t('ratingLabel')}</label>
-        <div style="display:flex;gap:6px;margin-top:4px" id="ee-rating-stars-${eid}">
-          ${[1,2,3,4,5].map(i=>`<span onclick="setEditRating('${eid}',${i})" style="font-size:24px;cursor:pointer;opacity:${(d.rating||0)>=i?'1':'.3'};transition:opacity .15s">${ic('star','13px')}</span>`).join('')}
+        <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
+        <div style="display:flex;gap:8px;margin-top:8px;justify-content:center" id="ee-rating-stars-${eid}">
+          ${[1,2,3,4,5].map(i=>`<span onclick="setEditRating('${eid}',${i})" style="display:inline-flex;cursor:pointer;opacity:${(d.rating||0)>=i?'1':'.3'};transition:opacity .15s">${ic('star','21px')}</span>`).join('')}
         </div>
         <input type="hidden" id="ee-rating-${eid}" value="${d.rating||0}">
       </div>
-      <div style="margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'BEFORE':'ПРЕДИ'}</div>
-        <div id="ee-prev-before-${eid}" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${(d.photosBefore||[]).map((ph,i)=>`<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','before',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">${ic('close','14px')}</button></div>`).join('')}</div>
-        <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
-          ${ic('camera','12px')} ${window._lang==='en'?'Add Before':'+ Преди'}
-          <input type="file" accept="image/*" multiple style="display:none" onchange="eeAddPhoto(event,'${eid}','before')">
-        </label>
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'AFTER':'СЛЕД'}</div>
-        <div id="ee-prev-after-${eid}" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${(d.photosAfter||[]).map((ph,i)=>`<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','after',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">${ic('close','14px')}</button></div>`).join('')}</div>
-        <label style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
-          ${ic('camera','12px')} ${window._lang==='en'?'Add After':'+ След'}
-          <input type="file" accept="image/*" multiple style="display:none" onchange="eeAddPhoto(event,'${eid}','after')">
-        </label>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;margin-top:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'BEFORE':'ПРЕДИ'}</div>
+          <div id="ee-prev-before-${eid}" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${(d.photosBefore||[]).map((ph,i)=>`<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','before',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">${ic('close','14px')}</button></div>`).join('')}</div>
+          <label style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+            ${ic('camera','12px')} ${t('addPhotoShort')||'+ Добави'}
+            <input type="file" accept="image/*" multiple style="display:none" onchange="eeAddPhoto(event,'${eid}','before')">
+          </label>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px">${ic('camera','12px')} ${window._lang==='en'?'AFTER':'СЛЕД'}</div>
+          <div id="ee-prev-after-${eid}" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${(d.photosAfter||[]).map((ph,i)=>`<div style="position:relative"><img src="${ph}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:1px solid var(--roselt)"><button onclick="eeRemovePhoto('${eid}','after',${i})" style="position:absolute;top:-4px;right:-4px;background:#e85d5d;border:none;border-radius:50%;width:18px;height:18px;color:#fff;cursor:pointer;font-size:10px;line-height:1">${ic('close','14px')}</button></div>`).join('')}</div>
+          <label style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+            ${ic('camera','12px')} ${t('addPhotoShort')||'+ Добави'}
+            <input type="file" accept="image/*" multiple style="display:none" onchange="eeAddPhoto(event,'${eid}','after')">
+          </label>
+        </div>
       </div>
       <div class="entry-actions">
         <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">${ic('clipboard','13px')} Запази</button>
         <button class="mini-btn" onclick="openSheet('${procId}')">Откажи</button>
       </div>`;
+    // Растящите (autogrow) полета вече имат готов текст при отваряне на
+    // редакцията (за разлика от #new-entry-form, който тръгва празен) —
+    // без изричен размер при рисуване, дълъг съществуващ текст остава
+    // отрязан до 3 реда, докато потребителят не напише поне 1 буква.
+    // autoGrowTextarea() сама преизмерва и сдвоеното поле (data-grow-pair).
+    if(!isRoutineEntry){
+      const adviceEl=document.getElementById('ee-advice-'+eid);
+      if(adviceEl) autoGrowTextarea(adviceEl);
+    }
   };
   if(cachedDoc){
     _doEdit(cachedDoc.data());
@@ -6516,7 +6548,12 @@ async function saveEditEntry(eid,procId){
       specialist:document.getElementById('ee-spec-'+eid)?.value.trim()||'',
       contact:document.getElementById('ee-contact-'+eid)?.value.trim()||'',
       advice:document.getElementById('ee-advice-'+eid)?.value.trim()||'',
-      feeling:document.getElementById('ee-feel-'+eid)?.value.trim()||'',
+      // ВНИМАНИЕ: полето е "ee-feel2-", НЕ "ee-feel-" — това второто id
+      // принадлежи на РУТИННИЯ редактор (saveRoutineEdit(), "Бележки" поле);
+      // тук досега сочеше към несъществуващ елемент и "Лично усещане" тихо
+      // се записваше празно при ВСЯКА редакция на процедурен запис (реален
+      // докладван бъг, открит покрай пренареждането на формата по-горе).
+      feeling:document.getElementById('ee-feel2-'+eid)?.value.trim()||'',
       products:document.getElementById('ee-prod-'+eid)?.value.trim()||'',
       price:parseFloat(document.getElementById('ee-price-'+eid)?.value)||0,
       rating:parseInt(document.getElementById('ee-rating-'+eid)?.value)||0,
