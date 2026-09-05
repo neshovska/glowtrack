@@ -6299,9 +6299,18 @@ function startEditEntry(eid,procId){
           </label>
         </div>
       </div>
-      <div class="entry-actions">
-        <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">${ic('clipboard','13px')} Запази</button>
+      <!-- Откажи → Запази, подравнени вдясно (по изрична последваща заявка,
+           само за ТАЗИ форма — редакция на вече записана процедура; НЕ
+           пипай routine-редактора малко по-горе, entry-actions е СПОДЕЛЕН
+           клас между двата, затова подравняването е inline тук, не в CSS
+           класа, за да не се размести и той). Реда Откажи→Запази е СЪЩИЯТ
+           принцип като навсякъде другаде в апа (ОК/Откажи в менюто за
+           напомняне, Отмени/Запази в домашната грижа) — действието без
+           последствие е първо/вляво, потвърждаващото — второ/вдясно,
+           по-близо до палеца на дясната ръка. -->
+      <div class="entry-actions" style="justify-content:flex-end">
         <button class="mini-btn" onclick="openSheet('${procId}')">Откажи</button>
+        <button class="save-btn" style="max-width:140px;flex:none" onclick="saveEditEntry('${eid}','${procId}')">${ic('clipboard','13px')} Запази</button>
       </div>`;
     // Растящите (autogrow) полета вече имат готов текст при отваряне на
     // редакцията (за разлика от #new-entry-form, който тръгва празен) —
