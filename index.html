@@ -1136,8 +1136,6 @@ body.dark .dsort-btn{background:#1a1a2e;border-color:rgba(212,169,106,.2);color:
 body.dark .dsort-btn.dsort-active{border-color:var(--gold);color:var(--gold)}
 #diary-sortable,#diary-tab-content,.diary-entry-row{touch-action:pan-y}
 .entry-photos-section{margin-top:8px}
-#de-reminder-section{background:var(--card)}
-body.dark #de-reminder-section{background:#12122a}
 body.dark .ai-panel{background:#1a1a2e!important}
 body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 </style>
@@ -3077,12 +3075,14 @@ function updateRemindCustom(){
   const days=Math.max(1,Math.min(365,Number(input.value)||1));
   _renderRemindPreview(days);
 }
-// Единствен източник на истина за "вече има ли запазено напомняне за тази
-// процедура" — четен и при render на секцията (openSheet), и от
-// edit/cancel/save handler-ите по-долу.
+// Единствен източник на истина за "вече има ли запазено напомняне/резервация
+// за тази процедура" — четен и при render на секцията (openSheet), и от
+// edit/cancel/save handler-ите по-долу. Съвпада по ДВАТА типа (reminder И
+// booking) — акордеонът управлява едно активно известие на процедура,
+// независимо от типа му (update-in-place при запис, виж saveProcRemind).
 function _findProcRemind(procId){
   const saved=_lsGet('gt_notifs')||[];
-  return saved.find(n=>n.procId===procId && n.type==='reminder')||null;
+  return saved.find(n=>n.procId===procId && (n.type==='reminder'||n.type==='booking'))||null;
 }
 function _procRemindViewLabel(existing){
   const isBGr=window._lang!=='en';
@@ -3090,11 +3090,13 @@ function _procRemindViewLabel(existing){
     ?['неделя','понеделник','вторник','сряда','четвъртък','петък','събота']
     :['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const d=new Date(existing.date+'T00:00:00');
-  return `${fmtDate(d)} – ${dayNames[d.getDay()]}`;
+  const dayLbl=`${fmtDate(d)} – ${dayNames[d.getDay()]}`;
+  return existing.time ? `${dayLbl}, ${existing.time}` : dayLbl;
 }
 // Превключва секцията между "изглед" (вече има напомняне — показва датата +
-// бутон Редактирай) и "форма" (input + preview + Запази/Откажи) — извиква се
-// след render, след save и от Откажи (за връщане назад без запис).
+// бутон Редактирай) и "форма" (селектор Интервал/Напомни/Резервирай +
+// съответните полета + Запази/Откажи) — извиква се след render, след save и
+// от Откажи (за връщане назад без запис).
 function _refreshProcRemindUI(procId){
   const existing=_findProcRemind(procId);
   const viewEl=document.getElementById('proc-remind-view');
@@ -3102,7 +3104,13 @@ function _refreshProcRemindUI(procId){
   const viewText=document.getElementById('proc-remind-view-text');
   if(!viewEl||!formEl)return;
   if(existing){
-    if(viewText) viewText.textContent=(window._lang==='en'?'Reminder set for: ':'Напомняне зададено за: ')+_procRemindViewLabel(existing);
+    if(viewText){
+      const isBGr=window._lang!=='en';
+      const prefix=existing.type==='booking'
+        ?(isBGr?'Резервация зададена за: ':'Booking set for: ')
+        :(isBGr?'Напомняне зададено за: ':'Reminder set for: ');
+      viewText.textContent=prefix+_procRemindViewLabel(existing);
+    }
     viewEl.style.display='block';
     formEl.style.display='none';
   }else{
@@ -3110,61 +3118,106 @@ function _refreshProcRemindUI(procId){
     formEl.style.display='block';
   }
 }
+// Три режима на ЕДИН акордеон "Напомни ми за процедурата" (по изрична заявка
+// — замества премахнатия бутон "Известие" от формата за запис, виж коментара
+// там): 'interval' (брой дни от днес, винаги type:'reminder', час 10:00 —
+// старият/единственият режим отпреди тази промяна), 'reminder'/'booking'
+// (конкретна дата+час, type съответно). _procRemindMode е module-level, за
+// да го чете saveProcRemind() без да зависи кой бутон визуално е "активен".
+let _procRemindMode='interval';
+function setProcRemindMode(procId,mode){
+  _procRemindMode=mode;
+  [['prm-type-interval','interval'],['prm-type-reminder','reminder'],['prm-type-booking','booking']].forEach(([btnId,m])=>{
+    const btn=document.getElementById(btnId);
+    if(!btn) return;
+    if(m===mode){ btn.style.background='var(--gold)'; btn.style.color='#fff'; btn.style.borderColor='var(--gold)'; }
+    else { btn.style.background='var(--card)'; btn.style.color='var(--ink2)'; btn.style.borderColor='var(--roselt)'; }
+  });
+  const intervalFields=document.getElementById('prm-interval-fields');
+  const datetimeFields=document.getElementById('prm-datetime-fields');
+  if(intervalFields) intervalFields.style.display=mode==='interval'?'block':'none';
+  if(datetimeFields) datetimeFields.style.display=mode==='interval'?'none':'block';
+}
 function startEditProcRemind(procId){
   const existing=_findProcRemind(procId);
-  const input=document.getElementById('proc-remind-input');
   const viewEl=document.getElementById('proc-remind-view');
   const formEl=document.getElementById('proc-remind-form');
-  if(existing && input){
-    const days=Math.max(1,daysUntil(new Date(existing.date+'T00:00:00')));
-    input.value=days;
-    _renderRemindPreview(days);
+  if(existing){
+    // Редакцията винаги предлага КОНКРЕТНА дата/час, попълнени от вече
+    // запазеното — по-директно от преизчисляване през брой дни, и работи
+    // еднакво за двата типа. Табът "Интервал" остава достъпен, ако
+    // потребителят предпочете да зададе наново през брой дни.
+    setProcRemindMode(procId, existing.type==='booking'?'booking':'reminder');
+    const dateInput=document.getElementById('proc-remind-date-input');
+    const timeInput=document.getElementById('proc-remind-time-input');
+    if(dateInput) dateInput.value=existing.date||'';
+    if(timeInput) timeInput.value=existing.time||'10:00';
+  }else{
+    setProcRemindMode(procId,'interval');
   }
   if(viewEl) viewEl.style.display='none';
   if(formEl) formEl.style.display='block';
 }
 function cancelProcRemind(procId){
   const input=document.getElementById('proc-remind-input');
+  const dateInput=document.getElementById('proc-remind-date-input');
+  const timeInput=document.getElementById('proc-remind-time-input');
+  const prev=document.getElementById('proc-remind-date-preview');
   const existing=_findProcRemind(procId);
+  if(input) input.value='';
+  if(prev) prev.textContent='';
   if(existing){
-    // Вече имаше запазено напомняне — Откажи връща към изгледа му, без да пипа
-    // въведеното (нищо не е записано).
-    if(input) input.value='';
-    const prev=document.getElementById('proc-remind-date-preview');
-    if(prev) prev.textContent='';
+    // Вече имаше запазено напомняне/резервация — Откажи връща към изгледа му,
+    // без да пипа въведеното (нищо не е записано).
     _refreshProcRemindUI(procId);
   }else{
-    // Няма запазено напомняне — Откажи просто изчиства полето.
-    if(input) input.value='';
-    const prev=document.getElementById('proc-remind-date-preview');
-    if(prev) prev.textContent='';
+    // Няма запазено напомняне — Откажи просто изчиства полетата и връща
+    // формата на стартовия режим "Интервал".
+    if(dateInput) dateInput.value='';
+    if(timeInput) timeInput.value='10:00';
+    setProcRemindMode(procId,'interval');
   }
 }
 async function saveProcRemind(procId,procName){
-  const input=document.getElementById('proc-remind-input');
-  if(!input)return;
-  const days=Number(input.value);
-  if(!days||days<1){showToast(t('toastSelectDate'));return;}
-  const d=computeRemindDate(days);
-  const yyyy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
-  const dateStr=`${yyyy}-${mm}-${dd}`;
-  const saved=_lsGet('gt_notifs')||[];
-  // Update-in-place, не дублирай — едно напомняне на процедура (същия принцип
-  // като editCalEvent). Ако вече има запис за тази процедура, пазим id-то му и
-  // просто обновяваме датата, вместо да push-ваме нов запис.
-  const existingIdx=saved.findIndex(n=>n.procId===procId && n.type==='reminder');
-  if(existingIdx>=0){
-    saved[existingIdx]={...saved[existingIdx], procName, date:dateStr, time:'10:00'};
+  let dateStr,timeStr,type;
+  if(_procRemindMode==='interval'){
+    const input=document.getElementById('proc-remind-input');
+    if(!input)return;
+    const days=Number(input.value);
+    if(!days||days<1){showToast(t('toastSelectDate'));return;}
+    const d=computeRemindDate(days);
+    const yyyy=d.getFullYear(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+    dateStr=`${yyyy}-${mm}-${dd}`;
+    timeStr='10:00';
+    type='reminder';
   }else{
-    saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:'10:00', type:'reminder'});
+    const dateInput=document.getElementById('proc-remind-date-input');
+    const timeInput=document.getElementById('proc-remind-time-input');
+    if(!dateInput?.value){showToast(t('toastSelectDate'));return;}
+    dateStr=dateInput.value;
+    timeStr=timeInput?.value||'10:00';
+    type=_procRemindMode; // 'reminder' или 'booking'
+  }
+  const saved=_lsGet('gt_notifs')||[];
+  // Update-in-place, не дублирай — едно активно напомняне/резервация на
+  // процедура (същия принцип като editCalEvent). Ако вече има запис за тази
+  // процедура (независимо от предишния му тип), пазим id-то му и просто
+  // обновяваме дата/час/тип, вместо да push-ваме нов запис.
+  const existingIdx=saved.findIndex(n=>n.procId===procId && (n.type==='reminder'||n.type==='booking'));
+  if(existingIdx>=0){
+    saved[existingIdx]={...saved[existingIdx], procName, date:dateStr, time:timeStr, type};
+  }else{
+    saved.push({id:'n_'+Date.now(), procId, procName, date:dateStr, time:timeStr, type});
   }
   _lsSet('gt_notifs', saved);
   if(window._user){ try{ await window.syncNotifsFS(_lsGet('gt_notifs')||[]); }catch(e){} }
   if(typeof updateNotifBadge==='function') updateNotifBadge(saved.filter(n=>new Date(n.date+'T'+(n.time||'10:00'))>=new Date()).length);
-  showToast(window._lang==='en'?'Reminder saved':'Напомнянето е запазено');
+  showToast(type==='booking'
+    ?(window._lang==='en'?'Booking saved':'Резервацията е запазена')
+    :(window._lang==='en'?'Reminder saved':'Напомнянето е запазено'));
   _refreshProcRemindUI(procId);
   // Close the accordion menu after saving
-  const body=input.closest('.acc-body');
+  const body=document.getElementById('proc-remind-form')?.closest('.acc-body');
   if(body){
     body.classList.remove('open');
     const header=body.previousElementSibling;
@@ -3882,7 +3935,6 @@ const T = {
     saveBtn2: 'Запази',
     cancelBtn: 'Откажи',
     addReminder: 'Добави напомняне / резервация',
-    addReminderShort: 'Известие',
     deRemindVerb: 'Напомни',
     deBookVerb: 'Резервирай',
     okBtn: 'ОК',
@@ -4178,7 +4230,6 @@ const T = {
     saveBtn2: 'Save',
     cancelBtn: 'Cancel',
     addReminder: 'Add reminder / booking',
-    addReminderShort: 'Notification',
     deRemindVerb: 'Remind',
     deBookVerb: 'Book',
     okBtn: 'OK',
@@ -5631,8 +5682,10 @@ async function openSheet(id){
   const lp=procL(p);
   if(typeof trackEvent==='function')trackEvent('procedure_view',{procedure_id:id,procedure_name:lp.name,category:p.cat});
   currentProcId=id;pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
-  _deReminderType='reminder';
-  window._deReminderConfirmed=false; // нов sheet = ново решение (виж confirmDeReminder)
+  // нов sheet = ново решение за акордеона "Напомни ми за процедурата" по-долу
+  // (виж setProcRemindMode) — стартира винаги от "Интервал", освен ако вече
+  // има запазено напомняне/резервация (startEditProcRemind го пренастройва).
+  _procRemindMode='interval';
   if(lp.img){
     document.getElementById('sh-icon').innerHTML=`<img src="${lp.img}" loading="lazy" style="width:44px;height:44px;border-radius:12px;object-fit:cover" alt="">`;
     document.getElementById('sh-icon').style.background='transparent';
@@ -5797,18 +5850,44 @@ async function openSheet(id){
         const procNameEsc = (lp.name||'').replace(/'/g,"&#39;");
         const existing = _findProcRemind(id);
         const viewLabel = existing ? esc(_procRemindViewLabel(existing)) : '';
+        const viewPrefix = existing && existing.type==='booking'
+          ? (isBGr?'Резервация зададена за: ':'Booking set for: ')
+          : (isBGr?'Напомняне зададено за: ':'Reminder set for: ');
+        // Три режима в ЕДИН акордеон (по изрична заявка, замества премахнатия
+        // бутон "Известие" от формата за запис по-долу — виж коментара там):
+        // "Интервал" (стар default — брой дни от днес, винаги type:'reminder',
+        // час фиксиран 10:00), "Напомни"/"Резервирай" (нови тук — конкретна
+        // дата+час, type:'reminder'/'booking'). Едно активно напомняне на
+        // процедура (update-in-place, същият принцип като преди), затова
+        // _findProcRemind() вече съвпада по ДВАТА типа, не само 'reminder'.
+        const modeBtnStyle = (active) => active
+          ? 'background:var(--gold);color:#fff;border-color:var(--gold)'
+          : 'background:var(--card);color:var(--ink2);border-color:var(--roselt)';
         const body = `
           <div id="proc-remind-view" style="display:${existing?'block':'none'}">
-            <div id="proc-remind-view-text" style="font-size:13px;color:var(--ink1);margin-bottom:10px">${(isBGr?'Напомняне зададено за: ':'Reminder set for: ')+viewLabel}</div>
+            <div id="proc-remind-view-text" style="font-size:13px;color:var(--ink1);margin-bottom:10px">${viewPrefix+viewLabel}</div>
             <button onclick="startEditProcRemind('${id}')" style="width:100%;padding:11px;background:var(--card);color:var(--gold);border:1.5px solid var(--gold);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('edit','13px')} ${isBGr?'Редактирай':'Edit'}</button>
           </div>
           <div id="proc-remind-form" style="display:${existing?'none':'block'}">
-            <div style="margin-bottom:10px">
-              <input autocomplete="off" type="number" id="proc-remind-input" min="1" max="365" oninput="updateRemindCustom()" placeholder="${isBGr?'Брой дни':'Number of days'}" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--roselt);font-size:14px;font-family:inherit;background:var(--card);color:var(--ink1)">
+            <div style="display:flex;gap:6px;margin-bottom:10px">
+              <button id="prm-type-interval" onclick="setProcRemindMode('${id}','interval')" style="flex:1;padding:7px 6px;border-radius:9px;border:1.5px solid var(--gold);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;${modeBtnStyle(true)}">${isBGr?'Интервал':'Interval'}</button>
+              <button id="prm-type-reminder" onclick="setProcRemindMode('${id}','reminder')" style="flex:1;padding:7px 6px;border-radius:9px;border:1.5px solid var(--roselt);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;${modeBtnStyle(false)}">${ic('bell','12px')} ${t('deRemindVerb')||'Напомни'}</button>
+              <button id="prm-type-booking" onclick="setProcRemindMode('${id}','booking')" style="flex:1;padding:7px 6px;border-radius:9px;border:1.5px solid var(--roselt);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;${modeBtnStyle(false)}">${ic('check','12px')} ${t('deBookVerb')||'Резервирай'}</button>
             </div>
-            <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600"></div>
-            <!-- Откажи е ПЪРВИ, Запази втори (по изрична заявка) — същият ред като
-                 ОК/Откажи в менюто за напомняне на формата за запис. -->
+            <div id="prm-interval-fields" style="display:block">
+              <div style="margin-bottom:10px">
+                <input autocomplete="off" type="number" id="proc-remind-input" min="1" max="365" oninput="updateRemindCustom()" placeholder="${isBGr?'Брой дни':'Number of days'}" style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--roselt);font-size:14px;font-family:inherit;background:var(--card);color:var(--ink1)">
+              </div>
+              <div id="proc-remind-date-preview" style="font-size:12.5px;color:var(--gold);font-weight:600"></div>
+            </div>
+            <div id="prm-datetime-fields" style="display:none;margin-bottom:10px">
+              <div style="display:flex;gap:8px">
+                <input autocomplete="off" type="date" id="proc-remind-date-input" class="form-input" style="flex:1;font-size:16px">
+                <input autocomplete="off" type="time" id="proc-remind-time-input" class="form-input" style="width:100px;font-size:16px" value="10:00">
+              </div>
+            </div>
+            <!-- Откажи е ПЪРВИ, Запази втори (по изрична заявка) — същият ред
+                 навсякъде другаде в апа. -->
             <div style="display:flex;gap:8px;margin-top:10px">
               <button onclick="cancelProcRemind('${id}')" style="flex:1;padding:11px;background:var(--card);color:var(--ink2);border:1px solid var(--roselt);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${isBGr?'Откажи':'Cancel'}</button>
               <button onclick="saveProcRemind('${id}','${procNameEsc}')" style="flex:1;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">${ic('check','13px')} ${isBGr?'Запази':'Save'}</button>
@@ -5874,66 +5953,23 @@ async function openSheet(id){
           </div>
         </div>
         <div class="form-row"><label class="form-lbl">${t('feelingLabel')}</label><input autocomplete="off" class="form-input" type="text" id="de-feeling" placeholder="" data-ph="feelingPh"></div>
-        <!-- Оценка + Известие на ЕДИН ред (по изрична заявка звездите са
-             ВЛЯВО, бутонът вдясно). Бутонът няма .form-lbl над себе си, а
-             съседната колона има етикет + звезди — затова колоната му е
-             собствен flex контейнер с align-items:center: центрира се спрямо
-             реалната височина на съседа, вместо да виси горе или долу.
-             Разгъващата се част остава на ЦЯЛ ред отдолу (двата типа + дата/
-             час не се събират в половин ширина).
-             Надписът е addReminderShort ("Известие") — пълното "Добави
-             напомняне / резервация" не се събира в половин ширина. -->
-        <div class="form-row" style="display:flex;gap:16px;align-items:stretch">
-          <div style="flex:1">
-            <!-- Оценката е центрирана и с по-едри звезди по изрична заявка.
-                 Размерът идва от параметъра на ic() (SVG width/height), НЕ от
-                 font-size на span-а — той не влияе на SVG с изрични размери. -->
-            <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
-            <div style="display:flex;gap:8px;margin-top:8px;justify-content:center" id="de-rating-stars">
-              ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s">${ic('star','21px')}</span>`).join('')}
-            </div>
-            <input type="hidden" id="de-rating" value="0">
+        <!-- Оценка — самостоятелен ред (по изрична последваща заявка бутонът
+             "Известие" тук е ПРЕМАХНАТ изцяло, заедно с менюто
+             Напомни/Резервирай под него — напомнянето/резервацията за тази
+             процедура вече минава ИЗЦЯЛО през горния акордеон "Напомни ми за
+             процедурата" (виж setProcRemindMode() по-горе в openSheet()),
+             който вече покрива и трите функции: интервал от днес, конкретно
+             напомняне, конкретна резервация — не само през запис в
+             дневника. saveDiaryEntry() вече не чете/пише напомняне изобщо. -->
+        <div class="form-row">
+          <!-- Оценката е центрирана и с по-едри звезди по изрична заявка.
+               Размерът идва от параметъра на ic() (SVG width/height), НЕ от
+               font-size на span-а — той не влияе на SVG с изрични размери. -->
+          <label class="form-lbl" style="text-align:center">${ic('star','13px')} ${t('ratingLabel')}</label>
+          <div style="display:flex;gap:8px;margin-top:8px;justify-content:center" id="de-rating-stars">
+            ${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" data-star="${i}" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s">${ic('star','21px')}</span>`).join('')}
           </div>
-          <div style="flex:1;min-width:0;display:flex;align-items:center">
-              <button onclick="toggleDiaryReminder()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 8px;border:1.5px solid var(--roselt);border-radius:9px;background:var(--goldlt);color:var(--ink);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('bell','13px')}<span id="de-reminder-btn-lbl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${t('addReminderShort')||'Известие'}</span>
-                <span id="de-reminder-arrow" style="font-size:12px;color:var(--ink2);transition:transform .2s;flex-shrink:0">⌄</span>
-              </button>
-          </div>
-        </div>
-        <div id="de-reminder-section" style="display:none;margin-bottom:10px;padding:12px 14px;border:1.5px solid var(--roselt);border-radius:12px">
-            <!-- Двата типа са с ГЛАГОЛНИ имена ("Напомни"/"Резервирай") и
-                 по-дребни от преди, по изрична заявка. Нарочно НОВИ ключове
-                 (deRemindVerb/deBookVerb), не преизползване на
-                 notifTypeReminder/notifTypeBooking — тези са съществителните
-                 ("Напомняне"/"Резервация") и се ползват като ЕТИКЕТИ на
-                 страницата с напомнянията; глагол там би звучал грешно. -->
-            <div style="display:flex;gap:6px;margin-bottom:10px">
-              <button id="de-rtype-reminder" onclick="setDeReminderType('reminder')" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('bell','12px')} ${t('deRemindVerb')||'Напомни'}
-              </button>
-              <button id="de-rtype-booking" onclick="setDeReminderType('booking')" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${ic('check','12px')} ${t('deBookVerb')||'Резервирай'}
-              </button>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <input autocomplete="off" type="date" id="de-reminder-date" class="form-input" style="flex:1;font-size:16px">
-              <input autocomplete="off" type="time" id="de-reminder-time" class="form-input" style="width:100px;font-size:16px" value="10:00">
-            </div>
-            <div id="de-reminder-info" style="font-size:11px;color:var(--sage);margin-top:6px"></div>
-            <!-- Откажи е ПЪРВИ, ОК втори (по изрична заявка — размяна на
-                 местата). ОК затваря менюто и ЗАПАЗВА въведеното (то отива в
-                 дневниковия запис при "Запази"); Откажи затваря и изчиства
-                 датата, значи нищо няма да се запише. Виж confirmDeReminder()/
-                 cancelDeReminder() за защо е нужен изричен флаг. -->
-            <div style="display:flex;gap:8px;margin-top:10px">
-              <button onclick="cancelDeReminder()" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--roselt);background:var(--card);color:var(--ink2);font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit">
-                ${t('cancelBtn')||'Откажи'}
-              </button>
-              <button onclick="confirmDeReminder()" style="flex:1;padding:6px 8px;border-radius:9px;border:1.5px solid var(--gold);background:var(--gold);color:#fff;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px">
-                ${ic('check','12px')} ${t('okBtn')||'ОК'}
-              </button>
-            </div>
+          <input type="hidden" id="de-rating" value="0">
         </div>
         <!-- ПРЕДИ и СЛЕД на ЕДИН ред (по изрична заявка, като останалите
              двойки във формата). Надписът на бутона е скъсен до addPhotoShort
@@ -6332,75 +6368,6 @@ function startEditEntry(eid,procId){
   }
 }
 
-let _deReminderType = 'reminder';
-
-// ОК: затваря менюто, но ЗАПАЗВА въведените дата/час — те се записват
-// заедно с дневниковия запис при "Запази". Изричният флаг _deReminderConfirmed
-// е нужен, защото историческата проверка в saveDiaryEntry() е "панелът е
-// видим", а ОК тъкмо го скрива — без флага потвърденото напомняне би изчезнало
-// тихо. Старата проверка ОСТАВА като втори клон (виж saveDiaryEntry): който
-// попълни дата и натисне направо "Запази", без да минава през ОК, пак получава
-// напомнянето си, както преди тази промяна.
-function confirmDeReminder(){
-  const d = document.getElementById('de-reminder-date');
-  if(!d || !d.value){ showToast(window._lang==='en'?'Pick a date first':'Първо избери дата'); return; }
-  window._deReminderConfirmed = true;
-  const sec = document.getElementById('de-reminder-section');
-  const arr = document.getElementById('de-reminder-arrow');
-  if(sec) sec.style.display = 'none';
-  if(arr) arr.style.transform = '';
-  // Бутонът горе показва избраната дата/час — единствената видима следа, че
-  // напомняне чака запис, след като панелът вече е затворен.
-  const lbl = document.getElementById('de-reminder-btn-lbl');
-  if(lbl){
-    const parts = d.value.split('-');
-    const tm = document.getElementById('de-reminder-time')?.value || '';
-    lbl.textContent = parts.length===3 ? (parts[2]+'.'+parts[1]+(tm?' '+tm:'')) : d.value;
-  }
-}
-// Откажи: затваря менюто И изчиства датата, значи нищо няма да се запише —
-// и по двата клона на проверката в saveDiaryEntry().
-function cancelDeReminder(){
-  window._deReminderConfirmed = false;
-  const d = document.getElementById('de-reminder-date'); if(d) d.value = '';
-  const sec = document.getElementById('de-reminder-section');
-  const arr = document.getElementById('de-reminder-arrow');
-  if(sec) sec.style.display = 'none';
-  if(arr) arr.style.transform = '';
-  const lbl = document.getElementById('de-reminder-btn-lbl');
-  if(lbl) lbl.textContent = t('addReminderShort')||'Известие';
-}
-
-function toggleDiaryReminder(){
-  const sec = document.getElementById('de-reminder-section');
-  const arr = document.getElementById('de-reminder-arrow');
-  if(!sec) return;
-  const isOpen = sec.style.display !== 'none';
-  sec.style.display = isOpen ? 'none' : 'block';
-  if(arr) arr.style.transform = isOpen ? '' : 'rotate(180deg)';
-  if(!isOpen){
-    // Set min date to today
-    const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('de-reminder-date');
-    if(dateInput && !dateInput.value) dateInput.value = today;
-  }
-}
-
-function setDeReminderType(type){
-  _deReminderType = type;
-  const rBtn = document.getElementById('de-rtype-reminder');
-  const bBtn = document.getElementById('de-rtype-booking');
-  if(rBtn && bBtn){
-    if(type === 'reminder'){
-      rBtn.style.background='var(--gold)'; rBtn.style.color='#fff'; rBtn.style.borderColor='var(--gold)';
-      bBtn.style.background='var(--card)'; bBtn.style.color='var(--ink2)'; bBtn.style.borderColor='var(--roselt)';
-    } else {
-      bBtn.style.background='var(--gold)'; bBtn.style.color='#fff'; bBtn.style.borderColor='var(--gold)';
-      rBtn.style.background='var(--card)'; rBtn.style.color='var(--ink2)'; rBtn.style.borderColor='var(--roselt)';
-    }
-  }
-}
-
 async function saveDiaryEntry(procId){
   if(!window._user){showToast(t('toastNeedLogin')||'Влез в акаунта си');return;}
   const clinic=document.getElementById('de-clinic')?.value.trim()||'';
@@ -6443,41 +6410,9 @@ async function saveDiaryEntry(procId){
     showToast(t('toastSaved')||'Запазено!');
     if(typeof window._glowBurst==='function') window._glowBurst(btn);
     if(typeof trackEvent==='function')trackEvent('diary_entry_created',{procedure_id:procId,rating:rating});
-    // Save reminder/booking if date is filled
-    const deReminderDate = document.getElementById('de-reminder-date')?.value;
-    const deReminderTime = document.getElementById('de-reminder-time')?.value||'10:00';
-    const deReminderSec = document.getElementById('de-reminder-section');
-    // Два приети случая: (а) потвърдено с ОК (панелът е затворен, но
-    // _deReminderConfirmed пази решението) и (б) панелът е още отворен с
-    // попълнена дата — поведението отпреди бутоните ОК/Откажи, оставено
-    // нарочно, за да не изчезне напомнянето на човек, който натиска направо
-    // "Запази".
-    if(deReminderDate && (window._deReminderConfirmed || (deReminderSec && deReminderSec.style.display!=='none'))){
-      const p2 = PROCS.find(x=>x.id===procId)||{};
-      const saved2 = (_lsGet('gt_notifs')||[]);
-      saved2.push({
-        id:'n_'+Date.now(),
-        procId:procId,
-        procName:p2.name||procId,
-        date:deReminderDate,
-        time:deReminderTime,
-        type:_deReminderType||'reminder'
-      });
-      _lsSet('gt_notifs', saved2);
-      // Sync to Firestore
-      if(window._user){
-        try{ await window.syncNotifsFS(saved2); }catch(e){}
-      }
-      updateNotifBadge(saved2.filter(n=>{
-        const dt=new Date(n.date);
-        if(n.time){const[hh,mm]=n.time.split(':').map(Number);dt.setHours(hh,mm,0,0);}
-        return dt>=new Date();
-      }).length);
-      const typeLabel = _deReminderType==='booking'
-        ?(window._lang==='en'?'Booking saved!':'Резервацията е запазена!')
-        :(window._lang==='en'?'Reminder saved!':'Напомнянето е запазено!');
-      setTimeout(()=>showToast(typeLabel), 1000);
-    }
+    // Напомняне/резервация вече НЕ се пипат тук изобщо — виж коментара до
+    // Оценка реда по-горе в openSheet(): единственият път е горният
+    // акордеон "Напомни ми за процедурата" (setProcRemindMode/saveProcRemind).
     pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
     window._cache.diary=null;window._cache.diaryTs=0;
     await openSheet(procId);
