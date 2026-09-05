@@ -863,6 +863,100 @@ INJECTABLE SOLUTION" + диаграма преди/действие/след в�
 container (може) — това веднага стеснява дали причината е композиция
 на изображението или неуспешно зареждане.
 
+### Премахване на брандове от заглавията — 67 записа + сливане на 4 филъра (332 → 329)
+
+По изрична заявка на потребителя: заглавието (`name`) на процедура вече
+НЕ показва име на бранд/продуктова линия — нито като префикс/суфикс, нито
+дори парентетично ("Generic (Brand)"). Марката остава единствено в
+`devices[]` (структурираното, търсимо поле — виж "Търсенето включва
+`devices`" по-горе) и там, където вече естествено се споменава в `what`.
+Решено изрично след обсъждане и потвърждение, преди каквато и да е
+промяна в кода — включително отделен избор кои записи да НЕ се пипат.
+
+**Три категории, съзнателно НЕПИПНАТИ:**
+1. **Записи, чието ЦЯЛО име Е бранд, без готов генеричен еквивалент**
+   (~14 записа) — `notino-accent-prime-19`, `notino-eximia-20`,
+   `notino-icoone-36`, `notino-revolvx-40`, `notino-aquafacial-56`,
+   `notino-hydrafacial-57`, `notino-préime-dermafacial-58`,
+   `notino-bb-glow-66`, `notino-miracletox-67`, `notino-oxygenera-pro-84`,
+   `notino-darsonval-86`, `notino-iyashi-dome-87`,
+   `notino-alpha-led-oxy-spa-88`, `thermage` — измислянето на изкуствен
+   генеричен етикет тук би бил по-скоро познание, отколкото факт.
+2. **Генерични технологични акроними** (не собственост на един
+   производител) — HIFU, IPL, LED, PRP, PDO, TCA, FUE, RF, SMP,
+   Q-switched Nd:YAG, DPL, PEMF, PRF — остават си както са.
+3. **Генеричен terminology/жаргон, не корпоративен бранд** — Air Touch,
+   BB Glow, Kobido, Vampire Facial/Breast Lift, Botox (навсякъде в
+   каталога вече се ползва като де факто родово име, не само за тази
+   промяна), Curly Girl метод, Tok Sen, Hair Tattoo, Bacne, Gummy Smile,
+   Nefertiti Lift, Buccal Fat Removal и подобни описателни английски
+   изрази — не сочат към конкретен производител/продукт.
+
+**67 записа преименувани** (BG И съответния EN `PROCS_EN` override, където
+съществува — 63 от 67 имат такъв) — марката излиза от `name`, влиза в
+`devices[]` (ако вече не е била там). Пълни семейства: Medik8 (11,
+`m8-*` — марката липсваше напълно от `devices[]`, добавена изрично, само
+продуктовите съставки бяха изброени преди),
+Esthemax Hydrojelly (9, `es-*` → "Хидрожел маска — ..."), HydroPeptide (4,
+`hp-*`), Mesoesthetic (3, `meso-*` — марката добавена в `devices[]`
+аналогично на Medik8), Forlle'd (2), FOTONA (9, `ft-*`), Morpheus8 (2),
+Sculptra/HarmonyCa/Rejuran/Profhilo/Jalupro/RRS (6, биостимулатори),
+плюс единични: `clean-hydra`, `rosequre`, `led-therapy`, `emsculpt`,
+`velashape`, `laser-lipolysis`, `kybella-chin`, `nonablative-fractional`,
+`emface`, `indiba-facial`, `silhouette-soft-thread`,
+`rf-vaginal-tightening`, `cryo-t-shock`, `oxygeneo-facial`,
+`plasma-pen-eyelid`, `bellafill-filler`, `profhilo-body`,
+`notino-lpg-lipomasazh-lifting-masazh-26`,
+`notino-malibu-c-boyadisvane-na-kosa-126`, `notino-vapomist-127`,
+`notino-urs-sistema-128`.
+
+Забележка за `m8-*`/`meso-*`: `subcat` полето им ("Medik8"/"Mesoesthetic")
+вече носеше марката преди тази промяна и си остава непипнато — то също е
+част от `procSearchHaystack()`, значи марката е била и продължава да е
+търсима оттам; добавянето в `devices[]` е допълнително, по буквата на
+заявката ("само в devices[] и описанието"), не защото откриваемостта е
+била счупена.
+
+**Сливане на 4-те ХК филъра в един нов запис `filler-hyaluronic`.**
+`filler-juvederm`/`filler-restylane`/`filler-stylage`/`filler-teosyal`
+бяха ЧЕТИРИ отделни записа, различаващи се единствено по марка — премахнеш
+ли марката от заглавието им, стават неразличими "Филъри" x4. По изрична
+заявка на потребителя ("слей ги в един запис, марките в devices[]"): нов
+запис `filler-hyaluronic`, name:"Хиалуронови филъри", `devices:[]` носи
+и четирите марки с продуктовите им линии (`"Juvederm (Voluma, Volift,
+Volbella, SKINVIVE, Volux)"` и т.н. — по един низ на марка, не по един на
+продукт, за да не се получи 19-елементен масив). `zones`/`tags` са
+обединение (union) на четирите оригинала; `reactions.abnormal` също
+(juvederm нямаше "Алергична реакция" изрично, другите три я имаха);
+`tags.pain` пази честна разлика — juvederm сочеше 'Интензивна', другите
+три 'Безболезнена' — масивът съдържа и двете, вместо да се подбира
+изкуствено едно. Старите 4 id-та са изтрити изцяло от `PROCS` И
+`PROCS_EN` (332→329 общо). Изборът на ново id вместо запазване на едно от
+старите четири е нарочен — никоя от четирите марки не е "по-права" да
+наследи мястото на другите три.
+
+**Проверено, преди триене:** `PHOTOTYPE_RECS`, `SKIN_TYPE_RECS` и
+всички `recIds` масиви (виж "Дедупликация на каталога" по-горе за защо
+това винаги трябва да се провери при триене на процедура) — нито един не
+сочи към `filler-juvederm`/`filler-restylane`/`filler-stylage`/
+`filler-teosyal`; всички съществуващи препратки там са по id, не по name,
+значи 67-те преименувания (само `name`/`devices`, id-тата им НЕ са
+пипани) не изискваха никаква поправка там — `m8-hydration`, `m8-pore`,
+`m8-calming`, `m8-clarity-facial`, `m8-clarity-peel`, `m8-reset-peel`,
+`m8-age-peel`, `hp-collagen`, `hp-hydroglow`, `clean-hydra`, `led-therapy`,
+`morpheus8-face`, `sb-profhilo`, `sb-rejuran` продължават да сочат
+коректно към същите (сега преименувани) записи.
+
+Тествано с Playwright върху build-натия `dist/`: `window.PROCS.length===329`;
+diff между старото и новото съдържание на масива потвърждава ТОЧНО 67
+записа с различно `name`/`devices` (нищо друго полe не се е променило по
+невнимание) плюс изтритите 4 + добавения 1; търсене по марка
+("Medik8"/"FOTONA"/"Morpheus8"/"Juvederm"/"OxyGeneo") през
+`devices[]`/`subcat` продължава да намира правилните записи, включително
+слетия `filler-hyaluronic` за "Juvederm"; `openSheet('m8-crystal')`
+рендира новото заглавие без грешка; нула JS грешки. `npm run build` минава
+чисто — 193 инлайн handler имена (непроменено, чисто промяна на данни).
+
 ---
 
 ## Основни функции
