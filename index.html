@@ -3092,6 +3092,12 @@ window.openAuthScreen=function(){
     window._pendingReopenProcId=typeof currentProcId!=='undefined'?currentProcId:null;
     if(typeof closeSheet==='function') closeSheet();
   }
+  // Бутонът "Вход" на B2B страницата (#page-for-clinics) вика тази функция
+  // директно — тя не е нормална .page/overlay, а собствен fixed:inset:0 слой
+  // (z-index:700, виж openForClinics()), затова затварянето ѝ не минава през
+  // closeSheet(), а директно през вече съществуващата closeForClinics().
+  const _fc=document.getElementById('page-for-clinics');
+  if(_fc&&_fc.style.display==='block'&&typeof closeForClinics==='function') closeForClinics();
   document.getElementById('auth-screen').classList.remove('hidden');
   if(typeof setAuthMode==='function') setAuthMode('login');
 };
@@ -8747,7 +8753,7 @@ const CT = {
     labelPartnerType:'Тип партньор',labelName:'Име на бизнеса',phName:'Вашият бизнес',labelCity:'Град',phCity:'София',
     labelEmail:'Имейл',phEmail:'office@business.bg',labelPhone:'Телефон',phPhone:'+359 ...',labelPlan:'План',submitBtn:'Изпрати запитване',
     errFillAll:'Моля, попълни всички полета',errEmail:'Моля, въведи валиден имейл адрес',
-    errGeneric:'Нещо се обърка. Опитай пак или ни пиши директно.'},
+    errGeneric:'Нещо се обърка. Опитай пак или ни пиши директно.',loginBtn:'Вход'},
   en:{kicker:'· for business',heroTitlePre:'Partner with ',heroSub:'Reach your clients in a new way',heroBtn:'Get in touch',
     howKicker:'How it works',howTitle:'Three simple steps',
     step1Title:'You get a QR code or listing',step1Desc:'A unique code or listing for your business.',
@@ -8759,7 +8765,7 @@ const CT = {
     labelPartnerType:'Partner type',labelName:'Business name',phName:'Your business',labelCity:'City',phCity:'Sofia',
     labelEmail:'Email',phEmail:'office@business.bg',labelPhone:'Phone',phPhone:'+359 ...',labelPlan:'Plan',submitBtn:'Send inquiry',
     errFillAll:'Please fill in all fields',errEmail:'Please enter a valid email address',
-    errGeneric:'Something went wrong. Please try again or email us directly.'},
+    errGeneric:'Something went wrong. Please try again or email us directly.',loginBtn:'Sign in'},
   de:{kicker:'· für Unternehmen',heroTitlePre:'Werden Sie Partner von ',heroSub:'Erreichen Sie Ihre Kunden auf eine neue Art',heroBtn:'Kontaktieren Sie uns',
     howKicker:'So funktioniert es',howTitle:'Drei einfache Schritte',
     step1Title:'Sie erhalten einen QR-Code oder Eintrag',step1Desc:'Ein einzigartiger Code oder Eintrag für Ihr Unternehmen.',
@@ -8771,7 +8777,7 @@ const CT = {
     labelPartnerType:'Partnertyp',labelName:'Name des Unternehmens',phName:'Ihr Unternehmen',labelCity:'Stadt',phCity:'Sofia',
     labelEmail:'E-Mail',phEmail:'office@business.bg',labelPhone:'Telefon',phPhone:'+359 ...',labelPlan:'Plan',submitBtn:'Anfrage senden',
     errFillAll:'Bitte füllen Sie alle Felder aus',errEmail:'Bitte geben Sie eine gültige E-Mail-Adresse ein',
-    errGeneric:'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.'},
+    errGeneric:'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.',loginBtn:'Anmelden'},
   ru:{kicker:'· для бизнеса',heroTitlePre:'Станьте партнёром ',heroSub:'Свяжитесь с вашими клиентами по-новому',heroBtn:'Связаться с нами',
     howKicker:'Как это работает',howTitle:'Три простых шага',
     step1Title:'Вы получаете QR-код или объявление',step1Desc:'Уникальный код или объявление для вашего бизнеса.',
@@ -8783,7 +8789,7 @@ const CT = {
     labelPartnerType:'Тип партнёра',labelName:'Название бизнеса',phName:'Ваш бизнес',labelCity:'Город',phCity:'София',
     labelEmail:'Email',phEmail:'office@business.bg',labelPhone:'Телефон',phPhone:'+359 ...',labelPlan:'План',submitBtn:'Отправить запрос',
     errFillAll:'Пожалуйста, заполните все поля',errEmail:'Пожалуйста, введите действительный email адрес',
-    errGeneric:'Что-то пошло не так. Попробуйте ещё раз или напишите нам напрямую.'},
+    errGeneric:'Что-то пошло не так. Попробуйте ещё раз или напишите нам напрямую.',loginBtn:'Вход'},
 };
 const PARTNER_TYPES = [
   {key:'clinics',label:{bg:'Клиники',en:'Clinics',de:'Kliniken',ru:'Клиники'},icon:'<path d="M12 2v20M2 12h20"/>',
@@ -12489,6 +12495,7 @@ function refreshProfilePage(){
     <button id="clinics-lang-ru" onclick="applyClinicsLang('ru')" style="padding:5px 10px;border-radius:16px;border:none;font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:700;cursor:pointer;letter-spacing:.02em">RU</button>
   </div>
   <button onclick="closeForClinics()" aria-label="Затвори" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff"><svg class="gt-ico" width="15px" height="15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <button onclick="openAuthScreen()" style="position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);left:16px;z-index:2;padding:8px 18px;border-radius:20px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;color:#fff;letter-spacing:.02em"><span data-ct="loginBtn">Вход</span></button>
 
   <!-- HERO -->
   <div style="background:linear-gradient(160deg,#14141f 0%,#1f1c2e 45%,#1a1a2e 100%);padding:64px 22px 54px;text-align:center;position:relative;overflow:hidden">
