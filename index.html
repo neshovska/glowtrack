@@ -10086,7 +10086,8 @@ async function loadAdminApprovedClinics(){
     if(countEl) countEl.textContent=list.length?`(${list.length})`:'';
     el.innerHTML=!list.length?'<div style="font-size:12px;color:var(--ink2);padding:6px 0">Няма одобрени клиники</div>':list.map(c=>{
       let trialLabel;
-      if(c.paid) trialLabel='<span style="color:var(--gold);font-weight:700">Платена</span>';
+      if(c.freeListing) trialLabel='<span style="color:var(--sage);font-weight:700">Безплатно пускане</span>';
+      else if(c.paid) trialLabel='<span style="color:var(--gold);font-weight:700">Платена</span>';
       else if(c.trialEndsAt){
         const teMs=typeof c.trialEndsAt.toMillis==='function'?c.trialEndsAt.toMillis():(c.trialEndsAt.seconds?c.trialEndsAt.seconds*1000:0);
         trialLabel=teMs>Date.now()?`Пробен до ${fmtDate(new Date(teMs))}`:`<span style="color:var(--red)">Пробен изтекъл ${fmtDate(new Date(teMs))}</span>`;
@@ -10103,6 +10104,9 @@ async function loadAdminApprovedClinics(){
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px">
           <span style="font-size:10.5px">${trialLabel}</span>
           <button class="admin-btn sm" style="flex-shrink:0;background:${c.paid?'var(--goldlt)':'var(--gold)'};color:${c.paid?'var(--gold)':'#fff'}" onclick="adminToggleClinicPaid('${c.id}',${!!c.paid})">${c.paid?'Маркирай неплатена':'Маркирай платена'}</button>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px">
+          <button class="admin-btn sm" style="flex-shrink:0;background:${c.freeListing?'var(--sage)':'transparent'};color:${c.freeListing?'#fff':'var(--sage)'};border:1px solid var(--sage)" onclick="adminToggleClinicFree('${c.id}',${!!c.freeListing})">${c.freeListing?'Свали безплатното пускане':'Безплатно пускане'}</button>
         </div>
       </div>`;
     }).join('');
@@ -10125,6 +10129,27 @@ async function adminToggleClinicPaid(uid, currentPaid){
     loadAdminApprovedClinics();
   }catch(e){
     console.error('Грешка при промяна на платен статус:',e);
+    showToast(t('toastErr'));
+  }
+}
+// Трети, НЕЗАВИСИМ ръчен флаг от `paid` — по изрична заявка "искам опция за
+// безплатно пускане на клиниките, аз ще решавам дали ще плащат". За разлика
+// от "Маркирай платена" (implies реално платена сума), тук админът решава
+// клиниката НИКОГА да не подлежи на плащане/пробен период — партньорство,
+// промоция и т.н. Виж isClinicPriceVisible() — freeListing бие дори изтекъл
+// пробен период, проверява се преди paid. freeAt се пази само за референция,
+// не участва в никаква логика (същия принцип като paidAt по-горе).
+async function adminToggleClinicFree(uid, currentFree){
+  if(!window._isAdmin) return;
+  const newVal=!currentFree;
+  try{
+    await F().updateDoc(F().doc(DB(),'clinics',uid), newVal
+      ? {freeListing:true, freeAt:F().serverTimestamp()}
+      : {freeListing:false});
+    showToast(newVal?'Маркирана за безплатно пускане':'Безплатното пускане е свалено');
+    loadAdminApprovedClinics();
+  }catch(e){
+    console.error('Грешка при промяна на статус за безплатно пускане:',e);
     showToast(t('toastErr'));
   }
 }
@@ -10369,9 +10394,17 @@ function renderClinicGateToggleUI(){
 // checkout засега (решено изрично: "плащането може да е изключено в
 // началото, да видим как ще се развиваме"). trialEndsAt се задава еднократно
 // при одобрение (approveClinicRegistration, functions/index.js) — 14 дни.
+// `freeListing` е ТРЕТИ, НЕЗАВИСИМ флаг (виж adminToggleClinicFree()) — по
+// изрична заявка "искам опция за безплатно пускане, аз ще решавам дали ще
+// плащат": за разлика от `paid` (implies "клиниката РЕАЛНО е платила"),
+// `freeListing:true` значи "тази клиника никога не трябва да плаща, по мое
+// решение" (партньорство, промоция и т.н.) — семантично различно, за да не
+// се обърка занапред с реален Stripe отчет за приходи. Проверява се ПЪРВИ,
+// защото е най-силното намерение на админа — бие дори изтекъл пробен период.
 function isClinicPriceVisible(clinic){
   if(!window._clinicPaymentGateEnabled) return true;
   if(!clinic) return false;
+  if(clinic.freeListing === true) return true;
   if(clinic.paid === true) return true;
   const te = clinic.trialEndsAt;
   const ms = te ? (typeof te.toMillis === 'function' ? te.toMillis() : (te.seconds ? te.seconds*1000 : 0)) : 0;
