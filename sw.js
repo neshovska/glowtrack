@@ -42,7 +42,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-console.log('[sw.js] v8 активен — data-only + постоянна дедупликация през Cache Storage. NO clients.claim()');
+console.log('[sw.js] v9 активен — data-only + постоянна дедупликация през Cache Storage. NO clients.claim()');
 
 // ── ПОСТОЯННА ДЕДУПЛИКАЦИЯ ──
 // Cache Storage (за разлика от обикновена променлива) оцелява дори ако service

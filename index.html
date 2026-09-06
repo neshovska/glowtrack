@@ -3886,24 +3886,20 @@ const T = {
     navSoon: 'Очаквайте',
     navNotifs: 'Напомняне',
     notifsTitle: 'Напомняне',
-    noReminders: 'Все още няма напомняния',
-    noRemindersSub: 'Отвори процедура и задай дата за следваща сесия',
-    browseProcs: 'Разгледай процедури',
-    notifToday: 'Днес',
-    notifTomorrow: 'Утре',
-    notifPast: 'Минало',
-    notifPastSection: 'Минали',
-    notifUpcoming: 'Предстоящи',
     notifLast: 'Последно',
     morningCare: 'Сутрешна грижа',
     eveningCare: 'Вечерна грижа',
     morningCareSub: 'Твоята дневна рутина',
     eveningCareSub: 'Твоят нощен ритуал',
     homeCareLabel: 'ДОМАШНА ГРИЖА',
+    streakFullRoutine: 'Пълна рутина!',
+    streakCompletedOn: 'Изпълнена на',
+    streakCompletedCount: 'завършени',
+    streakLastCompleted: 'Последно изпълнена:',
+    streakNewDay: 'Нов ден — маркирай рутината!',
+    streakMarkToday: 'Маркирай стъпките за днес',
     saveRoutineMorning: 'Запази',
     saveRoutineEvening: 'Запази',
-    eveningCare: 'Вечерна грижа',
-    addStep: '+ Добави стъпка...',
     notifsSub: 'Предстоящи процедури',
     // Pages
     procsTitle: 'Процедури',
@@ -3988,10 +3984,6 @@ const T = {
     diarySearch: 'Намери извършена процедура...',
     notifHint: 'Задай дата за следващо посещение',
     deleteProfileBtn: 'Изтрий профила',
-    searchProcs: 'Търси процедура...',
-    searchClinics: 'Търси клиника...',
-    searchProducts: 'Търси продукт...',
-    descPh: 'Описание...',
     addStep: 'Добави стъпка',
     noReminders: 'Няма напомняния',
     noRemindersSub: 'Добави напомняне за следваща процедура',
@@ -4112,6 +4104,7 @@ const T = {
     toastLogout: 'Излязохте',
     toastNotifSaved: 'Напомнянето е добавено!',
     toastNotifUpd: 'Напомнянето е обновено!',
+    notifDatePast: '⚠️ Датата е в миналото',
     toastNotifDel: 'Напомнянето е изтрито',
     toastRoutineSaved: 'Рутината е запазена!',
     toastRoutineDiary: 'Рутината е записана в дневника!',
@@ -4134,8 +4127,6 @@ const T = {
     emptyDiary: 'Дневникът е празен',
     emptyDiarySub: 'Отвори процедура и добави първия си запис',
     editEntry: 'Редактиране',
-    editBtn: 'Редактирай',
-    deleteEntryBtn: 'Изтрий',
     confirmDelete: 'Изтрий този запис?',
     priceLabel: 'Цена',
     ratingLabel: 'Оценка',
@@ -4182,24 +4173,20 @@ const T = {
     navSoon: 'Coming soon',
     navNotifs: 'Reminders',
     notifsTitle: 'Reminders',
-    noReminders: 'No reminders yet',
-    noRemindersSub: 'Open a procedure and set your next session date',
-    browseProcs: 'Browse procedures',
-    notifToday: 'Today',
-    notifTomorrow: 'Tomorrow',
-    notifPast: 'Past',
-    notifPastSection: 'Past',
-    notifUpcoming: 'Upcoming',
     notifLast: 'Last',
     morningCare: 'Morning care',
     eveningCare: 'Evening care',
     morningCareSub: 'Your daily ritual',
     eveningCareSub: 'Your nightly ritual',
     homeCareLabel: 'HOME CARE',
+    streakFullRoutine: 'Full routine!',
+    streakCompletedOn: 'Completed on',
+    streakCompletedCount: 'completed',
+    streakLastCompleted: 'Last completed:',
+    streakNewDay: 'New day — check off your routine!',
+    streakMarkToday: "Check off today's steps",
     saveRoutineMorning: 'Save',
     saveRoutineEvening: 'Save',
-    eveningCare: 'Evening care',
-    addStep: '+ Add step...',
     notifsSub: 'Upcoming procedures',
     procsTitle: 'Procedures',
     procsSub: 'Discover your glow',
@@ -4283,10 +4270,6 @@ const T = {
     diarySearch: 'Find a completed procedure...',
     notifHint: 'Set a date for your next visit',
     deleteProfileBtn: 'Delete profile',
-    searchProcs: 'Search procedure...',
-    searchClinics: 'Search clinic...',
-    searchProducts: 'Search product...',
-    descPh: 'Description...',
     addStep: 'Add step',
     noReminders: 'No reminders',
     noRemindersSub: 'Add a reminder for your next procedure',
@@ -4434,6 +4417,7 @@ const T = {
     toastNotifDel: 'Reminder deleted',
     toastNotifSaved: 'Reminder added!',
     toastNotifUpd: 'Reminder updated!',
+    notifDatePast: '⚠️ The date is in the past',
     toastProdSaved: 'Product saved',
     toastRelogin: 'Sign in again and retry',
     toastRoutineDiary: 'Routine logged in diary!',
@@ -8299,7 +8283,7 @@ async function saveNotifDate(){
   const diff = Math.ceil((new Date(d) - new Date()) / 86400000);
   const info = document.getElementById('notif-info');
   if(diff >= 0) info.textContent = '✅ ' + procName + ' — ' + fmtDate(new Date(d)) + (window._lang==='en'?' at ':' в ') + time;
-  else info.textContent = '⚠️ Датата е в миналото';
+  else info.textContent = t('notifDatePast');
   showToast(t('toastNotifSaved'));
   setTimeout(()=>{ _savingNotif = false; }, 1200);
   document.getElementById('notif-date').value = '';
@@ -10734,7 +10718,7 @@ async function updateRoutineStreak(checked, today){
   
   if(allChecked){
     localStorage.setItem('gt_routine_last_date', today);
-    streak.innerHTML = `<span style="color:var(--gold);font-weight:700">${ic('sparkle','12px')} Пълна рутина!</span><br><span style="font-size:10px;color:var(--ink2)">Изпълнена на ${todayFmt}</span>`;
+    streak.innerHTML = `<span style="color:var(--gold);font-weight:700">${ic('sparkle','12px')} ${t('streakFullRoutine')}</span><br><span style="font-size:10px;color:var(--ink2)">${t('streakCompletedOn')} ${todayFmt}</span>`;
     
     // Auto-save to diary if not already saved today and user is logged in
     if(window._user){
@@ -10772,14 +10756,14 @@ async function updateRoutineStreak(checked, today){
       }
     }
   } else if(checked.length > 0){
-    streak.innerHTML = `<span style="color:var(--ink2)">${checked.length}/${total} завършени</span><br><span style="font-size:10px;color:var(--ink2)">Днес · ${todayFmt}</span>`;
+    streak.innerHTML = `<span style="color:var(--ink2)">${checked.length}/${total} ${t('streakCompletedCount')}</span><br><span style="font-size:10px;color:var(--ink2)">${t('notifToday')} · ${todayFmt}</span>`;
   } else {
     const lastDate = localStorage.getItem('gt_routine_last_date');
     if(lastDate && lastDate !== today){
       const lastFmt = fmtDate(new Date(lastDate));
-      streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">Последно изпълнена: ${lastFmt}</span><br><span style="font-size:10px;color:var(--sage)">${ic('sparkle','13px')} Нов ден — маркирай рутината!</span>`;
+      streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">${t('streakLastCompleted')} ${lastFmt}</span><br><span style="font-size:10px;color:var(--sage)">${ic('sparkle','13px')} ${t('streakNewDay')}</span>`;
     } else {
-      streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">Маркирай стъпките за днес · ${todayFmt}</span>`;
+      streak.innerHTML = `<span style="font-size:10px;color:var(--ink2)">${t('streakMarkToday')} · ${todayFmt}</span>`;
     }
   }
 }
@@ -11804,10 +11788,10 @@ _updateOfflineBanner();
 // or in a subdirectory (e.g. GitHub Pages project page /glowtrack/)
 if('serviceWorker' in navigator && location.protocol === 'https:'){
   try{
-    // ?v=8 форсира браузъра (особено iOS Safari, известен с упорито кеширане на
+    // ?v=9 форсира браузъра (особено iOS Safari, известен с упорито кеширане на
     // SW файлове) да третира това като физически различен ресурс и да го дръпне
     // наново, вместо да сервира стара кеширана версия на sw.js.
-    navigator.serviceWorker.register('./sw.js?v=8').then(reg=>{
+    navigator.serviceWorker.register('./sw.js?v=9').then(reg=>{
       // Force update check on every load
       reg.update();
       if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
