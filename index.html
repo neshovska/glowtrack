@@ -1942,36 +1942,44 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
 
         <div id="ps-rosegold-section" style="display:none">
           <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg> Тема</div>
-          <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <div style="display:flex;align-items:center;gap:10px;min-width:0">
-              <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <!-- Компактна версия по изрична заявка ("бутона за розова тема да е
+               по-малък") — по-дребна иконка/шрифт/padding, СЪЩИЯТ ред/елементи,
+               нищо премахнато. -->
+          <div class="profile-card-section" style="margin:0 0 14px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><circle cx="12" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><circle cx="7" cy="12" r="3"/><circle cx="17" cy="12" r="3"/><circle cx="12" cy="12" r="3"/></svg></div>
               <div style="min-width:0">
-                <div style="font-size:14px;font-weight:700;color:var(--ink)">Роз-злато тема</div>
-                <div style="font-size:11px;color:var(--ink2)">Специален визуален вариант, отключен ръчно за теб</div>
+                <div style="font-size:12px;font-weight:700;color:var(--ink)">Роз-злато тема</div>
+                <div style="font-size:9.5px;color:var(--ink2)">Специален визуален вариант, отключен ръчно за теб</div>
               </div>
             </div>
-            <button id="rosegold-toggle-btn" onclick="toggleRosegoldTheme()" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold);background:var(--goldlt);color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Изкл.</button>
+            <button id="rosegold-toggle-btn" onclick="toggleRosegoldTheme()" style="padding:4px 10px;border-radius:16px;border:1.5px solid var(--gold);background:var(--goldlt);color:var(--gold);font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">Изкл.</button>
           </div>
         </div>
 
         <div class="p-eyebrow" data-t="profileCycle"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Месечен цикъл</div>
         <div class="profile-card-section" id="cycle-tracker-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
 
-        <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Тест за типа кожа</div>
-        <div class="profile-card-section" id="skin-test-card" style="margin:0 0 14px;padding:12px 12px 14px"></div>
-
-        <div class="p-eyebrow" data-t="profileCalendar"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Календар</div>
-        <div class="profile-card-section" style="margin:0 0 14px;padding:12px 12px 14px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:14px;font-weight:700;color:var(--ink)" data-t="profileCalTitle">Твоят календар</div>
-              <div style="font-size:11px;color:var(--ink2)" data-t="profileCalSub">Виж процедури и напомняния по дни</div>
+        <!-- "Тест за типа кожа" и "Календар" едно до друго, по-компактни —
+             по изрична заявка. skin-test-card е ДИНАМИЧНО пълнено от
+             renderSkinTestCard() (по id, местоположението в DOM не го
+             интересува) — компактният вариант на нейното съдържание е
+             самата функция, не тук. -->
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <div style="flex:1;min-width:0">
+            <div class="p-eyebrow" style="font-size:9.5px"><svg class="gt-ico" width="11px" height="11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Тип кожа</div>
+            <div class="profile-card-section" id="skin-test-card" style="margin:0;padding:10px"></div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="p-eyebrow" data-t="profileCalendar" style="font-size:9.5px"><svg class="gt-ico" width="11px" height="11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z"/></svg> Календар</div>
+            <div class="profile-card-section" style="margin:0;padding:10px">
+              <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;margin:0 auto 6px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--ink);text-align:center" data-t="profileCalTitle">Твоят календар</div>
+              <button onclick="openCalendarFromProfile()" style="width:100%;margin-top:8px;padding:7px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit" data-t="profileCalBtn">Отвори</button>
             </div>
           </div>
-          <button onclick="openCalendarFromProfile()" style="width:100%;margin-top:10px;padding:9px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit" data-t="profileCalBtn">Отвори календара</button>
         </div>
 
         <div class="p-eyebrow"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 8.5a3 3 0 1 1 0-6"/><path d="M15.5 14c2.8.4 5 2.6 5 6"/></svg> Покани приятели</div>
@@ -4195,8 +4203,7 @@ const T = {
     profileCycle: 'Месечен цикъл',
     profileCalendar: 'Календар',
     profileCalTitle: 'Твоят календар',
-    profileCalSub: 'Виж процедури и напомняния по дни',
-    profileCalBtn: 'Отвори календара',
+    profileCalBtn: 'Отвори',
     profileFavs: 'Любими процедури',
     profileCare: 'Домашна грижа',
     profileNotifs: 'Напомняния за процедури',
@@ -4499,8 +4506,7 @@ const T = {
     profileCycle: 'Monthly cycle',
     profileCalendar: 'Calendar',
     profileCalTitle: 'Your calendar',
-    profileCalSub: 'See treatments and reminders by day',
-    profileCalBtn: 'Open calendar',
+    profileCalBtn: 'Open',
     profileFavs: 'Favourite procedures',
     profileNotifs: 'Procedure reminders',
     profileStats: 'My statistics',
@@ -8581,29 +8587,23 @@ function renderSkinTestCard(){
   const isBGq = window._lang!=='en';
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem(_lsKey('gt_skin_test'))||'null'); }catch(e){}
+  // Компактна, ЦЕНТРИРАНА подредба (по изрична заявка — картата сега
+  // живее рамо до рамо с "Календар" в общ ред, виж #page-profile markup) —
+  // огледална на компактния "Календар" до нея: малка иконка на кръгче
+  // отгоре, кратък надпис, ЕДИН бутон. Бутонът "Направи теста отново" при
+  // вече готов резултат е ПРЕМАХНАТ оттук като излишен — viewSkinResult()
+  // (пълният екран с резултата) вече си има собствен такъв бутон.
   if(saved && saved.skinType){
     const ti = SKIN_TYPE_INFO[saved.skinType];
-    const pi = PHOTOTYPE_INFO[saved.fototype];
     el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:40px;height:40px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,var(--goldlt),rgba(212,169,106,.3));display:flex;align-items:center;justify-content:center;color:var(--gold)">${ic(ti.icon,'19px')}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${isBGq?'Твоят тип кожа':'Your skin type'}</div>
-          <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?ti.bg:ti.en} · ${['','I','II','III','IV','V','VI'][saved.fototype]}</div>
-        </div>
-      </div>
-      <button onclick="viewSkinResult()" style="width:100%;margin-top:12px;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">${ic('sparkle','12px')} ${isBGq?'Виж резултата и препоръките':'View result and recommendations'}</button>
-      <button onclick="openSkinQuiz()" style="width:100%;margin-top:8px;padding:8px;background:none;border:none;color:var(--ink2);font-size:11.5px;cursor:pointer;font-family:inherit;text-decoration:underline">${ic('refresh','11px')} ${isBGq?'Направи теста отново':'Retake test'}</button>`;
+      <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;margin:0 auto 6px;border-radius:50%;background:linear-gradient(135deg,var(--goldlt),rgba(212,169,106,.3));color:var(--gold)">${ic(ti.icon,'14px')}</div>
+      <div style="font-size:11.5px;font-weight:700;color:var(--ink);text-align:center">${isBGq?ti.bg:ti.en} · ${['','I','II','III','IV','V','VI'][saved.fototype]}</div>
+      <button onclick="viewSkinResult()" style="width:100%;margin-top:8px;padding:7px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Резултат':'Result'}</button>`;
   } else {
     el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b8966a" stroke-width="1.6"><path d="M6 3c0 6 12 12 12 18M18 3c0 6-12 12-12 18M7 8h10M7 16h10"/></svg></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:700;color:var(--ink)">${isBGq?'Тест за типа кожа':'Skin type test'}</div>
-          <div style="font-size:11.5px;color:var(--ink2)">${isBGq?'7 въпроса · открий типа си и подходящите процедури':'7 questions · discover your type and suitable procedures'}</div>
-        </div>
-      </div>
-      <button onclick="openSkinQuiz()" style="width:100%;padding:10px;background:var(--gold);color:#fff;border:none;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Направи теста':'Take the test'}</button>`;
+      <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;margin:0 auto 6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8"><path d="M6 3c0 6 12 12 12 18M18 3c0 6-12 12-12 18M7 8h10M7 16h10"/></svg></div>
+      <div style="font-size:11.5px;font-weight:700;color:var(--ink);text-align:center">${isBGq?'Тест за кожа':'Skin test'}</div>
+      <button onclick="openSkinQuiz()" style="width:100%;margin-top:8px;padding:7px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-size:10.5px;font-weight:700;cursor:pointer;font-family:inherit">${isBGq?'Направи':'Take'}</button>`;
   }
 }
 
