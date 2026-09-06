@@ -962,11 +962,18 @@ body.dark .dc-form input{background:#1a1a2e;color:#f0ede8;border-color:rgba(184,
 /* Обвивка на всяка секция — скрита по подразбиране (display:none), докато
    не получи .open от openAdminSection(). Отворена, се държи като модал
    (fixed, центриран, над всичко останало), НЕ като обикновен елемент от
-   потока — точно "прозорец", какъвто беше поискан. */
+   потока — точно "прозорец", какъвто беше поискан.
+   ВАЖНО: `height`, не `max-height` — реален докладван бъг ("едвам се
+   вижда... малко банерче"): с max-height кратките секции (напр. "AI
+   асистент" — само един ред с превключвател) се свиваха точно до
+   височината на съдържанието си, значи изглеждаха като тясна лентичка
+   долу на екрана, не като прозорец. `height` държи ВИНАГИ голям, постоянен
+   размер, независимо колко е дълго съдържанието; `overflow-y:auto` си
+   остава за редкия случай съдържание, по-дълго от самия прозорец. */
 .admin-sec{display:none}
-.admin-sec.open{display:block;position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(var(--app-max-width),100vw);max-height:88vh;max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--mist);border-radius:20px 20px 0 0;z-index:300;box-shadow:0 -8px 40px rgba(26,26,46,.25);padding:0 0 24px;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
+.admin-sec.open{display:block;position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(var(--app-max-width),100vw);height:86vh;height:86dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--mist);border-radius:20px 20px 0 0;z-index:300;box-shadow:0 -8px 40px rgba(26,26,46,.25);padding:0 0 24px;animation:slideUp .28s cubic-bezier(.34,1.1,.64,1)}
 @media (min-width:700px){
-  .admin-sec.open{bottom:auto;top:50%;transform:translate(-50%,-50%);border-radius:20px;max-height:82vh}
+  .admin-sec.open{bottom:auto;top:50%;transform:translate(-50%,-50%);border-radius:20px;height:80vh;width:min(680px,92vw)}
 }
 .admin-sec-close{position:sticky;top:0;float:right;margin:10px 10px 0 0;background:var(--goldlt);color:var(--gold);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;line-height:1;cursor:pointer;z-index:2}
 #admin-modal-backdrop{position:fixed;inset:0;background:rgba(20,18,30,.45);z-index:290;display:none}
