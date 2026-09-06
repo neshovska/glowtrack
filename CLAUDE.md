@@ -2066,27 +2066,25 @@ functions/index.js`: всички клонове на `isClinicPriceVisible()` (
 на процедури), и останалите три "СКОРО" карти в "Очаквайте" (брандове/
 промо кодове/персонализирани препоръки) — изрично оставени непипнати.
 
-**Изисква ръчно действие от потребителя, извън repo-то, преди да проработи
-на живо:** `firestore.rules` НЕ се деплойва от CI (виж раздела "Работен
+~~**Изисква ръчно действие от потребителя, извън repo-то, преди да проработи
+на живо:** `firestore.rules` НЕ се деплойва от CI...~~ — **ДЕПЛОЙНАТО**
+(06.09.2026, потвърдено от потребителя — `firebase deploy --only
+firestore:rules` от собствения ѝ Mac, `✔ Deploy complete!`). Черновата на
+абзаца е оставена по-долу само за референция какво точно е било пуснато.
+
+`firestore.rules` НЕ се деплойва от CI (виж раздела "Работен
 процес при промени" по-долу) — ВСИЧКИ правила от marketplace работата
 (`clinics` вкл. `allow update`, `clinic_prices` вкл. новия `|| isAdmin()`
-на create/update, `admin_notifications`, `clinic_registrations`) все още
-НЕ са публикувани в живия Firebase проект, значи докато потребителят не
-пусне `firebase deploy --only firestore:rules` ръчно:
+на create/update, `admin_notifications`, `clinic_registrations`) вече
+СА публикувани в живия Firebase проект:
 - `saveClinicProfile()` (update на `clinics/{uid}`) и
   `saveClinicPrice()`/`deleteClinicPrice()` (create/update/delete на
-  `clinic_prices`) ще гърмят с permission-denied за РЕАЛЕН clinic акаунт;
+  `clinic_prices`) вече работят за РЕАЛЕН clinic акаунт;
 - Admin достъпът до реална клиника (`adminOpenClinic()`, "Осма стъпка")
-  също ще гърми на запис — `clinic_prices` все още няма `isAdmin()` право
-  на живо.
-Работят и без деплой само двата фиктивни режима, които изобщо не пипат
-Firestore: тестовият преглед (`window._adminClinicPreview`) и, разбира се,
-самото ЧЕТЕНЕ (публичните "Цени в клиники" в процедурата и списъкът
-"Одобрени клиники" в admin панела — и двете са прости `read`, вече
-позволени отпреди). `functions/index.js` промените
-(`notifyOnClinicPriceChange`, `notifyOnClinicRegistration`,
-`approveClinicRegistration`) СЕ деплойват автоматично от
-`deploy-functions.yml` при push към `main`.
+  също вече работи на запис.
+`functions/index.js` промените (`notifyOnClinicPriceChange`,
+`notifyOnClinicRegistration`, `approveClinicRegistration`) СЕ деплойват
+автоматично от `deploy-functions.yml` при push към `main` (непроменено).
 
 ---
 
