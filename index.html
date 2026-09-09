@@ -1446,6 +1446,11 @@ body.dark .admin-input{background:#12122a!important;color:#f0ede8!important}
         <button id="diary-search-clear" onclick="document.getElementById('diary-search').value='';filterDiaryGroups('')" aria-label="Изчисти търсенето"
           style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink2);font-size:16px;z-index:1;padding:4px"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
+      <!-- "Добави своя процедура" — за процедура, която я няма в
+           енциклопедията (PROCS). Най-отгоре в Дневника, по изрична заявка.
+           Дашираният златен стил е установеният език на приложението за
+           "добави нещо извън фиксирания набор" (виж бутоните за снимки). -->
+      <button onclick="openCustomProcModal()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 10px;margin-bottom:8px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--gold);font-family:inherit" data-t="addCustomProcBtn">+ Добави своя процедура</button>
       <!-- Stats row -->
 
       <!-- Year filter -->
@@ -4186,6 +4191,12 @@ const T = {
     addPhotoBefore: '+ Добави снимка Преди',
     addPhotoAfter: '+ Добави снимка След',
     saveBtn: 'Запази',
+    addCustomProcBtn: '+ Добави своя процедура',
+    customProcModalTitle: 'Твоя процедура',
+    customProcNameLabel: 'Име на процедурата',
+    customProcNamePh: 'напр. Кола маска',
+    customProcHint: 'Няма я в нашата енциклопедия — записваш само за себе си.',
+    toastCustomProcNameNeeded: 'Въведи име на процедурата',
     loginToDiary: 'Влез за да водиш личен дневник',
     aiChatBtn: 'Попитай AI за тази процедура',
     disclaimerTitle: 'Информацията е обща и с образователна цел.',
@@ -4470,6 +4481,12 @@ const T = {
     addPhotoBefore: '+ Add photo Before',
     addPhotoAfter: '+ Add photo After',
     saveBtn: 'Save',
+    addCustomProcBtn: '+ Add your own procedure',
+    customProcModalTitle: 'Your procedure',
+    customProcNameLabel: 'Procedure name',
+    customProcNamePh: 'e.g. Sugar wax',
+    customProcHint: "Not in our encyclopedia — you're logging it just for yourself.",
+    toastCustomProcNameNeeded: 'Enter a procedure name',
     loginToDiary: 'Sign in to keep a personal diary',
     aiChatBtn: 'Ask AI about this procedure',
     disclaimerTitle: 'This information is general and educational in nature.',
@@ -5569,6 +5586,18 @@ function toLatin(str){
   for(const ch of String(str||'').toLowerCase()) out+=CYR_TO_LAT[ch]!==undefined?CYR_TO_LAT[ch]:ch;
   return out;
 }
+// "Добави своя процедура" (Дневник) — процедура извън енциклопедията PROCS.
+// Записите се групират ПО ИМЕ (по изрична заявка), не по случайно/времево
+// id: procId се извежда ДЕТЕРМИНИСТИЧНО от самото име през toLatin() (СЪЩАТА
+// транслитерация като търсачката) — второ въвеждане на "Кола маска"
+// (кирилица/латиница, главни/малки букви, излишни интервали) винаги дава
+// точно същия slug, значи loadDiaryTab()-групирането по procId ги събира
+// автоматично, без никаква промяна в самата групираща логика там.
+const CUSTOM_PROC_PREFIX='custom-';
+function slugifyCustomProcName(name){
+  const slug=toLatin(name).trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+  return slug||('proc-'+Date.now().toString(36));
+}
 // Малък речник от разговорни думи -> канонични тагове, за да разпознава описателен текст
 const SEARCH_SYNONYMS={
   'пъпки':'акне','пъпчици':'акне','акне':'акне','обриви':'акне',
@@ -5803,7 +5832,25 @@ function renderProcs(){
 // ── SHEET ──
 let currentProcId=null,pendingPhotos=[];pendingPhotosBefore=[];pendingPhotosAfter=[];pendingPhotoBlobs=[];pendingPhotoBlobsBefore=[];pendingPhotoBlobsAfter=[];
 async function openSheet(id){
-  const p=PROCS.find(x=>x.id===id);if(!p)return;
+  let p=PROCS.find(x=>x.id===id);
+  // "Добави своя процедура" (Дневник) създава id-та с CUSTOM_PROC_PREFIX за
+  // процедури извън каталога — openSheet() ги разпознава тук и им пуска лек,
+  // синтетичен обект САМО в обхвата на тази функция (никога не влиза в самия
+  // PROCS масив — иначе би "изтекъл" в търсенето/категориите/spotlight-а из
+  // цялото приложение, виж коментара при CUSTOM_PROC_PREFIX). Секциите
+  // по-долу, зависещи от енциклопедични полета (what/devices/zones/...), вече
+  // ги четат през ?./?.length и падат тихо на "нищо" при липсващи данни —
+  // точно поведението, което искаме тук. Името се извежда от вече записан
+  // диариен запис за същия procId (кешът вече е зареден, щом сме в
+  // Дневника) — не е нужен втори параметър на openSheet(), нито промяна на
+  // никой от многото ѝ call site-ове (иконата на групата, "+ Нов запис",
+  // startEditEntry()/deleteEntry() fallback-а).
+  const isCustomProc = !p && id && id.indexOf(CUSTOM_PROC_PREFIX)===0;
+  if(isCustomProc){
+    const fallbackName=(window._cache.diary||[]).map(d=>d.data()).find(d=>d.procId===id)?.procName || id;
+    p={id, cat:'custom', name:fallbackName, sub:'', img:null, icon:''};
+  }
+  if(!p)return;
   // Нулирането на филтъра важи САМО ако sheet-ът се отваря ОТВЪН страница
   // "Процедури" (напр. от "Начало", дневника, напомняне) — реален докладван
   // проблем: разглеждаш категория "Апаратни", отваряш процедура, затваряш я
@@ -5833,7 +5880,8 @@ async function openSheet(id){
     document.getElementById('sh-icon').innerHTML=procCircleIcon(lp.name, '#b8966a', 44).replace('border-radius:50%','border-radius:12px');
     document.getElementById('sh-icon').style.background='rgba(184,150,106,0.08)';
   }
-  const catLabel = (window._lang==='en' && CATS_EN[p.cat]) ? CATS_EN[p.cat] : (CATS_LIST.find(c=>c.id===p.cat)?.label||p.cat);
+  const catLabel = isCustomProc ? (window._lang==='en'?'Custom procedure':'Твоя процедура')
+    : ((window._lang==='en' && CATS_EN[p.cat]) ? CATS_EN[p.cat] : (CATS_LIST.find(c=>c.id===p.cat)?.label||p.cat));
   document.getElementById('sh-cat').textContent=catLabel;
   document.getElementById('sh-title').textContent=lp.name;
 
@@ -5962,8 +6010,10 @@ async function openSheet(id){
   try{
   document.getElementById('sh-body').innerHTML=`
     ${lp.img?`<div style="margin:-4px -4px 14px;border-radius:16px;overflow:hidden;aspect-ratio:16/9"><img src="${lp.img}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" alt=""></div>`:''}
-    ${window._aiAssistantEnabled?`<button onclick="openAiChat('${id}','${lp.name.replace(/'/g,"\\'")}')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#c9a87a,#e8c99a);color:#1a1a2e;border:none;border-radius:14px;padding:12px 16px;font-size:13.5px;font-weight:700;margin-bottom:14px;cursor:pointer">${ic('sparkle','13px')} Попитай AI за тази процедура</button>`:''}
-    ${acc(t('whatIs'), `<div class="info-text">${lp.what||''}</div>`, false, true)}
+    ${window._aiAssistantEnabled && !isCustomProc?`<button onclick="openAiChat('${id}','${lp.name.replace(/'/g,"\\'")}')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#c9a87a,#e8c99a);color:#1a1a2e;border:none;border-radius:14px;padding:12px 16px;font-size:13.5px;font-weight:700;margin-bottom:14px;cursor:pointer">${ic('sparkle','13px')} Попитай AI за тази процедура</button>`:''}
+    ${isCustomProc
+      ? `<div style="text-align:center;padding:11px 14px;background:var(--goldlt);border:1px dashed rgba(184,150,106,.4);border-radius:14px;color:var(--ink2);font-size:11.5px;margin-bottom:14px">${t('customProcHint')}</div>`
+      : acc(t('whatIs'), `<div class="info-text">${lp.what||''}</div>`, false, true)}
     ${lp.devices?.length?acc(t('devices'), `<div class="device-tags">${lp.devices.map(d=>`<span class="device-tag">${d}</span>`).join('')}</div>`, false, true):''}
     ${lp.zones?acc(t('zones'), `<div class="info-text">${lp.zones}</div>`, false, true):''}
     ${lp.results?.length?acc(t('results'), `${lp.results.map(r=>`<div class="result-row"><div class="result-dot"></div><div class="result-txt">${r}</div></div>`).join('')}<div style="margin-top:8px;padding-top:7px;border-top:1px solid var(--goldlt);font-size:10.5px;color:var(--sage)">${ic('calendar','11px')} ${lp.interval||''} · ${ic('pill','11px')} ${lp.sessions||''}</div>`, false, true):''}
@@ -6544,7 +6594,13 @@ async function saveDiaryEntry(procId){
     await F().addDoc(F().collection(DB(),'diary_entries'),{
       userId:window._user.uid,
       procId:procId,
-      procName:p.name||procId,
+      // За "своя" процедура (custom-... id, не в PROCS) p.name е undefined —
+      // вземи ЧОВЕШКОТО име от вече записан диариен запис за СЪЩИЯ procId
+      // (виж CUSTOM_PROC_PREFIX/openSheet()), а не суровия slug id, иначе
+      // всеки СЛЕДВАЩ запис към същата custom група (през "+ Нов запис" в
+      // минималния sheet за нея) би презаписал/показал грозен slug вместо
+      // истинското име, което потребителят е въвела първия път.
+      procName:p.name || (window._cache.diary||[]).map(d=>d.data()).find(d=>d.procId===procId)?.procName || procId,
       procIcon:p.icon||'',
       clinic,specialist,contact,advice,feeling,products,price,rating,
       photos:uploadedPhotos,
@@ -6564,6 +6620,131 @@ async function saveDiaryEntry(procId){
   }catch(e){
     console.error('Save error:',e);
     showToast(t('toastErr')||'Грешка при запазване');
+    if(btn){btn.disabled=false;btn.textContent=t('saveBtn')||'Запази';}
+  }
+}
+
+// ── "ДОБАВИ СВОЯ ПРОЦЕДУРА" (Дневник) ──
+// Собствено, ОТДЕЛНО pending-photo състояние — НЕ pendingPhotos*/
+// pendingPhotoBlobs* (тия обслужват #new-entry-form вътре в openSheet(),
+// вкарван динамично в #sh-body). #custom-proc-bs е СТАТИЧЕН маркъп в
+// #page-diary — двете форми могат теоретично да съществуват в DOM-а
+// едновременно, значи не бива да делят глобално мутируемо състояние.
+let _cpePhotosBefore=[], _cpePhotosAfter=[], _cpePhotoBlobsBefore=[], _cpePhotoBlobsAfter=[];
+
+function openCustomProcModal(){
+  if(!window._user){ openAuthScreen(); return; }
+  ['cpe-name','cpe-clinic','cpe-specialist','cpe-contact','cpe-price','cpe-advice','cpe-products','cpe-feeling'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('cpe-advice').style.height='';
+  document.getElementById('cpe-products').style.height='';
+  cpeSetRating(0);
+  _cpePhotosBefore=[];_cpePhotosAfter=[];_cpePhotoBlobsBefore=[];_cpePhotoBlobsAfter=[];
+  cpeRenderPreviews('before');cpeRenderPreviews('after');
+  document.getElementById('cpe-lbl-before').textContent = window._lang==='en'?'BEFORE':'ПРЕДИ';
+  document.getElementById('cpe-lbl-after').textContent = window._lang==='en'?'AFTER':'СЛЕД';
+  document.getElementById('custom-proc-bs').style.transform='translateX(-50%) translateY(0)';
+  document.getElementById('custom-proc-overlay').style.display='block';
+  setTimeout(()=>document.getElementById('cpe-name')?.focus(),250);
+}
+function closeCustomProcModal(){
+  document.getElementById('custom-proc-bs').style.transform='translateX(-50%) translateY(100%)';
+  document.getElementById('custom-proc-overlay').style.display='none';
+}
+function cpeSetRating(val){
+  document.getElementById('cpe-rating').value=val;
+  document.querySelectorAll('#cpe-rating-stars span').forEach((s,i)=>{
+    s.style.opacity = i<val ? '1' : '.3';
+    s.style.transform = i<val ? 'scale(1.1)' : 'scale(1)';
+  });
+}
+function cpeAddPhotos(e, slot){
+  const MAX=3;
+  const arr = slot==='before' ? _cpePhotosBefore : _cpePhotosAfter;
+  const blobArr = slot==='before' ? _cpePhotoBlobsBefore : _cpePhotoBlobsAfter;
+  const files=Array.from(e.target.files);
+  if(arr.length>=MAX){ showToast(window._lang==='en'?'Max 3 photos':'Максимум 3 снимки'); return; }
+  files.slice(0, MAX-arr.length).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const MAX_PX=800; let w=img.width,h=img.height;
+        if(w>h){ if(w>MAX_PX){h=Math.round(h*MAX_PX/w);w=MAX_PX;} } else { if(h>MAX_PX){w=Math.round(w*MAX_PX/h);h=MAX_PX;} }
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        canvas.toBlob(blob=>{
+          if(!blob){ showToast(window._lang==='en'?'Photo error':'Грешка със снимката'); return; }
+          arr.push(URL.createObjectURL(blob));
+          blobArr.push(blob);
+          cpeRenderPreviews(slot);
+        },'image/jpeg',0.75);
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function cpeRenderPreviews(slot){
+  const arr = slot==='before' ? _cpePhotosBefore : _cpePhotosAfter;
+  const el = document.getElementById('cpe-previews-'+slot);
+  if(!el) return;
+  el.innerHTML = arr.map((ph,i)=>`<div class="photo-preview-wrap"><img class="photo-thumb" src="${ph}"><button class="photo-remove" onclick="cpeRemovePhoto(${i},'${slot}')">${ic('close','14px')}</button></div>`).join('');
+}
+function cpeRemovePhoto(i, slot){
+  const arr = slot==='before' ? _cpePhotosBefore : _cpePhotosAfter;
+  const blobArr = slot==='before' ? _cpePhotoBlobsBefore : _cpePhotoBlobsAfter;
+  try{URL.revokeObjectURL(arr[i]);}catch(e){}
+  arr.splice(i,1); blobArr.splice(i,1);
+  cpeRenderPreviews(slot);
+}
+async function saveCustomProcEntry(){
+  if(!window._user){ openAuthScreen(); return; }
+  const name=(document.getElementById('cpe-name')?.value||'').trim();
+  if(!name){ showToast(t('toastCustomProcNameNeeded')||'Въведи име на процедурата'); return; }
+  const clinic=document.getElementById('cpe-clinic')?.value.trim()||'';
+  const specialist=document.getElementById('cpe-specialist')?.value.trim()||'';
+  const contact=document.getElementById('cpe-contact')?.value.trim()||'';
+  const advice=document.getElementById('cpe-advice')?.value.trim()||'';
+  const feeling=document.getElementById('cpe-feeling')?.value.trim()||'';
+  const products=document.getElementById('cpe-products')?.value.trim()||'';
+  const price=parseFloat(document.getElementById('cpe-price')?.value)||0;
+  const rating=parseInt(document.getElementById('cpe-rating')?.value)||0;
+  // Групиране по ИМЕ (виж CUSTOM_PROC_PREFIX/slugifyCustomProcName): същото
+  // име, въведено пак — дори на друга дата/клиника — дава СЪЩИЯ procId,
+  // значи loadDiaryTab() ги показва като една група от само себе си.
+  const procId = CUSTOM_PROC_PREFIX + slugifyCustomProcName(name);
+  const btn=document.getElementById('cpe-save-btn');
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    let uploadedBefore=[], uploadedAfter=[];
+    try{
+      uploadedBefore = await Promise.all(_cpePhotoBlobsBefore.map(b=>window.uploadPhotoBlob(b)));
+      uploadedAfter = await Promise.all(_cpePhotoBlobsAfter.map(b=>window.uploadPhotoBlob(b)));
+    }catch(upErr){
+      console.error('Photo upload error:',upErr);
+      showToast(window._lang==='en'?'Photo upload failed, saved without photos':'Качването на снимки се провали, запазено без снимки');
+      uploadedBefore=[];uploadedAfter=[];
+    }
+    await F().addDoc(F().collection(DB(),'diary_entries'),{
+      userId:window._user.uid,
+      procId, procName:name, procIcon:'',
+      clinic,specialist,contact,advice,feeling,products,price,rating,
+      photos:[], photosBefore:uploadedBefore, photosAfter:uploadedAfter,
+      createdAt:F().serverTimestamp()
+    });
+    showToast(t('toastSaved')||'Запазено!');
+    if(typeof trackEvent==='function') trackEvent('diary_entry_created',{procedure_id:procId,custom:true,rating:rating});
+    _cpePhotosBefore=[];_cpePhotosAfter=[];_cpePhotoBlobsBefore=[];_cpePhotoBlobsAfter=[];
+    window._cache.diary=null;window._cache.diaryTs=0;
+    closeCustomProcModal();
+    await loadDiaryTab();
+  }catch(e){
+    console.error('Custom proc save error:',e);
+    showToast(t('toastErr')||'Грешка при запазване');
+  }finally{
     if(btn){btn.disabled=false;btn.textContent=t('saveBtn')||'Запази';}
   }
 }
@@ -12278,6 +12459,84 @@ function refreshProfilePage(){
 
 <!-- EDIT PROFILE MODAL -->
 <!-- CYCLE TRACKER MODAL -->
+    <!-- "ДОБАВИ СВОЯ ПРОЦЕДУРА" — за процедура извън енциклопедията (PROCS).
+         Полетата/id-тата (cpe-*) са СЪЗНАТЕЛНО отделни от de-*/#new-entry-form
+         (виж openSheet()) — двете форми могат теоретично да съществуват в
+         DOM-а едновременно (тази е статична тук, другата се вкарва динамично
+         в #sh-body), значи не бива да делят нито едни и същи id-та, нито
+         глобалното pendingPhotos*/pendingPhotoBlobs* състояние (виж
+         _cpePhotos*/cpeAddPhotos()/cpeRenderPreviews() в скрипта по-долу).
+         Групиране по ИМЕ (по изрична заявка): saveCustomProcEntry() смята
+         procId детерминистично от самото име (slugifyCustomProcName()), не
+         произволно/по време — второ въвеждане на СЪЩОТО име (кирилица или
+         латиница, главни/малки букви, излишни интервали) винаги дава СЪЩИЯ
+         procId, значи записите се групират автоматично в loadDiaryTab(),
+         без никаква промяна в самата групираща логика там. -->
+    <div id="custom-proc-overlay" onclick="closeCustomProcModal()" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.5);z-index:200"></div>
+    <div id="custom-proc-bs" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:min(var(--app-max-width),100vw);background:#f7f5f2;border-radius:22px 22px 0 0;box-shadow:0 -6px 32px rgba(0,0,0,.18);z-index:201;transition:transform .32s cubic-bezier(.4,0,.2,1);max-height:88vh;max-height:88dvh;display:flex;flex-direction:column">
+      <div style="width:38px;height:4px;background:var(--roselt);border-radius:2px;margin:10px auto 0;flex-shrink:0"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;flex-shrink:0">
+        <button onclick="closeCustomProcModal()" aria-label="Затвори" style="background:rgba(184,150,106,.1);border:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink2);font-size:15px;line-height:1;flex-shrink:0;padding:0"><svg class="gt-ico" width="14px" height="14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <span style="font-size:16px;font-weight:700;color:var(--ink);font-family:'Cormorant Garamond',serif" data-t="customProcModalTitle">Твоя процедура</span>
+        <span style="width:28px"></span>
+      </div>
+      <div style="overflow-y:auto;padding:8px 16px 16px;flex:1">
+        <div style="font-size:11px;color:var(--ink2);text-align:center;margin-bottom:12px;opacity:.85" data-t="customProcHint">Няма я в нашата енциклопедия — записваш само за себе си.</div>
+        <div class="form-row"><label class="form-lbl" data-t="customProcNameLabel">Име на процедурата</label><input autocomplete="off" class="form-input" type="text" id="cpe-name" placeholder="напр. Кола маска" data-ph="customProcNamePh"></div>
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl" data-t="clinic">Клиника (по желание)</label><input autocomplete="off" class="form-input" type="text" id="cpe-clinic" placeholder="напр. Beauty Clinic" data-ph="clinicPh"></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl" data-t="specialist">Специалист (по желание)</label><input autocomplete="off" class="form-input" type="text" id="cpe-specialist" placeholder="напр. д-р Иванова" data-ph="specialistPh"></div>
+        </div>
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end"><label class="form-lbl" data-t="contact">Контакти (по желание)</label><input autocomplete="off" class="form-input" type="text" id="cpe-contact" placeholder="напр. 0888 123 456" data-ph="contactPh"></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl"><span data-t="priceLabel">Цена</span> (€)</label>
+            <input autocomplete="off" class="form-input" type="number" id="cpe-price" placeholder="напр. 50" style="width:100%">
+          </div>
+        </div>
+        <div class="form-row" style="display:flex;gap:10px;align-items:stretch">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl" data-t="adviceLabel">Препоръки от специалиста</label>
+            <textarea class="form-input autogrow" id="cpe-advice" rows="3" placeholder="" data-ph="advicePh" data-grow-pair="cpe-products" oninput="autoGrowTextarea(this)"></textarea>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-end">
+            <label class="form-lbl" data-t="productsLabel">Препоръчани продукти</label>
+            <textarea class="form-input autogrow" id="cpe-products" rows="3" placeholder="" data-ph="productsPh" data-grow-pair="cpe-advice" oninput="autoGrowTextarea(this)"></textarea>
+          </div>
+        </div>
+        <div class="form-row"><label class="form-lbl" data-t="feelingLabel">Лично усещане</label><input autocomplete="off" class="form-input" type="text" id="cpe-feeling" placeholder="" data-ph="feelingPh"></div>
+        <div class="form-row">
+          <label class="form-lbl" style="text-align:center"><span data-t="ratingLabel">Оценка</span></label>
+          <div style="display:flex;gap:8px;margin-top:8px;justify-content:center" id="cpe-rating-stars">
+            <span onclick="cpeSetRating(1)" data-star="1" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s"><svg class="gt-ico" width="21px" height="21px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.5L12 17.2l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.8L12 2.5z" fill="currentColor" stroke="none"/></svg></span>
+            <span onclick="cpeSetRating(2)" data-star="2" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s"><svg class="gt-ico" width="21px" height="21px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.5L12 17.2l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.8L12 2.5z" fill="currentColor" stroke="none"/></svg></span>
+            <span onclick="cpeSetRating(3)" data-star="3" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s"><svg class="gt-ico" width="21px" height="21px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.5L12 17.2l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.8L12 2.5z" fill="currentColor" stroke="none"/></svg></span>
+            <span onclick="cpeSetRating(4)" data-star="4" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s"><svg class="gt-ico" width="21px" height="21px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.5L12 17.2l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.8L12 2.5z" fill="currentColor" stroke="none"/></svg></span>
+            <span onclick="cpeSetRating(5)" data-star="5" style="display:inline-flex;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s"><svg class="gt-ico" width="21px" height="21px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.5L12 17.2l-5.9 3.2 1.2-6.5-4.8-4.6 6.6-.8L12 2.5z" fill="currentColor" stroke="none"/></svg></span>
+          </div>
+          <input type="hidden" id="cpe-rating" value="0">
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;margin-top:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg> <span id="cpe-lbl-before">ПРЕДИ</span></div>
+            <div class="photo-previews" id="cpe-previews-before" style="margin-bottom:6px"></div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+              <svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg> <span data-t="addPhotoShort">+ Добави</span>
+              <input type="file" accept="image/*" multiple style="display:none" onchange="cpeAddPhotos(event,'before')">
+            </label>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:6px"><svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg> <span id="cpe-lbl-after">СЛЕД</span></div>
+            <div class="photo-previews" id="cpe-previews-after" style="margin-bottom:6px"></div>
+            <label style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;background:var(--goldlt);border:1.5px dashed var(--gold);border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gold)">
+              <svg class="gt-ico" width="12px" height="12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2.5h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></svg> <span data-t="addPhotoShort">+ Добави</span>
+              <input type="file" accept="image/*" multiple style="display:none" onchange="cpeAddPhotos(event,'after')">
+            </label>
+          </div>
+        </div>
+        <button id="cpe-save-btn" class="save-btn" style="width:100%" onclick="saveCustomProcEntry()" data-t="saveBtn">Запази</button>
+      </div>
+    </div>
     <!-- Advanced Filter Overlay -->
     <div id="adv-filter-overlay" onclick="closeAdvFilter()" style="display:none;position:fixed;inset:0;background:rgba(26,26,46,.5);z-index:200"></div>
     <!-- Advanced Filter Bottomsheet -->
