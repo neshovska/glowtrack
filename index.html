@@ -717,7 +717,19 @@ body.dark .notif-acc-hdr{background:linear-gradient(135deg,#1e1e38 0%,#2a2444 10
 .form-input{width:100%;padding:9px 11px;border:1.5px solid var(--roselt);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--ink);background:#fafafa;outline:none;transition:border-color .2s}
 .form-input:focus{border-color:var(--gold);background:#fff}
 body.dark .form-input:focus{background:#1a1a2e!important;color:#f0ede8!important;border-color:var(--gold)!important}
-.form-input::placeholder{color:#bbb4a8}
+/* placeholder-ите ("напр. ...") бяха на СЪЩИЯ размер като реалния въведен
+   текст (16px, за да не увеличава iOS Safari zoom при фокус — виж
+   .form-input по-горе) — редом с надписа .form-lbl ВЕЧЕ над полето, това
+   дублира сигнала "какво да въведеш" два пъти на пълна тежест и изглежда
+   претрупано. font-size само на ::placeholder псевдо-елемента НЕ пипа
+   font-size на самия <input> (нито реалния въведен текст), значи не буди
+   zoom бъга — по-дребен и по-блед е чисто визуален подслон. Тъмна тема
+   нямаше собствена dark override изобщо (за разлика от .search-input/
+   .ai-input по-горе) — старият светъл #bbb4a8 върху тъмния фон на
+   #custom-proc-bs (виж поправката за body.dark #custom-proc-bs по-горе)
+   излизаше твърде ярък/тежък, реален докладван проблем. */
+.form-input::placeholder{color:#bbb4a8;font-size:13px}
+body.dark .form-input::placeholder{color:rgba(240,237,232,.35)}
 textarea.form-input{resize:none}
 /* Полетата "Препоръки"/"Лично усещане" в записа на процедура растат с текста
    (autoGrowTextarea) — min-height пази началния размер от ~3 реда, иначе
