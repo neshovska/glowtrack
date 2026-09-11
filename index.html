@@ -1169,6 +1169,15 @@ body.dark .adv-chip.active{background:rgba(184,150,106,.15);color:var(--gold);bo
 #adv-filter-bs{scrollbar-width:none}
 #adv-bs-body::-webkit-scrollbar{display:none}
 body.dark #adv-filter-bs{background:#12122a!important}
+/* #custom-proc-bs ("Добави своя процедура", Дневник) наследи СЪЩИЯ
+   инлайн светъл фон (#f7f5f2) като #adv-filter-bs при копиране на
+   bottom-sheet структурата, но НЕ и тъмната override — реален докладван
+   бъг: в тъмна тема полетата вътре (.form-input) стават тъмни (#12122a,
+   виж body.dark .form-input по-горе), докато самата "плоча" отзад
+   оставаше светла, значи двете визуално не се връзват. Същото #12122a
+   тук, за да плочата и полетата станат ЕДНА тъмна повърхност, точно
+   както при #adv-filter-bs. */
+body.dark #custom-proc-bs{background:#12122a!important}
 .diary-group-entries.open{border-top:1px solid var(--roselt)}
 #diary-tab-content{padding:8px 16px 16px}
 .diary-entry-row{background:var(--card)}
